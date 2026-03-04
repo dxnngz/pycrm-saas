@@ -2,19 +2,20 @@ import { prisma } from '../../core/prisma.js';
 import { Prisma } from '@prisma/client';
 
 export class DocumentService {
-    async getAllDocuments(page: number = 1, limit: number = 10, search: string = '') {
+    async getAllDocuments(tenantId: number, page: number = 1, limit: number = 10, search: string = '') {
         const offset = (page - 1) * limit;
 
-        const whereClause: Prisma.DocumentWhereInput = search ? {
-            OR: [
+        const whereClause: Prisma.DocumentWhereInput = { tenant_id: tenantId };
+        if (search) {
+            whereClause.OR = [
                 { name: { contains: search, mode: 'insensitive' as const } },
                 {
                     client: {
                         name: { contains: search, mode: 'insensitive' as const }
                     }
                 }
-            ]
-        } : {};
+            ];
+        }
 
         const [documents, total] = await Promise.all([
             prisma.document.findMany({
@@ -58,7 +59,10 @@ export class DocumentService {
         });
     }
 
-    async updateDocumentById(id: number, data: { client_id?: number | null; opportunity_id?: number | null; name: string; type: string; status: string; amount?: number | null }, version?: number) {
+    async updateDocumentById(tenantId: number, id: number, data: { client_id?: number | null; opportunity_id?: number | null; name: string; type: string; status: string; amount?: number | null }, version?: number) {
+        const doc = await prisma.document.findFirst({ where: { id, tenant_id: tenantId } });
+        if (!doc) throw { code: 'P2025' };
+
         if (version !== undefined) {
             return await prisma.document.update({
                 where: { id, version },
@@ -87,7 +91,10 @@ export class DocumentService {
         });
     }
 
-    async deleteDocumentById(id: number) {
+    async deleteDocumentById(tenantId: number, id: number) {
+        const doc = await prisma.document.findFirst({ where: { id, tenant_id: tenantId } });
+        if (!doc) throw { code: 'P2025' };
+
         return await prisma.document.delete({
             where: { id }
         });

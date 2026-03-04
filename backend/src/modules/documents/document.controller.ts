@@ -8,7 +8,8 @@ export const getDocuments = asyncHandler(async (req: Request, res: Response) => 
     const limit = parseInt(req.query.limit as string) || 10;
     const search = req.query.search as string || '';
 
-    const result = await documentService.getAllDocuments(page, limit, search);
+    const tenantId = (req as any).user?.tenantId;
+    const result = await documentService.getAllDocuments(tenantId, page, limit, search);
     res.json(result);
 });
 
@@ -36,7 +37,8 @@ export const updateDocument = asyncHandler(async (req: Request, res: Response) =
     };
 
     try {
-        const doc = await documentService.updateDocumentById(id, data, req.body.version);
+        const tenantId = (req as any).user?.tenantId;
+        const doc = await documentService.updateDocumentById(tenantId, id, data, req.body.version);
         res.json(doc);
     } catch (error: any) {
         if (error.code === 'P2025') {
@@ -48,7 +50,8 @@ export const updateDocument = asyncHandler(async (req: Request, res: Response) =
 
 export const deleteDocument = asyncHandler(async (req: Request, res: Response) => {
     try {
-        await documentService.deleteDocumentById(parseInt(req.params.id as string));
+        const tenantId = (req as any).user?.tenantId;
+        await documentService.deleteDocumentById(tenantId, parseInt(req.params.id as string));
         res.json({ message: 'Documento eliminado correctamente' });
     } catch (error: any) {
         if (error.code === 'P2025') {

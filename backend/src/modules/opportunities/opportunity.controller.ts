@@ -1,15 +1,17 @@
 import { Request, Response } from 'express';
 import { opportunityService } from './opportunity.service.js';
-import { aiService } from './ai.service.js';
+import { aiService } from '../ai/ai.service.js';
 import { asyncHandler } from '../../utils/asyncHandler.js';
 import { AppError } from '../../utils/AppError.js';
+import { eventBus } from '../../core/eventBus.js';
 
 export const getOpportunities = asyncHandler(async (req: Request, res: Response) => {
     const page = parseInt(req.query.page as string) || 1;
     const limit = parseInt(req.query.limit as string) || 10;
     const search = (req.query.search as string) || '';
 
-    const opportunities = await opportunityService.getAllOpportunities(page, limit, search);
+    const tenantId = (req as any).user?.tenantId;
+    const opportunities = await opportunityService.getAllOpportunities(tenantId, page, limit, search);
     res.json(opportunities);
 });
 
@@ -22,14 +24,22 @@ export const createOpportunity = asyncHandler(async (req: Request, res: Response
         amount: parseFloat(req.body.amount)
     };
     const opportunity = await opportunityService.createOpportunity(data, tenantId);
+
+    // Emit event for Automation Engine
+    eventBus.emit('opportunity.created', { tenantId, userId: (req as any).user?.userId, data: opportunity });
+
     res.status(201).json(opportunity);
 });
 
 export const updateOpportunityStatus = asyncHandler(async (req: Request, res: Response) => {
     try {
+        const tenantId = (req as any).user?.tenantId;
         const id = parseInt(req.params.id as string);
         const { status, version } = req.body;
-        const opportunity = await opportunityService.updateOpportunityStatusById(id, status, version);
+        const opportunity = await opportunityService.updateOpportunityStatusById(tenantId, id, status, version);
+
+        eventBus.emit('opportunity.status_updated', { tenantId, userId: (req as any).user?.userId, data: opportunity });
+
         res.json(opportunity);
     } catch (error: any) {
         // P2025 is Prisma "Record to update not found."
@@ -42,9 +52,10 @@ export const updateOpportunityStatus = asyncHandler(async (req: Request, res: Re
 });
 
 export const getLeadScore = asyncHandler(async (req: Request, res: Response) => {
+    const tenantId = (req as any).user?.tenantId;
     const { id } = req.params;
     try {
-        const scoreData = await aiService.calculateLeadScore(parseInt(id as string));
+        const scoreData = await aiService.calculateLeadScore(parseInt(id as string), tenantId);
         res.json(scoreData);
     } catch (err: any) {
         if (err.message === 'Oportunidad no encontrada') {

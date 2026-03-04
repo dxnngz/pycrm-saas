@@ -5,7 +5,8 @@ import { AppError } from '../../utils/AppError.js';
 
 export const getTasks = asyncHandler(async (req: Request, res: Response) => {
     const userId = (req as any).user.userId;
-    const tasks = await taskService.getTasksByUserId(userId);
+    const tenantId = (req as any).user.tenantId;
+    const tasks = await taskService.getTasksByUserId(tenantId, userId);
     res.json(tasks);
 });
 
@@ -19,8 +20,9 @@ export const createTask = asyncHandler(async (req: Request, res: Response) => {
 export const toggleTaskCompletion = asyncHandler(async (req: Request, res: Response) => {
     const id = parseInt(req.params.id as string);
     const userId = (req as any).user.userId;
+    const tenantId = (req as any).user.tenantId;
 
-    const task = await taskService.toggleTaskCompletionStatus(id, userId);
+    const task = await taskService.toggleTaskCompletionStatus(tenantId, id, userId);
     if (!task) {
         throw new AppError('Tarea no encontrada', 404);
     }
@@ -31,8 +33,9 @@ export const toggleTaskCompletion = asyncHandler(async (req: Request, res: Respo
 export const deleteTask = asyncHandler(async (req: Request, res: Response) => {
     const id = parseInt(req.params.id as string);
     const userId = (req as any).user.userId;
+    const tenantId = (req as any).user.tenantId;
 
-    const deleted = await taskService.deleteTaskById(id, userId);
+    const deleted = await taskService.deleteTaskById(tenantId, id, userId);
     if (!deleted) {
         throw new AppError('Tarea no encontrada o no autorizada', 404);
     }

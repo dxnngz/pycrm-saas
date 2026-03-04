@@ -2,9 +2,9 @@ import { prisma } from '../../core/prisma.js';
 
 export class TaskService {
 
-    async getTasksByUserId(userId: number) {
+    async getTasksByUserId(tenantId: number, userId: number) {
         const tasks = await prisma.task.findMany({
-            where: { user_id: userId },
+            where: { user_id: userId, tenant_id: tenantId },
             include: {
                 client: {
                     select: { name: true }
@@ -34,14 +34,14 @@ export class TaskService {
         });
     }
 
-    async toggleTaskCompletionStatus(id: number, userId: number) {
+    async toggleTaskCompletionStatus(tenantId: number, id: number, userId: number) {
         // Prisma doesn't have a direct "NOT column" update atomic operator easily for booleans,
-        // so we find it, then update it. Since we do it by userId, we also check ownership.
+        // so we find it, then update it. Since we do it by userId, we also check ownership & tenant.
         const task = await prisma.task.findUnique({
             where: { id }
         });
 
-        if (!task || task.user_id !== userId) return null;
+        if (!task || task.user_id !== userId || task.tenant_id !== tenantId) return null;
 
         return await prisma.task.update({
             where: { id },
@@ -49,14 +49,15 @@ export class TaskService {
         });
     }
 
-    async deleteTaskById(id: number, userId: number) {
+    async deleteTaskById(tenantId: number, id: number, userId: number) {
         // Prisma allows deleting by unique ID but doesn't easily let you delete by ID AND user_id atomically
         // without throwing if it doesn't match both.
         // We can do deleteMany which allows non-unique composed conditions and returns count.
         const result = await prisma.task.deleteMany({
             where: {
                 id: id,
-                user_id: userId
+                user_id: userId,
+                tenant_id: tenantId
             }
         });
 

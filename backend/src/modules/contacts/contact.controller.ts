@@ -3,8 +3,9 @@ import { contactService } from './contact.service.js';
 import { asyncHandler } from '../../utils/asyncHandler.js';
 
 export const listByClient = asyncHandler(async (req: Request, res: Response) => {
+    const tenantId = (req as any).user?.tenantId;
     const clientId = parseInt(req.params.clientId as string);
-    const items = await contactService.getContactsByClientId(clientId);
+    const items = await contactService.getContactsByClientId(tenantId, clientId);
     res.json(items);
 });
 

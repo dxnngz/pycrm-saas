@@ -8,9 +8,9 @@ export interface ContactInput {
 }
 
 export class ContactService {
-    async getContactsByClientId(clientId: number) {
+    async getContactsByClientId(tenantId: number, clientId: number) {
         return await prisma.contact.findMany({
-            where: { client_id: clientId },
+            where: { client_id: clientId, tenant_id: tenantId },
             orderBy: { contact_date: 'desc' }
         });
     }

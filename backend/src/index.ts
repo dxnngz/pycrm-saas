@@ -24,6 +24,7 @@ import { redisCache } from './core/redis.js';
 import { getMetrics, getContentType, httpRequestDurationMicroseconds } from './core/metrics.js';
 import { env } from './env.js';
 import { hashPassword } from './auth.js';
+import { commercialIntelligenceJob } from './jobs/commercialIntelligence.js';
 
 const app = express();
 const port = env.PORT || 3001;
@@ -165,6 +166,8 @@ app.get('/metrics', async (req, res) => {
 import productRoutes from './modules/products/product.routes.js';
 import eventRoutes from './modules/events/event.routes.js';
 import documentRoutes from './modules/documents/document.routes.js';
+import aiRoutes from './modules/ai/ai.routes.js';
+import automationRoutes from './modules/automations/automation.routes.js';
 
 // Routes
 app.use('/api/auth', authRoutes);
@@ -195,6 +198,8 @@ app.use('/api/contacts', contactRoutes);
 app.use('/api/products', productRoutes);
 app.use('/api/events', eventRoutes);
 app.use('/api/documents', documentRoutes);
+app.use('/api/ai', aiRoutes);
+app.use('/api/automations', automationRoutes);
 
 app.get('/api/health', async (req, res) => {
     try {
@@ -228,6 +233,26 @@ app.get('/api/health', async (req, res) => {
         res.status(500).json({ status: 'error', message: 'Core dependencies failed' });
     }
 });
+
+// Inicializar y testear la base de datos + Jobs antes de arrancar
+const startServer = async () => {
+    try {
+        await prisma.$connect();
+        console.log('✅ Conexión a la base de datos PostgreSQL exitosa');
+
+        // Initialize Daily Commercial Intelligence CRON
+        commercialIntelligenceJob.init();
+
+        await ensureAdmin(); // Ensure admin is created after DB connection
+
+        app.listen(Number(port), '0.0.0.0', () => {
+            console.log(`Server is running on port ${port} at 0.0.0.0`);
+        });
+    } catch (err) {
+        console.error('❌ Error starting server:', err);
+        process.exit(1); // Exit if server fails to start
+    }
+};
 
 
 // Global Error Handler

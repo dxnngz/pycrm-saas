@@ -2,16 +2,17 @@ import { prisma } from '../../core/prisma.js';
 import { Prisma } from '@prisma/client';
 
 export class ProductService {
-    async getAllProducts(page: number = 1, limit: number = 10, search: string = '') {
+    async getAllProducts(tenantId: number, page: number = 1, limit: number = 10, search: string = '') {
         const offset = (page - 1) * limit;
 
-        const whereClause: Prisma.ProductWhereInput = search ? {
-            OR: [
+        const whereClause: Prisma.ProductWhereInput = { tenant_id: tenantId };
+        if (search) {
+            whereClause.OR = [
                 { name: { contains: search, mode: 'insensitive' as const } },
                 { description: { contains: search, mode: 'insensitive' as const } },
                 { category: { contains: search, mode: 'insensitive' as const } }
-            ]
-        } : {};
+            ];
+        }
 
         const [products, total] = await Promise.all([
             prisma.product.findMany({
@@ -31,10 +32,10 @@ export class ProductService {
         };
     }
 
-    async createProduct(data: { name: string; description?: string; price: number; category?: string }) {
+    async createProduct(tenantId: number, data: { name: string; description?: string; price: number; category?: string }) {
         return await prisma.product.create({
             data: {
-                tenant_id: 1,
+                tenant_id: tenantId,
                 name: data.name,
                 description: data.description,
                 price: data.price,
@@ -43,22 +44,28 @@ export class ProductService {
         });
     }
 
-    async updateProductById(id: number, data: { name?: string; description?: string; price?: number; category?: string }) {
+    async updateProductById(tenantId: number, id: number, data: { name?: string; description?: string; price?: number; category?: string }) {
+        const product = await prisma.product.findFirst({ where: { id, tenant_id: tenantId } });
+        if (!product) throw { code: 'P2025' };
+
         return await prisma.product.update({
             where: { id },
             data
         });
     }
 
-    async deleteProductById(id: number) {
+    async deleteProductById(tenantId: number, id: number) {
+        const product = await prisma.product.findFirst({ where: { id, tenant_id: tenantId } });
+        if (!product) throw { code: 'P2025' };
+
         return await prisma.product.delete({
             where: { id }
         });
     }
 
-    async getProductById(id: number) {
-        return await prisma.product.findUnique({
-            where: { id }
+    async getProductById(tenantId: number, id: number) {
+        return await prisma.product.findFirst({
+            where: { id, tenant_id: tenantId }
         });
     }
 }
