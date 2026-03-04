@@ -10,16 +10,19 @@ import {
     X,
     Search,
     ChevronLeft,
-    ChevronRight
+    ChevronRight,
+    Briefcase,
+    TrendingUp,
+    ShieldCheck
 } from 'lucide-react';
 import { useOpportunities } from '../../hooks/useOpportunities';
 import { useClients } from '../../hooks/useClients';
 import { usePermissions } from '../../hooks/usePermissions';
 import type { Opportunity } from '../../types';
 import { sanitizePayload } from '../../utils/sanitize';
-import { SkeletonTable } from '../Common/Skeletons';
 import Modal from '../Common/Modal';
 import { useFPSMonitor } from '../../hooks/useFPSMonitor';
+import { Input } from '../Common/Input';
 
 const OpportunityCard = memo(({
     opp,
@@ -36,7 +39,7 @@ const OpportunityCard = memo(({
         <motion.div
             layoutId={opp.id.toString()}
             whileHover={{ scale: 1.02, y: -4 }}
-            className="bg-white dark:bg-slate-900 p-6 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-sm premium-shadow hover:shadow-xl transition-all cursor-grab active:cursor-grabbing group"
+            className="bg-white dark:bg-slate-900 p-6 rounded-[2.5rem] border border-slate-100 dark:border-slate-800 shadow-sm premium-shadow hover:shadow-xl transition-all cursor-grab active:cursor-grabbing group border-l-4 border-l-primary-500/20"
         >
             <div className="flex flex-col gap-1 mb-4">
                 <div className="flex items-center justify-between mb-2">
@@ -47,7 +50,7 @@ const OpportunityCard = memo(({
                 </div>
                 <h4 className="font-black text-slate-900 dark:text-white text-lg leading-tight group-hover:text-primary-500 transition-colors uppercase tracking-tighter">{opp.product}</h4>
                 <div className="flex items-center gap-2 mt-2">
-                    <div className="w-5 h-5 bg-slate-100 dark:bg-slate-800 rounded-full flex items-center justify-center text-[10px] font-black">
+                    <div className="w-5 h-5 bg-slate-100 dark:bg-slate-800 rounded-full flex items-center justify-center text-[10px] font-black text-slate-500">
                         {opp.client_name?.charAt(0)}
                     </div>
                     <p className="text-xs font-bold text-slate-500 dark:text-slate-400">{opp.client_name}</p>
@@ -56,13 +59,15 @@ const OpportunityCard = memo(({
 
             <div className="flex items-center justify-between pt-5 border-t border-slate-50 dark:border-slate-800/50">
                 <div className="flex flex-col">
-                    <span className="text-xl font-black text-slate-900 dark:text-white tracking-tighter tabular-nums gap-2 flex items-center">
-                        {new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 }).format(opp.amount)}
+                    <span className="text-xl font-black text-slate-900 dark:text-white tracking-tighter tabular-nums gap-2 flex flex-col items-start">
+                        <span className="flex items-center gap-1">
+                            {new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 }).format(opp.amount)}
+                        </span>
                         {opp.status === 'pendiente' && scores[opp.id] && (
-                            <div className="px-2 py-1 rounded bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 text-[10px] tracking-widest font-black flex items-center gap-1 border border-indigo-100 dark:border-indigo-800" title="Win Probability / Lead Score">
-                                <Target size={10} />
+                            <div className="px-2 py-1 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-[10px] tracking-widest font-black flex items-center gap-1 border border-emerald-500/20" title="Win Probability / Lead Score">
+                                <TrendingUp size={10} />
                                 {scores[opp.id].winProbability}%
-                                <span className="opacity-50 mx-1">|</span>
+                                <span className="opacity-30 mx-1">|</span>
                                 S:{scores[opp.id].leadScore}
                             </div>
                         )}
@@ -91,10 +96,11 @@ const OpportunityCard = memo(({
                     {canEditOpportunity && opp.status !== 'pendiente' && (
                         <button
                             onClick={() => onUpdateStatus(opp.id, 'pendiente')}
-                            className="p-2 bg-slate-50 dark:bg-slate-800 text-slate-400 rounded-xl hover:text-primary-500 transition-all"
+                            className="p-2 bg-slate-50 dark:bg-slate-800 text-slate-400 rounded-xl hover:text-primary-500 transition-all font-black text-[10px] flex items-center gap-1 uppercase tracking-widest px-3"
                             title="Reabrir Oportunidad"
                         >
-                            <ArrowRight size={16} className="rotate-180" />
+                            <ArrowRight size={14} className="rotate-180" />
+                            Reabrir
                         </button>
                     )}
                 </div>
@@ -210,12 +216,12 @@ const PipelineView = () => {
                 <div>
                     <h1 className="text-4xl font-black text-slate-900 dark:text-white tracking-tight">Pipeline Estratégico</h1>
                     <p className="text-slate-500 dark:text-slate-400 font-bold mt-2 flex items-center gap-2">
-                        <Columns size={18} className="text-primary-500" />
-                        Flujo de ingresos proyectados en tiempo real
+                        <ShieldCheck size={18} className="text-emerald-500" />
+                        Flujo de ingresos verificado por IA
                     </p>
                 </div>
-                <div className="flex items-center gap-4">
-                    <div className="relative w-64 h-14 group">
+                <div className="flex flex-wrap items-center gap-4">
+                    <div className="relative flex-1 sm:w-64 h-14 group">
                         <Search className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary-500 transition-colors" size={20} />
                         <input
                             type="text"
@@ -228,10 +234,10 @@ const PipelineView = () => {
                     {canCreateOpportunity && (
                         <button
                             onClick={() => setIsModalOpen(true)}
-                            className="flex items-center gap-3 bg-indigo-600 text-white px-8 h-14 rounded-2xl font-black hover:bg-indigo-700 transition-all shadow-xl shadow-indigo-600/30 group"
+                            className="flex items-center gap-3 bg-primary-600 text-white px-8 h-14 rounded-2xl font-black hover:bg-primary-700 transition-all shadow-xl shadow-primary-600/30 group whitespace-nowrap"
                         >
                             <Plus size={24} className="group-hover:rotate-90 transition-transform" />
-                            <span>Inyectar Oportunidad</span>
+                            <span>Inyectar Negocio</span>
                         </button>
                     )}
                 </div>
@@ -242,8 +248,8 @@ const PipelineView = () => {
                     <div key={column.id} className="flex-1 min-w-[350px] flex flex-col gap-6">
                         <div className="flex items-center justify-between px-4">
                             <div className="flex items-center gap-4">
-                                <div className={`w-4 h-4 rounded-full ${column.color} ${column.shadow} animate-pulse`}></div>
-                                <h3 className="font-black text-slate-700 dark:text-slate-300 uppercase text-xs tracking-[0.2em]">{column.title}</h3>
+                                <div className={`w-3 h-3 rounded-full ${column.color} ${column.shadow} animate-pulse`}></div>
+                                <h3 className="font-black text-slate-500 dark:text-slate-400 uppercase text-[10px] tracking-[0.25em]">{column.title}</h3>
                                 <span className="bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 text-xs font-black px-3 py-1 rounded-full border border-slate-200/50 dark:border-slate-700/50">
                                     {safeOpportunities.filter(o => o.status === column.id).length}
                                 </span>
@@ -253,10 +259,12 @@ const PipelineView = () => {
                             </button>
                         </div>
 
-                        <div className="flex flex-col gap-4 bg-slate-50/50 dark:bg-slate-900/30 p-4 rounded-[2.5rem] border border-slate-100 dark:border-slate-800/50 min-h-[400px] flex-1 overflow-y-auto scrollbar-hide">
+                        <div className="flex flex-col gap-4 bg-slate-50/50 dark:bg-slate-900/30 p-4 rounded-[3rem] border border-slate-100 dark:border-slate-800/50 min-h-[400px] flex-1 overflow-y-auto scrollbar-hide">
                             {loading ? (
-                                <div className="max-w-[1600px] mx-auto pb-20 fade-in">
-                                    <SkeletonTable />
+                                <div className="space-y-4">
+                                    {[1, 2, 3].map(i => (
+                                        <div key={i} className="h-40 bg-white dark:bg-slate-800 rounded-[2.5rem] animate-pulse"></div>
+                                    ))}
                                 </div>
                             ) : safeOpportunities.filter(o => o.status === column.id).map((opp) => (
                                 <OpportunityCard
@@ -268,9 +276,9 @@ const PipelineView = () => {
                                 />
                             ))}
                             {!loading && safeOpportunities.filter(o => o.status === column.id).length === 0 && (
-                                <div className="flex-1 flex flex-col items-center justify-center text-slate-300 dark:text-slate-800 border-2 border-dashed border-slate-100 dark:border-slate-800/50 rounded-[2rem]">
-                                    <Target size={40} className="mb-4 opacity-50" />
-                                    <p className="text-xs font-black uppercase tracking-widest">Zona Vacía</p>
+                                <div className="flex-1 flex flex-col items-center justify-center text-slate-300 dark:text-slate-800 border-2 border-dashed border-slate-100 dark:border-slate-800/50 rounded-[3rem] transition-colors">
+                                    <Target size={48} className="mb-4 opacity-50" />
+                                    <p className="text-xs font-black uppercase tracking-widest">Sin Actividad Proyectada</p>
                                 </div>
                             )}
                         </div>
@@ -278,8 +286,89 @@ const PipelineView = () => {
                 ))}
             </div>
 
+            {/* Creation Modal */}
+            <Modal
+                isOpen={isModalOpen}
+                onClose={() => setIsModalOpen(false)}
+                title="Sincronizar Nueva Oportunidad"
+                maxWidth="max-w-2xl"
+            >
+                <form onSubmit={handleCreateOpportunity} className="space-y-8">
+                    <div className="space-y-2">
+                        <label className="block text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest pl-1">Seleccionar Socio Comercial</label>
+                        <div className="relative">
+                            <Briefcase className="absolute left-5 top-1/2 -translate-y-1/2 text-primary-500" size={20} />
+                            <select
+                                required
+                                name="clientId"
+                                value={clientId}
+                                onChange={(e) => setClientId(e.target.value)}
+                                className="w-full pl-14 pr-10 py-5 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-3xl focus:ring-4 focus:ring-primary-500/10 outline-none font-bold dark:text-white appearance-none transition-all cursor-pointer hover:border-primary-500/30 text-sm"
+                            >
+                                <option value="">Enlazar con cliente existente...</option>
+                                {clients.map(c => (
+                                    <option key={c.id} value={c.id}>{c.name}</option>
+                                ))}
+                            </select>
+                            <ChevronRight className="absolute right-5 top-1/2 -translate-y-1/2 text-slate-400 rotate-90 pointer-events-none" size={20} />
+                        </div>
+                    </div>
+
+                    <Input
+                        label="Solución Sugerida"
+                        type="text"
+                        required
+                        value={product}
+                        onChange={(e) => setProduct(e.target.value)}
+                        placeholder="Ej: Auditoría de Seguridad Enterprise"
+                        icon={<Target size={18} />}
+                    />
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <Input
+                            label="Volumen Proyectado (€)"
+                            type="number"
+                            required
+                            value={amount}
+                            onChange={(e) => setAmount(e.target.value)}
+                            placeholder="0.00"
+                            icon={<TrendingUp size={18} />}
+                        />
+                        <div className="space-y-2">
+                            <label className="block text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest pl-1">Fase del Embudo</label>
+                            <div className="relative">
+                                <Columns className="absolute left-5 top-1/2 -translate-y-1/2 text-primary-500" size={20} />
+                                <select
+                                    value={status}
+                                    onChange={(e) => setStatus(e.target.value as 'pendiente' | 'ganado' | 'perdido')}
+                                    className="w-full pl-14 pr-10 py-5 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-3xl focus:ring-4 focus:ring-primary-500/10 outline-none font-bold dark:text-white appearance-none hover:border-primary-500/30 transition-all cursor-pointer text-sm"
+                                >
+                                    <option value="pendiente">Iniciado / En Proceso</option>
+                                    <option value="ganado">Cerrado Exitoso</option>
+                                    <option value="perdido">Cerrado Fallido</option>
+                                </select>
+                                <ChevronRight className="absolute right-5 top-1/2 -translate-y-1/2 text-slate-400 rotate-90 pointer-events-none" size={20} />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="pt-6">
+                        <button
+                            disabled={isSubmitting || clients.length === 0}
+                            type="submit"
+                            className="w-full py-6 bg-primary-600 text-white rounded-[2rem] font-black shadow-2xl shadow-primary-600/40 hover:bg-primary-700 transition-all disabled:opacity-50 active:scale-[0.98] uppercase tracking-[0.2em] text-xs"
+                        >
+                            {isSubmitting ? 'Sincronizando...' : 'Solidificar Acuerdo'}
+                        </button>
+                    </div>
+                    {clients.length === 0 && (
+                        <p className="text-[10px] text-rose-500 text-center font-black uppercase tracking-widest animate-bounce">Error Crítico: Socio no Detectado</p>
+                    )}
+                </form>
+            </Modal>
+
             {/* Pagination Footer */}
-            <div className="flex items-center justify-between bg-white dark:bg-slate-900 p-6 rounded-[2rem] border border-slate-100 dark:border-slate-800 shadow-sm premium-shadow">
+            <div className="flex flex-col md:flex-row items-center justify-between bg-white dark:bg-slate-900 p-6 rounded-[2.5rem] border border-slate-100 dark:border-slate-800 shadow-sm premium-shadow gap-4">
                 <p className="text-sm font-bold text-slate-500 dark:text-slate-400">
                     Página <span className="text-slate-900 dark:text-white">{pagination.page}</span> de <span className="text-slate-900 dark:text-white">{pagination.totalPages || 1}</span>
                     <span className="mx-2 opacity-20">|</span>
@@ -289,88 +378,19 @@ const PipelineView = () => {
                     <button
                         disabled={pagination.page === 1}
                         onClick={() => loadOpportunities(pagination.page - 1, pagination.limit, search)}
-                        className="p-2 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-800 border border-transparent hover:border-slate-200 dark:hover:border-slate-700 disabled:opacity-30 transition-all"
+                        className="p-3 rounded-2xl hover:bg-slate-50 dark:hover:bg-slate-800 border border-transparent hover:border-slate-200 dark:hover:border-slate-700 disabled:opacity-30 transition-all"
                     >
                         <ChevronLeft size={20} />
                     </button>
                     <button
                         disabled={pagination.page === pagination.totalPages || pagination.totalPages === 0}
                         onClick={() => loadOpportunities(pagination.page + 1, pagination.limit, search)}
-                        className="p-2 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-800 border border-transparent hover:border-slate-200 dark:hover:border-slate-700 disabled:opacity-30 transition-all"
+                        className="p-3 rounded-2xl hover:bg-slate-50 dark:hover:bg-slate-800 border border-transparent hover:border-slate-200 dark:hover:border-slate-700 disabled:opacity-30 transition-all"
                     >
                         <ChevronRight size={20} />
                     </button>
                 </div>
             </div>
-
-            {/* Creation Modal */}
-            <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title="Nueva Oportunidad de Negocio">
-                <form onSubmit={handleCreateOpportunity} className="space-y-6">
-                    <div>
-                        <label className="block text-xs font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-3">Cliente Objetivo</label>
-                        <select
-                            required
-                            name="clientId"
-                            value={clientId}
-                            onChange={(e) => setClientId(e.target.value)}
-                            className="w-full px-6 py-4 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-2xl focus:ring-2 focus:ring-primary-500 outline-none font-bold dark:text-white"
-                        >
-                            <option value="">Selecciona un socio comercial...</option>
-                            {clients.map(c => (
-                                <option key={c.id} value={c.id}>{c.name}</option>
-                            ))}
-                        </select>
-                    </div>
-                    <div>
-                        <label className="block text-xs font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-3">Solución Sugerida</label>
-                        <input
-                            type="text"
-                            required
-                            name="product"
-                            value={product}
-                            onChange={(e) => setProduct(e.target.value)}
-                            className="w-full px-6 py-4 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-2xl focus:ring-2 focus:ring-primary-500 outline-none font-bold placeholder:text-slate-400 dark:text-white"
-                            placeholder="Ej: Infraestructura Cloud Escalable"
-                        />
-                    </div>
-                    <div className="grid grid-cols-2 gap-6">
-                        <div>
-                            <label className="block text-xs font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-3">Volumen Proyectado (€)</label>
-                            <input
-                                type="number"
-                                required
-                                name="amount"
-                                value={amount}
-                                onChange={(e) => setAmount(e.target.value)}
-                                className="w-full px-6 py-4 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-2xl focus:ring-2 focus:ring-primary-500 outline-none font-bold dark:text-white"
-                                placeholder="0.00"
-                            />
-                        </div>
-                        <div>
-                            <label className="block text-xs font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-3">Estado del Lead</label>
-                            <select
-                                value={status}
-                                onChange={(e) => setStatus(e.target.value as 'pendiente' | 'ganado' | 'perdido')}
-                                className="w-full px-6 py-4 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-2xl focus:ring-2 focus:ring-primary-500 outline-none font-bold dark:text-white"
-                            >
-                                <option value="pendiente">Iniciado / Pendiente</option>
-                                <option value="ganado">Cerrado Ganado (MVP)</option>
-                                <option value="perdido">Cerrado Perdido</option>
-                            </select>
-                        </div>
-                    </div>
-                    <button
-                        disabled={isSubmitting || clients.length === 0}
-                        type="submit"
-                        className="w-full py-5 bg-indigo-600 text-white rounded-2xl font-black shadow-2xl shadow-indigo-600/40 hover:bg-indigo-700 transition-all disabled:opacity-50 active:scale-[0.98]"
-                    >
-                        {isSubmitting ? 'Inyectando Lead...' : 'Sembrar Oportunidad'}
-                    </button>
-                    {clients.length === 0 && (
-                        <p className="text-xs text-rose-500 text-center font-black uppercase tracking-widest">Error crítico: No hay socios en la red.</p>
-                    )}
-                </form>
-            </Modal>
         </div>
     );
 };

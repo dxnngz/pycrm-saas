@@ -1,4 +1,4 @@
-import { History, ArrowUpRight, CheckSquare } from 'lucide-react';
+import { History, ArrowUpRight, CheckSquare, Sparkles } from 'lucide-react';
 
 interface Activity {
     id: string;
@@ -15,29 +15,39 @@ interface RecentActivityProps {
 
 const RecentActivity = ({ activities }: RecentActivityProps) => {
     return (
-        <div className="bg-white dark:bg-slate-900 p-8 rounded-[3rem] border border-slate-100 dark:border-slate-800 shadow-sm premium-shadow">
-            <div className="flex items-center justify-between mb-8">
-                <h3 className="text-xl font-black text-slate-900 dark:text-white tracking-tight flex items-center gap-3">
-                    <History size={20} className="text-primary-500" />
-                    Actividad Reciente
+        <div className="bg-white dark:bg-slate-900 p-10 rounded-[3.5rem] border border-slate-100 dark:border-slate-800 shadow-sm premium-shadow h-full flex flex-col">
+            <div className="flex items-center justify-between mb-10">
+                <h3 className="text-2xl font-black text-slate-900 dark:text-white tracking-tighter flex items-center gap-4">
+                    <History size={24} className="text-primary-500" />
+                    Flujo de Actividad
                 </h3>
-                <span className="text-[10px] font-black bg-slate-100 dark:bg-slate-800 text-slate-500 px-3 py-1 rounded-full uppercase tracking-widest">En Vivo</span>
+                <div className="flex items-center gap-2 bg-primary-500/10 text-primary-600 px-4 py-1.5 rounded-full border border-primary-500/20">
+                    <Sparkles size={14} className="animate-pulse" />
+                    <span className="text-[10px] font-black uppercase tracking-widest">En Vivo</span>
+                </div>
             </div>
-            <div className="space-y-6">
-                {activities.map((activity) => (
-                    <div key={activity.id} className="flex gap-4 group">
-                        <div className={`mt-1 h-10 w-10 shrink-0 rounded-2xl flex items-center justify-center ${activity.type === 'sale' ? 'bg-emerald-500/10 text-emerald-500' : 'bg-primary-500/10 text-primary-500'
-                            } group-hover:scale-110 transition-transform`}>
-                            {activity.type === 'sale' ? <ArrowUpRight size={18} /> : <CheckSquare size={18} />}
+            <div className="space-y-4 flex-1 overflow-y-auto pr-2 scrollbar-hide">
+                {activities.length === 0 ? (
+                    <div className="h-full flex flex-col items-center justify-center opacity-30 py-10">
+                        <History size={48} className="mb-4" />
+                        <p className="text-xs font-black uppercase tracking-widest">Sin Actividad Reciente</p>
+                    </div>
+                ) : activities.map((activity) => (
+                    <div key={activity.id} className="flex gap-5 group p-5 rounded-[2rem] hover:bg-slate-50/50 dark:hover:bg-slate-850/50 transition-all border border-transparent hover:border-slate-100 dark:hover:border-slate-800">
+                        <div className={`h-12 w-12 shrink-0 rounded-2xl flex items-center justify-center ${activity.type === 'sale'
+                                ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400'
+                                : 'bg-primary-500/10 text-primary-600 dark:text-primary-400'
+                            } group-hover:scale-110 transition-transform shadow-sm`}>
+                            {activity.type === 'sale' ? <ArrowUpRight size={20} /> : <CheckSquare size={20} />}
                         </div>
-                        <div className="border-b border-slate-50 dark:border-slate-800/50 pb-4 flex-1">
+                        <div className="flex-1 min-w-0">
                             <div className="flex justify-between items-start mb-1">
-                                <h4 className="font-black text-sm text-slate-900 dark:text-white leading-tight">{activity.title}</h4>
-                                <span className="text-[10px] font-bold text-slate-400 uppercase">{activity.time}</span>
+                                <h4 className="font-black text-sm text-slate-900 dark:text-white leading-tight truncate pr-2">{activity.title}</h4>
+                                <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest shrink-0">{activity.time}</span>
                             </div>
-                            <p className="text-xs text-slate-500 dark:text-slate-400 font-bold mb-2">{activity.description}</p>
+                            <p className="text-xs text-slate-500 dark:text-slate-400 font-bold mb-3 truncate leading-relaxed">{activity.description}</p>
                             {activity.amount && (
-                                <span className="text-xs font-black text-slate-900 dark:text-white bg-slate-50 dark:bg-slate-800 px-2 py-1 rounded-lg">
+                                <span className="inline-flex items-center text-[10px] font-black text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-3 py-1 rounded-full border border-emerald-500/20 shadow-sm">
                                     +{new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR' }).format(activity.amount)}
                                 </span>
                             )}
@@ -45,8 +55,8 @@ const RecentActivity = ({ activities }: RecentActivityProps) => {
                     </div>
                 ))}
             </div>
-            <button className="w-full mt-8 py-4 text-xs font-black text-primary-500 hover:text-primary-600 transition-colors uppercase tracking-widest border-2 border-primary-500/10 rounded-2xl hover:bg-primary-500/5">
-                Ver Historial Atómico
+            <button className="w-full mt-10 py-5 text-[10px] font-black text-primary-500 hover:text-white transition-all uppercase tracking-[0.2em] border-2 border-primary-500/10 rounded-2xl hover:bg-primary-600 hover:border-primary-600 shadow-sm active:scale-[0.98]">
+                Auditoría Completa de Eventos
             </button>
         </div>
     );

@@ -5,13 +5,13 @@ import {
     CheckSquare,
     Download,
     BrainCircuit,
-    Loader2,
     Trophy,
     Sparkles,
     Target,
-    ShieldCheck
+    ShieldCheck,
+    RefreshCw
 } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import SalesChart from './SalesChart';
 import StatCard from './StatCard';
 import RecentActivity from './RecentActivity';
@@ -20,7 +20,6 @@ import { api } from '../../services/api';
 import { predictFutureSales } from '../../services/mlService';
 import { generatePipelineReport } from '../../services/reportService';
 import type { RecentActivityItem, Opportunity } from '../../types';
-
 
 interface DashboardStats {
     totalSales: number;
@@ -32,6 +31,32 @@ interface DashboardStats {
     repPerformance: { id: number, name: string, total_sales: number, deals_won: number }[];
     chartData: { name: string; sales: number }[];
 }
+
+const DashboardSkeleton = () => (
+    <div className="max-w-[1600px] mx-auto space-y-10 animate-pulse">
+        <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-8">
+            <div className="space-y-4">
+                <div className="h-6 w-32 bg-slate-200 dark:bg-slate-800 rounded-full"></div>
+                <div className="h-16 w-96 bg-slate-200 dark:bg-slate-800 rounded-3xl"></div>
+                <div className="h-4 w-128 bg-slate-200 dark:bg-slate-800 rounded-full"></div>
+            </div>
+            <div className="flex gap-4">
+                <div className="h-16 w-48 bg-slate-200 dark:bg-slate-800 rounded-[2rem]"></div>
+                <div className="h-16 w-40 bg-slate-200 dark:bg-slate-800 rounded-[2rem]"></div>
+            </div>
+        </div>
+        <div className="h-32 w-full bg-slate-200 dark:bg-slate-800 rounded-[3rem]"></div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+            {[1, 2, 3, 4].map(i => (
+                <div key={i} className="h-40 bg-slate-200 dark:bg-slate-800 rounded-[2.5rem]"></div>
+            ))}
+        </div>
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
+            <div className="lg:col-span-2 h-[450px] bg-slate-200 dark:bg-slate-800 rounded-[3.5rem]"></div>
+            <div className="lg:col-span-1 h-[450px] bg-slate-200 dark:bg-slate-800 rounded-[3.5rem]"></div>
+        </div>
+    </div>
+);
 
 const DashboardView = () => {
     const [period, setPeriod] = useState<'monthly' | 'yearly'>('monthly');
@@ -46,6 +71,7 @@ const DashboardView = () => {
         chartData: []
     });
     const [loading, setLoading] = useState(true);
+    const [isRefreshing, setIsRefreshing] = useState(false);
     const [forecast, setForecast] = useState<{ value: number, growth: number } | null>(null);
     const [rawOpps, setRawOpps] = useState<Opportunity[]>([]);
     const [isCached, setIsCached] = useState(false);
@@ -67,7 +93,6 @@ const DashboardView = () => {
                     repPerformance: refreshedMetrics.repPerformance || [],
                     chartData: refreshedMetrics.chartData || []
                 }));
-                // When revalidated, mark as live
                 setIsCached(false);
             }
         };
@@ -76,7 +101,10 @@ const DashboardView = () => {
         return () => window.removeEventListener('dashboard_metrics_updated', handleMetricsUpdate);
     }, [period]);
 
-    const loadDashboardData = async () => {
+    const loadDashboardData = async (manual = false) => {
+        if (manual) setIsRefreshing(true);
+        else setLoading(true);
+
         try {
             const [oppsResponse, tasks, backendMetrics] = await Promise.all([
                 api.opportunities.getAll(1, 100),
@@ -126,10 +154,11 @@ const DashboardView = () => {
                 date: o.created_at || new Date().toISOString()
             })));
             setForecast(prediction);
-            setLoading(false);
         } catch (error) {
             console.error('Error loading dashboard data:', error);
+        } finally {
             setLoading(false);
+            setIsRefreshing(false);
         }
     };
 
@@ -139,54 +168,49 @@ const DashboardView = () => {
         }
     };
 
-    if (loading) {
-        return (
-            <div className="flex items-center justify-center min-h-[600px]">
-                <div className="flex flex-col items-center gap-6">
-                    <div className="relative">
-                        <Loader2 className="animate-spin text-primary-600" size={60} />
-                        <BrainCircuit className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-primary-400" size={24} />
-                    </div>
-                    <p className="text-slate-400 font-black uppercase tracking-widest text-xs animate-pulse">Sincronizando IA...</p>
-                </div>
-            </div>
-        );
-    }
+    if (loading) return <DashboardSkeleton />;
 
     return (
         <div className="max-w-[1600px] mx-auto space-y-10 pb-20">
             {/* Enterprise Header */}
             <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-8">
                 <div>
-                    <div className="flex items-center gap-3 mb-4">
-                        <span className="bg-primary-500/10 text-primary-600 dark:text-primary-400 text-[10px] font-black px-3 py-1 rounded-full uppercase tracking-widest border border-primary-500/20">
-                            Enterprise v4.0
+                    <div className="flex flex-wrap items-center gap-3 mb-4">
+                        <span className="bg-primary-500/10 text-primary-600 dark:text-primary-400 text-[10px] font-black px-4 py-1.5 rounded-full uppercase tracking-widest border border-primary-500/20">
+                            Frecuencia Enterprise
                         </span>
-                        <div className="flex items-center gap-1 text-emerald-500">
+                        <div className="flex items-center gap-1.5 text-emerald-500 bg-emerald-500/5 px-4 py-1.5 rounded-full border border-emerald-500/20 shadow-sm">
                             <ShieldCheck size={14} />
-                            <span className="text-[10px] font-black uppercase tracking-widest">Seguridad Biométrica Activa</span>
+                            <span className="text-[10px] font-black uppercase tracking-widest">Nodos Verificados</span>
                         </div>
-                        {isCached && (
-                            <div className="flex items-center gap-1 text-amber-500" title="Datos extraídos desde la caché del cliente (SWR)">
-                                <Sparkles size={14} />
-                                <span className="text-[10px] font-black uppercase tracking-widest">Live Cache</span>
-                            </div>
-                        )}
+                        <AnimatePresence>
+                            {isCached && (
+                                <motion.div
+                                    initial={{ opacity: 0, x: -10 }}
+                                    animate={{ opacity: 1, x: 0 }}
+                                    className="flex items-center gap-1.5 text-amber-500 bg-amber-500/5 px-4 py-1.5 rounded-full border border-amber-500/20"
+                                >
+                                    <Sparkles size={14} />
+                                    <span className="text-[10px] font-black uppercase tracking-widest">Optimización de Caché</span>
+                                </motion.div>
+                            )}
+                        </AnimatePresence>
                     </div>
-                    <h1 className="text-6xl font-black text-slate-900 dark:text-white tracking-tighter leading-none">
-                        Intelligence <span className="text-primary-600">Center</span>
+                    <h1 className="text-5xl lg:text-7xl font-black text-slate-900 dark:text-white tracking-tighter leading-[0.9] flex flex-wrap gap-x-4">
+                        Intelligence
+                        <span className="bg-gradient-to-r from-primary-600 to-indigo-600 bg-clip-text text-transparent">Nexus</span>
                     </h1>
-                    <p className="text-slate-500 dark:text-slate-400 font-bold mt-4 max-w-2xl text-lg">
-                        Bienvenido al núcleo de PyCRM. Analítica predictiva, gestión de clientes y automatización de ventas en una sola consola de alto rendimiento.
+                    <p className="text-slate-500 dark:text-slate-400 font-bold mt-6 max-w-2xl text-lg lg:text-xl leading-relaxed">
+                        Consola de mando ejecutiva. Análisis predictivo de ingresos y supervisión atómica de la red comercial.
                     </p>
                 </div>
-                <div className="flex items-center gap-4">
+                <div className="flex flex-wrap items-center gap-4">
                     {/* Period Switcher */}
-                    <div className="bg-white dark:bg-slate-900 p-1.5 rounded-[1.5rem] border border-slate-100 dark:border-slate-800 shadow-sm flex items-center gap-1">
+                    <div className="bg-white dark:bg-slate-900 p-2 rounded-[2rem] border border-slate-100 dark:border-slate-800 shadow-sm flex items-center gap-1">
                         <button
                             onClick={() => setPeriod('monthly')}
-                            className={`px-6 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${period === 'monthly'
-                                ? 'bg-primary-600 text-white shadow-lg shadow-primary-600/20'
+                            className={`px-8 py-3.5 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all ${period === 'monthly'
+                                ? 'bg-primary-600 text-white shadow-xl shadow-primary-600/20'
                                 : 'text-slate-400 hover:text-slate-600 dark:hover:text-slate-200'
                                 }`}
                         >
@@ -194,8 +218,8 @@ const DashboardView = () => {
                         </button>
                         <button
                             onClick={() => setPeriod('yearly')}
-                            className={`px-6 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${period === 'yearly'
-                                ? 'bg-primary-600 text-white shadow-lg shadow-primary-600/20'
+                            className={`px-8 py-3.5 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all ${period === 'yearly'
+                                ? 'bg-primary-600 text-white shadow-xl shadow-primary-600/20'
                                 : 'text-slate-400 hover:text-slate-600 dark:hover:text-slate-200'
                                 }`}
                         >
@@ -205,17 +229,18 @@ const DashboardView = () => {
 
                     <button
                         onClick={handleExportReport}
-                        className="flex items-center gap-3 bg-white dark:bg-slate-900 text-slate-900 dark:text-white px-8 h-16 rounded-[2rem] font-black hover:bg-slate-50 dark:hover:bg-slate-800 transition-all border border-slate-100 dark:border-slate-800 shadow-xl shadow-slate-200/20"
+                        className="flex items-center gap-3 bg-white dark:bg-slate-900 text-slate-900 dark:text-white px-8 h-16 rounded-[2rem] font-black hover:bg-slate-50 dark:hover:bg-slate-800 transition-all border border-slate-100 dark:border-slate-800 shadow-sm premium-shadow"
                     >
                         <Download size={20} />
-                        <span>Exportar Intelligence</span>
+                        <span className="hidden sm:inline">Exportar Auditoría</span>
                     </button>
                     <button
-                        onClick={() => loadDashboardData()}
-                        className="flex items-center gap-3 bg-primary-600 text-white px-8 h-16 rounded-[2rem] font-black hover:bg-primary-700 transition-all shadow-2xl shadow-primary-600/40 hover:-translate-y-1"
+                        onClick={() => loadDashboardData(true)}
+                        disabled={isRefreshing}
+                        className="flex items-center gap-3 bg-primary-600 text-white px-8 h-16 rounded-[2rem] font-black hover:bg-primary-700 transition-all shadow-2xl shadow-primary-600/40 disabled:opacity-50 group"
                     >
-                        <Sparkles size={20} />
-                        <span>Recalcular IA</span>
+                        {isRefreshing ? <RefreshCw size={20} className="animate-spin" /> : <Sparkles size={20} className="group-hover:rotate-12 transition-transform" />}
+                        <span>{isRefreshing ? 'Sincronizando...' : 'Recalcular'}</span>
                     </button>
                 </div>
             </div>
@@ -228,36 +253,38 @@ const DashboardView = () => {
                     title={period === 'monthly' ? "Ingresos (Mes)" : "Ingresos (Año)"}
                     value={`${new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 }).format(stats.totalSales)}`}
                     icon={<TrendingUp size={24} />}
-                    trend="+12.5%"
+                    trend="+14.2%"
                     color="primary"
                 />
 
                 <StatCard
-                    title="Oportunidades Activas"
+                    title="Propuestas Activas"
                     value={stats.activeOpportunities.toString()}
                     icon={<Briefcase size={24} />}
-                    trend="+4 hoy"
+                    trend="+6 hoy"
                     color="amber"
                 />
                 <StatCard
-                    title="Win Rate Global"
+                    title="Índice de Cierre"
                     value={`${stats.winRate.toFixed(1)}%`}
                     icon={<Trophy size={24} />}
-                    trend="Top 5%"
+                    trend="Excelente"
                     color="emerald"
                 />
                 <StatCard
-                    title="Tareas Pendientes"
+                    title="Protocolos Pendientes"
                     value={stats.pendingTasks.toString()}
                     icon={<CheckSquare size={24} />}
-                    trend="Urgente"
+                    trend="Atención"
                     color="indigo"
                 />
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
                 <div className="lg:col-span-2">
-                    <SalesChart data={stats.chartData} />
+                    <div className="h-full min-h-[500px]">
+                        <SalesChart data={stats.chartData} />
+                    </div>
                 </div>
                 <div className="lg:col-span-1">
                     <RecentActivity activities={stats.recentActivity} />
@@ -265,53 +292,54 @@ const DashboardView = () => {
             </div>
 
             {/* Global Performance Section */}
-            <div className="bg-white dark:bg-slate-900 rounded-[3rem] p-10 border border-slate-100 dark:border-slate-800 shadow-sm premium-shadow">
-                <div className="flex items-center justify-between mb-10">
+            <div className="bg-white dark:bg-slate-900 rounded-[3.5rem] p-12 border border-slate-100 dark:border-slate-800 shadow-sm premium-shadow">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-12 gap-6">
                     <div>
-                        <h3 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight flex items-center gap-3">
-                            <Target size={24} className="text-primary-500" />
-                            Rendimiento Comercial
+                        <h3 className="text-3xl font-black text-slate-900 dark:text-white tracking-tighter flex items-center gap-4">
+                            <Target size={32} className="text-primary-500" />
+                            Rendimiento Operativo
                         </h3>
-                        <p className="text-xs font-bold text-slate-500 dark:text-slate-400 mt-1 uppercase tracking-widest">Métricas individuales por asesor</p>
+                        <p className="text-[10px] font-black text-slate-500 dark:text-slate-400 mt-2 uppercase tracking-[0.25em]">Métricas de impacto por unidad de cuenta</p>
                     </div>
-                    <button className="text-xs font-black text-primary-500 uppercase tracking-widest hover:underline">Ver Auditoría Completa</button>
+                    <button className="text-[10px] font-black text-primary-500 uppercase tracking-widest hover:bg-primary-50 px-6 py-3 rounded-2xl border border-primary-500/10 transition-all">Protocolo de Auditoría</button>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
                     {stats.repPerformance?.length > 0 ? (
                         stats.repPerformance.map((rep, idx) => (
-                            <div key={rep.id} className="relative group">
-                                <div className="flex items-center justify-between mb-4">
-                                    <div className="flex items-center gap-4">
-                                        <div className="w-12 h-12 rounded-2xl bg-slate-50 dark:bg-slate-800 flex items-center justify-center font-black text-slate-900 dark:text-white border border-slate-100 dark:border-slate-700 group-hover:bg-primary-600 group-hover:text-white transition-all duration-300">
+                            <div key={rep.id} className="relative group p-6 rounded-[2.5rem] hover:bg-slate-50/50 dark:hover:bg-slate-850/50 transition-all even:bg-slate-50/30 dark:even:bg-slate-900/10">
+                                <div className="flex items-center justify-between mb-6">
+                                    <div className="flex items-center gap-5">
+                                        <div className="w-16 h-16 rounded-[1.5rem] bg-white dark:bg-slate-800 flex items-center justify-center font-black text-2xl text-slate-900 dark:text-white border border-slate-100 dark:border-slate-700 shadow-sm group-hover:bg-primary-600 group-hover:text-white group-hover:border-primary-600 transition-all duration-300">
                                             {rep.name.charAt(0)}
                                         </div>
                                         <div>
-                                            <h4 className="font-black text-slate-900 dark:text-white text-sm">{rep.name}</h4>
-                                            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{rep.deals_won} cierres</p>
+                                            <h4 className="font-black text-slate-900 dark:text-white text-lg tracking-tight">{rep.name}</h4>
+                                            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-0.5">{rep.deals_won} cierres estratégicos</p>
                                         </div>
                                     </div>
                                     <div className="text-right">
-                                        <p className="font-black text-slate-900 dark:text-white text-sm">{rep.total_sales.toLocaleString()} €</p>
-                                        <div className="flex items-center gap-1 text-[10px] font-black text-emerald-500 uppercase">
-                                            <TrendingUp size={10} />
-                                            Top {idx + 1}
+                                        <p className="font-black text-slate-900 dark:text-white text-lg tracking-tighter tabular-nums">{rep.total_sales.toLocaleString()} €</p>
+                                        <div className="flex items-center justify-end gap-1.5 text-[10px] font-black text-emerald-500 uppercase tracking-widest mt-0.5">
+                                            <TrendingUp size={12} />
+                                            Nodo {idx + 1}
                                         </div>
                                     </div>
                                 </div>
-                                <div className="h-2 w-full bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
+                                <div className="h-2.5 w-full bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden shadow-inner">
                                     <motion.div
                                         initial={{ width: 0 }}
-                                        animate={{ width: '75%' }}
-                                        transition={{ duration: 1, delay: idx * 0.2 }}
-                                        className="h-full bg-primary-500 rounded-full"
+                                        animate={{ width: `${Math.min(100, (rep.total_sales / 50000) * 100)}%` }}
+                                        transition={{ duration: 1.5, ease: "easeOut", delay: idx * 0.2 }}
+                                        className="h-full bg-gradient-to-r from-primary-500 to-indigo-500 rounded-full"
                                     />
                                 </div>
                             </div>
                         ))
                     ) : (
-                        <div className="col-span-3 py-10 text-center border-2 border-dashed border-slate-100 dark:border-slate-800 rounded-[2rem]">
-                            <p className="text-slate-400 font-bold">No hay datos de rendimiento comercial disponibles todavía.</p>
+                        <div className="col-span-3 py-20 text-center border-2 border-dashed border-slate-100 dark:border-slate-800 rounded-[3rem]">
+                            <BrainCircuit size={48} className="mx-auto text-slate-200 dark:text-slate-800 mb-6" />
+                            <p className="text-slate-400 dark:text-slate-500 font-black uppercase text-xs tracking-[0.2em]">Sincronizando rendimiento de red comercial...</p>
                         </div>
                     )}
                 </div>

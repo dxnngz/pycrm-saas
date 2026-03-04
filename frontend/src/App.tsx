@@ -14,11 +14,14 @@ import {
   Search,
   Moon,
   Sun,
-  Zap
+  Zap,
+  Menu,
+  X as CloseIcon
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from './context/AuthContext';
 import { Toaster } from 'sonner';
+import { Breadcrumbs } from './components/Common/Breadcrumbs';
 
 // Lazy Components
 const DashboardView = React.lazy(() => import('./components/Dashboard/DashboardView'));
@@ -41,6 +44,7 @@ const App: FC = () => {
   const { isAuthenticated, logout, user } = useAuth();
   const [activeView, setActiveView] = useState<View>('dashboard');
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isDarkMode, setIsDarkMode] = useState(() => {
     return localStorage.getItem('theme') === 'dark' ||
       (!localStorage.getItem('theme') && window.matchMedia('(prefers-color-scheme: dark)').matches);
@@ -86,26 +90,58 @@ const App: FC = () => {
     navItems.push({ id: 'users', label: 'Usuarios (Admin)', icon: Users });
   }
 
+  const getViewLabel = (viewId: View) => {
+    const item = [...navItems, { id: 'settings', label: 'Configuración' }].find(i => i.id === viewId);
+    return item?.label || 'Panel';
+  };
+
   return (
-    <div className="flex min-h-screen transition-colors duration-300">
+    <div className="flex min-h-screen transition-colors duration-300 bg-slate-50 dark:bg-slate-950 overflow-x-hidden">
+      {/* Overlay for mobile menu */}
+      <AnimatePresence>
+        {isMobileMenuOpen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setIsMobileMenuOpen(false)}
+            className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-30 lg:hidden"
+          />
+        )}
+      </AnimatePresence>
+
       {/* Sidebar */}
-      <aside className="w-72 bg-slate-900 dark:bg-slate-950 text-slate-400 flex flex-col fixed h-full z-20 transition-colors duration-300">
+      <aside className={`
+        w-72 bg-slate-900 dark:bg-slate-950 text-slate-400 flex flex-col fixed h-full z-40 transition-all duration-500 
+        lg:translate-x-0 ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'}
+      `}>
         <div className="p-8">
-          <div className="flex items-center gap-3 text-white mb-12">
-            <div className="w-12 h-12 bg-primary-600 rounded-2xl flex items-center justify-center shadow-xl shadow-primary-600/30">
-              <BarChart3 size={28} />
+          <div className="flex items-center justify-between mb-12">
+            <div className="flex items-center gap-3 text-white">
+              <div className="w-12 h-12 bg-primary-600 rounded-2xl flex items-center justify-center shadow-xl shadow-primary-600/30">
+                <BarChart3 size={28} />
+              </div>
+              <div>
+                <span className="font-black text-2xl tracking-tighter block leading-none">PyCRM</span>
+                <span className="text-[10px] font-bold text-primary-400 uppercase tracking-widest mt-1 block">Enterprise AI</span>
+              </div>
             </div>
-            <div>
-              <span className="font-black text-2xl tracking-tighter block leading-none">PyCRM</span>
-              <span className="text-[10px] font-bold text-primary-400 uppercase tracking-widest mt-1 block">Enterprise AI</span>
-            </div>
+            <button
+              onClick={() => setIsMobileMenuOpen(false)}
+              className="lg:hidden p-2 text-slate-500 hover:text-white transition-colors"
+            >
+              <CloseIcon size={24} />
+            </button>
           </div>
 
           <nav className="space-y-3">
             {navItems.map((item) => (
               <button
                 key={item.id}
-                onClick={() => setActiveView(item.id as View)}
+                onClick={() => {
+                  setActiveView(item.id as View);
+                  setIsMobileMenuOpen(false);
+                }}
                 onMouseEnter={() => prefetchView(item.id)}
                 className={`w-full flex items-center gap-4 px-5 py-3.5 rounded-2xl transition-all duration-300 group ${activeView === item.id
                   ? 'bg-primary-600 text-white shadow-xl shadow-primary-600/30'
@@ -121,7 +157,10 @@ const App: FC = () => {
 
         <div className="mt-auto p-8 border-t border-slate-800/50 space-y-3">
           <button
-            onClick={() => setActiveView('settings')}
+            onClick={() => {
+              setActiveView('settings');
+              setIsMobileMenuOpen(false);
+            }}
             className={`w-full flex items-center gap-4 px-5 py-3.5 rounded-2xl transition-all font-bold text-sm group ${activeView === 'settings'
               ? 'bg-primary-600 text-white shadow-xl shadow-primary-600/30'
               : 'hover:bg-slate-800 dark:hover:bg-slate-900 hover:text-slate-100'
@@ -141,18 +180,31 @@ const App: FC = () => {
       </aside>
 
       {/* Main Content */}
-      <main className="flex-1 ml-72 flex flex-col min-w-0">
+      <main className={`flex-1 flex flex-col min-w-0 transition-all duration-500 ${isAuthenticated ? 'lg:ml-72' : ''}`}>
         <header className="h-24 glass flex items-center justify-between px-10 sticky top-0 z-10 border-b border-slate-200/50 dark:border-slate-800/50 transition-all duration-300">
-          <div className="relative w-[400px] group">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary-500 transition-colors" size={20} />
-            <input
-              type="text"
-              placeholder="Inteligencia Artificial: ¿Qué estás buscando hoy?"
-              className="w-full pl-12 pr-4 py-3.5 bg-slate-100 dark:bg-slate-900/50 border-none rounded-2xl focus:ring-2 focus:ring-primary-500/50 outline-none text-sm font-medium transition-all"
-            />
+          <div className="flex items-center gap-6">
+            <button
+              onClick={() => setIsMobileMenuOpen(true)}
+              className="lg:hidden p-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-850 transition-all shadow-sm"
+            >
+              <Menu size={24} />
+            </button>
+
+            <div className="hidden sm:block">
+              <Breadcrumbs items={[{ label: getViewLabel(activeView) }]} />
+            </div>
           </div>
 
           <div className="flex items-center gap-6">
+            <div className="relative w-[300px] hidden xl:block group">
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary-500 transition-colors" size={20} />
+              <input
+                type="text"
+                placeholder="IA: ¿Qué estás buscando hoy?"
+                className="w-full pl-12 pr-4 py-3.5 bg-slate-100 dark:bg-slate-900/50 border-none rounded-2xl focus:ring-2 focus:ring-primary-500/50 outline-none text-sm font-medium transition-all"
+              />
+            </div>
+
             {/* Live Cache Indicator */}
             <div className="hidden md:flex items-center gap-2 px-3 py-1.5 bg-emerald-500/10 border border-emerald-500/20 rounded-full mx-2" title="Conexión en tiempo real con servidor">
               <span className="relative flex h-2 w-2">
