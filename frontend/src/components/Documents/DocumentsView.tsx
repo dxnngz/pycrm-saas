@@ -141,7 +141,21 @@ const DocumentsView = () => {
         {loading ? (
           <SkeletonTable />
         ) : documents.length === 0 ? (
-          <div className="p-12 text-center text-slate-500 dark:text-slate-400 font-bold">No hay documentos disponibles.</div>
+          <div className="p-24 text-center">
+            <div className="max-w-md mx-auto">
+              <div className="w-24 h-24 bg-slate-100 dark:bg-slate-800 rounded-full flex items-center justify-center mx-auto mb-6">
+                <FileText size={40} className="text-slate-400 dark:text-slate-500" />
+              </div>
+              <h3 className="text-xl font-black text-slate-900 dark:text-white mb-2 tracking-tight">Repositorio Vacío</h3>
+              <p className="text-slate-500 dark:text-slate-400 font-bold text-sm mb-8 leading-relaxed">
+                No existen documentos registrados en este momento. Empieza generando presupuestos o contratos para visualizar el historial.
+              </p>
+              <button className="inline-flex items-center gap-2 bg-primary-600 text-white px-8 h-12 rounded-xl font-black hover:bg-primary-700 transition-all shadow-lg shadow-primary-600/30">
+                <Plus size={18} />
+                <span>Crear Primer Documento</span>
+              </button>
+            </div>
+          </div>
         ) : (
           <table className="w-full text-left border-collapse">
             <thead>
@@ -155,7 +169,7 @@ const DocumentsView = () => {
             </thead>
             <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
               {documents.map((doc) => (
-                <tr key={doc.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-850/50 transition-all group">
+                <tr key={doc.id} className="hover:bg-slate-50/80 dark:hover:bg-slate-850/50 transition-all group even:bg-slate-50/30 dark:even:bg-slate-900/20">
                   <td className="px-8 py-6">
                     <div className="flex items-center gap-4">
                       <div className="p-3 bg-slate-50 dark:bg-slate-800 rounded-xl text-slate-400 group-hover:text-primary-500 transition-colors">

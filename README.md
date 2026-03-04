@@ -15,13 +15,14 @@ El sistema está dividido en dos grandes bloques utilizando una arquitectura ori
    - `validate`: Implementación del esquema integral de **Zod** para validar el 100% del tráfico entrante.
    - Capa de Seguridad: **Helmet** (Cabeceras protectivas) y **Rate Limiting** (Anti fuerza bruta/Spam).
 
-### Frontend (React + Vite + Tailwind CSS)
-1. **Componentes Puros**: Interfaces ultrarrápidas y hermosas apoyándose en Framer Motion y Tailwind v4 para ofrecer sombras premium, glassmorphism e hiper-reactividad.
-2. **Custom Hooks**: Toda la carga lógica y fetching se concentra en custom hooks como `useClients` o `useTasks`. Esto limpia visualmente los componentes.
-3. **Manejo de Estados y Errores**:
+### Frontend (React + Vite + Tailwind CSS + TypeScript)
+1. **Componentes Puros & Enterprise UX**: Interfaces ultrarrápidas y premium apoyándose en Framer Motion y Tailwind CSS v4 para ofrecer sombras dinámicas, glassmorphism e hiper-reactividad.
+2. **Sistema de Diseño Consistente**: Soporte nativo y exhaustivo para "Dark Mode" con contrastes calculados, estados interactivos (Hover/Disabled) y Empty States ilustrados orientados a conversión.
+3. **Rendimiento Reactivo**: Componentes virtualizados (Skeletons inmersivos), prevención de *Layout Shifts*, y refactorización orientada a la eficiencia del DOM bajo carga intensiva de datos (Kanban, Calendario).
+4. **Manejo de Estados y Errores**:
    - `AuthContext`: Administra globalmente la sesión y autenticación del sistema mediante React Context.
-   - `<ErrorBoundary>`: Cualquier excepción de renderizado no rompe el árbol virtual; se intercepta en una interfaz amigable.
-   - Pila de Notificaciones Asíncronas nativas mediante `sonner`.
+   - `<ErrorBoundary>`: Cualquier excepción de renderizado no rompe el árbol virtual; se intercepta en una interfaz amigable que previene una pantalla en blanco.
+   - Pila de Notificaciones Asíncronas nativas mediante `sonner`, con protección anti-doble clic (`isSubmitting`).
 
 ---
 

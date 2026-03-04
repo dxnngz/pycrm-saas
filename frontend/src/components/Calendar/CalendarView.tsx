@@ -139,9 +139,15 @@ const CalendarView = () => {
           {loading ? (
             <div className="text-center text-slate-500 px-2">Cargando eventos...</div>
           ) : events.length === 0 ? (
-            <div className="text-center text-slate-500 px-2 mt-4 font-bold">Sin eventos este mes</div>
+            <div className="bg-slate-50/50 dark:bg-slate-900/40 p-10 rounded-[2.5rem] border border-slate-100 dark:border-slate-800 text-center shadow-sm">
+              <div className="w-16 h-16 bg-white dark:bg-slate-800 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-sm border border-slate-100 dark:border-slate-700">
+                <CalendarIcon size={24} className="text-slate-400" />
+              </div>
+              <h4 className="font-black text-slate-900 dark:text-white uppercase tracking-widest text-sm mb-2">Calendario Despejado</h4>
+              <p className="text-xs font-bold text-slate-500">No hay compromisos agendados para este periodo.</p>
+            </div>
           ) : (
-            <div className="space-y-4 max-h-[600px] overflow-y-auto pr-2">
+            <div className="space-y-4 max-h-[600px] overflow-y-auto pr-2 custom-scrollbar">
               {events.map(event => {
                 const eventDate = new Date(event.start_date);
                 const isPassed = eventDate < new Date();

@@ -283,11 +283,25 @@ const ContactsView = () => {
                         <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
                             {!clients || clients.length === 0 ? (
                                 <tr>
-                                    <td colSpan={4} className="px-8 py-24 text-center">
-                                        <Globe size={48} className="mx-auto text-slate-200 dark:text-slate-800 mb-6 animate-pulse" />
-                                        <p className="text-slate-400 dark:text-slate-500 font-black uppercase text-sm tracking-widest">
-                                            No se han detectado registros en esta frecuencia.
-                                        </p>
+                                    <td colSpan={4} className="px-8 py-32 text-center">
+                                        <div className="max-w-md mx-auto">
+                                            <div className="w-24 h-24 bg-slate-100 dark:bg-slate-800 rounded-full flex items-center justify-center mx-auto mb-6">
+                                                <Globe size={40} className="text-slate-400 dark:text-slate-500" />
+                                            </div>
+                                            <h3 className="text-xl font-black text-slate-900 dark:text-white mb-2 tracking-tight">No existen socios registrados</h3>
+                                            <p className="text-slate-500 dark:text-slate-400 font-bold text-sm mb-8 leading-relaxed">
+                                                Comienza agregando tu primer socio estratégico para iniciar el rastreo de interacciones y oportunidades comerciales en el sistema.
+                                            </p>
+                                            {canCreateClient && (
+                                                <button
+                                                    onClick={() => handleOpenModal()}
+                                                    className="inline-flex items-center gap-2 bg-primary-600 text-white px-8 h-12 rounded-xl font-black hover:bg-primary-700 transition-all shadow-lg shadow-primary-600/30"
+                                                >
+                                                    <UserPlus size={18} />
+                                                    <span>Registrar Nuevo Socio</span>
+                                                </button>
+                                            )}
+                                        </div>
                                     </td>
                                 </tr>
                             ) : clients.map((client: Client) => (
@@ -304,28 +318,30 @@ const ContactsView = () => {
                         </tbody>
                     </table>
                 </div>
+            </div>
 
-                {/* Pagination Footer */}
-                <div className="px-8 py-6 border-t border-slate-100 dark:border-slate-800 flex flex-col md:flex-row items-center justify-between gap-4 bg-slate-50/30 dark:bg-slate-950/30">
+            {/* Pagination / Footer Component */}
+            {clients && clients.length > 0 && (
+                <div className="bg-white dark:bg-slate-900 rounded-[2rem] border border-slate-100 dark:border-slate-800 shadow-sm px-8 py-6 flex flex-col md:flex-row items-center justify-between gap-4">
                     <p className="text-sm font-bold text-slate-500 dark:text-slate-400">
-                        Mostrando <span className="text-slate-900 dark:text-white">{clients.length}</span> de <span className="text-slate-900 dark:text-white">{pagination.total}</span> registros
+                        Mostrando <span className="text-slate-900 dark:text-white px-1">{clients.length}</span> de <span className="text-slate-900 dark:text-white px-1">{pagination.total}</span> registros en total
                     </p>
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2 bg-slate-50 dark:bg-slate-950 p-1 rounded-2xl border border-slate-100 dark:border-slate-800">
                         <button
                             disabled={pagination.page === 1}
                             onClick={() => loadClients(pagination.page - 1, pagination.limit, search)}
-                            className="p-2 rounded-xl hover:bg-white dark:hover:bg-slate-800 border border-transparent hover:border-slate-200 dark:hover:border-slate-700 disabled:opacity-30 transition-all"
+                            className="p-3 rounded-xl hover:bg-white dark:hover:bg-slate-800 border border-transparent disabled:opacity-30 disabled:hover:bg-transparent transition-all"
                         >
                             <ChevronLeft size={20} />
                         </button>
-                        <div className="flex items-center gap-1 overflow-x-auto max-w-[200px] sm:max-w-none">
+                        <div className="flex items-center gap-1 overflow-x-auto hide-scrollbar max-w-[200px] sm:max-w-none">
                             {Array.from({ length: Math.min(pagination.totalPages, 10) }, (_, i) => i + 1).map((p) => (
                                 <button
                                     key={p}
                                     onClick={() => loadClients(p, pagination.limit, search)}
                                     className={`w-10 h-10 shrink-0 rounded-xl font-black text-xs transition-all ${pagination.page === p
-                                        ? 'bg-primary-600 text-white shadow-lg shadow-primary-600/20'
-                                        : 'hover:bg-white dark:hover:bg-slate-800 text-slate-500'
+                                        ? 'bg-primary-600 text-white shadow-md shadow-primary-600/20'
+                                        : 'hover:bg-white dark:hover:bg-slate-800 text-slate-500 border border-transparent'
                                         }`}
                                 >
                                     {p}
@@ -335,13 +351,13 @@ const ContactsView = () => {
                         <button
                             disabled={pagination.page === pagination.totalPages}
                             onClick={() => loadClients(pagination.page + 1, pagination.limit, search)}
-                            className="p-2 rounded-xl hover:bg-white dark:hover:bg-slate-800 border border-transparent hover:border-slate-200 dark:hover:border-slate-700 disabled:opacity-30 transition-all"
+                            className="p-3 rounded-xl hover:bg-white dark:hover:bg-slate-800 border border-transparent disabled:opacity-30 disabled:hover:bg-transparent transition-all"
                         >
                             <ChevronRight size={20} />
                         </button>
                     </div>
                 </div>
-            </div>
+            )}
 
             {/* Modal for Create/Edit */}
             <Modal

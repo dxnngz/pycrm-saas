@@ -251,7 +251,7 @@ const PipelineView = () => {
                                 key={f.id}
                                 onClick={() => setActiveFilter(f.id as typeof activeFilter)}
                                 className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 border ${activeFilter === f.id
-                                        ? 'bg-primary-50 dark:bg-primary-500/10 text-primary-600 dark:text-primary-400 border-primary-100 dark:border-primary-500/20' : 'text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 border-transparent'}`}
+                                    ? 'bg-primary-50 dark:bg-primary-500/10 text-primary-600 dark:text-primary-400 border-primary-100 dark:border-primary-500/20' : 'text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 border-transparent'}`}
                             >
                                 <f.icon size={14} />
                                 {f.label}
@@ -314,9 +314,9 @@ const PipelineView = () => {
                                 />
                             ))}
                             {!loading && safeOpportunities.filter(o => o.status === column.id).length === 0 && (
-                                <div className="flex-1 flex flex-col items-center justify-center text-slate-300 dark:text-slate-800 border-2 border-dashed border-slate-100 dark:border-slate-800/50 rounded-[3rem] transition-colors">
-                                    <Target size={48} className="mb-4 opacity-50" />
-                                    <p className="text-xs font-black uppercase tracking-widest">Sin Actividad Proyectada</p>
+                                <div className="flex-1 flex flex-col items-center justify-center text-slate-400 dark:text-slate-500 border-2 border-dashed border-slate-200 dark:border-slate-800/50 rounded-[3rem] transition-all bg-slate-50/20 dark:bg-slate-950/20">
+                                    <Target size={40} className="mb-4 opacity-40 text-slate-300 dark:text-slate-600" />
+                                    <p className="text-[11px] font-black uppercase tracking-[0.15em] opacity-80">Sin Actividad Proyectada</p>
                                 </div>
                             )}
                         </div>

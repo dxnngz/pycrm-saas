@@ -55,9 +55,7 @@ export const CommandCenter: React.FC<CommandCenterProps> = ({ isOpen, onClose, o
 
     useEffect(() => {
         if (isOpen) {
-            // eslint-disable-next-line react-hooks/set-state-in-effect
             setQuery('');
-            // eslint-disable-next-line react-hooks/set-state-in-effect
             setSelectedIndex(0);
             setTimeout(() => inputRef.current?.focus(), 100);
         }

@@ -5,14 +5,15 @@ import {
     Mail,
     Lock,
     ArrowLeft,
-    CheckCircle2,
-    ChevronRight,
-    Zap,
-    Globe,
     ShieldCheck,
-    BarChart3,
     Eye,
-    EyeOff
+    EyeOff,
+    CheckCircle2,
+    Zap,
+    AlertCircle,
+    Globe,
+    BarChart3,
+    ChevronRight
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { Input } from '../Common/Input';
@@ -272,20 +273,25 @@ const LoginView = () => {
                                         <label htmlFor="rememberMe" className="text-xs font-bold cursor-pointer select-none">Mantenerme conectado en este dispositivo</label>
                                     </div>
 
-                                    <AnimatePresence>
-                                        {error && (
-                                            <motion.div
-                                                initial={{ opacity: 0, height: 0 }}
-                                                animate={{ opacity: 1, height: 'auto' }}
-                                                exit={{ opacity: 0, height: 0 }}
-                                                className="overflow-hidden"
-                                            >
-                                                <p className="text-rose-500 text-[11px] font-black text-center uppercase tracking-widest bg-rose-500/10 py-3 rounded-xl border border-rose-500/20" aria-live="assertive">
-                                                    {error}
-                                                </p>
-                                            </motion.div>
-                                        )}
-                                    </AnimatePresence>
+                                    <div className="min-h-[60px] flex items-center justify-center">
+                                        <AnimatePresence mode="wait">
+                                            {error ? (
+                                                <motion.div
+                                                    initial={{ opacity: 0, y: -10, scale: 0.95 }}
+                                                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                                                    exit={{ opacity: 0, scale: 0.95 }}
+                                                    className="w-full flex items-center gap-3 bg-rose-50 dark:bg-rose-500/10 text-rose-600 dark:text-rose-400 p-4 rounded-2xl border border-rose-100 dark:border-rose-500/20 shadow-sm"
+                                                    role="alert"
+                                                    aria-live="assertive"
+                                                >
+                                                    <AlertCircle size={20} className="shrink-0" />
+                                                    <p className="text-sm font-semibold">{error}</p>
+                                                </motion.div>
+                                            ) : (
+                                                <motion.div key="empty-error" className="w-full h-full" />
+                                            )}
+                                        </AnimatePresence>
+                                    </div>
 
                                     <button
                                         disabled={loading}

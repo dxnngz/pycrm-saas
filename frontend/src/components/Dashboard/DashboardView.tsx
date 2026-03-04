@@ -34,27 +34,34 @@ interface DashboardStats {
 }
 
 const DashboardSkeleton = () => (
-    <div className="max-w-[1600px] mx-auto space-y-10 animate-pulse">
-        <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-8">
-            <div className="space-y-4">
-                <div className="h-6 w-32 bg-slate-200 dark:bg-slate-800 rounded-full"></div>
-                <div className="h-16 w-96 bg-slate-200 dark:bg-slate-800 rounded-3xl"></div>
-                <div className="h-4 w-128 bg-slate-200 dark:bg-slate-800 rounded-full"></div>
+    <div className="max-w-7xl mx-auto space-y-8 animate-pulse p-4 lg:p-8">
+        {/* Header Skeleton */}
+        <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6">
+            <div className="space-y-3">
+                <div className="h-5 w-24 bg-slate-200 dark:bg-slate-800 rounded-lg"></div>
+                <div className="h-12 w-64 bg-slate-200 dark:bg-slate-800 rounded-2xl"></div>
+                <div className="h-4 w-72 bg-slate-200 dark:bg-slate-800 rounded-md"></div>
             </div>
-            <div className="flex gap-4">
-                <div className="h-16 w-48 bg-slate-200 dark:bg-slate-800 rounded-[2rem]"></div>
-                <div className="h-16 w-40 bg-slate-200 dark:bg-slate-800 rounded-[2rem]"></div>
+            <div className="flex gap-3">
+                <div className="h-12 w-40 bg-slate-200 dark:bg-slate-800 rounded-xl"></div>
+                <div className="h-12 w-32 bg-slate-200 dark:bg-slate-800 rounded-xl"></div>
             </div>
         </div>
-        <div className="h-32 w-full bg-slate-200 dark:bg-slate-800 rounded-[3rem]"></div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+
+        {/* Executive Banner Skeleton */}
+        <div className="h-[120px] w-full bg-slate-200 dark:bg-slate-800 rounded-3xl"></div>
+
+        {/* Stats Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {[1, 2, 3, 4].map(i => (
-                <div key={i} className="h-40 bg-slate-200 dark:bg-slate-800 rounded-[2.5rem]"></div>
+                <div key={i} className="h-32 bg-slate-200 dark:bg-slate-800 rounded-3xl"></div>
             ))}
         </div>
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
-            <div className="lg:col-span-2 h-[450px] bg-slate-200 dark:bg-slate-800 rounded-[3.5rem]"></div>
-            <div className="lg:col-span-1 h-[450px] bg-slate-200 dark:bg-slate-800 rounded-[3.5rem]"></div>
+
+        {/* Chart & Activity */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <div className="lg:col-span-2 h-[400px] bg-slate-200 dark:bg-slate-800 rounded-[2.5rem]"></div>
+            <div className="lg:col-span-1 h-[400px] bg-slate-200 dark:bg-slate-800 rounded-[2.5rem]"></div>
         </div>
     </div>
 );

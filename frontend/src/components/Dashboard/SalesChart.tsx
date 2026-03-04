@@ -41,7 +41,7 @@ const SalesChart = ({ data }: SalesChartProps) => {
                                 <stop offset="95%" stopColor="#6366f1" stopOpacity={0} />
                             </linearGradient>
                         </defs>
-                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" opacity={0.3} />
+                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="currentColor" className="text-slate-200 dark:text-slate-800" opacity={0.3} />
                         <XAxis
                             dataKey="name"
                             axisLine={false}
