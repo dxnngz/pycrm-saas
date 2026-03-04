@@ -22,8 +22,8 @@ import { requestIdMiddleware } from './core/middlewares/requestId.middleware.js'
 import { prisma } from './core/prisma.js';
 import { redisCache } from './core/redis.js';
 import { getMetrics, getContentType, httpRequestDurationMicroseconds } from './core/metrics.js';
-
 import { env } from './env.js';
+import { hashPassword } from './auth.js';
 
 const app = express();
 const port = env.PORT || 3001;
@@ -38,7 +38,7 @@ app.use(helmet({
             styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
             fontSrc: ["'self'", "https://fonts.gstatic.com"],
             imgSrc: ["'self'", "data:", "https:"],
-            connectSrc: ["'self'", "http://localhost:3001", "http://127.0.0.1:3001", "ws://localhost:5173", "https://pycrm-backend-9wev.onrender.com", "https://pycrm-saas.vercel.app"]
+            connectSrc: ["'self'", "http://localhost:3001", "http://127.0.0.1:3001", "ws://localhost:5173", "https://pycrm-backend-m22i.onrender.com", "https://pycrm-saas.vercel.app"]
         }
     }
 }));
@@ -233,9 +233,40 @@ app.get('/api/health', async (req, res) => {
 // Global Error Handler
 app.use(globalErrorHandler);
 
+const ensureAdmin = async () => {
+    try {
+        const adminEmail = 'admin@saas.com';
+        const adminExists = await prisma.user.findUnique({ where: { email: adminEmail } });
+
+        if (!adminExists) {
+            console.log('🌱 No admin found, seeding initial data...');
+            const tenant = await prisma.tenant.upsert({
+                where: { id: 1 },
+                update: {},
+                create: { id: 1, name: 'Empresa Demo SaaS' }
+            });
+
+            const hashedPassword = await hashPassword('admin123');
+            await prisma.user.create({
+                data: {
+                    tenant_id: tenant.id,
+                    name: 'Administrador Sistema',
+                    email: adminEmail,
+                    password: hashedPassword,
+                    role: 'admin'
+                }
+            });
+            console.log('✅ Default admin account created: admin@saas.com / admin123');
+        }
+    } catch (err) {
+        console.error('❌ Failed to ensure admin existence:', err);
+    }
+};
+
 if (process.env.NODE_ENV !== 'test') {
-    app.listen(Number(port), '0.0.0.0', () => {
+    app.listen(Number(port), '0.0.0.0', async () => {
         console.log(`Server is running on port ${port} at 0.0.0.0`);
+        await ensureAdmin();
     });
 }
 
