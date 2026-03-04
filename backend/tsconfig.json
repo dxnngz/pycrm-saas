@@ -4,16 +4,19 @@
     "moduleResolution": "NodeNext",
     "target": "ESNext",
     "outDir": "./dist",
-    "rootDir": "src",
     "strict": true,
     "skipLibCheck": true,
     "esModuleInterop": true,
-    "isolatedModules": true,
+    "isolatedModules": false,
     "verbatimModuleSyntax": false,
-    "types": ["node"]
+    "types": [
+      "node"
+    ]
   },
   "include": [
-    "src"
+    "src",
+    "prisma",
+    "tests"
   ],
   "exclude": [
     "node_modules"
