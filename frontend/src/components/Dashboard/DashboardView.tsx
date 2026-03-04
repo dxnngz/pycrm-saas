@@ -1,4 +1,5 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import {
     TrendingUp,
     Briefcase,
@@ -68,52 +69,10 @@ const DashboardSkeleton = () => (
 
 const DashboardView = () => {
     const [period, setPeriod] = useState<'monthly' | 'yearly'>('monthly');
-    const [stats, setStats] = useState<DashboardStats>({
-        totalSales: 0,
-        activeOpportunities: 0,
-        completedTasks: 0,
-        pendingTasks: 0,
-        recentActivity: [],
-        winRate: 0,
-        repPerformance: [],
-        chartData: []
-    });
-    const [loading, setLoading] = useState(true);
-    const [isRefreshing, setIsRefreshing] = useState(false);
-    const [forecast, setForecast] = useState<{ value: number, growth: number } | null>(null);
-    const [rawOpps, setRawOpps] = useState<Opportunity[]>([]);
-    const [isCached, setIsCached] = useState(false);
 
-    useEffect(() => {
-        loadDashboardData();
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [period]);
-
-    useEffect(() => {
-        const handleMetricsUpdate = (e: Event) => {
-            const customEvent = e as CustomEvent;
-            if (customEvent.detail.period === period) {
-                const refreshedMetrics = customEvent.detail.data;
-                setStats(prev => ({
-                    ...prev,
-                    totalSales: refreshedMetrics.totalSales || 0,
-                    winRate: refreshedMetrics.conversionRate || 0,
-                    repPerformance: refreshedMetrics.repPerformance || [],
-                    chartData: refreshedMetrics.chartData || []
-                }));
-                setIsCached(false);
-            }
-        };
-
-        window.addEventListener('dashboard_metrics_updated', handleMetricsUpdate);
-        return () => window.removeEventListener('dashboard_metrics_updated', handleMetricsUpdate);
-    }, [period]);
-
-    const loadDashboardData = async (manual = false) => {
-        if (manual) setIsRefreshing(true);
-        else setLoading(true);
-
-        try {
+    const { data, isLoading: loading, isFetching: isRefreshing, refetch } = useQuery({
+        queryKey: ['dashboard_data', period],
+        queryFn: async () => {
             const [oppsResponse, tasks, backendMetrics] = await Promise.all([
                 api.opportunities.getAll(1, 100),
                 api.tasks.getAll(),
@@ -121,7 +80,6 @@ const DashboardView = () => {
             ]);
 
             const opps = Array.isArray(oppsResponse?.data) ? oppsResponse.data : [];
-            setRawOpps(opps);
             const tasksList = Array.isArray(tasks) ? tasks : [];
             const completedTasks = tasksList.filter(t => t.completed).length;
             const pendingTasks = tasksList.filter(t => !t.completed).length;
@@ -144,31 +102,43 @@ const DashboardView = () => {
                 }))
             ].sort(() => Math.random() - 0.5);
 
-            setStats({
-                totalSales: backendMetrics?.totalSales || 0,
-                activeOpportunities: opps.filter(o => o.status === 'pendiente').length,
-                completedTasks,
-                pendingTasks,
-                recentActivity,
-                winRate: backendMetrics?.conversionRate || 0,
-                repPerformance: backendMetrics?.repPerformance || [],
-                chartData: backendMetrics?.chartData || []
-            });
-
-            setIsCached(!!backendMetrics?._cached);
-
             const prediction = await predictFutureSales(opps.map(o => ({
                 amount: o.amount,
                 date: o.created_at || new Date().toISOString()
             })));
-            setForecast(prediction);
-        } catch (error) {
-            console.error('Error loading dashboard data:', error);
-        } finally {
-            setLoading(false);
-            setIsRefreshing(false);
-        }
+
+            return {
+                rawOpps: opps,
+                stats: {
+                    totalSales: backendMetrics?.totalSales || 0,
+                    activeOpportunities: opps.filter(o => o.status === 'pendiente').length,
+                    completedTasks,
+                    pendingTasks,
+                    recentActivity,
+                    winRate: backendMetrics?.conversionRate || 0,
+                    repPerformance: backendMetrics?.repPerformance || [],
+                    chartData: backendMetrics?.chartData || []
+                },
+                forecast: prediction,
+                isCached: !!backendMetrics?._cached
+            };
+        },
+        staleTime: 1000 * 60 * 5, // 5 minutes fresh
+    });
+
+    const stats = data?.stats || {
+        totalSales: 0,
+        activeOpportunities: 0,
+        completedTasks: 0,
+        pendingTasks: 0,
+        recentActivity: [],
+        winRate: 0,
+        repPerformance: [],
+        chartData: []
     };
+    const rawOpps = data?.rawOpps || [];
+    const forecast = data?.forecast || null;
+    const isCached = !isRefreshing && data?.isCached;
 
     const handleExportReport = () => {
         if (rawOpps.length > 0) {
@@ -243,7 +213,7 @@ const DashboardView = () => {
                         <span className="hidden sm:inline">Exportar Auditoría</span>
                     </button>
                     <button
-                        onClick={() => loadDashboardData(true)}
+                        onClick={() => refetch()}
                         disabled={isRefreshing}
                         className="flex items-center gap-3 bg-primary-600 text-white px-8 h-16 rounded-[2rem] font-black hover:bg-primary-700 transition-all shadow-2xl shadow-primary-600/40 disabled:opacity-50 group"
                     >

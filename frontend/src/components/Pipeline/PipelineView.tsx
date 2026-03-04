@@ -113,13 +113,24 @@ const OpportunityCard = memo(({
 OpportunityCard.displayName = 'OpportunityCard';
 
 const PipelineView = () => {
-    const { opportunities, loading: oppsLoading, pagination, loadOpportunities, createOpportunity, updateOpportunityStatus } = useOpportunities();
-    const { clients, loading: clientsLoading, loadClients } = useClients();
+    const [page, setPage] = useState(1);
+    const [search, setSearch] = useState('');
+    const [debouncedSearch, setDebouncedSearch] = useState('');
+
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            setDebouncedSearch(search);
+            setPage(1);
+        }, 300);
+        return () => clearTimeout(timer);
+    }, [search]);
+
+    const { opportunities, loading: oppsLoading, pagination, loadOpportunities, createOpportunity, updateOpportunityStatus } = useOpportunities(page, 15, debouncedSearch);
+    const { clients, loading: clientsLoading } = useClients(1, 100);
     const { canCreateOpportunity } = usePermissions();
     const loading = oppsLoading || clientsLoading;
 
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [search, setSearch] = useState('');
     const [activeFilter, setActiveFilter] = useState<'all' | 'high-value' | 'high-score' | 'stagnant'>('all');
 
     // Form state
@@ -132,17 +143,6 @@ const PipelineView = () => {
     const [scores, setScores] = useState<Record<number, { score: number; classification: string }>>({});
 
     useFPSMonitor('PipelineView', 40);
-
-    useEffect(() => {
-        const timer = setTimeout(() => {
-            loadOpportunities(1, 15, search);
-        }, 300);
-        return () => clearTimeout(timer);
-    }, [search, loadOpportunities]);
-
-    useEffect(() => {
-        loadClients(1, 100); // Load all clients for the select
-    }, [loadClients]);
 
     const allOpportunities = Array.isArray(opportunities) ? opportunities : [];
 

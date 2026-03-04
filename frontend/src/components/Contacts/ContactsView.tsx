@@ -115,9 +115,19 @@ const ClientRow = memo(({
 ClientRow.displayName = 'ClientRow';
 
 const ContactsView = () => {
-    const { clients, loading, pagination, loadClients, createClient, updateClient, deleteClient } = useClients();
-    const { canCreateClient, canDeleteClient } = usePermissions();
     const [search, setSearch] = useState('');
+    const [debouncedSearch, setDebouncedSearch] = useState('');
+    const [page, setPage] = useState(1);
+
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            setDebouncedSearch(search);
+        }, 300);
+        return () => clearTimeout(timer);
+    }, [search]);
+
+    const { clients, loading, pagination, loadClients, createClient, updateClient, deleteClient } = useClients(page, 10, debouncedSearch);
+    const { canCreateClient, canDeleteClient } = usePermissions();
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isTimelineOpen, setIsTimelineOpen] = useState(false);
     const [selectedClient, setSelectedClient] = useState<Client | null>(null);
@@ -134,13 +144,6 @@ const ContactsView = () => {
 
     // Activar monitor de lentitud (si bajan los FPS, logueará métrica en RUM)
     useFPSMonitor('ContactsView', 40);
-
-    useEffect(() => {
-        const timer = setTimeout(() => {
-            loadClients(1, 10, search);
-        }, 300);
-        return () => clearTimeout(timer);
-    }, [search, loadClients]);
 
     const handleOpenModal = useCallback((client: Client | null = null) => {
         if (client) {
