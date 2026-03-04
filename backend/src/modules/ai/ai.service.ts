@@ -43,20 +43,26 @@ export class AIService {
             "factors": {"amount": "string", "engagement": "string", "historicalData": "string"}
         }`;
 
-        const modelName = process.env.GROQ_API_KEY ? "llama3-8b-8192" : "gpt-4o-mini";
+        try {
+            const modelName = process.env.GROQ_API_KEY ? "llama-3.1-8b-instant" : "gpt-4o-mini";
 
-        const response = await this.openai.chat.completions.create({
-            model: modelName,
-            response_format: { type: "json_object" },
-            messages: [{ role: "user", content: prompt }]
-        });
+            const response = await this.openai.chat.completions.create({
+                model: modelName,
+                response_format: { type: "json_object" },
+                messages: [{ role: "user", content: prompt }]
+            });
 
-        const parsed = JSON.parse(response.choices[0].message.content || '{}');
-        return {
-            opportunityId,
-            ...parsed,
-            calculatedAt: new Date()
-        };
+            const parsed = JSON.parse(response.choices[0].message.content || '{}');
+            return {
+                opportunityId,
+                ...parsed,
+                calculatedAt: new Date()
+            };
+        } catch (error: any) {
+            console.error("AI Scoring Error:", error.message || error);
+            console.warn("Retornando scoring de fallback por fallo en la API externa.");
+            return this.mockLeadScore(opportunity);
+        }
     }
 
     async copilotQuery(tenantId: number, query: string) {
@@ -103,17 +109,34 @@ export class AIService {
         Pregunta del usuario: ${query}
         `;
 
-        const modelName = process.env.GROQ_API_KEY ? "llama3-70b-8192" : "gpt-4o";
+        const modelName = process.env.GROQ_API_KEY ? "llama-3.3-70b-versatile" : "gpt-4o";
 
-        const response = await this.openai.chat.completions.create({
-            model: modelName,
-            messages: [{ role: "system", content: "Eres un asistente experto en ventas B2B y análisis de pipeline." }, { role: "user", content: prompt }]
-        });
+        try {
+            const response = await this.openai.chat.completions.create({
+                model: modelName,
+                messages: [{ role: "system", content: "Eres un asistente experto en ventas B2B y análisis de pipeline." }, { role: "user", content: prompt }]
+            });
 
-        return {
-            answer: response.choices[0].message.content,
-            context_used: recentOpps.length + recentTasks.length
-        };
+            return {
+                answer: response.choices[0].message.content,
+                context_used: recentOpps.length + recentTasks.length
+            };
+        } catch (error: any) {
+            console.error("[Copilot AI Error]:", error);
+            let errorMessage = "Lo siento, ocurrió un error interno al contactar al motor de Inteligencia Artificial.";
+            if (error.status === 401) {
+                errorMessage = "La API Key de Groq/OpenAI no es válida (Error 401 Unauthorized). Por favor, verifica que la has copiado correctamente en Render.";
+            } else if (error.status === 429) {
+                errorMessage = "Has excedido el límite de peticiones gratuitas. Por favor, intenta de nuevo más tarde.";
+            } else if (error.message) {
+                errorMessage = `Error del servidor de IA: ${error.message}`;
+            }
+
+            return {
+                answer: errorMessage,
+                context_used: 0
+            };
+        }
     }
 
     private mockLeadScore(opportunity: any) {
