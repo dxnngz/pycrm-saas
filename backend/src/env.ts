@@ -9,13 +9,13 @@ const envSchema = z.object({
     DB_HOST: z.string().default('localhost'),
     DB_PORT: z.string().default('5432'),
     DB_USER: z.string().default('postgres'),
-    DB_PASSWORD: z.union([z.string(), z.undefined()]).optional().default(''),
+    DB_PASSWORD: z.any().optional().default(''),
     DB_NAME: z.string().default('pycrm'),
     DATABASE_URL: z.string().optional(),
     REDIS_URL: z.string().optional(),
     JWT_SECRET: z.string().min(1, 'Obligatorio'),
-    JWT_REFRESH_SECRET: z.union([z.string(), z.undefined()]).optional().default('default_refresh'),
-    FRONTEND_URL: z.string().url().or(z.string().length(0)).optional(),
+    JWT_REFRESH_SECRET: z.any().optional().default('default_refresh'),
+    FRONTEND_URL: z.any().optional(),
     ALLOW_OPEN_REGISTRATION: z.string().optional().default('true'),
 });
 
