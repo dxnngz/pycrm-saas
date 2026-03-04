@@ -249,8 +249,9 @@ const PipelineView = () => {
                         ].map(f => (
                             <button
                                 key={f.id}
-                                onClick={() => setActiveFilter(f.id as any)}
-                                className={`flex items-center gap-2 px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${activeFilter === f.id ? 'bg-white dark:bg-slate-800 shadow-sm text-primary-600' : 'text-slate-400 hover:text-slate-600 dark:hover:text-slate-300'}`}
+                                onClick={() => setActiveFilter(f.id as typeof activeFilter)}
+                                className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 border ${activeFilter === f.id
+                                        ? 'bg-primary-50 dark:bg-primary-500/10 text-primary-600 dark:text-primary-400 border-primary-100 dark:border-primary-500/20' : 'text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 border-transparent'}`}
                             >
                                 <f.icon size={14} />
                                 {f.label}

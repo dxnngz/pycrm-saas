@@ -301,7 +301,7 @@ const App: FC = () => {
       <CommandCenter
         isOpen={isCommandCenterOpen}
         onClose={() => setIsCommandCenterOpen(false)}
-        onNavigate={(viewId) => setActiveView(viewId)}
+        onNavigate={(viewId: string) => setActiveView(viewId as View)}
       />
       <Toaster position="top-right" richColors theme={isDarkMode ? 'dark' : 'light'} />
     </div>

@@ -121,7 +121,7 @@ const customFetch = async (url: string, options?: RequestInit, retries = 1): Pro
         });
 
         // Attach request ID dynamically so handleResponse can use it
-        (response as any).__requestId = requestId;
+        (response as Response & { __requestId?: string }).__requestId = requestId;
 
         if (!response.ok) {
             // CTO Level: Token expiring mid-mutation (Handling 401 transparently)
@@ -186,7 +186,7 @@ const customFetch = async (url: string, options?: RequestInit, retries = 1): Pro
 
 const handleResponse = async (response: Response) => {
     const contentType = response.headers.get('content-type');
-    const requestId = (response as any).__requestId || 'local-fallback-' + Math.random().toString(36).substring(7);
+    const requestId = (response as Response & { __requestId?: string }).__requestId || 'local-fallback-' + Math.random().toString(36).substring(7);
 
     if (!response.ok) {
         // Log técnico de error para arquitectura senior con trazabilidad (request_id)

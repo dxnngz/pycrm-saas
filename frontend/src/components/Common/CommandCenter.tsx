@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
     Search,
@@ -10,14 +10,15 @@ import {
     FileText,
     Settings,
     ArrowRight,
-    Zap
+    Zap,
+    type LucideIcon
 } from 'lucide-react';
 import { toast } from 'sonner';
 
 interface CommandCenterItem {
     id: string;
     label: string;
-    icon: any;
+    icon: LucideIcon;
     color?: string;
     bg?: string;
 }
@@ -25,7 +26,7 @@ interface CommandCenterItem {
 interface CommandCenterProps {
     isOpen: boolean;
     onClose: () => void;
-    onNavigate: (view: any) => void;
+    onNavigate: (view: string) => void;
 }
 
 const QUICK_ACTIONS: CommandCenterItem[] = [
@@ -54,11 +55,22 @@ export const CommandCenter: React.FC<CommandCenterProps> = ({ isOpen, onClose, o
 
     useEffect(() => {
         if (isOpen) {
+            // eslint-disable-next-line react-hooks/set-state-in-effect
             setQuery('');
+            // eslint-disable-next-line react-hooks/set-state-in-effect
             setSelectedIndex(0);
             setTimeout(() => inputRef.current?.focus(), 100);
         }
     }, [isOpen]);
+
+    const handleAction = useCallback((item: CommandCenterItem) => {
+        if (item.id.startsWith('new-')) {
+            toast.info(`Funcionalidad '${item.label}' se abrirá en el modal correspondiente.`);
+        } else {
+            onNavigate(item.id);
+        }
+        onClose();
+    }, [onNavigate, onClose]);
 
     useEffect(() => {
         const handleKeyDown = (e: KeyboardEvent) => {
@@ -81,16 +93,7 @@ export const CommandCenter: React.FC<CommandCenterProps> = ({ isOpen, onClose, o
 
         window.addEventListener('keydown', handleKeyDown);
         return () => window.removeEventListener('keydown', handleKeyDown);
-    }, [isOpen, selectedIndex, allItems]);
-
-    const handleAction = (item: CommandCenterItem) => {
-        if (item.id.startsWith('new-')) {
-            toast.info(`Funcionalidad '${item.label}' se abrirá en el modal correspondiente.`);
-        } else {
-            onNavigate(item.id);
-        }
-        onClose();
-    };
+    }, [isOpen, selectedIndex, allItems, handleAction, onClose]);
 
     return (
         <AnimatePresence>

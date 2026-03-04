@@ -5,7 +5,8 @@ import {
     Target,
     ArrowRight,
     TrendingUp,
-    Clock
+    Clock,
+    type LucideIcon
 } from 'lucide-react';
 
 interface BriefingItem {
@@ -14,7 +15,7 @@ interface BriefingItem {
     title: string;
     description: string;
     action: string;
-    icon: any;
+    icon: LucideIcon;
     color: string;
     bg: string;
 }
