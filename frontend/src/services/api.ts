@@ -363,7 +363,14 @@ export const api = {
     },
 
     ai: {
-        getScore: (opportunityId: number): Promise<{ winProbability: number, leadScore: number }> =>
+        askCopilot: (query: string): Promise<{ answer: string; context_used: number }> =>
+            customFetch(`${API_URL}/ai/copilot`, {
+                method: 'POST',
+                headers: getHeaders(),
+                body: JSON.stringify({ query }),
+            }).then(handleResponse),
+
+        getLeadScore: (opportunityId: number): Promise<{ score: number; classification: 'HIGH' | 'MEDIUM' | 'LOW'; recommendation: string; factors: any }> =>
             customFetch(`${API_URL}/opportunities/${opportunityId}/score`, { headers: getHeaders(), credentials: 'include' }).then(handleResponse),
     },
 

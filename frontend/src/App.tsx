@@ -38,6 +38,7 @@ import LoginView from './components/Auth/LoginView';
 import { NotificationSystem } from './components/Notifications/NotificationSystem';
 import { AppViewSkeleton } from './components/Common/Skeletons';
 import { CommandCenter } from './components/Common/CommandCenter';
+import { AICopilot } from './components/Common/AICopilot';
 
 type View = 'dashboard' | 'contacts' | 'pipeline' | 'tasks' | 'calendar' | 'products' | 'documents' | 'settings' | 'users';
 
@@ -303,6 +304,7 @@ const App: FC = () => {
         onClose={() => setIsCommandCenterOpen(false)}
         onNavigate={(viewId: string) => setActiveView(viewId as View)}
       />
+      <AICopilot />
       <Toaster position="top-right" richColors theme={isDarkMode ? 'dark' : 'light'} />
     </div>
   );

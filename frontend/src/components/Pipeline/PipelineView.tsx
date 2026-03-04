@@ -32,7 +32,7 @@ const OpportunityCard = memo(({
     onUpdateStatus
 }: {
     opp: Opportunity,
-    scores: Record<number, { winProbability: number; leadScore: number }>,
+    scores: Record<number, { score: number; classification: string }>,
     canEditOpportunity: boolean,
     onUpdateStatus: (id: number, status: 'pendiente' | 'ganado' | 'perdido') => void
 }) => {
@@ -65,11 +65,11 @@ const OpportunityCard = memo(({
                             {new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 }).format(opp.amount)}
                         </span>
                         {opp.status === 'pendiente' && scores[opp.id] && (
-                            <div className="px-2 py-1 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-[10px] tracking-widest font-black flex items-center gap-1 border border-emerald-500/20" title="Win Probability / Lead Score">
+                            <div className="px-2 py-1 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-[10px] tracking-widest font-black flex items-center gap-1 border border-emerald-500/20" title="AI Lead Score / Classification">
                                 <TrendingUp size={10} />
-                                {scores[opp.id].winProbability}%
+                                {scores[opp.id].score}%
                                 <span className="opacity-30 mx-1">|</span>
-                                S:{scores[opp.id].leadScore}
+                                {scores[opp.id].classification}
                             </div>
                         )}
                     </span>
@@ -129,7 +129,7 @@ const PipelineView = () => {
     const [status, setStatus] = useState<'pendiente' | 'ganado' | 'perdido'>('pendiente');
     const [isSubmitting, setIsSubmitting] = useState(false);
 
-    const [scores, setScores] = useState<Record<number, { winProbability: number; leadScore: number }>>({});
+    const [scores, setScores] = useState<Record<number, { score: number; classification: string }>>({});
 
     useFPSMonitor('PipelineView', 40);
 
@@ -151,7 +151,7 @@ const PipelineView = () => {
         if (activeFilter === 'high-value') return opp.amount >= 10000;
         if (activeFilter === 'high-score') {
             const score = scores[opp.id];
-            return score && score.winProbability >= 70;
+            return score && (score.score >= 70 || score.classification === 'HIGH');
         }
         if (activeFilter === 'stagnant') {
             const createdDate = new Date(opp.created_at || new Date());
@@ -165,14 +165,14 @@ const PipelineView = () => {
 
     useEffect(() => {
         const fetchScores = async () => {
-            const newScores: Record<number, { winProbability: number; leadScore: number }> = { ...scores };
+            const newScores: Record<number, { score: number; classification: string }> = { ...scores };
             let hasChanges = false;
 
             for (const opp of safeOpportunities) {
                 if (opp.status === 'pendiente' && !newScores[opp.id]) {
                     try {
                         const { api } = await import('../../services/api');
-                        const data = await api.ai.getScore(opp.id);
+                        const data = await api.ai.getLeadScore(opp.id);
                         newScores[opp.id] = data;
                         hasChanges = true;
                     } catch (e) {
