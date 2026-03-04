@@ -57,7 +57,7 @@ export const AICopilot: React.FC = () => {
                     return newMessages;
                 });
             },
-            (contextUsed) => {
+            () => {
                 setIsLoading(false);
             },
             (errorMsg) => {
