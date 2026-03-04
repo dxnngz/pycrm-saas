@@ -59,15 +59,19 @@ const allowedOrigins = [
 
 app.use(cors({
     origin: (origin, callback) => {
-        if (!origin || allowedOrigins.includes(origin) || process.env.NODE_ENV === 'development') {
+        const isVercel = origin && origin.endsWith('.vercel.app');
+        const isAllowed = !origin || allowedOrigins.includes(origin) || process.env.NODE_ENV === 'development' || isVercel;
+
+        if (isAllowed) {
             callback(null, true);
         } else {
-            callback(new Error('Acceso denegado por política CORS de PyCRM'));
+            console.warn(`[CORS Blocked] Origin: ${origin}`);
+            callback(null, false);
         }
     },
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept']
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept', 'x-csrf-token']
 }));
 
 // ---------------------------------------------------------------------
@@ -96,8 +100,9 @@ app.use(pinoHttp({
 
 // Global IP Rate Limiter (For public endpoints like Auth/Registration)
 const globalLimiter = rateLimit({
-    windowMs: 15 * 60 * 1000, // 15 minutes
-    max: 100, // limit each IP to 100 requests per windowMs
+    windowMs: 15 * 60 * 1000,
+    max: 100,
+    keyGenerator: (req) => ipKeyGenerator(req.ip || 'unknown'),
     skip: (req) => {
         const ip = req.ip || req.socket.remoteAddress;
         return ip === '127.0.0.1' || ip === '::1' || ip === '::ffff:127.0.0.1';
