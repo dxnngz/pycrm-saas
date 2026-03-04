@@ -54,6 +54,11 @@ if (typeof window !== 'undefined') {
 // ------------------------------------------
 
 const getCsrfToken = () => {
+    // 1. Cross-Domain deployment support
+    const localToken = localStorage.getItem('csrfToken');
+    if (localToken) return localToken;
+
+    // 2. Fallback for Local development
     const csrfMatch = document.cookie.match(/csrfToken=([^;]+)/);
     return csrfMatch ? csrfMatch[1] : '';
 };
@@ -146,6 +151,9 @@ const customFetch = async (url: string, options?: RequestInit, retries = 1): Pro
                         if (refreshRes.ok) {
                             const data = await refreshRes.json();
                             localStorage.setItem('token', data.token);
+                            if (data.csrfToken) {
+                                localStorage.setItem('csrfToken', data.csrfToken);
+                            }
                             isRefreshing = false;
                             onRefreshed(data.token);
                             return customFetch(url, options, retries);

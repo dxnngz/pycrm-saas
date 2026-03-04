@@ -35,6 +35,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         if (data.refreshToken) {
             localStorage.setItem('refreshToken', data.refreshToken);
         }
+        if (data.csrfToken) {
+            localStorage.setItem('csrfToken', data.csrfToken);
+        }
     };
 
     const logout = () => {
@@ -43,6 +46,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         localStorage.removeItem('user');
         localStorage.removeItem('token');
         localStorage.removeItem('refreshToken');
+        localStorage.removeItem('csrfToken');
     };
 
     return (

@@ -45,6 +45,7 @@ export interface AuthResponse {
     user: User;
     token: string;
     refreshToken?: string;
+    csrfToken?: string;
 }
 
 export interface PaginatedResponse<T> {
