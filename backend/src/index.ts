@@ -38,7 +38,7 @@ app.use(helmet({
             styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
             fontSrc: ["'self'", "https://fonts.gstatic.com"],
             imgSrc: ["'self'", "data:", "https:"],
-            connectSrc: ["'self'", "http://localhost:3001", "http://127.0.0.1:3001", "ws://localhost:5173"]
+            connectSrc: ["'self'", "http://localhost:3001", "http://127.0.0.1:3001", "ws://localhost:5173", "https://pycrm-backend-9wev.onrender.com", "https://pycrm-saas.vercel.app"]
         }
     }
 }));
@@ -54,7 +54,7 @@ const allowedOrigins = [
     'http://127.0.0.1:5174',
     'http://localhost:5175',
     'http://127.0.0.1:5175',
-    process.env.FRONTEND_URL
+    env.FRONTEND_URL
 ].filter(Boolean) as string[];
 
 app.use(cors({
