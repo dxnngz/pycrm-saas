@@ -1,0 +1,15 @@
+import { Router } from 'express';
+import * as opportunityController from './opportunity.controller.js';
+import { protect } from '../../core/middlewares/auth.middleware.js';
+import { requirePermission, Permission } from '../../core/middlewares/rbac.middleware.js';
+
+const router = Router();
+
+router.use(protect);
+
+router.get('/', requirePermission(Permission.READ_OPPORTUNITY), opportunityController.getOpportunities);
+router.post('/', requirePermission(Permission.WRITE_OPPORTUNITY), opportunityController.createOpportunity);
+router.patch('/:id/status', requirePermission(Permission.WRITE_OPPORTUNITY), opportunityController.updateOpportunityStatus);
+router.get('/:id/score', requirePermission(Permission.READ_OPPORTUNITY), opportunityController.getLeadScore);
+
+export default router;

@@ -1,0 +1,10 @@
+import { Router } from 'express';
+import { authenticateToken } from '../auth.js';
+import { validate } from '../middleware/validate.js';
+import { contactSchema } from '../schemas/apiSchemas.js';
+import * as contactController from '../controllers/contactController.js';
+const router = Router();
+router.use(authenticateToken);
+router.get('/:clientId', contactController.listByClient);
+router.post('/', validate(contactSchema), contactController.create);
+export default router;

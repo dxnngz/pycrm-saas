@@ -1,0 +1,14 @@
+import { Router } from 'express';
+import * as eventController from './event.controller.js';
+import { protect } from '../../core/middlewares/auth.middleware.js';
+
+const router = Router();
+
+router.use(protect);
+
+router.get('/', eventController.getEvents);
+router.post('/', eventController.createEvent);
+router.put('/:id', eventController.updateEvent);
+router.delete('/:id', eventController.deleteEvent);
+
+export default router;
