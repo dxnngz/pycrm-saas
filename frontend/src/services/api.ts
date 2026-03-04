@@ -367,6 +367,7 @@ export const api = {
             customFetch(`${API_URL}/ai/copilot`, {
                 method: 'POST',
                 headers: getHeaders(),
+                credentials: 'include',
                 body: JSON.stringify({ query }),
             }).then(handleResponse),
 
