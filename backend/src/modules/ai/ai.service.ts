@@ -5,8 +5,10 @@ export class AIService {
     private openai: OpenAI;
 
     constructor() {
+        const isGroq = !!process.env.GROQ_API_KEY;
         this.openai = new OpenAI({
-            apiKey: process.env.OPENAI_API_KEY || 'dummy_key'
+            apiKey: process.env.OPENAI_API_KEY || process.env.GROQ_API_KEY || 'dummy_key',
+            baseURL: isGroq ? 'https://api.groq.com/openai/v1' : undefined
         });
     }
 
@@ -19,8 +21,8 @@ export class AIService {
         if (!opportunity) throw new Error('Oportunidad no encontrada');
 
         // Fallback or actual OpenAI call (using a mock if no key to prevent instant crashes)
-        if (!process.env.OPENAI_API_KEY) {
-            console.warn("OPENAI_API_KEY no configurado, usando scoring por defecto.");
+        if (!process.env.OPENAI_API_KEY && !process.env.GROQ_API_KEY) {
+            console.warn("API de IA no configurada, usando scoring por defecto.");
             return this.mockLeadScore(opportunity);
         }
 
@@ -41,8 +43,10 @@ export class AIService {
             "factors": {"amount": "string", "engagement": "string", "historicalData": "string"}
         }`;
 
+        const modelName = process.env.GROQ_API_KEY ? "llama3-8b-8192" : "gpt-4o-mini";
+
         const response = await this.openai.chat.completions.create({
-            model: "gpt-4o-mini",
+            model: modelName,
             response_format: { type: "json_object" },
             messages: [{ role: "user", content: prompt }]
         });
@@ -56,9 +60,9 @@ export class AIService {
     }
 
     async copilotQuery(tenantId: number, query: string) {
-        if (!process.env.OPENAI_API_KEY) {
+        if (!process.env.OPENAI_API_KEY && !process.env.GROQ_API_KEY) {
             return {
-                answer: "La clave de OpenAI no está configurada. Por favor, configura la variable de entorno OPENAI_API_KEY para habilitar el Copiloto AI.",
+                answer: "La clave de IA no está configurada. Por favor, configura OPENAI_API_KEY o GROQ_API_KEY en tu entorno para habilitar el Copiloto de forma gratuita.",
                 context_used: 0
             };
         }
@@ -99,8 +103,10 @@ export class AIService {
         Pregunta del usuario: ${query}
         `;
 
+        const modelName = process.env.GROQ_API_KEY ? "llama3-70b-8192" : "gpt-4o";
+
         const response = await this.openai.chat.completions.create({
-            model: "gpt-4o",
+            model: modelName,
             messages: [{ role: "system", content: "Eres un asistente experto en ventas B2B y análisis de pipeline." }, { role: "user", content: prompt }]
         });
 
