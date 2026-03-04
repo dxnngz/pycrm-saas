@@ -172,11 +172,14 @@ export const prisma = basePrisma.$extends({
                 if (AUDITABLE_MODELS.includes(model)) {
                     const store = contextStore.getStore();
                     if (!store?.isSystem && store?.tenantId) {
-                        // Cast a findFirst operations para evitar restricciones de índices únicos de Prisma
-                        return basePrisma[model].findFirst({
-                            ...args,
-                            where: { ...args.where, tenant_id: store.tenantId }
-                        });
+                        // Con el nuevo índice compuesto, podemos hacer findUnique de forma nativa y segura
+                        args.where = {
+                            ...args.where,
+                            id_tenant_id: {
+                                id: args.where.id,
+                                tenant_id: store.tenantId
+                            }
+                        };
                     }
                 }
                 return query(args);
@@ -185,10 +188,13 @@ export const prisma = basePrisma.$extends({
                 if (AUDITABLE_MODELS.includes(model)) {
                     const store = contextStore.getStore();
                     if (!store?.isSystem && store?.tenantId) {
-                        return basePrisma[model].findFirstOrThrow({
-                            ...args,
-                            where: { ...args.where, tenant_id: store.tenantId }
-                        });
+                        args.where = {
+                            ...args.where,
+                            id_tenant_id: {
+                                id: args.where.id,
+                                tenant_id: store.tenantId
+                            }
+                        };
                     }
                 }
                 return query(args);

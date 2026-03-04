@@ -74,6 +74,7 @@ export interface RegisterData {
     email: string;
     password?: string;
     role?: string;
+    companyName?: string;
 }
 
 export interface RecentActivityItem {

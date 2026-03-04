@@ -1,17 +1,18 @@
 import { prisma } from '../../core/prisma.js';
 export class DocumentService {
-    async getAllDocuments(page = 1, limit = 10, search = '') {
+    async getAllDocuments(tenantId, page = 1, limit = 10, search = '') {
         const offset = (page - 1) * limit;
-        const whereClause = search ? {
-            OR: [
+        const whereClause = { tenant_id: tenantId };
+        if (search) {
+            whereClause.OR = [
                 { name: { contains: search, mode: 'insensitive' } },
                 {
                     client: {
                         name: { contains: search, mode: 'insensitive' }
                     }
                 }
-            ]
-        } : {};
+            ];
+        }
         const [documents, total] = await Promise.all([
             prisma.document.findMany({
                 where: whereClause,
@@ -50,7 +51,10 @@ export class DocumentService {
             }
         });
     }
-    async updateDocumentById(id, data, version) {
+    async updateDocumentById(tenantId, id, data, version) {
+        const doc = await prisma.document.findFirst({ where: { id, tenant_id: tenantId } });
+        if (!doc)
+            throw { code: 'P2025' };
         if (version !== undefined) {
             return await prisma.document.update({
                 where: { id, version },
@@ -77,7 +81,10 @@ export class DocumentService {
             }
         });
     }
-    async deleteDocumentById(id) {
+    async deleteDocumentById(tenantId, id) {
+        const doc = await prisma.document.findFirst({ where: { id, tenant_id: tenantId } });
+        if (!doc)
+            throw { code: 'P2025' };
         return await prisma.document.delete({
             where: { id }
         });

@@ -1,12 +1,14 @@
 import { opportunityService } from './opportunity.service.js';
-import { aiService } from './ai.service.js';
+import { aiService } from '../ai/ai.service.js';
 import { asyncHandler } from '../../utils/asyncHandler.js';
 import { AppError } from '../../utils/AppError.js';
+import { eventBus } from '../../core/eventBus.js';
 export const getOpportunities = asyncHandler(async (req, res) => {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;
     const search = req.query.search || '';
-    const opportunities = await opportunityService.getAllOpportunities(page, limit, search);
+    const tenantId = req.user?.tenantId;
+    const opportunities = await opportunityService.getAllOpportunities(tenantId, page, limit, search);
     res.json(opportunities);
 });
 export const createOpportunity = asyncHandler(async (req, res) => {
@@ -18,13 +20,17 @@ export const createOpportunity = asyncHandler(async (req, res) => {
         amount: parseFloat(req.body.amount)
     };
     const opportunity = await opportunityService.createOpportunity(data, tenantId);
+    // Emit event for Automation Engine
+    eventBus.emit('opportunity.created', { tenantId, userId: req.user?.userId, data: opportunity });
     res.status(201).json(opportunity);
 });
 export const updateOpportunityStatus = asyncHandler(async (req, res) => {
     try {
+        const tenantId = req.user?.tenantId;
         const id = parseInt(req.params.id);
         const { status, version } = req.body;
-        const opportunity = await opportunityService.updateOpportunityStatusById(id, status, version);
+        const opportunity = await opportunityService.updateOpportunityStatusById(tenantId, id, status, version);
+        eventBus.emit('opportunity.status_updated', { tenantId, userId: req.user?.userId, data: opportunity });
         res.json(opportunity);
     }
     catch (error) {
@@ -37,9 +43,10 @@ export const updateOpportunityStatus = asyncHandler(async (req, res) => {
     }
 });
 export const getLeadScore = asyncHandler(async (req, res) => {
+    const tenantId = req.user?.tenantId;
     const { id } = req.params;
     try {
-        const scoreData = await aiService.calculateLeadScore(parseInt(id));
+        const scoreData = await aiService.calculateLeadScore(parseInt(id), tenantId);
         res.json(scoreData);
     }
     catch (err) {

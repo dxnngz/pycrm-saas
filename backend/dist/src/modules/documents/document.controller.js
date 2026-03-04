@@ -5,7 +5,8 @@ export const getDocuments = asyncHandler(async (req, res) => {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;
     const search = req.query.search || '';
-    const result = await documentService.getAllDocuments(page, limit, search);
+    const tenantId = req.user?.tenantId;
+    const result = await documentService.getAllDocuments(tenantId, page, limit, search);
     res.json(result);
 });
 export const createDocument = asyncHandler(async (req, res) => {
@@ -29,7 +30,8 @@ export const updateDocument = asyncHandler(async (req, res) => {
         amount: req.body.amount !== undefined ? parseFloat(req.body.amount) : null
     };
     try {
-        const doc = await documentService.updateDocumentById(id, data, req.body.version);
+        const tenantId = req.user?.tenantId;
+        const doc = await documentService.updateDocumentById(tenantId, id, data, req.body.version);
         res.json(doc);
     }
     catch (error) {
@@ -41,7 +43,8 @@ export const updateDocument = asyncHandler(async (req, res) => {
 });
 export const deleteDocument = asyncHandler(async (req, res) => {
     try {
-        await documentService.deleteDocumentById(parseInt(req.params.id));
+        const tenantId = req.user?.tenantId;
+        await documentService.deleteDocumentById(tenantId, parseInt(req.params.id));
         res.json({ message: 'Documento eliminado correctamente' });
     }
     catch (error) {

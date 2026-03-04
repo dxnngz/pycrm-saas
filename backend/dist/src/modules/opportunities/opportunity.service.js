@@ -1,9 +1,10 @@
 import { prisma } from '../../core/prisma.js';
 export class OpportunityService {
-    async getAllOpportunities(page = 1, limit = 10, search = '') {
+    async getAllOpportunities(tenantId, page = 1, limit = 10, search = '') {
         const offset = (page - 1) * limit;
-        const whereClause = search ? {
-            OR: [
+        const whereClause = { tenant_id: tenantId };
+        if (search) {
+            whereClause.OR = [
                 { product: { contains: search, mode: 'insensitive' } },
                 {
                     client: {
@@ -13,8 +14,8 @@ export class OpportunityService {
                         ]
                     }
                 }
-            ]
-        } : {};
+            ];
+        }
         const [opportunities, total] = await Promise.all([
             prisma.opportunity.findMany({
                 where: whereClause,
@@ -54,7 +55,11 @@ export class OpportunityService {
             }
         });
     }
-    async updateOpportunityStatusById(id, status, version) {
+    async updateOpportunityStatusById(tenantId, id, status, version) {
+        // Enforce tenant manually using findFirst since there is no compound unique index easily passed to update.
+        const opp = await prisma.opportunity.findFirst({ where: { id, tenant_id: tenantId } });
+        if (!opp)
+            throw new Error('Opportunity not found or access denied');
         // Implement optimistic locking if version is provided, otherwise just update
         if (version !== undefined) {
             return await prisma.opportunity.update({

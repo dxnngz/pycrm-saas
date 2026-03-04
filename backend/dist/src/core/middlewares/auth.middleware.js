@@ -3,8 +3,11 @@ import { AppError } from '../../utils/AppError.js';
 import { contextStore } from '../context.js';
 const JWT_KEY = process.env.JWT_SECRET || 'fallback_secret_key_123';
 export const protect = (req, res, next) => {
-    // 1. Obtiene el token de manera ultra-segura desde la cookie (Blindaje XSS)
-    const token = req.cookies.jwt;
+    // 1. Obtiene el token de manera ultra-segura desde la cookie o del header Authorization
+    let token = req.cookies.jwt;
+    if (!token && req.headers.authorization?.startsWith('Bearer')) {
+        token = req.headers.authorization.split(' ')[1];
+    }
     if (!token) {
         return next(new AppError('No estás autenticado. Por favor, inicia sesión.', 401));
     }

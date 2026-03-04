@@ -13,13 +13,15 @@ import {
     AlertCircle,
     Globe,
     BarChart3,
-    ChevronRight
+    ChevronRight,
+    User,
+    Building
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { Input } from '../Common/Input';
 import { motion, AnimatePresence } from 'framer-motion';
 
-type AuthMode = 'login' | 'forgot' | 'reset';
+type AuthMode = 'login' | 'forgot' | 'reset' | 'register';
 
 const FEATURES = [
     {
@@ -57,7 +59,8 @@ const LoginView = () => {
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
     const [success, setSuccess] = useState(false);
-
+    const [registerName, setRegisterName] = useState('');
+    const [registerCompany, setRegisterCompany] = useState('');
     useEffect(() => {
         const urlParams = new URLSearchParams(window.location.search);
         const resetToken = urlParams.get('token');
@@ -113,6 +116,28 @@ const LoginView = () => {
             }, 3000);
         } catch (err: unknown) {
             setError(err instanceof Error ? err.message : 'Error de conexión');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleRegister = async (e: FormEvent) => {
+        e.preventDefault();
+        setLoading(true);
+        setError('');
+        try {
+            const data = await api.auth.register({
+                name: registerName,
+                email,
+                password,
+                companyName: registerCompany,
+                role: 'admin'
+            });
+            login(data);
+            toast.success('Empresa conectada a PyCRM con éxito.');
+        } catch (err: unknown) {
+            setError(err instanceof Error ? err.message : 'Error de conexión');
+            toast.error('Fallo en el registro', { description: err instanceof Error ? err.message : 'Error de conexión' });
         } finally {
             setLoading(false);
         }
@@ -309,6 +334,124 @@ const LoginView = () => {
                                                 <ChevronRight size={20} className="group-hover:translate-x-1 transition-transform" />
                                             </>
                                         )}
+                                    </button>
+                                </form>
+
+                                <div className="mt-8 text-center">
+                                    <p className="text-slate-500 font-medium text-sm">
+                                        ¿No tienes una cuenta B2B?{' '}
+                                        <button
+                                            type="button"
+                                            onClick={() => setAuthMode('register')}
+                                            className="text-primary-600 dark:text-primary-400 font-bold hover:underline"
+                                        >
+                                            Regístrate aquí
+                                        </button>
+                                    </p>
+                                </div>
+                            </motion.div>
+                        )}
+
+                        {mode === 'register' && (
+                            <motion.div
+                                key="register"
+                                initial={{ opacity: 0, x: 10 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                exit={{ opacity: 0, x: -10 }}
+                                className="space-y-8"
+                            >
+                                <div className="space-y-3">
+                                    <h2 className="text-4xl font-black text-slate-900 dark:text-white tracking-tight leading-none">Alta Corporativa</h2>
+                                    <p className="text-slate-500 dark:text-slate-400 font-bold">Crea el espacio de trabajo de tu empresa en segundos.</p>
+                                </div>
+
+                                <form onSubmit={handleRegister} className="space-y-5">
+                                    <Input
+                                        label="Nombre de tu Empresa (Tenant)"
+                                        type="text"
+                                        value={registerCompany}
+                                        onChange={(e) => setRegisterCompany(e.target.value)}
+                                        icon={<Building size={20} />}
+                                        required
+                                        autoFocus
+                                    />
+                                    <Input
+                                        label="Tu Nombre Completo"
+                                        type="text"
+                                        value={registerName}
+                                        onChange={(e) => setRegisterName(e.target.value)}
+                                        icon={<User size={20} />}
+                                        required
+                                    />
+                                    <Input
+                                        label="Correo Corporativo B2B"
+                                        type="email"
+                                        value={email}
+                                        onChange={(e) => setEmail(e.target.value)}
+                                        icon={<Mail size={20} />}
+                                        required
+                                    />
+                                    <div className="relative">
+                                        <Input
+                                            label="Contraseña Maestra"
+                                            type={showPassword ? "text" : "password"}
+                                            value={password}
+                                            onChange={(e) => setPassword(e.target.value)}
+                                            icon={<Lock size={20} />}
+                                            required
+                                            minLength={6}
+                                        />
+                                        <button
+                                            type="button"
+                                            onClick={() => setShowPassword(!showPassword)}
+                                            className="absolute right-4 top-[24px] text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 focus:outline-none"
+                                        >
+                                            {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                                        </button>
+                                    </div>
+
+                                    <div className="min-h-[40px] flex items-center justify-center">
+                                        <AnimatePresence mode="wait">
+                                            {error && (
+                                                <motion.div
+                                                    initial={{ opacity: 0, y: -10, scale: 0.95 }}
+                                                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                                                    exit={{ opacity: 0, scale: 0.95 }}
+                                                    className="w-full flex items-center gap-2 bg-rose-50 dark:bg-rose-500/10 text-rose-600 dark:text-rose-400 p-3 rounded-xl border border-rose-100 dark:border-rose-500/20 shadow-sm"
+                                                    role="alert"
+                                                >
+                                                    <AlertCircle size={16} className="shrink-0" />
+                                                    <p className="text-xs font-semibold">{error}</p>
+                                                </motion.div>
+                                            )}
+                                        </AnimatePresence>
+                                    </div>
+
+                                    <button
+                                        disabled={loading}
+                                        type="submit"
+                                        className="w-full h-16 bg-primary-600 text-white rounded-2xl font-black shadow-xl shadow-primary-600/30 hover:bg-primary-700 hover:-translate-y-1 active:translate-y-0 transition-all disabled:opacity-50 flex items-center justify-center gap-3 overflow-hidden group"
+                                    >
+                                        {loading ? (
+                                            <>
+                                                <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                                                <span className="uppercase tracking-widest text-xs">Creando Tenant...</span>
+                                            </>
+                                        ) : (
+                                            <>
+                                                <span className="uppercase tracking-widest text-xs font-black">Registrar Empresa</span>
+                                                <ChevronRight size={20} className="group-hover:translate-x-1 transition-transform" />
+                                            </>
+                                        )}
+                                    </button>
+
+                                    <button
+                                        type="button"
+                                        onClick={() => setAuthMode('login')}
+                                        className="flex items-center justify-center gap-2 w-full pt-4 text-slate-400 font-black hover:text-slate-600 dark:hover:text-slate-300 transition-colors uppercase tracking-widest text-[10px]"
+                                    >
+                                        <ArrowLeft size={16} />
+                                        Ya tengo cuenta corporativa
                                     </button>
                                 </form>
                             </motion.div>

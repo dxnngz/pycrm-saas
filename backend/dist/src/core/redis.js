@@ -41,9 +41,19 @@ class RedisClient {
         if (!this.client.isOpen)
             return;
         try {
-            const keys = await this.client.keys(pattern);
-            if (keys.length > 0) {
-                await this.client.del(keys);
+            let cursor = 0;
+            const keysToDelete = [];
+            do {
+                const result = await this.client.scan(cursor, {
+                    MATCH: pattern,
+                    COUNT: 100
+                });
+                cursor = result.cursor;
+                keysToDelete.push(...result.keys);
+            } while (cursor !== 0);
+            if (keysToDelete.length > 0) {
+                await this.client.del(keysToDelete);
+                console.info(`[Redis] Purged ${keysToDelete.length} keys matching pattern: ${pattern}`);
             }
         }
         catch (error) {

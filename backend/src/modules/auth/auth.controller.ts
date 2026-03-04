@@ -67,9 +67,6 @@ export const login = asyncHandler(async (req: Request, res: Response) => {
 });
 
 export const register = asyncHandler(async (req: Request, res: Response) => {
-    if (process.env.ALLOW_OPEN_REGISTRATION === 'false') {
-        throw new AppError('Open registration is disabled', 403);
-    }
     const { name, email, password, role, companyName } = req.body;
 
     if (!companyName) {

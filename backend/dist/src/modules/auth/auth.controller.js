@@ -7,12 +7,13 @@ import crypto from 'crypto';
 const sendTokenResponse = (user, statusCode, res) => {
     const token = generateToken(user.id, user.role, user.tenant_id);
     const refreshToken = generateRefreshToken(user.id, user.tenant_id);
+    const isProduction = process.env.NODE_ENV === 'production';
     // Cookie options
     const cookieOptions = {
         expires: new Date(Date.now() + 60 * 60 * 1000), // 1 hora para el AT
         httpOnly: true, // Accesible sólo por la red, no JS
-        secure: process.env.NODE_ENV === 'production', // Requiere HTTPS en prod
-        sameSite: 'strict'
+        secure: true, // Debe ser true para sameSite: 'none'
+        sameSite: 'none'
     };
     const refreshCookieOptions = {
         ...cookieOptions,
@@ -29,6 +30,8 @@ const sendTokenResponse = (user, statusCode, res) => {
     res.cookie('csrfToken', csrfToken, csrfCookieOptions);
     res.status(statusCode).json({
         success: true,
+        token,
+        refreshToken,
         user: { id: user.id, name: user.name, email: user.email, role: user.role, tenant_id: user.tenant_id }
     });
 };
@@ -78,15 +81,21 @@ export const logout = asyncHandler(async (req, res) => {
     }
     res.cookie('jwt', 'loggedout', {
         expires: new Date(Date.now() + 10 * 1000),
-        httpOnly: true
+        httpOnly: true,
+        secure: true,
+        sameSite: 'none'
     });
     res.cookie('refreshToken', 'loggedout', {
         expires: new Date(Date.now() + 10 * 1000),
-        httpOnly: true
+        httpOnly: true,
+        secure: true,
+        sameSite: 'none'
     });
     res.cookie('csrfToken', 'loggedout', {
         expires: new Date(Date.now() + 10 * 1000),
-        httpOnly: false
+        httpOnly: false,
+        secure: true,
+        sameSite: 'none'
     });
     res.status(200).json({ success: true, message: 'Logged out successfully' });
 });

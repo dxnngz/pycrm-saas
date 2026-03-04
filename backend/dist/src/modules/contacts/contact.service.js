@@ -1,8 +1,8 @@
 import { prisma } from '../../core/prisma.js';
 export class ContactService {
-    async getContactsByClientId(clientId) {
+    async getContactsByClientId(tenantId, clientId) {
         return await prisma.contact.findMany({
-            where: { client_id: clientId },
+            where: { client_id: clientId, tenant_id: tenantId },
             orderBy: { contact_date: 'desc' }
         });
     }

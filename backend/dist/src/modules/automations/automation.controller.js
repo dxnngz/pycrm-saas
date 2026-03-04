@@ -1,0 +1,52 @@
+import { prisma } from '../../core/prisma.js';
+import { asyncHandler } from '../../utils/asyncHandler.js';
+export const getAutomations = asyncHandler(async (req, res) => {
+    const tenantId = req.user?.tenantId;
+    const automations = await prisma.automation.findMany({
+        where: { tenant_id: tenantId },
+        include: { triggers: { include: { conditions: true } }, actions: true }
+    });
+    res.json(automations);
+});
+export const createAutomation = asyncHandler(async (req, res) => {
+    const tenantId = req.user?.tenantId;
+    const { name, description, active, triggers, actions } = req.body;
+    const automation = await prisma.automation.create({
+        data: {
+            tenant_id: tenantId,
+            name,
+            description,
+            active: active ?? true,
+            triggers: {
+                create: triggers.map((t) => ({
+                    event_name: t.event_name,
+                    conditions: {
+                        create: t.conditions || []
+                    }
+                }))
+            },
+            actions: {
+                create: actions.map((a, i) => ({
+                    type: a.type,
+                    payload: a.payload || {},
+                    order: a.order || i
+                }))
+            }
+        },
+        include: { triggers: { include: { conditions: true } }, actions: true }
+    });
+    res.status(201).json(automation);
+});
+export const toggleAutomation = asyncHandler(async (req, res) => {
+    const tenantId = req.user?.tenantId;
+    const id = parseInt(req.params.id);
+    const { active } = req.body;
+    const automation = await prisma.automation.findFirst({ where: { id, tenant_id: tenantId } });
+    if (!automation)
+        throw new Error('Automation found');
+    const updated = await prisma.automation.update({
+        where: { id },
+        data: { active }
+    });
+    res.json(updated);
+});

@@ -18,11 +18,15 @@ export const globalErrorHandler = (err, req, res, next) => {
             });
         }
         else {
-            console.error('ERROR 💥', err);
+            console.error('CRITICAL_ERROR 💥', {
+                requestId: req.id,
+                message: err.message,
+                stack: err.stack,
+                tenant: req.user?.tenant_id
+            });
             res.status(500).json({
                 status: 'error',
-                message: err.message || 'Algo salió muy mal',
-                stack: err.stack
+                message: 'Error interno del sistema. El incidente ha sido reportado.'
             });
         }
     }
