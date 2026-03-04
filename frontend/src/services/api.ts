@@ -379,6 +379,46 @@ export const api = {
                 body: JSON.stringify({ query }),
             }).then(handleResponse),
 
+        askCopilotStream: async (query: string, onChunk: (text: string) => void, onDone: (contextUsed: number) => void, onError: (err: string) => void): Promise<void> => {
+            try {
+                const response = await customFetch(`${API_URL}/ai/copilot`, {
+                    method: 'POST',
+                    headers: getHeaders(),
+                    credentials: 'include',
+                    body: JSON.stringify({ query }),
+                });
+
+                if (!response.body) throw new Error("No readable stream available.");
+
+                const reader = response.body.getReader();
+                const decoder = new TextDecoder('utf-8');
+                let done = false;
+
+                while (!done) {
+                    const { value, done: readerDone } = await reader.read();
+                    done = readerDone;
+                    if (value) {
+                        const chunkStr = decoder.decode(value, { stream: true });
+                        const lines = chunkStr.split('\n');
+                        for (const line of lines) {
+                            if (line.startsWith('data: ')) {
+                                try {
+                                    const data = JSON.parse(line.slice(6));
+                                    if (data.error) onError(data.error);
+                                    else if (data.done) onDone(data.context_used);
+                                    else if (data.text) onChunk(data.text);
+                                } catch (e) {
+                                    // ignore unparseable chunk halfs
+                                }
+                            }
+                        }
+                    }
+                }
+            } catch (err: any) {
+                onError(err.message || 'Error de conexión');
+            }
+        },
+
         getLeadScore: (opportunityId: number): Promise<{ score: number; classification: 'HIGH' | 'MEDIUM' | 'LOW'; recommendation: string; factors: any }> =>
             customFetch(`${API_URL}/opportunities/${opportunityId}/score`, { headers: getHeaders(), credentials: 'include' }).then(handleResponse),
     },

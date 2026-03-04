@@ -1,5 +1,6 @@
 import OpenAI from 'openai';
 import { prisma } from '../../core/prisma.js';
+import { Response } from 'express';
 
 export class AIService {
     private openai: OpenAI;
@@ -65,17 +66,14 @@ export class AIService {
         }
     }
 
-    async copilotQuery(tenantId: number, query: string) {
+    async copilotQueryStream(tenantId: number, query: string, res: Response) {
         if (!process.env.OPENAI_API_KEY && !process.env.GROQ_API_KEY) {
-            return {
-                answer: "La clave de IA no está configurada. Por favor, configura OPENAI_API_KEY o GROQ_API_KEY en tu entorno para habilitar el Copiloto de forma gratuita.",
-                context_used: 0
-            };
+            res.write(`data: ${JSON.stringify({ error: "La clave de IA no está configurada. Por favor, configura OPENAI_API_KEY o GROQ_API_KEY en tu entorno para habilitar el Copiloto de forma gratuita." })}\n\n`);
+            res.end();
+            return;
         }
 
         // 1. Context Extraction (RAG)
-        // For an MVP Copilot, we pull recent stats from the tenant.
-        // In a production scenario, we'd use vector search or more specific queries based on NLP intent.
         const [recentOpps, recentTasks, clientsCount] = await Promise.all([
             prisma.opportunity.findMany({
                 where: { tenant_id: tenantId, status: { not: 'ganado' } },
@@ -112,15 +110,22 @@ export class AIService {
         const modelName = process.env.GROQ_API_KEY ? "llama-3.3-70b-versatile" : "gpt-4o";
 
         try {
-            const response = await this.openai.chat.completions.create({
+            const stream = await this.openai.chat.completions.create({
                 model: modelName,
-                messages: [{ role: "system", content: "Eres un asistente experto en ventas B2B y análisis de pipeline." }, { role: "user", content: prompt }]
+                messages: [{ role: "system", content: "Eres un asistente experto en ventas B2B y análisis de pipeline." }, { role: "user", content: prompt }],
+                stream: true
             });
 
-            return {
-                answer: response.choices[0].message.content,
-                context_used: recentOpps.length + recentTasks.length
-            };
+            for await (const chunk of stream) {
+                const text = chunk.choices[0]?.delta?.content || '';
+                if (text) {
+                    res.write(`data: ${JSON.stringify({ text })}\n\n`);
+                }
+            }
+
+            res.write(`data: ${JSON.stringify({ done: true, context_used: recentOpps.length + recentTasks.length })}\n\n`);
+            res.end();
+
         } catch (error: any) {
             console.error("[Copilot AI Error]:", error);
             let errorMessage = "Lo siento, ocurrió un error interno al contactar al motor de Inteligencia Artificial.";
@@ -132,10 +137,9 @@ export class AIService {
                 errorMessage = `Error del servidor de IA: ${error.message}`;
             }
 
-            return {
-                answer: errorMessage,
-                context_used: 0
-            };
+            // In SSE, if it fails early we can send an error chunk, else we just terminate
+            res.write(`data: ${JSON.stringify({ error: errorMessage })}\n\n`);
+            res.end();
         }
     }
 

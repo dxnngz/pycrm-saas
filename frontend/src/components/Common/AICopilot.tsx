@@ -31,17 +31,47 @@ export const AICopilot: React.FC = () => {
 
         const userQuery = input.trim();
         setInput('');
-        setMessages(prev => [...prev, { role: 'user', content: userQuery }]);
+
+        // Add user message and a blank assistant placeholder
+        setMessages(prev => [
+            ...prev,
+            { role: 'user', content: userQuery },
+            { role: 'assistant', content: '' }
+        ]);
+
         setIsLoading(true);
 
-        try {
-            const res = await api.ai.askCopilot(userQuery);
-            setMessages(prev => [...prev, { role: 'assistant', content: res.answer }]);
-        } catch (err: any) {
-            setMessages(prev => [...prev, { role: 'assistant', content: 'Lo siento, hubo un error conectando con el servicio de IA. Intenta de nuevo más tarde.' }]);
-        } finally {
-            setIsLoading(false);
-        }
+        // Stream reader
+        api.ai.askCopilotStream(
+            userQuery,
+            (chunkText) => {
+                setMessages(prev => {
+                    const newMessages = [...prev];
+                    const lastIndex = newMessages.length - 1;
+                    if (newMessages[lastIndex].role === 'assistant') {
+                        newMessages[lastIndex] = {
+                            ...newMessages[lastIndex],
+                            content: newMessages[lastIndex].content + chunkText
+                        };
+                    }
+                    return newMessages;
+                });
+            },
+            (contextUsed) => {
+                setIsLoading(false);
+            },
+            (errorMsg) => {
+                setMessages(prev => {
+                    const newMessages = [...prev];
+                    const lastIndex = newMessages.length - 1;
+                    if (newMessages[lastIndex].role === 'assistant') {
+                        newMessages[lastIndex] = { role: 'assistant', content: errorMsg };
+                    }
+                    return newMessages;
+                });
+                setIsLoading(false);
+            }
+        );
     };
 
     return (

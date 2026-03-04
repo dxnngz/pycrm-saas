@@ -57450,3 +57450,37 @@ Server is running on port 3001 at 0.0.0.0
 (node:59028) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
 (Use `node --trace-deprecation ...` to show where the warning was created)
 Server is running on port 3001 at 0.0.0.0
+12:10:54 AM [tsx] change in ./src/modules/ai/ai.controller.ts Restarting...
+c[dotenv@17.3.1] injecting env (0) from .env -- tip: ⚙️  write to custom object with { processEnv: myObject }
+(node:59582) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+Server is running on port 3001 at 0.0.0.0
+12:11:16 AM [tsx] change in ./src/modules/ai/ai.service.ts Restarting...
+c[dotenv@17.3.1] injecting env (0) from .env -- tip: 🛡️ auth for agents: https://vestauth.com
+(node:59597) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+Server is running on port 3001 at 0.0.0.0
+12:11:27 AM [tsx] change in ./src/modules/ai/ai.service.ts Restarting...
+c
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+Error [TransformError]: Transform failed with 1 error:
+/Users/danielgimenezzaragoza/Desktop/PROYECTOO/backend/src/modules/ai/ai.service.ts:152:4: ERROR: Expected "}" but found "private"
+    at failureErrorWithLog (/Users/danielgimenezzaragoza/Desktop/PROYECTOO/backend/node_modules/esbuild/lib/main.js:1467:15)
+    at /Users/danielgimenezzaragoza/Desktop/PROYECTOO/backend/node_modules/esbuild/lib/main.js:736:50
+    at responseCallbacks.<computed> (/Users/danielgimenezzaragoza/Desktop/PROYECTOO/backend/node_modules/esbuild/lib/main.js:603:9)
+    at handleIncomingPacket (/Users/danielgimenezzaragoza/Desktop/PROYECTOO/backend/node_modules/esbuild/lib/main.js:658:12)
+    at Socket.readFromStdout (/Users/danielgimenezzaragoza/Desktop/PROYECTOO/backend/node_modules/esbuild/lib/main.js:581:7)
+    at Socket.emit (node:events:508:28)
+    at addChunk (node:internal/streams/readable:559:12)
+    at readableAddChunkPushByteMode (node:internal/streams/readable:510:3)
+    at Readable.push (node:internal/streams/readable:390:5)
+    at Pipe.onStreamRead (node:internal/stream_base_commons:189:23)
+
+Node.js v24.13.1
+12:12:10 AM [tsx] change in ./src/modules/ai/ai.service.ts Rerunning...
+c[dotenv@17.3.1] injecting env (0) from .env -- tip: ⚙️  write to custom object with { processEnv: myObject }
+(node:59622) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+Server is running on port 3001 at 0.0.0.0
