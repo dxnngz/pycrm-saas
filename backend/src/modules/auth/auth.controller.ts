@@ -38,6 +38,8 @@ const sendTokenResponse = (user: any, statusCode: number, res: Response) => {
 
     res.status(statusCode).json({
         success: true,
+        token,
+        refreshToken,
         user: { id: user.id, name: user.name, email: user.email, role: user.role, tenant_id: user.tenant_id }
     });
 };

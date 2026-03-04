@@ -49,6 +49,12 @@ const getHeaders = (): Record<string, string> => {
         'X-Requested-With': 'XMLHttpRequest',
     };
 
+    // Inject JWT Bearer token dynamically
+    const token = localStorage.getItem('token');
+    if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+    }
+
     // Inject CSRF protection dynamically
     const csrfToken = getCsrfToken();
     if (csrfToken) {
