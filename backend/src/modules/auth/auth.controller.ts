@@ -10,12 +10,14 @@ const sendTokenResponse = (user: any, statusCode: number, res: Response) => {
     const token = generateToken(user.id, user.role, user.tenant_id);
     const refreshToken = generateRefreshToken(user.id, user.tenant_id);
 
+    const isProduction = process.env.NODE_ENV === 'production';
+
     // Cookie options
     const cookieOptions = {
         expires: new Date(Date.now() + 60 * 60 * 1000), // 1 hora para el AT
         httpOnly: true, // Accesible sólo por la red, no JS
-        secure: process.env.NODE_ENV === 'production', // Requiere HTTPS en prod
-        sameSite: 'strict' as const
+        secure: true, // Debe ser true para sameSite: 'none'
+        sameSite: 'none' as const
     };
 
     const refreshCookieOptions = {
@@ -98,15 +100,21 @@ export const logout = asyncHandler(async (req: Request, res: Response) => {
 
     res.cookie('jwt', 'loggedout', {
         expires: new Date(Date.now() + 10 * 1000),
-        httpOnly: true
+        httpOnly: true,
+        secure: true,
+        sameSite: 'none' as const
     });
     res.cookie('refreshToken', 'loggedout', {
         expires: new Date(Date.now() + 10 * 1000),
-        httpOnly: true
+        httpOnly: true,
+        secure: true,
+        sameSite: 'none' as const
     });
     res.cookie('csrfToken', 'loggedout', {
         expires: new Date(Date.now() + 10 * 1000),
-        httpOnly: false
+        httpOnly: false,
+        secure: true,
+        sameSite: 'none' as const
     });
 
     res.status(200).json({ success: true, message: 'Logged out successfully' });

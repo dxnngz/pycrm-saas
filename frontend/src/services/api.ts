@@ -76,7 +76,12 @@ const customFetch = async (url: string, options?: RequestInit, retries = 1): Pro
         } catch { /* ignore non-json strings */ }
     }
 
-    const finalOptions = { ...options, headers, body };
+    const finalOptions: RequestInit = {
+        credentials: 'include',
+        ...options,
+        headers,
+        body
+    };
 
     try {
         const response = await fetch(url, finalOptions);
