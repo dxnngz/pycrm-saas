@@ -183,7 +183,7 @@ const tenantLimiter = rateLimit({
         if ((req as any).user?.tenant_id) {
             return `tenant_${(req as any).user.tenant_id}`;
         }
-        return req.ip || req.connection?.remoteAddress || 'unknown';
+        return ipKeyGenerator(req.ip || 'unknown');
     },
     message: 'Too many requests from your Organization (Tenant). Please try again later.'
 });
