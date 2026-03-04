@@ -1,4 +1,5 @@
-import { EventEmitter2 } from 'eventemitter2';
+import pkg from 'eventemitter2';
+const { EventEmitter2 } = pkg;
 
 class EventBus extends EventEmitter2 {
     constructor() {
