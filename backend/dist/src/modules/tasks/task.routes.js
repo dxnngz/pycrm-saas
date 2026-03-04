@@ -1,0 +1,11 @@
+import { Router } from 'express';
+import * as taskController from './task.controller.js';
+import { protect } from '../../core/middlewares/auth.middleware.js';
+import { requirePermission, Permission } from '../../core/middlewares/rbac.middleware.js';
+const router = Router();
+router.use(protect);
+router.get('/', requirePermission(Permission.READ_TASK), taskController.getTasks);
+router.post('/', requirePermission(Permission.WRITE_TASK), taskController.createTask);
+router.patch('/:id/toggle', requirePermission(Permission.WRITE_TASK), taskController.toggleTaskCompletion);
+router.delete('/:id', requirePermission(Permission.DELETE_TASK), taskController.deleteTask);
+export default router;

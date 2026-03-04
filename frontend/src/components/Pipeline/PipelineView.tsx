@@ -13,7 +13,8 @@ import {
     ChevronRight,
     Briefcase,
     TrendingUp,
-    ShieldCheck
+    ShieldCheck,
+    Zap
 } from 'lucide-react';
 import { useOpportunities } from '../../hooks/useOpportunities';
 import { useClients } from '../../hooks/useClients';
@@ -119,6 +120,7 @@ const PipelineView = () => {
 
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [search, setSearch] = useState('');
+    const [activeFilter, setActiveFilter] = useState<'all' | 'high-value' | 'high-score' | 'stagnant'>('all');
 
     // Form state
     const [clientId, setClientId] = useState('');
@@ -142,7 +144,24 @@ const PipelineView = () => {
         loadClients(1, 100); // Load all clients for the select
     }, [loadClients]);
 
-    const safeOpportunities = Array.isArray(opportunities) ? opportunities : [];
+    const allOpportunities = Array.isArray(opportunities) ? opportunities : [];
+
+    const filteredOpportunities = allOpportunities.filter(opp => {
+        if (activeFilter === 'all') return true;
+        if (activeFilter === 'high-value') return opp.amount >= 10000;
+        if (activeFilter === 'high-score') {
+            const score = scores[opp.id];
+            return score && score.winProbability >= 70;
+        }
+        if (activeFilter === 'stagnant') {
+            const createdDate = new Date(opp.created_at || new Date());
+            const daysDiff = (new Date().getTime() - createdDate.getTime()) / (1000 * 3600 * 24);
+            return daysDiff > 30 && opp.status === 'pendiente';
+        }
+        return true;
+    });
+
+    const safeOpportunities = filteredOpportunities;
 
     useEffect(() => {
         const fetchScores = async () => {
@@ -221,6 +240,24 @@ const PipelineView = () => {
                     </p>
                 </div>
                 <div className="flex flex-wrap items-center gap-4">
+                    <div className="flex items-center bg-slate-100 dark:bg-slate-900/50 p-1.5 rounded-2xl border border-slate-200/50 dark:border-slate-800/50 mr-4">
+                        {[
+                            { id: 'all', label: 'Todos', icon: Briefcase },
+                            { id: 'high-value', label: 'Alto Valor', icon: TrendingUp },
+                            { id: 'high-score', label: 'Alta Prob.', icon: Target },
+                            { id: 'stagnant', label: 'Estancados', icon: Zap }
+                        ].map(f => (
+                            <button
+                                key={f.id}
+                                onClick={() => setActiveFilter(f.id as any)}
+                                className={`flex items-center gap-2 px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${activeFilter === f.id ? 'bg-white dark:bg-slate-800 shadow-sm text-primary-600' : 'text-slate-400 hover:text-slate-600 dark:hover:text-slate-300'}`}
+                            >
+                                <f.icon size={14} />
+                                {f.label}
+                            </button>
+                        ))}
+                    </div>
+
                     <div className="relative flex-1 sm:w-64 h-14 group">
                         <Search className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary-500 transition-colors" size={20} />
                         <input

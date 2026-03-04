@@ -62,6 +62,7 @@ model Client {
   opportunities Opportunity[]
   tasks         Task[]
 
+  @@unique([id, tenant_id])
   @@index([tenant_id], map: "idx_clients_tenant")
   @@map("clients")
 }
@@ -76,6 +77,7 @@ model Contact {
   client       Client?   @relation(fields: [client_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
   tenant       Tenant    @relation(fields: [tenant_id], references: [id], onDelete: Cascade)
 
+  @@unique([id, tenant_id])
   @@index([tenant_id, client_id], map: "idx_contacts_tenant_client")
   @@map("contacts")
 }
@@ -97,6 +99,7 @@ model Opportunity {
   client               Client?    @relation(fields: [client_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
   tenant               Tenant     @relation(fields: [tenant_id], references: [id], onDelete: Cascade)
 
+  @@unique([id, tenant_id])
   @@index([tenant_id, assigned_to], map: "idx_opps_tenant_assigned")
   @@index([tenant_id, client_id], map: "idx_opps_tenant_client")
   @@map("opportunities")
@@ -117,6 +120,7 @@ model Task {
   tenant     Tenant    @relation(fields: [tenant_id], references: [id], onDelete: Cascade)
   user       User?     @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
 
+  @@unique([id, tenant_id])
   @@index([tenant_id, client_id], map: "idx_tasks_tenant_client")
   @@index([tenant_id, user_id], map: "idx_tasks_tenant_user")
   @@map("tasks")
@@ -153,6 +157,7 @@ model Product {
   version     Int       @default(1)
   tenant      Tenant    @relation(fields: [tenant_id], references: [id], onDelete: Cascade)
 
+  @@unique([id, tenant_id])
   @@index([tenant_id], map: "idx_products_tenant")
   @@map("products")
 }
@@ -172,6 +177,7 @@ model Document {
   opportunity    Opportunity? @relation(fields: [opportunity_id], references: [id], onUpdate: NoAction)
   tenant         Tenant       @relation(fields: [tenant_id], references: [id], onDelete: Cascade)
 
+  @@unique([id, tenant_id])
   @@index([tenant_id, client_id], map: "idx_documents_tenant_client")
   @@map("documents")
 }

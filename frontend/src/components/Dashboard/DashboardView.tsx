@@ -15,6 +15,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import SalesChart from './SalesChart';
 import StatCard from './StatCard';
 import RecentActivity from './RecentActivity';
+import ExecutiveBriefing from './ExecutiveBriefing';
 import AIBanner from './AIBanner';
 import { api } from '../../services/api';
 import { predictFutureSales } from '../../services/mlService';
@@ -287,7 +288,39 @@ const DashboardView = () => {
                     </div>
                 </div>
                 <div className="lg:col-span-1">
+                    <ExecutiveBriefing />
+                </div>
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
+                <div className="lg:col-span-1">
                     <RecentActivity activities={stats.recentActivity} />
+                </div>
+                <div className="lg:col-span-2">
+                    {/* Performance Section integrated below or here */}
+                    <div className="bg-white dark:bg-slate-900 rounded-[3.5rem] p-10 border border-slate-100 dark:border-slate-800 shadow-sm h-full">
+                        <div className="flex items-center gap-4 mb-8">
+                            <TrendingUp size={24} className="text-emerald-500" />
+                            <h4 className="text-xl font-black tracking-tight">Ventas por Representante</h4>
+                        </div>
+                        <div className="space-y-6">
+                            {stats.repPerformance.slice(0, 3).map((rep) => (
+                                <div key={rep.id} className="space-y-2">
+                                    <div className="flex justify-between text-xs font-bold">
+                                        <span>{rep.name}</span>
+                                        <span>{rep.total_sales.toLocaleString()}€</span>
+                                    </div>
+                                    <div className="h-1.5 w-full bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
+                                        <motion.div
+                                            initial={{ width: 0 }}
+                                            animate={{ width: `${(rep.total_sales / 50000) * 100}%` }}
+                                            className="h-full bg-primary-600 rounded-full"
+                                        />
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
                 </div>
             </div>
 

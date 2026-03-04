@@ -16,6 +16,7 @@ import {
   Sun,
   Zap,
   Menu,
+  Command,
   X as CloseIcon
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -36,7 +37,7 @@ const UsersView = React.lazy(() => import('./components/Users/UsersView'));
 import LoginView from './components/Auth/LoginView';
 import { NotificationSystem } from './components/Notifications/NotificationSystem';
 import { AppViewSkeleton } from './components/Common/Skeletons';
-
+import { CommandCenter } from './components/Common/CommandCenter';
 
 type View = 'dashboard' | 'contacts' | 'pipeline' | 'tasks' | 'calendar' | 'products' | 'documents' | 'settings' | 'users';
 
@@ -44,11 +45,23 @@ const App: FC = () => {
   const { isAuthenticated, logout, user } = useAuth();
   const [activeView, setActiveView] = useState<View>('dashboard');
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
+  const [isCommandCenterOpen, setIsCommandCenterOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isDarkMode, setIsDarkMode] = useState(() => {
     return localStorage.getItem('theme') === 'dark' ||
       (!localStorage.getItem('theme') && window.matchMedia('(prefers-color-scheme: dark)').matches);
   });
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+        e.preventDefault();
+        setIsCommandCenterOpen(true);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
 
   useEffect(() => {
     if (isDarkMode) {
@@ -196,13 +209,18 @@ const App: FC = () => {
           </div>
 
           <div className="flex items-center gap-6">
-            <div className="relative w-[300px] hidden xl:block group">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary-500 transition-colors" size={20} />
-              <input
-                type="text"
-                placeholder="IA: ¿Qué estás buscando hoy?"
-                className="w-full pl-12 pr-4 py-3.5 bg-slate-100 dark:bg-slate-900/50 border-none rounded-2xl focus:ring-2 focus:ring-primary-500/50 outline-none text-sm font-medium transition-all"
-              />
+            <div
+              onClick={() => setIsCommandCenterOpen(true)}
+              className="relative w-[300px] hidden xl:flex group cursor-pointer"
+            >
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-hover:text-primary-500 transition-colors" size={20} />
+              <div className="w-full pl-12 pr-4 py-3.5 bg-slate-100 dark:bg-slate-900/50 border border-transparent hover:border-slate-200 dark:hover:border-slate-800 rounded-2xl flex items-center justify-between transition-all">
+                <span className="text-sm font-medium text-slate-400 group-hover:text-slate-500">¿Qué estás buscando?</span>
+                <div className="flex items-center gap-1 px-1.5 py-0.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg shadow-sm">
+                  <Command size={10} className="text-slate-400" />
+                  <span className="text-[10px] font-black text-slate-400">K</span>
+                </div>
+              </div>
             </div>
 
             {/* Live Cache Indicator */}
@@ -279,6 +297,11 @@ const App: FC = () => {
       <NotificationSystem
         isOpen={isNotificationsOpen}
         onClose={() => setIsNotificationsOpen(false)}
+      />
+      <CommandCenter
+        isOpen={isCommandCenterOpen}
+        onClose={() => setIsCommandCenterOpen(false)}
+        onNavigate={(viewId) => setActiveView(viewId)}
       />
       <Toaster position="top-right" richColors theme={isDarkMode ? 'dark' : 'light'} />
     </div>

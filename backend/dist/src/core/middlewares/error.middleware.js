@@ -1,10 +1,6 @@
-import { Request, Response, NextFunction } from 'express';
-import { AppError } from '../../utils/AppError.js';
-
-export const globalErrorHandler = (err: any, req: Request, res: Response, next: NextFunction) => {
+export const globalErrorHandler = (err, req, res, next) => {
     err.statusCode = err.statusCode || 500;
     err.status = err.status || 'error';
-
     if (process.env.NODE_ENV === 'development') {
         res.status(err.statusCode).json({
             status: err.status,
@@ -12,24 +8,21 @@ export const globalErrorHandler = (err: any, req: Request, res: Response, next: 
             message: err.message,
             stack: err.stack
         });
-    } else {
+    }
+    else {
         // En producción, esconder errores de programación/internos
         if (err.isOperational) {
             res.status(err.statusCode).json({
                 status: err.status,
                 message: err.message
             });
-        } else {
-            console.error('CRITICAL_ERROR 💥', {
-                requestId: (req as any).id,
-                message: err.message,
-                stack: err.stack,
-                tenant: (req as any).user?.tenant_id
-            });
-
+        }
+        else {
+            console.error('ERROR 💥', err);
             res.status(500).json({
                 status: 'error',
-                message: 'Error interno del sistema. El incidente ha sido reportado.'
+                message: err.message || 'Algo salió muy mal',
+                stack: err.stack
             });
         }
     }

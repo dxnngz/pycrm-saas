@@ -35,6 +35,22 @@ if (typeof window !== 'undefined') {
     };
     window.addEventListener('cache_invalidate', handleCacheInvalidate as EventListener);
 }
+// Global error handling for unhandled rejections (Catastrophic API failure)
+if (typeof window !== 'undefined') {
+    window.addEventListener('unhandledrejection', (event) => {
+        console.error('[CRITICAL] Unhandled Promise Rejection:', event.reason);
+        // We don't toast here to avoid spamming the user, 
+        // but we ensure the error is traceable in RUM logs.
+        captureRUMMetrics({
+            endpoint: 'GLOBAL_UNHANDLED_REJECTION',
+            method: 'REJECTION',
+            status: 0,
+            latencyMs: 0,
+            requestID: 'rejection-' + Date.now(),
+            timestamp: new Date().toISOString()
+        });
+    });
+}
 // ------------------------------------------
 
 const getCsrfToken = () => {
