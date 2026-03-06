@@ -19,28 +19,28 @@ export const StatsGrid: React.FC<StatsGridProps> = ({ stats }) => {
                 value={`${new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(stats.totalSales)}`}
                 icon={<TrendingUp size={16} />}
                 trend="+12.5%"
-                color="primary"
+                trendColor="success"
             />
             <StatCard
                 title="Active Deals"
                 value={stats.activeOpportunities.toString()}
                 icon={<Target size={16} />}
                 trend="+3 new"
-                color="amber"
+                trendColor="warning"
             />
             <StatCard
                 title="Win Rate"
                 value={`${stats.winRate.toFixed(1)}%`}
                 icon={<Trophy size={16} />}
                 trend="Stable"
-                color="emerald"
+                trendColor="neutral"
             />
             <StatCard
                 title="Pending Tasks"
                 value={stats.pendingTasks.toString()}
                 icon={<CheckSquare size={16} />}
                 trend="Due soon"
-                color="indigo"
+                trendColor="danger"
             />
         </div>
     );

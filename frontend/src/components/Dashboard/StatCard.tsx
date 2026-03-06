@@ -1,38 +1,36 @@
 import type { ReactNode } from 'react';
-import { motion } from 'framer-motion';
 
 interface StatCardProps {
     title: string;
     value: string;
     icon: ReactNode;
     trend: string;
-    color: 'primary' | 'emerald' | 'amber' | 'indigo';
+    trendColor?: 'success' | 'danger' | 'warning' | 'neutral';
 }
 
-const StatCard = ({ title, value, icon, trend, color }: StatCardProps) => {
-    const colors = {
-        primary: 'bg-primary-500 text-primary-500',
-        emerald: 'bg-emerald-500 text-emerald-500',
-        amber: 'bg-amber-500 text-amber-500',
-        indigo: 'bg-indigo-500 text-indigo-500',
+const StatCard = ({ title, value, icon, trend, trendColor = 'success' }: StatCardProps) => {
+    const trendColors = {
+        success: 'text-emerald-600 dark:text-emerald-400',
+        danger: 'text-rose-600 dark:text-rose-400',
+        warning: 'text-amber-600 dark:text-amber-400',
+        neutral: 'text-slate-400',
     };
 
     return (
-        <motion.div
-            whileHover={{ y: -5 }}
-            className="bg-white dark:bg-slate-900 p-8 rounded-[3rem] border border-slate-100 dark:border-slate-800 shadow-sm premium-shadow group"
-        >
-            <div className="flex items-center justify-between mb-6">
-                <div className={`p-4 rounded-[1.5rem] bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-300 group-hover:${colors[color]} group-hover:bg-opacity-10 transition-all duration-300`}>
+        <div className="bg-white dark:bg-slate-900 p-4 rounded-lg border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col justify-between h-32">
+            <div className="flex items-center justify-between">
+                <div className="w-8 h-8 rounded bg-slate-50 dark:bg-slate-800/50 flex items-center justify-center text-slate-500 dark:text-slate-400 border border-slate-100 dark:border-slate-800">
                     {icon}
                 </div>
-                <div className="bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 px-3 py-1.5 rounded-xl text-xs font-black">
+                <div className={`text-[10px] font-bold uppercase tracking-wider ${trendColors[trendColor]}`}>
                     {trend}
                 </div>
             </div>
-            <h3 className="text-slate-400 dark:text-slate-500 text-xs font-black uppercase tracking-[0.2em] mb-2">{title}</h3>
-            <p className="text-3xl font-black text-slate-900 dark:text-white tracking-tighter tabular-nums">{value}</p>
-        </motion.div>
+            <div>
+                <h3 className="text-[10px] font-bold text-slate-500 dark:text-slate-500 uppercase tracking-widest mb-1">{title}</h3>
+                <p className="text-xl font-bold text-slate-900 dark:text-white tabular-nums tracking-tight">{value}</p>
+            </div>
+        </div>
     );
 };
 

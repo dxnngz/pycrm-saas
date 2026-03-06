@@ -2,7 +2,6 @@ import { useState } from 'react';
 import {
     Download,
     RefreshCw,
-    Sparkles,
     LayoutDashboard
 } from 'lucide-react';
 
@@ -10,6 +9,7 @@ import {
 import { Button } from '../UI/Button';
 import { Tabs } from '../UI/Tabs';
 import { Skeleton } from '../UI/Skeleton';
+import { Badge } from '../UI/Badge';
 
 // Dashboard Components
 import SalesChart from './SalesChart';
@@ -72,20 +72,20 @@ const DashboardView = () => {
     if (loading) return <DashboardSkeleton />;
 
     return (
-        <div className="space-y-8 pb-10 max-w-[1600px] mx-auto animate-in fade-in slide-in-from-bottom-2 duration-500">
+        <div className="space-y-6 pb-6 max-w-[1600px] mx-auto animate-in fade-in duration-500">
             {/* Header */}
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div className="space-y-1">
-                    <h1 className="text-2xl font-bold tracking-tight text-slate-900 dark:text-white flex items-center gap-2">
-                        <LayoutDashboard size={24} className="text-primary-600 dark:text-primary-400" />
+                    <h1 className="text-xl font-bold tracking-tight text-slate-900 dark:text-white flex items-center gap-2">
+                        <LayoutDashboard size={20} className="text-primary-600 dark:text-primary-400" />
                         Executive Dashboard
                     </h1>
-                    <p className="text-sm text-slate-500 dark:text-slate-400">
+                    <p className="text-xs text-slate-500 dark:text-slate-400">
                         Operational oversight and real-time commercial network analytics.
                     </p>
                 </div>
 
-                <div className="flex flex-wrap items-center gap-3">
+                <div className="flex items-center gap-3">
                     <Tabs
                         tabs={[
                             { id: 'monthly', label: 'Monthly' },
@@ -98,14 +98,14 @@ const DashboardView = () => {
                     <button
                         onClick={() => refetch()}
                         disabled={isFetching}
-                        className="p-2 border border-slate-200 dark:border-slate-800 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-900 transition-all text-slate-500 disabled:opacity-50"
+                        className="p-2 border border-slate-200 dark:border-slate-800 rounded-md hover:bg-slate-50 dark:hover:bg-slate-900 transition-all text-slate-400 disabled:opacity-50"
                         title="Force refresh"
                     >
-                        <RefreshCw size={16} className={isFetching ? 'animate-spin' : ''} />
+                        <RefreshCw size={14} className={isFetching ? 'animate-spin' : ''} />
                     </button>
 
-                    <Button variant="outline" size="md" onClick={handleExport}>
-                        <Download size={16} className="mr-2" />
+                    <Button variant="outline" size="sm" onClick={handleExport}>
+                        <Download size={14} className="mr-2" />
                         Generate Report
                     </Button>
                 </div>
@@ -116,20 +116,17 @@ const DashboardView = () => {
 
             {/* Analysis Row */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <div className="lg:col-span-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-6 shadow-sm">
-                    <div className="flex items-center justify-between mb-8">
+                <div className="lg:col-span-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg p-5 shadow-sm">
+                    <div className="flex items-center justify-between mb-6">
                         <div>
-                            <h3 className="text-sm font-bold text-slate-900 dark:text-white uppercase tracking-wider">Revenue Analysis</h3>
-                            <p className="text-[10px] text-slate-500 font-medium mt-1 uppercase tracking-tight">Time-series performance metrics</p>
+                            <h3 className="text-[11px] font-bold text-slate-900 dark:text-white uppercase tracking-wider">Revenue Analysis</h3>
+                            <p className="text-[9px] text-slate-500 font-bold mt-0.5 uppercase tracking-tight">Time-series performance metrics</p>
                         </div>
                         {isCached && (
-                            <div className="flex items-center gap-1.5 text-[10px] font-bold text-amber-600 dark:text-amber-400 uppercase tracking-widest bg-amber-50 dark:bg-amber-400/10 px-2.5 py-1 rounded border border-amber-200 dark:border-amber-400/20">
-                                <Sparkles size={10} />
-                                Optimized
-                            </div>
+                            <Badge variant="success" className="animate-pulse">Optimized</Badge>
                         )}
                     </div>
-                    <div className="h-[360px]">
+                    <div className="h-[320px]">
                         <SalesChart data={stats.chartData} />
                     </div>
                 </div>
