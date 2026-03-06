@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { FixedSizeList } from 'react-window';
 import {
     CheckCircle2,
     Circle,
@@ -192,78 +191,68 @@ const TasksView = () => {
                 </div>
             </div>
 
-            {/* Virtualized List Container */}
-            <div className="flex-1 min-h-0 bg-white dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
+            {/* Tasks List Container */}
+            <div className="flex-1 min-h-0 bg-white dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden flex flex-col">
                 {loading ? (
-                    <div className="p-8 space-y-4">
+                    <div className="p-8 space-y-4 flex-1">
                         {[1, 2, 3, 4].map(i => (
                             <div key={i} className="h-16 bg-slate-50 dark:bg-slate-800/50 rounded animate-pulse"></div>
                         ))}
                     </div>
                 ) : filteredTasks.length === 0 ? (
-                    <div className="h-full flex flex-col items-center justify-center text-slate-400 py-20">
+                    <div className="flex-1 flex flex-col items-center justify-center text-slate-400 py-20">
                         <AlertCircle size={40} className="mb-4 opacity-20" />
                         <p className="text-xs font-bold uppercase tracking-widest opacity-60">No tasks found</p>
                     </div>
                 ) : (
-                    <FixedSizeList
-                        height={600}
-                        itemCount={filteredTasks.length}
-                        itemSize={80}
-                        width="100%"
-                        itemData={filteredTasks}
-                        className="scrollbar-thin scrollbar-thumb-slate-200 dark:scrollbar-thumb-slate-800"
-                    >
-                        {({ index, style, data }: { index: number; style: React.CSSProperties; data: Task[] }) => {
-                            const task = data[index];
-                            return (
-                                <div style={style} key={task.id} className="px-6 py-4 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors flex items-center gap-6 border-b border-slate-100 dark:border-slate-800/50">
-                                    <button
-                                        onClick={() => handleToggle(task.id)}
-                                        className={`shrink-0 transition-transform hover:scale-110 ${task.completed ? 'text-emerald-500' : 'text-slate-300 dark:text-slate-700 hover:text-primary-500'}`}
-                                    >
-                                        {task.completed ? <CheckCircle2 size={24} /> : <Circle size={24} />}
-                                    </button>
+                    <div className="flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-slate-200 dark:scrollbar-thumb-slate-800 px-6">
+                        {filteredTasks.map((task: Task) => (
+                            <div key={task.id} className="py-4 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors flex items-center gap-6 border-b border-slate-100 dark:border-slate-800/50 last:border-0">
+                                <button
+                                    onClick={() => handleToggle(task.id)}
+                                    className={`shrink-0 transition-transform hover:scale-110 ${task.completed ? 'text-emerald-500' : 'text-slate-300 dark:text-slate-700 hover:text-primary-500'}`}
+                                >
+                                    {task.completed ? <CheckCircle2 size={24} /> : <Circle size={24} />}
+                                </button>
 
-                                    <div className="flex-1 min-w-0">
-                                        <h4 className={`text-sm font-semibold truncate ${task.completed ? 'text-slate-400 line-through' : 'text-slate-900 dark:text-white'}`}>
-                                            {task.title}
-                                        </h4>
-                                        <div className="flex items-center gap-4 mt-1">
-                                            <div className="flex items-center gap-1.5 text-[10px] text-slate-500 dark:text-slate-400">
-                                                <Users size={12} />
-                                                <span className="truncate max-w-[120px]">{task.client_name || 'Individual'}</span>
-                                            </div>
-                                            {task.deadline && (
-                                                <div className="flex items-center gap-1.5 text-[10px] text-slate-500 dark:text-slate-400">
-                                                    <Calendar size={12} />
-                                                    <span>{new Date(task.deadline).toLocaleDateString()}</span>
-                                                </div>
-                                            )}
+                                <div className="flex-1 min-w-0">
+                                    <h4 className={`text-sm font-semibold truncate ${task.completed ? 'text-slate-400 line-through' : 'text-slate-900 dark:text-white'}`}>
+                                        {task.title}
+                                    </h4>
+                                    <div className="flex items-center gap-4 mt-1">
+                                        <div className="flex items-center gap-1.5 text-[10px] text-slate-500 dark:text-slate-400">
+                                            <Users size={12} />
+                                            <span className="truncate max-w-[120px]">{task.client_name || 'Individual'}</span>
                                         </div>
-                                    </div>
-
-                                    <div className="shrink-0 flex items-center gap-4">
-                                        <Badge variant={
-                                            task.priority === 'Alta' ? 'danger' :
-                                                task.priority === 'Media' ? 'warning' : 'secondary'
-                                        }>
-                                            {task.priority === 'Alta' ? 'High' : task.priority === 'Media' ? 'Medium' : 'Low'}
-                                        </Badge>
-
-                                        {canDeleteTask && (
-                                            <button
-                                                onClick={() => handleDeleteClick(task.id)}
-                                                className="p-2 text-slate-400 hover:text-red-600 rounded-md transition-colors"
-                                            >
-                                                <Trash2 size={16} />
-                                            </button>
+                                        {task.deadline && (
+                                            <div className="flex items-center gap-1.5 text-[10px] text-slate-500 dark:text-slate-400">
+                                                <Calendar size={12} />
+                                                <span>{new Date(task.deadline).toLocaleDateString()}</span>
+                                            </div>
                                         )}
                                     </div>
                                 </div>
-                            );
-                        }}
-                    </FixedSizeList>
+
+                                <div className="shrink-0 flex items-center gap-4">
+                                    <Badge variant={
+                                        task.priority === 'Alta' ? 'danger' :
+                                            task.priority === 'Media' ? 'warning' : 'secondary'
+                                    }>
+                                        {task.priority === 'Alta' ? 'High' : task.priority === 'Media' ? 'Medium' : 'Low'}
+                                    </Badge>
+
+                                    {canDeleteTask && (
+                                        <button
+                                            onClick={() => handleDeleteClick(task.id)}
+                                            className="p-2 text-slate-400 hover:text-red-600 rounded-md transition-colors"
+                                        >
+                                            <Trash2 size={16} />
+                                        </button>
+                                    )}
+                                </div>
+                            </div>
+                        ))}
+                    </div>
                 )}
             </div>
 
