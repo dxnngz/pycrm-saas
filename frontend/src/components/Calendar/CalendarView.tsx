@@ -14,7 +14,6 @@ import { api } from '../../services/api';
 import type { Event as CalendarEvent } from '../../types';
 import { toast } from 'sonner';
 import { Button } from '../UI/Button';
-import { Badge } from '../UI/Badge';
 
 const CalendarView = () => {
   const [currentDate, setCurrentDate] = useState(new Date());

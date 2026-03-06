@@ -11,6 +11,7 @@ import {
 import { useAuth } from '../../context/AuthContext';
 import { Button } from '../UI/Button';
 import { Input } from '../UI/Input';
+import { Badge } from '../UI/Badge';
 
 const SettingsView = () => {
     const { user } = useAuth();
@@ -108,7 +109,7 @@ const SettingsView = () => {
                                             <p className="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider">Plan</p>
                                             <p className="text-xs text-slate-500 dark:text-slate-400">Enterprise Professional</p>
                                         </div>
-                                        <Badge variant="primary">Active</Badge>
+                                        <Badge variant="success">Active</Badge>
                                     </div>
                                 </div>
                             </div>

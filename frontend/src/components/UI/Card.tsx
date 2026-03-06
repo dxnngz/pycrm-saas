@@ -1,4 +1,5 @@
-import React, { HTMLAttributes } from 'react';
+import React from 'react';
+import type { HTMLAttributes } from 'react';
 
 export interface CardProps extends HTMLAttributes<HTMLDivElement> {
     padding?: 'none' | 'sm' | 'md' | 'lg';

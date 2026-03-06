@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { FixedSizeList as List } from 'react-window';
+import React, { useState, useEffect } from 'react';
+import { FixedSizeList } from 'react-window';
 import {
     CheckCircle2,
     Circle,
@@ -206,15 +206,15 @@ const TasksView = () => {
                         <p className="text-xs font-bold uppercase tracking-widest opacity-60">No tasks found</p>
                     </div>
                 ) : (
-                    <List
-                        height={600} // Fixed height for simple calculation, but in flex-1 it will fill
+                    <FixedSizeList
+                        height={600}
                         itemCount={filteredTasks.length}
                         itemSize={80}
                         width="100%"
                         itemData={filteredTasks}
                         className="scrollbar-thin scrollbar-thumb-slate-200 dark:scrollbar-thumb-slate-800"
                     >
-                        {({ index, style, data }) => {
+                        {({ index, style, data }: { index: number; style: React.CSSProperties; data: Task[] }) => {
                             const task = data[index];
                             return (
                                 <div style={style} key={task.id} className="px-6 py-4 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors flex items-center gap-6 border-b border-slate-100 dark:border-slate-800/50">
@@ -263,7 +263,7 @@ const TasksView = () => {
                                 </div>
                             );
                         }}
-                    </List>
+                    </FixedSizeList>
                 )}
             </div>
 
