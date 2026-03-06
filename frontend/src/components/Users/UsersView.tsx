@@ -1,21 +1,18 @@
-import { useState, useEffect } from 'react';
-import { Shield, Trash2, Loader2 } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { useState, useEffect, useCallback } from 'react';
+import { Shield, Trash2, Loader2, UserCog } from 'lucide-react';
 import { api } from '../../services/api';
-
 import { toast } from 'sonner';
-
 import type { User } from '../../types';
+import { Table, type Column } from '../UI/Table';
+import { Badge } from '../UI/Badge';
+import { Button } from '../UI/Button';
 
 const UsersView = () => {
     const [users, setUsers] = useState<User[]>([]);
     const [loading, setLoading] = useState(true);
 
-    useEffect(() => {
-        loadUsers();
-    }, []);
-
-    const loadUsers = async () => {
+    const loadUsers = useCallback(async () => {
+        setLoading(true);
         try {
             const data = await api.users.getAll();
             const safeData = Array.isArray(data) ? data : [];
@@ -23,103 +20,112 @@ const UsersView = () => {
         } catch (error) {
             console.error(error);
             setUsers([]);
+            toast.error('Failed to load users');
         } finally {
             setLoading(false);
         }
-    };
+    }, []);
+
+    useEffect(() => {
+        loadUsers();
+    }, [loadUsers]);
 
     const handleRoleChange = async (userId: number, currentRole: string) => {
         const newRole = currentRole === 'admin' ? 'empleado' : 'admin';
         try {
             await api.users.updateRole(userId, newRole);
             setUsers(prev => prev.map(u => u.id === userId ? { ...u, role: newRole } : u));
-            toast.success('Privilegios actualizados correctamente.');
+            toast.success(`User role updated to ${newRole}`);
         } catch (error) {
             console.error(error);
+            toast.error('Failed to update role');
         }
     };
 
     const handleDeleteUser = async (userId: number) => {
-        if (!confirm('¿Atención! ¿Deseas revocar el acceso y eliminar permanentemente a este usuario de PyCRM?')) return;
+        if (!confirm('Are you sure you want to permanently delete this user? This action cannot be undone.')) return;
         try {
             await api.users.delete(userId);
             setUsers(prev => prev.filter(u => u.id !== userId));
-            toast.success('Identidad eliminada con éxito del registro.');
+            toast.success('User deleted successfully');
         } catch (error) {
             console.error(error);
+            toast.error('Failed to delete user');
         }
     };
 
-    if (loading) {
-        return (
-            <div className="flex items-center justify-center min-h-[400px]">
-                <Loader2 className="animate-spin text-primary-600" size={40} />
-            </div>
-        );
-    }
+    const columns: Column<User>[] = [
+        {
+            header: 'Identity',
+            accessor: (user: User) => (
+                <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-md bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-[10px] font-bold text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-700">
+                        {user.name.charAt(0)}
+                    </div>
+                    <div className="font-medium text-slate-900 dark:text-white">{user.name}</div>
+                </div>
+            ),
+        },
+        {
+            header: 'Corporate Email',
+            accessor: 'email',
+            className: 'text-slate-500 dark:text-slate-400',
+        },
+        {
+            header: 'Access Level',
+            align: 'center',
+            accessor: (user: User) => (
+                <button
+                    onClick={() => handleRoleChange(user.id, user.role)}
+                    className="focus:outline-none"
+                >
+                    <Badge variant={user.role === 'admin' ? 'success' : 'secondary'}>
+                        {user.role}
+                    </Badge>
+                </button>
+            ),
+        },
+        {
+            header: 'Actions',
+            align: 'right',
+            accessor: (user: User) => (
+                <button
+                    onClick={() => handleDeleteUser(user.id)}
+                    className="p-1.5 text-slate-400 hover:text-red-600 rounded-md transition-colors"
+                >
+                    <Trash2 size={16} />
+                </button>
+            ),
+        }
+    ];
 
     return (
-        <div className="flex flex-col gap-10">
-            <div className="flex items-center justify-between">
+        <div className="space-y-6">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
-                    <h1 className="text-4xl font-black text-slate-900 dark:text-white tracking-tight">Gestión de Identidades</h1>
-                    <p className="text-slate-500 dark:text-slate-400 font-bold mt-2 flex items-center gap-2">
-                        <Shield size={18} className="text-primary-500" />
-                        Centro de Control de Acceso (RBAC) - Solo nivel Administrador
+                    <h1 className="text-xl font-bold text-slate-900 dark:text-white">User Management</h1>
+                    <p className="text-sm text-slate-500 dark:text-slate-400 mt-1 flex items-center gap-1.5">
+                        <Shield size={14} className="text-primary-500" />
+                        Role-Based Access Control (RBAC) - Administrator View
                     </p>
                 </div>
+                <Button
+                    variant="outline"
+                    size="md"
+                    onClick={() => loadUsers()}
+                    disabled={loading}
+                >
+                    {loading ? <Loader2 className="animate-spin mr-2" size={16} /> : <UserCog size={16} className="mr-2" />}
+                    Refresh List
+                </Button>
             </div>
 
-            <div className="bg-white dark:bg-slate-900 rounded-[3rem] shadow-sm premium-shadow p-8 border border-slate-100 dark:border-slate-800">
-                <div className="overflow-x-auto">
-                    <table className="w-full text-left">
-                        <thead>
-                            <tr className="border-b-2 border-slate-100 dark:border-slate-800">
-                                <th className="pb-4 font-black text-xs uppercase tracking-widest text-slate-400 px-6">Identidad</th>
-                                <th className="pb-4 font-black text-xs uppercase tracking-widest text-slate-400 px-6">Email Corportativo</th>
-                                <th className="pb-4 font-black text-xs uppercase tracking-widest text-slate-400 px-6 text-center">Nivel de Acceso</th>
-                                <th className="pb-4 font-black text-xs uppercase tracking-widest text-slate-400 px-6 text-right">Acciones Peligrosas</th>
-                            </tr>
-                        </thead>
-                        <tbody className="divide-y divide-slate-100 dark:divide-slate-800/50">
-                            {users.map(user => (
-                                <motion.tr
-                                    key={user.id}
-                                    initial={{ opacity: 0 }}
-                                    animate={{ opacity: 1 }}
-                                    className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors group"
-                                >
-                                    <td className="py-6 px-6 font-bold flex items-center gap-3 text-slate-900 dark:text-white">
-                                        <div className="w-10 h-10 rounded-full bg-indigo-100 dark:bg-indigo-900/40 text-indigo-600 dark:text-indigo-400 flex items-center justify-center font-black">
-                                            {user.name.charAt(0)}
-                                        </div>
-                                        {user.name}
-                                    </td>
-                                    <td className="py-6 px-6 text-slate-500 font-medium">
-                                        {user.email}
-                                    </td>
-                                    <td className="py-6 px-6 text-center">
-                                        <button
-                                            onClick={() => handleRoleChange(user.id, user.role)}
-                                            className={`px-4 py-1.5 rounded-full text-xs font-black uppercase tracking-widest transition-all ${user.role === 'admin' ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400' : 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400'}`}
-                                        >
-                                            {user.role}
-                                        </button>
-                                    </td>
-                                    <td className="py-6 px-6 text-right">
-                                        <button
-                                            onClick={() => handleDeleteUser(user.id)}
-                                            className="p-3 text-slate-400 hover:bg-rose-50 hover:text-rose-600 dark:hover:bg-rose-900/20 dark:hover:text-rose-400 rounded-xl transition-all"
-                                        >
-                                            <Trash2 size={18} />
-                                        </button>
-                                    </td>
-                                </motion.tr>
-                            ))}
-                        </tbody>
-                    </table>
-                </div>
-            </div>
+            <Table
+                data={users}
+                columns={columns}
+                isLoading={loading}
+                emptyMessage="No users found in the registry."
+            />
         </div>
     );
 };

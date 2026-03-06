@@ -3,8 +3,10 @@ import { prisma } from '../../core/prisma.js';
 export class AIService {
     openai;
     constructor() {
+        const isGroq = !!process.env.GROQ_API_KEY;
         this.openai = new OpenAI({
-            apiKey: process.env.OPENAI_API_KEY || 'dummy_key'
+            apiKey: process.env.OPENAI_API_KEY || process.env.GROQ_API_KEY || 'dummy_key',
+            baseURL: isGroq ? 'https://api.groq.com/openai/v1' : undefined
         });
     }
     async calculateLeadScore(opportunityId, tenantId) {
@@ -15,8 +17,8 @@ export class AIService {
         if (!opportunity)
             throw new Error('Oportunidad no encontrada');
         // Fallback or actual OpenAI call (using a mock if no key to prevent instant crashes)
-        if (!process.env.OPENAI_API_KEY) {
-            console.warn("OPENAI_API_KEY no configurado, usando scoring por defecto.");
+        if (!process.env.OPENAI_API_KEY && !process.env.GROQ_API_KEY) {
+            console.warn("API de IA no configurada, usando scoring por defecto.");
             return this.mockLeadScore(opportunity);
         }
         const prompt = `
@@ -35,28 +37,33 @@ export class AIService {
             "recommendation": "string", 
             "factors": {"amount": "string", "engagement": "string", "historicalData": "string"}
         }`;
-        const response = await this.openai.chat.completions.create({
-            model: "gpt-4o-mini",
-            response_format: { type: "json_object" },
-            messages: [{ role: "user", content: prompt }]
-        });
-        const parsed = JSON.parse(response.choices[0].message.content || '{}');
-        return {
-            opportunityId,
-            ...parsed,
-            calculatedAt: new Date()
-        };
-    }
-    async copilotQuery(tenantId, query) {
-        if (!process.env.OPENAI_API_KEY) {
+        try {
+            const modelName = process.env.GROQ_API_KEY ? "llama-3.1-8b-instant" : "gpt-4o-mini";
+            const response = await this.openai.chat.completions.create({
+                model: modelName,
+                response_format: { type: "json_object" },
+                messages: [{ role: "user", content: prompt }]
+            });
+            const parsed = JSON.parse(response.choices[0].message.content || '{}');
             return {
-                answer: "La clave de OpenAI no está configurada. Por favor, configura la variable de entorno OPENAI_API_KEY para habilitar el Copiloto AI.",
-                context_used: 0
+                opportunityId,
+                ...parsed,
+                calculatedAt: new Date()
             };
         }
+        catch (error) {
+            console.error("AI Scoring Error:", error.message || error);
+            console.warn("Retornando scoring de fallback por fallo en la API externa.");
+            return this.mockLeadScore(opportunity);
+        }
+    }
+    async copilotQueryStream(tenantId, query, res) {
+        if (!process.env.OPENAI_API_KEY && !process.env.GROQ_API_KEY) {
+            res.write(`data: ${JSON.stringify({ error: "La clave de IA no está configurada. Por favor, configura OPENAI_API_KEY o GROQ_API_KEY en tu entorno para habilitar el Copiloto de forma gratuita." })}\n\n`);
+            res.end();
+            return;
+        }
         // 1. Context Extraction (RAG)
-        // For an MVP Copilot, we pull recent stats from the tenant.
-        // In a production scenario, we'd use vector search or more specific queries based on NLP intent.
         const [recentOpps, recentTasks, clientsCount] = await Promise.all([
             prisma.opportunity.findMany({
                 where: { tenant_id: tenantId, status: { not: 'ganado' } },
@@ -87,14 +94,38 @@ export class AIService {
         
         Pregunta del usuario: ${query}
         `;
-        const response = await this.openai.chat.completions.create({
-            model: "gpt-4o",
-            messages: [{ role: "system", content: "Eres un asistente experto en ventas B2B y análisis de pipeline." }, { role: "user", content: prompt }]
-        });
-        return {
-            answer: response.choices[0].message.content,
-            context_used: recentOpps.length + recentTasks.length
-        };
+        const modelName = process.env.GROQ_API_KEY ? "llama-3.3-70b-versatile" : "gpt-4o";
+        try {
+            const stream = await this.openai.chat.completions.create({
+                model: modelName,
+                messages: [{ role: "system", content: "Eres un asistente experto en ventas B2B y análisis de pipeline." }, { role: "user", content: prompt }],
+                stream: true
+            });
+            for await (const chunk of stream) {
+                const text = chunk.choices[0]?.delta?.content || '';
+                if (text) {
+                    res.write(`data: ${JSON.stringify({ text })}\n\n`);
+                }
+            }
+            res.write(`data: ${JSON.stringify({ done: true, context_used: recentOpps.length + recentTasks.length })}\n\n`);
+            res.end();
+        }
+        catch (error) {
+            console.error("[Copilot AI Error]:", error);
+            let errorMessage = "Lo siento, ocurrió un error interno al contactar al motor de Inteligencia Artificial.";
+            if (error.status === 401) {
+                errorMessage = "La API Key de Groq/OpenAI no es válida (Error 401 Unauthorized). Por favor, verifica que la has copiado correctamente en Render.";
+            }
+            else if (error.status === 429) {
+                errorMessage = "Has excedido el límite de peticiones gratuitas. Por favor, intenta de nuevo más tarde.";
+            }
+            else if (error.message) {
+                errorMessage = `Error del servidor de IA: ${error.message}`;
+            }
+            // In SSE, if it fails early we can send an error chunk, else we just terminate
+            res.write(`data: ${JSON.stringify({ error: errorMessage })}\n\n`);
+            res.end();
+        }
     }
     mockLeadScore(opportunity) {
         let baseScore = 50;

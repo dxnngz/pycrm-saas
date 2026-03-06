@@ -1,13 +1,10 @@
-import React, { useState, useEffect, useCallback, memo } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
     Search,
     UserPlus,
     Mail,
     Phone,
-    Building2,
-    Globe,
     Trash2,
-    ShieldCheck,
     FileDown,
     Edit2,
     ChevronLeft,
@@ -18,106 +15,19 @@ import { useClients } from '../../hooks/useClients';
 import { usePermissions } from '../../hooks/usePermissions';
 import { generateClientReport } from '../../services/reportService';
 import { sanitizePayload } from '../../utils/sanitize';
-import { SkeletonTable } from '../Common/Skeletons';
 import Modal from '../Common/Modal';
 import Timeline from './Timeline';
 import type { Client } from '../../types';
-import { useFPSMonitor } from '../../hooks/useFPSMonitor';
-import { Input } from '../Common/Input';
+import { Input } from '../UI/Input';
+import { Button } from '../UI/Button';
+import { Table, type Column } from '../UI/Table';
+import { Badge } from '../UI/Badge';
 import { ConfirmModal } from '../Common/ConfirmModal';
-
-const ClientRow = memo(({
-    client,
-    canDeleteClient,
-    canEditClient,
-    onOpenTimeline,
-    onOpenModal,
-    onDeleteClient
-}: {
-    client: Client,
-    canDeleteClient: boolean,
-    canEditClient: boolean,
-    onOpenTimeline: (c: Client) => void,
-    onOpenModal: (c: Client) => void,
-    onDeleteClient: (id: number) => void
-}) => {
-    return (
-        <tr className="hover:bg-slate-50/80 dark:hover:bg-slate-850/50 transition-all group even:bg-slate-50/30 dark:even:bg-slate-900/20">
-            <td className="px-8 py-6">
-                <div className="flex items-center gap-5">
-                    <div className="w-14 h-14 bg-gradient-to-br from-slate-100 to-slate-200 dark:from-slate-800 dark:to-slate-900 rounded-[1.25rem] flex items-center justify-center text-slate-600 dark:text-slate-300 font-black text-xl group-hover:from-primary-500 group-hover:to-primary-600 group-hover:text-white transition-all duration-300 shadow-sm">
-                        {client.name.charAt(0)}
-                    </div>
-                    <div>
-                        <span className="font-black text-slate-900 dark:text-white text-lg tracking-tight block">{client.name}</span>
-                        <span className="text-[10px] font-black text-emerald-500 uppercase tracking-widest mt-0.5 block">Cliente VIP</span>
-                    </div>
-                </div>
-            </td>
-            <td className="px-8 py-6 hidden md:table-cell">
-                <div className="flex items-center gap-3 text-slate-600 dark:text-slate-400 bg-slate-100 dark:bg-slate-800/50 px-4 py-2 rounded-xl border border-transparent group-hover:border-primary-500/20 transition-all inline-flex">
-                    <Building2 size={18} className="text-primary-500" />
-                    <span className="text-sm font-bold tracking-tight">{client.company}</span>
-                </div>
-            </td>
-            <td className="px-8 py-6 hidden lg:table-cell">
-                <div className="space-y-2">
-                    <div className="flex items-center gap-3 text-xs font-bold text-slate-500 dark:text-slate-400 hover:text-primary-500 transition-colors">
-                        <Mail size={16} className="text-slate-400" />
-                        {client.email}
-                    </div>
-                    <div className="flex items-center gap-3 text-xs font-bold text-slate-500 dark:text-slate-400 hover:text-primary-500 transition-colors">
-                        <Phone size={16} className="text-slate-400" />
-                        {client.phone}
-                    </div>
-                </div>
-            </td>
-            <td className="px-8 py-6 text-right">
-                <div className="flex items-center justify-end gap-2 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-all">
-                    <button
-                        onClick={() => onOpenTimeline(client)}
-                        className="p-3 text-slate-400 hover:text-emerald-500 hover:bg-emerald-500/10 rounded-2xl transition-all"
-                        title="Ver Historial"
-                    >
-                        <History size={20} />
-                    </button>
-                    <button
-                        onClick={() => generateClientReport([client])}
-                        className="p-3 text-slate-400 hover:text-emerald-500 hover:bg-emerald-500/10 rounded-2xl transition-all"
-                        title="Descargar Reporte"
-                    >
-                        <FileDown size={20} />
-                    </button>
-                    {canEditClient && (
-                        <button
-                            onClick={() => onOpenModal(client)}
-                            className="p-3 text-slate-400 hover:text-primary-500 hover:bg-primary-500/10 rounded-2xl transition-all"
-                            title="Editar Cliente"
-                        >
-                            <Edit2 size={20} />
-                        </button>
-                    )}
-                    {canDeleteClient && (
-                        <button
-                            onClick={() => onDeleteClient(client.id)}
-                            className="p-3 text-slate-400 hover:text-rose-500 hover:bg-rose-500/10 rounded-2xl transition-all"
-                            title="Eliminar Cliente"
-                        >
-                            <Trash2 size={20} />
-                        </button>
-                    )}
-                </div>
-            </td>
-        </tr>
-    );
-});
-
-ClientRow.displayName = 'ClientRow';
 
 const ContactsView = () => {
     const [search, setSearch] = useState('');
     const [debouncedSearch, setDebouncedSearch] = useState('');
-    const [page, setPage] = useState(1);
+    const [page] = useState(1);
 
     useEffect(() => {
         const timer = setTimeout(() => {
@@ -142,8 +52,79 @@ const ContactsView = () => {
     const [newPhone, setNewPhone] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
 
-    // Activar monitor de lentitud (si bajan los FPS, logueará métrica en RUM)
-    useFPSMonitor('ContactsView', 40);
+    const columns: Column<Client>[] = [
+        {
+            header: 'Customer',
+            accessor: (client: Client) => (
+                <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-md bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-[10px] font-bold text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-700">
+                        {client.name.split(' ').map((n: string) => n[0]).join('')}
+                    </div>
+                    <div>
+                        <div className="font-medium text-slate-900 dark:text-white">{client.name}</div>
+                        <div className="text-[10px] text-slate-400">ID: #{client.id.toString().padStart(4, '0')}</div>
+                    </div>
+                </div>
+            ),
+        },
+        {
+            header: 'Organization',
+            accessor: 'company',
+            className: 'hidden md:table-cell',
+        },
+        {
+            header: 'Contact',
+            accessor: (client: Client) => (
+                <div className="space-y-0.5">
+                    <div className="flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400">
+                        <Mail size={12} /> {client.email}
+                    </div>
+                    {client.phone && (
+                        <div className="flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400">
+                            <Phone size={12} /> {client.phone}
+                        </div>
+                    )}
+                </div>
+            ),
+            className: 'hidden lg:table-cell',
+        },
+        {
+            header: 'Status',
+            accessor: () => <Badge variant="success">Active</Badge>,
+            align: 'center',
+        },
+        {
+            header: 'Actions',
+            align: 'right',
+            accessor: (client: Client) => (
+                <div className="flex items-center justify-end gap-1">
+                    <button
+                        onClick={() => handleOpenTimeline(client)}
+                        className="p-1.5 text-slate-400 hover:text-slate-900 dark:hover:text-white rounded-md transition-colors"
+                        title="Timeline"
+                    >
+                        <History size={16} />
+                    </button>
+                    <button
+                        onClick={() => handleOpenModal(client)}
+                        className="p-1.5 text-slate-400 hover:text-primary-600 rounded-md transition-colors"
+                        title="Edit"
+                    >
+                        <Edit2 size={16} />
+                    </button>
+                    {canDeleteClient && (
+                        <button
+                            onClick={() => handleDeleteClient(client.id)}
+                            className="p-1.5 text-slate-400 hover:text-red-600 rounded-md transition-colors"
+                            title="Delete"
+                        >
+                            <Trash2 size={16} />
+                        </button>
+                    )}
+                </div>
+            ),
+        }
+    ];
 
     const handleOpenModal = useCallback((client: Client | null = null) => {
         if (client) {
@@ -188,7 +169,7 @@ const ContactsView = () => {
 
             setIsModalOpen(false);
             setEditingClient(null);
-            loadClients(pagination.page, pagination.limit, search);
+            loadClients(pagination.page, pagination.limit, debouncedSearch);
         } catch (error: unknown) {
             console.error(error);
         } finally {
@@ -209,9 +190,9 @@ const ContactsView = () => {
             setIsDeleteModalOpen(false);
             setClientToDelete(null);
             if (clients && clients.length === 1 && pagination.page > 1) {
-                loadClients(pagination.page - 1, pagination.limit, search);
+                loadClients(pagination.page - 1, pagination.limit, debouncedSearch);
             } else {
-                loadClients(pagination.page, pagination.limit, search);
+                loadClients(pagination.page, pagination.limit, debouncedSearch);
             }
         } catch (error: unknown) {
             console.error(error);
@@ -226,138 +207,101 @@ const ContactsView = () => {
 
     if (loading && clients.length === 0) {
         return (
-            <div className="max-w-[1600px] mx-auto p-10 pt-16">
-                <SkeletonTable />
+            <div className="p-8">
+                <Table data={[]} columns={columns} isLoading={true} />
             </div>
         );
     }
 
     return (
-        <div className="space-y-10">
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+        <div className="space-y-6">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
-                    <h1 className="text-4xl font-black text-slate-900 dark:text-white tracking-tight">Directorio de Clientes</h1>
-                    <p className="text-slate-500 dark:text-slate-400 font-bold mt-2 flex items-center gap-2">
-                        <ShieldCheck size={18} className="text-emerald-500" />
-                        Base de datos verificada y cifrada
+                    <h1 className="text-xl font-bold text-slate-900 dark:text-white">Customers</h1>
+                    <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
+                        Manage your client database and communication history.
                     </p>
                 </div>
-                <div className="flex flex-wrap items-center gap-4">
-                    <button
-                        onClick={handleExportPDF}
-                        className="flex items-center gap-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-200 px-6 h-14 rounded-2xl font-black hover:bg-slate-50 dark:hover:bg-slate-850 transition-all shadow-sm premium-shadow"
-                    >
-                        <FileDown size={20} />
-                        <span className="hidden sm:inline">Exportar PDF</span>
-                    </button>
-                    <div className="relative flex-1 sm:w-64 h-14 group">
-                        <Search className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary-500 transition-colors" size={20} />
+                <div className="flex flex-wrap items-center gap-3">
+                    <div className="relative group w-full md:w-64">
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary-500 transition-colors" size={16} />
                         <input
                             type="text"
-                            placeholder="Buscar socio..."
+                            placeholder="Search customers..."
                             value={search}
                             onChange={(e) => setSearch(e.target.value)}
-                            className="w-full h-full pl-14 pr-6 bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-2xl focus:ring-2 focus:ring-primary-500 outline-none font-bold shadow-sm"
+                            className="w-full h-10 pl-10 pr-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all"
                         />
                     </div>
+
+                    <Button
+                        variant="outline"
+                        size="md"
+                        onClick={handleExportPDF}
+                    >
+                        <FileDown size={16} className="mr-2" />
+                        Export
+                    </Button>
+
                     {canCreateClient && (
-                        <button
+                        <Button
+                            variant="primary"
+                            size="md"
                             onClick={() => handleOpenModal()}
-                            className="flex items-center gap-3 bg-primary-600 text-white px-8 h-14 rounded-2xl font-black hover:bg-primary-700 transition-all shadow-xl shadow-primary-600/30 whitespace-nowrap"
                         >
-                            <UserPlus size={24} />
-                            <span>Añadir</span>
-                        </button>
+                            <UserPlus size={16} className="mr-2" />
+                            New Customer
+                        </Button>
                     )}
                 </div>
             </div>
 
-            <div className="bg-white dark:bg-slate-900 rounded-[3rem] border border-slate-100 dark:border-slate-800 shadow-sm premium-shadow overflow-hidden">
-                <div className="overflow-x-auto">
-                    <table className="w-full text-left border-collapse">
-                        <thead>
-                            <tr className="bg-slate-50/50 dark:bg-slate-950/50 border-b border-slate-100 dark:border-slate-800">
-                                <th className="px-8 py-6 text-xs font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em]">Socio Comercial</th>
-                                <th className="px-8 py-6 text-xs font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em] hidden md:table-cell">Organización</th>
-                                <th className="px-8 py-6 text-xs font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em] hidden lg:table-cell">Puntos de Contacto</th>
-                                <th className="px-8 py-6 text-xs font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em] text-right">Acciones</th>
-                            </tr>
-                        </thead>
-                        <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
-                            {!clients || clients.length === 0 ? (
-                                <tr>
-                                    <td colSpan={4} className="px-8 py-32 text-center">
-                                        <div className="max-w-md mx-auto">
-                                            <div className="w-24 h-24 bg-slate-100 dark:bg-slate-800 rounded-full flex items-center justify-center mx-auto mb-6">
-                                                <Globe size={40} className="text-slate-400 dark:text-slate-500" />
-                                            </div>
-                                            <h3 className="text-xl font-black text-slate-900 dark:text-white mb-2 tracking-tight">No existen socios registrados</h3>
-                                            <p className="text-slate-500 dark:text-slate-400 font-bold text-sm mb-8 leading-relaxed">
-                                                Comienza agregando tu primer socio estratégico para iniciar el rastreo de interacciones y oportunidades comerciales en el sistema.
-                                            </p>
-                                            {canCreateClient && (
-                                                <button
-                                                    onClick={() => handleOpenModal()}
-                                                    className="inline-flex items-center gap-2 bg-primary-600 text-white px-8 h-12 rounded-xl font-black hover:bg-primary-700 transition-all shadow-lg shadow-primary-600/30"
-                                                >
-                                                    <UserPlus size={18} />
-                                                    <span>Registrar Nuevo Socio</span>
-                                                </button>
-                                            )}
-                                        </div>
-                                    </td>
-                                </tr>
-                            ) : clients.map((client: Client) => (
-                                <ClientRow
-                                    key={client.id}
-                                    client={client}
-                                    canDeleteClient={canDeleteClient}
-                                    canEditClient={canCreateClient} // Using create permission as edit bound
-                                    onOpenTimeline={handleOpenTimeline}
-                                    onOpenModal={handleOpenModal}
-                                    onDeleteClient={handleDeleteClient}
-                                />
-                            ))}
-                        </tbody>
-                    </table>
-                </div>
-            </div>
+            <Table
+                data={clients}
+                columns={columns}
+                isLoading={loading}
+                emptyMessage="No customers found."
+            />
 
-            {/* Pagination / Footer Component */}
             {clients && clients.length > 0 && (
-                <div className="bg-white dark:bg-slate-900 rounded-[2rem] border border-slate-100 dark:border-slate-800 shadow-sm px-8 py-6 flex flex-col md:flex-row items-center justify-between gap-4">
-                    <p className="text-sm font-bold text-slate-500 dark:text-slate-400">
-                        Mostrando <span className="text-slate-900 dark:text-white px-1">{clients.length}</span> de <span className="text-slate-900 dark:text-white px-1">{pagination.total}</span> registros en total
+                <div className="flex flex-col md:flex-row items-center justify-between gap-4 py-4 border-t border-slate-200 dark:border-slate-800">
+                    <p className="text-xs text-slate-500 dark:text-slate-400">
+                        Showing <span className="font-medium text-slate-900 dark:text-white">{clients.length}</span> of <span className="font-medium text-slate-900 dark:text-white">{pagination.total}</span> records
                     </p>
-                    <div className="flex items-center gap-2 bg-slate-50 dark:bg-slate-950 p-1 rounded-2xl border border-slate-100 dark:border-slate-800">
-                        <button
+                    <div className="flex items-center gap-2">
+                        <Button
+                            variant="outline"
+                            size="sm"
                             disabled={pagination.page === 1}
-                            onClick={() => loadClients(pagination.page - 1, pagination.limit, search)}
-                            className="p-3 rounded-xl hover:bg-white dark:hover:bg-slate-800 border border-transparent disabled:opacity-30 disabled:hover:bg-transparent transition-all"
+                            onClick={() => loadClients(pagination.page - 1, pagination.limit, debouncedSearch)}
                         >
-                            <ChevronLeft size={20} />
-                        </button>
-                        <div className="flex items-center gap-1 overflow-x-auto hide-scrollbar max-w-[200px] sm:max-w-none">
-                            {Array.from({ length: Math.min(pagination.totalPages, 10) }, (_, i) => i + 1).map((p) => (
+                            <ChevronLeft size={14} className="mr-1" />
+                            Previous
+                        </Button>
+                        <div className="flex items-center gap-1">
+                            {Array.from({ length: Math.min(pagination.totalPages, 5) }, (_, i) => i + 1).map((p) => (
                                 <button
                                     key={p}
-                                    onClick={() => loadClients(p, pagination.limit, search)}
-                                    className={`w-10 h-10 shrink-0 rounded-xl font-black text-xs transition-all ${pagination.page === p
-                                        ? 'bg-primary-600 text-white shadow-md shadow-primary-600/20'
-                                        : 'hover:bg-white dark:hover:bg-slate-800 text-slate-500 border border-transparent'
+                                    onClick={() => loadClients(p, pagination.limit, debouncedSearch)}
+                                    className={`w-8 h-8 rounded text-xs font-medium transition-colors ${pagination.page === p
+                                        ? 'bg-slate-900 dark:bg-white text-white dark:text-slate-900'
+                                        : 'text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800'
                                         }`}
                                 >
                                     {p}
                                 </button>
                             ))}
                         </div>
-                        <button
+                        <Button
+                            variant="outline"
+                            size="sm"
                             disabled={pagination.page === pagination.totalPages}
-                            onClick={() => loadClients(pagination.page + 1, pagination.limit, search)}
-                            className="p-3 rounded-xl hover:bg-white dark:hover:bg-slate-800 border border-transparent disabled:opacity-30 disabled:hover:bg-transparent transition-all"
+                            onClick={() => loadClients(pagination.page + 1, pagination.limit, debouncedSearch)}
                         >
-                            <ChevronRight size={20} />
-                        </button>
+                            <span className="flex items-center gap-1">
+                                Next <ChevronRight size={14} />
+                            </span>
+                        </Button>
                     </div>
                 </div>
             )}
@@ -366,58 +310,59 @@ const ContactsView = () => {
             <Modal
                 isOpen={isModalOpen}
                 onClose={() => setIsModalOpen(false)}
-                title={editingClient ? "Actualizar Socio Estratégico" : "Registro de Nuevo Socio"}
-                maxWidth="max-w-2xl"
+                title={editingClient ? "Edit Customer" : "New Customer"}
+                maxWidth="max-w-xl"
             >
-                <form onSubmit={handleSubmit} className="space-y-6">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <form onSubmit={handleSubmit} className="space-y-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <Input
-                            label="Identidad del Cliente"
+                            label="Full Name"
                             type="text"
                             required
                             value={newName}
                             onChange={(e) => setNewName(e.target.value)}
-                            placeholder="Ej: Ana María García"
-                            icon={<UserPlus size={18} />}
+                            placeholder="e.g. John Doe"
                         />
                         <Input
-                            label="Entidad Corporativa"
+                            label="Company / Organization"
                             type="text"
                             required
                             value={newCompany}
                             onChange={(e) => setNewCompany(e.target.value)}
-                            placeholder="Ej: Global Dynamics S.L."
-                            icon={<Building2 size={18} />}
+                            placeholder="e.g. Acme Corp"
                         />
                     </div>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <Input
-                            label="Correo Electrónico"
+                            label="Email Address"
                             type="email"
                             required
                             value={newEmail}
                             onChange={(e) => setNewEmail(e.target.value)}
-                            placeholder="ana@empresa.com"
-                            icon={<Mail size={18} />}
+                            placeholder="john@example.com"
                         />
                         <Input
-                            label="Línea de Teléfono"
+                            label="Phone Number"
                             type="tel"
-                            required
                             value={newPhone}
                             onChange={(e) => setNewPhone(e.target.value)}
-                            placeholder="+34 ..."
-                            icon={<Phone size={18} />}
+                            placeholder="+1 (555) 000-0000"
                         />
                     </div>
-                    <div className="pt-4">
-                        <button
-                            disabled={isSubmitting}
-                            type="submit"
-                            className="w-full py-5 bg-primary-600 text-white rounded-[1.5rem] font-black shadow-2xl shadow-primary-600/40 hover:bg-primary-700 transition-all disabled:opacity-50 active:scale-[0.98] uppercase tracking-widest text-xs"
+                    <div className="pt-4 flex justify-end gap-3">
+                        <Button
+                            variant="outline"
+                            onClick={() => setIsModalOpen(false)}
                         >
-                            {isSubmitting ? 'Procesando...' : editingClient ? 'Solidificar Cambios' : 'Registrar Cliente'}
-                        </button>
+                            Cancel
+                        </Button>
+                        <Button
+                            variant="primary"
+                            type="submit"
+                            isLoading={isSubmitting}
+                        >
+                            {editingClient ? 'Update Customer' : 'Create Customer'}
+                        </Button>
                     </div>
                 </form>
             </Modal>
@@ -426,7 +371,7 @@ const ContactsView = () => {
             <Modal
                 isOpen={isTimelineOpen}
                 onClose={() => setIsTimelineOpen(false)}
-                title={`Historial: ${selectedClient?.name}`}
+                title={`Communication History: ${selectedClient?.name}`}
                 maxWidth="max-w-4xl"
             >
                 {selectedClient && <Timeline clientId={selectedClient.id} />}
@@ -437,9 +382,9 @@ const ContactsView = () => {
                 isOpen={isDeleteModalOpen}
                 onClose={() => setIsDeleteModalOpen(false)}
                 onConfirm={confirmDelete}
-                title="Eliminar Cliente"
-                message={`¿Estás completamente seguro de que deseas eliminar a ${clients.find(c => c.id === clientToDelete)?.name}? Esta acción purgará de forma permanente todos los datos asociados y no podrá revertirse.`}
-                confirmLabel="Purgar Registro"
+                title="Delete Customer"
+                message={`Are you sure you want to delete ${clients.find(c => c.id === clientToDelete)?.name}? This action cannot be undone.`}
+                confirmLabel="Delete"
                 variant="danger"
                 isLoading={isSubmitting}
             />

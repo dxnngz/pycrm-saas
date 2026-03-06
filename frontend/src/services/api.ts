@@ -407,19 +407,19 @@ export const api = {
                                     if (data.error) onError(data.error);
                                     else if (data.done) onDone(data.context_used);
                                     else if (data.text) onChunk(data.text);
-                                } catch (e) {
+                                } catch {
                                     // ignore unparseable chunk halfs
                                 }
                             }
                         }
                     }
                 }
-            } catch (err: any) {
-                onError(err.message || 'Error de conexión');
+            } catch (err) {
+                onError((err as Error).message || 'Error de conexión');
             }
         },
 
-        getLeadScore: (opportunityId: number): Promise<{ score: number; classification: 'HIGH' | 'MEDIUM' | 'LOW'; recommendation: string; factors: any }> =>
+        getLeadScore: (opportunityId: number): Promise<{ score: number; classification: 'HIGH' | 'MEDIUM' | 'LOW'; recommendation: string; factors: Record<string, unknown> }> =>
             customFetch(`${API_URL}/opportunities/${opportunityId}/score`, { headers: getHeaders(), credentials: 'include' }).then(handleResponse),
     },
 

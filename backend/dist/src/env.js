@@ -15,6 +15,21 @@ const envSchema = z.object({
     JWT_REFRESH_SECRET: z.any().optional().default('default_refresh'),
     FRONTEND_URL: z.any().optional(),
     ALLOW_OPEN_REGISTRATION: z.string().optional().default('true'),
+    // Email Config
+    SMTP_HOST: z.string().optional(),
+    SMTP_PORT: z.string().optional(),
+    SMTP_SECURE: z.string().optional(),
+    SMTP_USER: z.string().optional(),
+    SMTP_PASS: z.string().optional(),
+    SMTP_FROM: z.string().optional(),
+    APP_NAME: z.string().optional(),
+    // S3 Config
+    S3_REGION: z.string().optional(),
+    S3_ACCESS_KEY: z.string().optional(),
+    S3_SECRET_KEY: z.string().optional(),
+    S3_ENDPOINT: z.string().optional(),
+    S3_BUCKET: z.string().optional(),
+    S3_PUBLIC_URL: z.string().optional(),
 });
 const _env = envSchema.safeParse(process.env);
 if (!_env.success) {

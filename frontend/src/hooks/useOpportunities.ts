@@ -39,7 +39,33 @@ export const useOpportunities = (page: number = 1, limit: number = 10, search: s
 
     const updateStatusMutation = useMutation({
         mutationFn: ({ id, status }: { id: number; status: 'pendiente' | 'ganado' | 'perdido' }) => api.opportunities.updateStatus(id, status),
-        onSuccess: () => {
+        onMutate: async ({ id, status }) => {
+            // Cancel any outgoing refetches
+            await queryClient.cancelQueries({ queryKey: ['opportunities', page, limit, search] });
+
+            // Snapshot the previous value
+            const previousData = queryClient.getQueryData(['opportunities', page, limit, search]);
+
+            // Optimistically update to the new value
+            queryClient.setQueryData(['opportunities', page, limit, search], (old: unknown) => {
+                if (!old) return old;
+                const current = old as { opportunities: Opportunity[] };
+                return {
+                    ...current,
+                    opportunities: current.opportunities.map((opp: Opportunity) =>
+                        opp.id === id ? { ...opp, status } : opp
+                    )
+                };
+            });
+
+            return { previousData };
+        },
+        onError: (_err, _variables, context) => {
+            if (context?.previousData) {
+                queryClient.setQueryData(['opportunities', page, limit, search], context.previousData);
+            }
+        },
+        onSettled: () => {
             queryClient.invalidateQueries({ queryKey: ['opportunities'] });
             queryClient.invalidateQueries({ queryKey: ['dashboard_data'] });
         }
@@ -49,6 +75,7 @@ export const useOpportunities = (page: number = 1, limit: number = 10, search: s
         opportunities: qData?.opportunities || [],
         loading,
         pagination: qData?.pagination || { total: 0, page: 1, limit: 10, totalPages: 0 },
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         loadOpportunities: (_p?: number, _l?: number, _s?: string) => refetch(),
         createOpportunity: createMutation.mutateAsync,
         updateOpportunityStatus: (id: number, status: 'pendiente' | 'ganado' | 'perdido') => updateStatusMutation.mutateAsync({ id, status }),

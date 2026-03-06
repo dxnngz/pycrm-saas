@@ -12,12 +12,14 @@ import authRoutes from './modules/auth/auth.routes.js';
 import clientRoutes from './modules/clients/client.routes.js';
 import opportunityRoutes from './modules/opportunities/opportunity.routes.js';
 import taskRoutes from './modules/tasks/task.routes.js';
+import webhookRoutes from './modules/webhooks/webhook.routes.js';
 import userRoutes from './modules/users/user.routes.js';
 // Cleaned up unused legacy routes below these line
 import contactRoutes from './modules/contacts/contact.routes.js';
 import dashboardRoutes from './modules/dashboard/dashboard.routes.js';
 import { globalErrorHandler } from './core/middlewares/error.middleware.js';
 import { csrfProtection } from './core/middlewares/csrf.middleware.js';
+import { startWorkers } from './jobs/worker.js';
 import { requestIdMiddleware } from './core/middlewares/requestId.middleware.js';
 import { prisma } from './core/prisma.js';
 import { redisCache } from './core/redis.js';
@@ -194,6 +196,7 @@ app.use('/api/opportunities', opportunityRoutes);
 app.use('/api/tasks', taskRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/dashboard', dashboardRoutes);
+app.use('/api/webhooks', webhookRoutes);
 app.use('/api/contacts', contactRoutes);
 app.use('/api/products', productRoutes);
 app.use('/api/events', eventRoutes);
@@ -292,6 +295,8 @@ if (process.env.NODE_ENV !== 'test') {
     app.listen(Number(port), '0.0.0.0', async () => {
         console.log(`Server is running on port ${port} at 0.0.0.0`);
         await ensureAdmin();
+        // Initialize background workers
+        startWorkers();
     });
 }
 

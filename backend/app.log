@@ -57484,3 +57484,43 @@ Node.js v24.13.1
 (node:59622) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
 (Use `node --trace-deprecation ...` to show where the warning was created)
 Server is running on port 3001 at 0.0.0.0
+12:51:59 AM [tsx] change in ./src/env.ts Restarting...
+c[dotenv@17.3.1] injecting env (0) from .env -- tip: 🔐 prevent building .env in docker: https://dotenvx.com/prebuild
+(node:65341) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+Server is running on port 3001 at 0.0.0.0
+12:53:21 AM [tsx] change in ./src/env.ts Restarting...
+c[dotenv@17.3.1] injecting env (0) from .env -- tip: ⚙️  suppress all logs with { quiet: true }
+(node:66047) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+Server is running on port 3001 at 0.0.0.0
+12:54:11 AM [tsx] change in ./src/index.ts Restarting...
+c[dotenv@17.3.1] injecting env (0) from .env -- tip: 🔐 prevent building .env in docker: https://dotenvx.com/prebuild
+(node:66394) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+Server is running on port 3001 at 0.0.0.0
+{"level":30,"time":1772668453175,"pid":66394,"hostname":"Mac.home","msg":"Starting BullMQ Workers..."}
+12:54:28 AM [tsx] change in ./src/jobs/worker.ts Restarting...
+c[dotenv@17.3.1] injecting env (0) from .env -- tip: ⚙️  enable debug logging with { debug: true }
+(node:66428) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+Server is running on port 3001 at 0.0.0.0
+{"level":30,"time":1772668468925,"pid":66428,"hostname":"Mac.home","msg":"Starting BullMQ Workers..."}
+12:55:12 AM [tsx] change in ./src/index.ts Restarting...
+c[dotenv@17.3.1] injecting env (0) from .env -- tip: 🤖 agentic secret storage: https://dotenvx.com/as2
+(node:66534) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+Server is running on port 3001 at 0.0.0.0
+{"level":30,"time":1772668513390,"pid":66534,"hostname":"Mac.home","msg":"Starting BullMQ Workers..."}
+12:58:38 AM [tsx] change in ./src/core/mailer.ts Restarting...
+c[dotenv@17.3.1] injecting env (0) from .env -- tip: 🤖 agentic secret storage: https://dotenvx.com/as2
+(node:67466) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+Server is running on port 3001 at 0.0.0.0
+{"level":30,"time":1772668720407,"pid":67466,"hostname":"Mac.home","msg":"Starting BullMQ Workers..."}
+12:58:54 AM [tsx] change in ./src/jobs/worker.ts Restarting...
+c[dotenv@17.3.1] injecting env (0) from .env -- tip: 🔐 prevent building .env in docker: https://dotenvx.com/prebuild
+(node:67493) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+Server is running on port 3001 at 0.0.0.0
+{"level":30,"time":1772668735114,"pid":67493,"hostname":"Mac.home","msg":"Starting BullMQ Workers..."}

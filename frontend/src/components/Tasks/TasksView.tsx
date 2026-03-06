@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
+import { FixedSizeList as List } from 'react-window';
 import {
     CheckCircle2,
     Circle,
@@ -8,7 +9,6 @@ import {
     Trash2,
     Search,
     Filter,
-    Zap,
     Users,
     Calendar,
     ChevronDown,
@@ -17,10 +17,11 @@ import {
 import { useTasks } from '../../hooks/useTasks';
 import { usePermissions } from '../../hooks/usePermissions';
 import { sanitizePayload } from '../../utils/sanitize';
-import { SkeletonTable } from '../Common/Skeletons';
 import Modal from '../Common/Modal';
 import type { Task } from '../../types';
-import { Input } from '../Common/Input';
+import { Input } from '../UI/Input';
+import { Button } from '../UI/Button';
+import { Badge } from '../UI/Badge';
 import { ConfirmModal } from '../Common/ConfirmModal';
 
 const TasksView = () => {
@@ -28,7 +29,7 @@ const TasksView = () => {
     const { canDeleteTask } = usePermissions();
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
-    const [filterPriority, setFilterPriority] = useState('Todas');
+    const [filterPriority, setFilterPriority] = useState('All');
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
     const [taskToDelete, setTaskToDelete] = useState<number | null>(null);
 
@@ -95,17 +96,16 @@ const TasksView = () => {
     const filteredTasks = safeTasks.filter((task: Task) => {
         const matchesSearch = task.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
             (task.client_name && task.client_name.toLowerCase().includes(searchQuery.toLowerCase()));
-        const matchesPriority = filterPriority === 'Todas' || task.priority === filterPriority;
+
+        const priorityMap: Record<string, string> = {
+            'All': 'All',
+            'Alta': 'Alta',
+            'Media': 'Media',
+            'Baja': 'Baja'
+        };
+        const matchesPriority = filterPriority === 'All' || task.priority === priorityMap[filterPriority];
         return matchesSearch && matchesPriority;
     });
-
-    if (loading) {
-        return (
-            <div className="max-w-6xl mx-auto space-y-10 py-10 fade-in">
-                <SkeletonTable />
-            </div>
-        );
-    }
 
     const stats = {
         pendientes: safeTasks.filter((t: Task) => !t.completed).length,
@@ -114,199 +114,212 @@ const TasksView = () => {
     };
 
     return (
-        <div className="max-w-6xl mx-auto space-y-10">
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+        <div className="space-y-6 h-[calc(100vh-140px)] flex flex-col">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 shrink-0">
                 <div>
-                    <h1 className="text-4xl font-black text-slate-900 dark:text-white tracking-tight">Gestión de Tareas</h1>
-                    <p className="text-slate-500 dark:text-slate-400 font-bold mt-2 flex items-center gap-2">
-                        <ShieldCheck size={18} className="text-emerald-500" />
-                        Sistema de priorización de impacto
+                    <h1 className="text-xl font-bold text-slate-900 dark:text-white">Task Management</h1>
+                    <p className="text-sm text-slate-500 dark:text-slate-400 mt-1 flex items-center gap-1.5">
+                        <ShieldCheck size={14} className="text-emerald-500" />
+                        Track and prioritize your daily objectives.
                     </p>
                 </div>
-                <button
+                <Button
+                    variant="primary"
+                    size="md"
                     onClick={() => setIsModalOpen(true)}
-                    className="flex items-center gap-3 bg-primary-600 text-white px-8 h-14 rounded-2xl font-black hover:bg-primary-700 transition-all shadow-xl shadow-primary-600/30 whitespace-nowrap"
                 >
-                    <Plus size={24} />
-                    <span>Inyectar Tarea</span>
-                </button>
+                    <Plus size={18} className="mr-2" />
+                    New Task
+                </Button>
             </div>
 
-            {/* Stats Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                <div className="bg-white dark:bg-slate-900 p-8 rounded-[2.5rem] border border-slate-100 dark:border-slate-800 shadow-sm premium-shadow flex items-center gap-6">
-                    <div className="bg-primary-500/10 text-primary-600 dark:text-primary-400 p-5 rounded-2xl">
-                        <Clock size={28} />
+            {/* Stats Header */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 shrink-0">
+                <div className="bg-white dark:bg-slate-900 p-4 rounded-lg border border-slate-200 dark:border-slate-800 flex items-center gap-4">
+                    <div className="w-10 h-10 bg-primary-50 dark:bg-primary-500/10 text-primary-600 dark:text-primary-400 rounded-md flex items-center justify-center">
+                        <Clock size={20} />
                     </div>
                     <div>
-                        <p className="text-[10px] text-slate-500 dark:text-slate-400 font-black uppercase tracking-widest mb-1">Pendientes</p>
-                        <p className="text-3xl font-black text-slate-900 dark:text-white tracking-tighter tabular-nums">{stats.pendientes}</p>
+                        <p className="text-[10px] text-slate-500 dark:text-slate-400 font-bold uppercase tracking-wider">Pending</p>
+                        <p className="text-xl font-bold text-slate-900 dark:text-white tabular-nums">{stats.pendientes}</p>
                     </div>
                 </div>
-                <div className="bg-white dark:bg-slate-900 p-8 rounded-[2.5rem] border border-slate-100 dark:border-slate-800 shadow-sm premium-shadow flex items-center gap-6">
-                    <div className="bg-emerald-500/10 text-emerald-600 p-5 rounded-2xl">
-                        <CheckCircle2 size={28} />
+                <div className="bg-white dark:bg-slate-900 p-4 rounded-lg border border-slate-200 dark:border-slate-800 flex items-center gap-4">
+                    <div className="w-10 h-10 bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 rounded-md flex items-center justify-center">
+                        <CheckCircle2 size={20} />
                     </div>
                     <div>
-                        <p className="text-[10px] text-slate-500 dark:text-slate-400 font-black uppercase tracking-widest mb-1">Ejecutadas</p>
-                        <p className="text-3xl font-black text-slate-900 dark:text-white tracking-tighter tabular-nums">{stats.completadas}</p>
+                        <p className="text-[10px] text-slate-500 dark:text-slate-400 font-bold uppercase tracking-wider">Completed</p>
+                        <p className="text-xl font-bold text-slate-900 dark:text-white tabular-nums">{stats.completadas}</p>
                     </div>
                 </div>
-                <div className="bg-white dark:bg-slate-900 p-8 rounded-[2.5rem] border border-slate-100 dark:border-slate-800 shadow-sm premium-shadow flex items-center gap-6">
-                    <div className="bg-rose-500/10 text-rose-600 p-5 rounded-2xl">
-                        <AlertCircle size={28} />
+                <div className="bg-white dark:bg-slate-900 p-4 rounded-lg border border-slate-200 dark:border-slate-800 flex items-center gap-4">
+                    <div className="w-10 h-10 bg-rose-50 dark:bg-rose-500/10 text-rose-600 dark:text-rose-400 rounded-md flex items-center justify-center">
+                        <AlertCircle size={20} />
                     </div>
                     <div>
-                        <p className="text-[10px] text-slate-500 dark:text-slate-400 font-black uppercase tracking-widest mb-1">Críticas</p>
-                        <p className="text-3xl font-black text-slate-900 dark:text-white tracking-tighter tabular-nums">{stats.urgentes}</p>
+                        <p className="text-[10px] text-slate-500 dark:text-slate-400 font-bold uppercase tracking-wider">Urgent</p>
+                        <p className="text-xl font-bold text-slate-900 dark:text-white tabular-nums">{stats.urgentes}</p>
                     </div>
                 </div>
             </div>
 
             {/* Toolbar */}
-            <div className="bg-slate-50/50 dark:bg-slate-900/40 p-2.5 rounded-[3rem] border border-slate-100 dark:border-slate-800 flex flex-col lg:flex-row items-center gap-4">
-                <div className="relative flex-1 w-full group">
-                    <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary-500 transition-colors" size={20} />
+            <div className="flex flex-col md:flex-row items-center gap-3 shrink-0">
+                <div className="relative group flex-1 w-full">
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary-500 transition-colors" size={16} />
                     <input
                         type="text"
-                        placeholder="IA: Filtrar por protocolo o socio comercial..."
+                        placeholder="Search tasks..."
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
-                        className="w-full pl-14 pr-6 h-14 bg-white dark:bg-slate-900 rounded-[2rem] border border-transparent focus:border-primary-500/30 outline-none text-sm font-bold shadow-sm transition-all"
+                        className="w-full h-10 pl-10 pr-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all shadow-sm"
                     />
                 </div>
-                <div className="flex items-center gap-4 w-full lg:w-auto">
-                    <div className="relative flex-1 lg:w-64">
-                        <Filter className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
-                        <select
-                            value={filterPriority}
-                            onChange={(e) => setFilterPriority(e.target.value)}
-                            className="w-full pl-12 pr-10 h-14 bg-white dark:bg-slate-900 rounded-[2rem] border border-slate-100 dark:border-slate-800 shadow-sm outline-none text-xs font-black text-slate-700 dark:text-slate-200 uppercase tracking-widest appearance-none cursor-pointer hover:border-primary-500/30 transition-all"
-                        >
-                            <option value="Todas">Prioridad: Todas</option>
-                            <option value="Alta">Alta - Impacto Inmediato</option>
-                            <option value="Media">Media - Estándar</option>
-                            <option value="Baja">Baja - Mantenimiento</option>
-                        </select>
-                        <ChevronDown className="absolute right-5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" size={16} />
-                    </div>
+                <div className="relative w-full md:w-64">
+                    <Filter className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={14} />
+                    <select
+                        value={filterPriority}
+                        onChange={(e) => setFilterPriority(e.target.value)}
+                        className="w-full h-10 pl-9 pr-8 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg text-xs font-bold text-slate-700 dark:text-slate-200 uppercase tracking-wider appearance-none cursor-pointer focus:outline-none focus:ring-2 focus:ring-primary-500/20 shadow-sm"
+                    >
+                        <option value="All">All Priorities</option>
+                        <option value="Alta">High Priority</option>
+                        <option value="Media">Medium Priority</option>
+                        <option value="Baja">Low Priority</option>
+                    </select>
+                    <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" size={14} />
                 </div>
             </div>
 
-            {/* Task List */}
-            <div className="bg-white dark:bg-slate-900 rounded-[3rem] border border-slate-100 dark:border-slate-800 shadow-sm premium-shadow overflow-hidden">
-                <div className="divide-y divide-slate-100 dark:divide-slate-800">
-                    {filteredTasks.length === 0 ? (
-                        <div className="p-24 text-center">
-                            <Zap size={56} className="mx-auto text-slate-200 dark:text-slate-800 mb-6 animate-pulse" />
-                            <p className="text-slate-400 dark:text-slate-500 font-black uppercase text-xs tracking-[0.2em]">Frecuencia Libre: No se detectan objetivos</p>
-                        </div>
-                    ) : filteredTasks.map((task: Task) => (
-                        <div key={task.id} className="p-8 hover:bg-slate-50/80 dark:hover:bg-slate-850/50 transition-all flex items-center gap-8 group relative even:bg-slate-50/30 dark:even:bg-slate-900/10">
-                            <button
-                                onClick={() => handleToggle(task.id)}
-                                className={`p-1.5 rounded-full transition-all transform hover:scale-110 shrink-0 ${task.completed ? 'text-emerald-500 bg-emerald-500/10' : 'text-slate-300 dark:text-slate-700 hover:text-primary-500 hover:bg-primary-500/10'}`}
-                            >
-                                {task.completed ? <CheckCircle2 size={36} /> : <Circle size={36} />}
-                            </button>
+            {/* Virtualized List Container */}
+            <div className="flex-1 min-h-0 bg-white dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
+                {loading ? (
+                    <div className="p-8 space-y-4">
+                        {[1, 2, 3, 4].map(i => (
+                            <div key={i} className="h-16 bg-slate-50 dark:bg-slate-800/50 rounded animate-pulse"></div>
+                        ))}
+                    </div>
+                ) : filteredTasks.length === 0 ? (
+                    <div className="h-full flex flex-col items-center justify-center text-slate-400 py-20">
+                        <AlertCircle size={40} className="mb-4 opacity-20" />
+                        <p className="text-xs font-bold uppercase tracking-widest opacity-60">No tasks found</p>
+                    </div>
+                ) : (
+                    <List
+                        height={600} // Fixed height for simple calculation, but in flex-1 it will fill
+                        itemCount={filteredTasks.length}
+                        itemSize={80}
+                        width="100%"
+                        itemData={filteredTasks}
+                        className="scrollbar-thin scrollbar-thumb-slate-200 dark:scrollbar-thumb-slate-800"
+                    >
+                        {({ index, style, data }) => {
+                            const task = data[index];
+                            return (
+                                <div style={style} key={task.id} className="px-6 py-4 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors flex items-center gap-6 border-b border-slate-100 dark:border-slate-800/50">
+                                    <button
+                                        onClick={() => handleToggle(task.id)}
+                                        className={`shrink-0 transition-transform hover:scale-110 ${task.completed ? 'text-emerald-500' : 'text-slate-300 dark:text-slate-700 hover:text-primary-500'}`}
+                                    >
+                                        {task.completed ? <CheckCircle2 size={24} /> : <Circle size={24} />}
+                                    </button>
 
-                            <div className="flex-1 min-w-0">
-                                <h4 className={`font-black text-xl tracking-tight truncate ${task.completed ? 'text-slate-400 dark:text-slate-600 line-through' : 'text-slate-900 dark:text-white'}`}>
-                                    {task.title}
-                                </h4>
-                                <div className="flex flex-wrap items-center gap-6 mt-3">
-                                    <div className="flex items-center gap-2.5 px-4 py-1.5 bg-primary-500/10 rounded-xl border border-primary-500/10">
-                                        <Users size={14} className="text-primary-500" />
-                                        <span className="text-[10px] text-primary-600 dark:text-primary-400 font-black uppercase tracking-widest">{task.client_name || 'Prospecto Libre'}</span>
+                                    <div className="flex-1 min-w-0">
+                                        <h4 className={`text-sm font-semibold truncate ${task.completed ? 'text-slate-400 line-through' : 'text-slate-900 dark:text-white'}`}>
+                                            {task.title}
+                                        </h4>
+                                        <div className="flex items-center gap-4 mt-1">
+                                            <div className="flex items-center gap-1.5 text-[10px] text-slate-500 dark:text-slate-400">
+                                                <Users size={12} />
+                                                <span className="truncate max-w-[120px]">{task.client_name || 'Individual'}</span>
+                                            </div>
+                                            {task.deadline && (
+                                                <div className="flex items-center gap-1.5 text-[10px] text-slate-500 dark:text-slate-400">
+                                                    <Calendar size={12} />
+                                                    <span>{new Date(task.deadline).toLocaleDateString()}</span>
+                                                </div>
+                                            )}
+                                        </div>
                                     </div>
-                                    <div className="flex items-center gap-2.5 text-slate-400 dark:text-slate-600">
-                                        <Calendar size={14} />
-                                        <span className="text-[10px] font-black uppercase tracking-widest whitespace-nowrap">
-                                            {task.deadline ? new Date(task.deadline).toLocaleString('es-ES', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) : 'Sin Fecha Límite'}
-                                        </span>
+
+                                    <div className="shrink-0 flex items-center gap-4">
+                                        <Badge variant={
+                                            task.priority === 'Alta' ? 'danger' :
+                                                task.priority === 'Media' ? 'warning' : 'secondary'
+                                        }>
+                                            {task.priority === 'Alta' ? 'High' : task.priority === 'Media' ? 'Medium' : 'Low'}
+                                        </Badge>
+
+                                        {canDeleteTask && (
+                                            <button
+                                                onClick={() => handleDeleteClick(task.id)}
+                                                className="p-2 text-slate-400 hover:text-red-600 rounded-md transition-colors"
+                                            >
+                                                <Trash2 size={16} />
+                                            </button>
+                                        )}
                                     </div>
                                 </div>
-                            </div>
-
-                            <div className="hidden sm:flex items-center gap-6 shrink-0">
-                                <span className={`text-[10px] font-black px-5 py-2.5 rounded-2xl uppercase tracking-[0.15em] border shadow-sm transition-all ${task.priority === 'Alta'
-                                    ? 'bg-rose-500 text-white border-rose-600 shadow-rose-500/20'
-                                    : task.priority === 'Media'
-                                        ? 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20'
-                                        : 'bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 border-slate-200 dark:border-slate-700'
-                                    }`}>
-                                    {task.priority}
-                                </span>
-                                <div className="flex items-center opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-all scale-95 group-hover:scale-100">
-                                    {canDeleteTask && (
-                                        <button
-                                            onClick={() => handleDeleteClick(task.id)}
-                                            className="p-3 text-slate-400 hover:text-rose-600 hover:bg-rose-500/10 rounded-2xl transition-all"
-                                            title="Eliminar Objetivo"
-                                        >
-                                            <Trash2 size={22} />
-                                        </button>
-                                    )}
-                                </div>
-                            </div>
-                        </div>
-                    ))}
-                </div>
+                            );
+                        }}
+                    </List>
+                )}
             </div>
 
             {/* Creation Modal */}
             <Modal
                 isOpen={isModalOpen}
                 onClose={() => setIsModalOpen(false)}
-                title="Nueva Tarea Estratégica"
-                maxWidth="max-w-2xl"
+                title="Create New Task"
+                maxWidth="max-w-xl"
             >
-                <form onSubmit={handleCreateTask} className="space-y-8">
+                <form onSubmit={handleCreateTask} className="space-y-4">
                     <Input
-                        label="Definición del Objetivo"
+                        label="Task Description"
                         type="text"
                         required
                         value={newTitle}
                         onChange={(e) => setNewTitle(e.target.value)}
-                        placeholder="Ej: Seguimiento tras demo de producto"
-                        icon={<Zap size={18} />}
+                        placeholder="e.g. Schedule follow-up meeting"
                     />
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <Input
-                            label="Fecha de Impacto"
+                            label="Due Date"
                             type="datetime-local"
                             required
                             value={newDeadline}
                             onChange={(e) => setNewDeadline(e.target.value)}
-                            placeholder=""
-                            icon={<Calendar size={18} />}
                         />
-                        <div className="space-y-2">
-                            <label className="block text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest pl-1">Prioridad del Sistema</label>
-                            <div className="relative">
-                                <AlertCircle className="absolute left-5 top-1/2 -translate-y-1/2 text-primary-500" size={20} />
-                                <select
-                                    value={newPriority}
-                                    onChange={(e) => setNewPriority(e.target.value as 'Alta' | 'Media' | 'Baja')}
-                                    className="w-full pl-14 pr-10 py-5 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-3xl focus:ring-4 focus:ring-primary-500/10 outline-none font-bold dark:text-white appearance-none hover:border-primary-500/30 transition-all cursor-pointer text-sm"
-                                >
-                                    <option value="Baja">Nivel 1: Mantenimiento</option>
-                                    <option value="Media">Nivel 2: Estándar</option>
-                                    <option value="Alta">Nivel 3: Crítico / Prioritario</option>
-                                </select>
-                                <ChevronDown className="absolute right-5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" size={20} />
-                            </div>
+                        <div className="space-y-1.5">
+                            <label className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Priority Level</label>
+                            <select
+                                value={newPriority}
+                                onChange={(e) => setNewPriority(e.target.value as 'Alta' | 'Media' | 'Baja')}
+                                className="w-full h-10 px-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all text-sm dark:text-white"
+                            >
+                                <option value="Baja">Low Priority</option>
+                                <option value="Media">Medium Priority</option>
+                                <option value="Alta">High Priority</option>
+                            </select>
                         </div>
                     </div>
-                    <div className="pt-6">
-                        <button
-                            disabled={isSubmitting}
-                            type="submit"
-                            className="w-full py-6 bg-primary-600 text-white rounded-[2rem] font-black shadow-2xl shadow-primary-600/40 hover:bg-primary-700 transition-all disabled:opacity-50 active:scale-[0.98] uppercase tracking-[0.2em] text-xs"
+
+                    <div className="pt-4 flex justify-end gap-3">
+                        <Button
+                            variant="outline"
+                            onClick={() => setIsModalOpen(false)}
                         >
-                            {isSubmitting ? 'Sincronizando...' : 'Solidificar Objetivo'}
-                        </button>
+                            Cancel
+                        </Button>
+                        <Button
+                            variant="primary"
+                            type="submit"
+                            isLoading={isSubmitting}
+                        >
+                            Create Task
+                        </Button>
                     </div>
                 </form>
             </Modal>
@@ -316,9 +329,9 @@ const TasksView = () => {
                 isOpen={isDeleteModalOpen}
                 onClose={() => setIsDeleteModalOpen(false)}
                 onConfirm={confirmDelete}
-                title="Eliminar Objetivo"
-                message="¿Estás completamente seguro de que deseas purgar esta tarea? Esta acción eliminará permanentemente el registro de actividad y no podrá ser restaurado."
-                confirmLabel="Purgar Tarea"
+                title="Delete Task"
+                message="Are you sure you want to delete this task? This action cannot be undone."
+                confirmLabel="Delete Task"
                 variant="danger"
                 isLoading={isSubmitting}
             />

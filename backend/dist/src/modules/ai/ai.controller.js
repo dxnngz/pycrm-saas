@@ -7,8 +7,11 @@ export const askCopilot = asyncHandler(async (req, res) => {
     if (!query) {
         throw new AppError('La consulta (query) es requerida', 400);
     }
-    const response = await aiService.copilotQuery(tenantId, query);
-    res.json(response);
+    res.setHeader('Content-Type', 'text/event-stream');
+    res.setHeader('Cache-Control', 'no-cache');
+    res.setHeader('Connection', 'keep-alive');
+    res.flushHeaders();
+    await aiService.copilotQueryStream(tenantId, query, res);
 });
 export const scoreOpportunity = asyncHandler(async (req, res) => {
     const tenantId = req.user?.tenantId;

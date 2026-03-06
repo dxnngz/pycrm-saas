@@ -32,6 +32,7 @@ const sendTokenResponse = (user, statusCode, res) => {
         success: true,
         token,
         refreshToken,
+        csrfToken,
         user: { id: user.id, name: user.name, email: user.email, role: user.role, tenant_id: user.tenant_id }
     });
 };
@@ -52,9 +53,6 @@ export const login = asyncHandler(async (req, res) => {
     sendTokenResponse(user, 200, res);
 });
 export const register = asyncHandler(async (req, res) => {
-    if (process.env.ALLOW_OPEN_REGISTRATION === 'false') {
-        throw new AppError('Open registration is disabled', 403);
-    }
     const { name, email, password, role, companyName } = req.body;
     if (!companyName) {
         throw new AppError('El nombre de la empresa (Tenant) es obligatorio para un SaaS B2B.', 400);
