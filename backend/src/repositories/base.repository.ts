@@ -11,7 +11,12 @@ export abstract class BaseRepository<T extends { id: number; tenant_id: number }
             tenant_id: tenantId,
         };
 
-        if (!includeDeleted) {
+        // SAFETY: Only apply soft-delete filter if the model supports it
+        // In this schema: Client, Opportunity, Task, Product have deleted_at
+        const softDeleteModels = ['client', 'opportunity', 'task', 'product'];
+        const modelName = this.model.name?.toLowerCase() || '';
+
+        if (!includeDeleted && softDeleteModels.includes(modelName)) {
             finalWhere.deleted_at = null;
         }
 
@@ -27,7 +32,11 @@ export abstract class BaseRepository<T extends { id: number; tenant_id: number }
 
     async findUnique(tenantId: number, id: number, includeDeleted = false) {
         const where: any = { id, tenant_id: tenantId };
-        if (!includeDeleted) {
+
+        const softDeleteModels = ['client', 'opportunity', 'task', 'product'];
+        const modelName = this.model.name?.toLowerCase() || '';
+
+        if (!includeDeleted && softDeleteModels.includes(modelName)) {
             where.deleted_at = null;
         }
         return await this.model.findFirst({ where });
@@ -46,7 +55,10 @@ export abstract class BaseRepository<T extends { id: number; tenant_id: number }
     }
 
     async delete(tenantId: number, id: number, hardDelete = false) {
-        if (hardDelete) {
+        const softDeleteModels = ['client', 'opportunity', 'task', 'product'];
+        const modelName = this.model.name?.toLowerCase() || '';
+
+        if (hardDelete || !softDeleteModels.includes(modelName)) {
             return await this.model.delete({
                 where: { id, tenant_id: tenantId }
             });
@@ -65,7 +77,10 @@ export abstract class BaseRepository<T extends { id: number; tenant_id: number }
             tenant_id: tenantId,
         };
 
-        if (!includeDeleted) {
+        const softDeleteModels = ['client', 'opportunity', 'task', 'product'];
+        const modelName = this.model.name?.toLowerCase() || '';
+
+        if (!includeDeleted && softDeleteModels.includes(modelName)) {
             finalWhere.deleted_at = null;
         }
 

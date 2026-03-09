@@ -47,8 +47,8 @@ export class DashboardService {
                 AND created_at >= ${startOfMonth} AND created_at < ${nextMonth}
             `;
             const { won = 0, closed = 0, avg_ticket = 0 } = metricsResult[0] || {};
-            const conversionRate = parseInt(closed) > 0 ? (parseInt(won) / parseInt(closed)) * 100 : 0;
-            const averageTicket = parseFloat(avg_ticket);
+            const conversionRate = Number(closed) > 0 ? (Number(won) / Number(closed)) * 100 : 0;
+            const averageTicket = Number(avg_ticket);
             // 3. Sales Rep Performance
             const repPerformanceResult = isYearly
                 ? await prisma.$queryRaw `
@@ -76,8 +76,8 @@ export class DashboardService {
             const repPerformance = repPerformanceResult.map((row) => ({
                 id: row.id,
                 name: row.name,
-                total_sales: parseFloat(row.total_sales || 0),
-                deals_won: parseInt(row.deals_won || 0)
+                total_sales: Number(row.total_sales || 0),
+                deals_won: Number(row.deals_won || 0)
             }));
             // 4. Sales Chart Data
             let chartData = [];
@@ -92,7 +92,7 @@ export class DashboardService {
                     GROUP BY date_trunc('month', created_at)
                     ORDER BY date_trunc('month', created_at)
                 `;
-                chartData = chartResult.map((r) => ({ name: r.name, sales: parseFloat(r.sales || 0) }));
+                chartData = chartResult.map((r) => ({ name: r.name, sales: Number(r.sales || 0) }));
             }
             else {
                 const last30Days = new Date();
@@ -107,7 +107,7 @@ export class DashboardService {
                     GROUP BY date_trunc('day', created_at), TO_CHAR(created_at, 'DD/MM')
                     ORDER BY date_trunc('day', created_at)
                 `;
-                chartData = chartResult.map((r) => ({ name: r.name, sales: parseFloat(r.sales || 0) }));
+                chartData = chartResult.map((r) => ({ name: r.name, sales: Number(r.sales || 0) }));
             }
             return {
                 totalSales,

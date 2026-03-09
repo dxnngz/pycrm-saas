@@ -17,7 +17,7 @@ const SalesChart = ({ data }: SalesChartProps) => {
     const safeData = Array.isArray(data) ? data : [];
 
     return (
-        <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-sm relative w-full h-full flex flex-col overflow-hidden">
+        <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-sm relative w-full h-[320px] min-h-[320px] flex flex-col overflow-hidden">
             <div className="flex items-center justify-between mb-4">
                 <div>
                     <h3 className="text-sm font-bold text-slate-900 dark:text-white tracking-tight flex items-center gap-2">
