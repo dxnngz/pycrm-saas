@@ -1,7 +1,7 @@
 {
     "rewrites": [
         {
-            "source": "/(.*)",
+            "source": "/((?!api|manifest.webmanifest|static|.*\\..*).*)",
             "destination": "/index.html"
         }
     ]
