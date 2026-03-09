@@ -5,7 +5,7 @@ services:
     env: node
     plan: pro
     rootDir: backend
-    buildCommand: npx prisma migrate resolve --rolled-back "20260309190148_enterprise_features" || true && npm install && npx prisma generate && npx prisma migrate deploy && npm run build
+    buildCommand: npx prisma migrate resolve --applied "20260309190148_enterprise_features" || true && npm install && npx prisma generate && npx prisma migrate deploy && npm run build
     startCommand: npm run start
     healthCheckPath: /api/health
     envVars:
