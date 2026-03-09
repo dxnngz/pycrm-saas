@@ -4,10 +4,18 @@ import { asyncHandler } from '../../utils/asyncHandler.js';
 import { AppError } from '../../utils/AppError.js';
 
 export const getTasks = asyncHandler(async (req: Request, res: Response) => {
-    const { limit, search, cursor } = req.query as unknown as { limit: number; search: string; cursor?: number };
+    const { limit, search, cursor } = req.query as any;
     const user = (req as any).user;
 
-    const tasks = await taskService.getTasksByUserId(user.tenantId, user.userId, { limit, search, cursor });
+    const tasks = await taskService.getTasksByUserId(
+        user.tenantId,
+        user.userId,
+        {
+            limit: limit ? parseInt(limit as string) : 10,
+            search: search as string,
+            cursor: cursor ? parseInt(cursor as string) : undefined
+        }
+    );
     res.json(tasks);
 });
 
@@ -20,7 +28,7 @@ export const createTask = asyncHandler(async (req: Request, res: Response) => {
 });
 
 export const toggleTaskCompletion = asyncHandler(async (req: Request, res: Response) => {
-    const { id } = req.params as any; // Number
+    const id = parseInt(req.params.id as string);
     const userId = (req as any).user.userId;
     const tenantId = (req as any).user.tenantId;
 
@@ -33,7 +41,7 @@ export const toggleTaskCompletion = asyncHandler(async (req: Request, res: Respo
 });
 
 export const deleteTask = asyncHandler(async (req: Request, res: Response) => {
-    const { id } = req.params as any; // Number
+    const id = parseInt(req.params.id as string);
     const userId = (req as any).user.userId;
     const tenantId = (req as any).user.tenantId;
 

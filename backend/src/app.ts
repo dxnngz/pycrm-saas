@@ -100,8 +100,8 @@ app.use(pinoHttp({
     customProps: (req, res) => {
         // Obtenemos el contexto desde el req si está disponible (inyectado por auth.middleware)
         return {
-            tenant_id: (req as any).user?.tenant_id || 'anonymous',
-            user_id: (req as any).user?.userId || 'anonymous',
+            tenantId: (req as any).user?.tenantId || 'anonymous',
+            userId: (req as any).user?.userId || 'anonymous',
             trace_id: (req as any).id
         };
     }
@@ -134,7 +134,7 @@ app.use((req, res, next) => {
     const end = httpRequestDurationMicroseconds.startTimer();
     res.on('finish', () => {
         // Tenant ID is injected later in auth, so we fetch it safely if it exists
-        const tenantId = (req as any).user?.tenant_id ? String((req as any).user.tenant_id) : 'anonymous';
+        const tenantId = (req as any).user?.tenantId ? String((req as any).user.tenantId) : 'anonymous';
         end({
             method: req.method,
             route: req.route ? req.route.path : req.path,
@@ -207,8 +207,8 @@ const tenantLimiter = rateLimit({
     windowMs: 5 * 60 * 1000, // 5 minutes window
     max: 300, // Strict limit per Tenant per pod
     keyGenerator: (req, res) => {
-        if ((req as any).user?.tenant_id) {
-            return `tenant_${(req as any).user.tenant_id}`;
+        if ((req as any).user?.tenantId) {
+            return `tenant_${(req as any).user.tenantId}`;
         }
         return ipKeyGenerator(req.ip || 'unknown');
     },

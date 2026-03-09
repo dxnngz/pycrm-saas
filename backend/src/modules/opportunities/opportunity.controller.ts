@@ -6,10 +6,14 @@ import { AppError } from '../../utils/AppError.js';
 import { eventBus } from '../../core/eventBus.js';
 
 export const getOpportunities = asyncHandler(async (req: Request, res: Response) => {
-    const { limit, search, cursor } = req.query as unknown as { limit: number; search: string; cursor?: number };
+    const { limit, search, cursor } = req.query as any;
     const user = (req as any).user;
 
-    const opportunities = await opportunityService.getAllOpportunities(user.tenantId, { limit, search, cursor });
+    const opportunities = await opportunityService.getAllOpportunities(user.tenantId, {
+        limit: limit ? parseInt(limit as string) : 10,
+        search: search as string,
+        cursor: cursor ? parseInt(cursor as string) : undefined
+    });
     res.json(opportunities);
 });
 
@@ -28,7 +32,7 @@ export const createOpportunity = asyncHandler(async (req: Request, res: Response
 export const updateOpportunityStatus = asyncHandler(async (req: Request, res: Response) => {
     try {
         const tenantId = (req as any).user?.tenantId;
-        const { id } = req.params as any; // Transformed to number
+        const id = parseInt(req.params.id as string);
         const { status, version } = req.body;
 
         const opportunity = await opportunityService.updateOpportunityStatusById(tenantId, id, status, version);
@@ -46,7 +50,7 @@ export const updateOpportunityStatus = asyncHandler(async (req: Request, res: Re
 
 export const getLeadScore = asyncHandler(async (req: Request, res: Response) => {
     const tenantId = (req as any).user?.tenantId;
-    const { id } = req.params as any; // Transformed to number
+    const id = parseInt(req.params.id as string);
 
     try {
         const scoreData = await aiService.calculateLeadScore(id, tenantId);
