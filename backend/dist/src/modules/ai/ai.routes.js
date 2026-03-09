@@ -4,4 +4,6 @@ import { protect } from '../../core/middlewares/auth.middleware.js';
 const router = Router();
 router.use(protect);
 router.post('/copilot', aiController.askCopilot);
+router.get('/opportunity-score/:id', aiController.scoreOpportunity);
+router.get('/client-brief/:id', aiController.getClientBrief);
 export default router;

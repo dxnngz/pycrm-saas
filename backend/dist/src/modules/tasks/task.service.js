@@ -1,59 +1,50 @@
-import { prisma } from '../../core/prisma.js';
+import { taskRepository } from '../../repositories/task.repository.js';
 export class TaskService {
-    async getTasksByUserId(tenantId, userId) {
-        const tasks = await prisma.task.findMany({
-            where: { user_id: userId, tenant_id: tenantId },
-            include: {
-                client: {
-                    select: { name: true }
-                }
-            },
-            orderBy: { deadline: 'asc' }
-        });
-        // Add client_name to map to frontend expectation
-        return tasks.map(task => ({
+    async getTasksByUserId(tenantId, userId, options = {}) {
+        const { limit = 10, search = '', cursor } = options;
+        const [tasks, total] = await Promise.all([
+            taskRepository.findManyPaged(tenantId, { cursor, limit, search }),
+            taskRepository.countSearch(tenantId, search)
+        ]);
+        const hasMore = tasks.length > limit;
+        const items = hasMore ? tasks.slice(0, limit) : tasks;
+        const mappedData = items.map((task) => ({
             ...task,
             client_name: task.client?.name || null
         }));
+        const lastItem = items[items.length - 1];
+        const nextCursor = hasMore ? lastItem?.id : null;
+        return {
+            data: mappedData,
+            total,
+            limit,
+            nextCursor,
+            hasMore
+        };
     }
     async createTask(data, tenantId) {
-        return await prisma.task.create({
-            data: {
-                user_id: data.userId,
-                tenant_id: tenantId,
-                client_id: data.client_id ? parseInt(data.client_id) : null,
-                title: data.title,
-                deadline: new Date(data.deadline),
-                priority: data.priority || 'Media',
-                completed: false
-            }
+        return await taskRepository.create({
+            user_id: data.userId,
+            tenant_id: tenantId,
+            client_id: data.client_id ? parseInt(data.client_id) : null,
+            title: data.title,
+            deadline: data.due_date ? data.due_date : new Date(),
+            priority: data.priority || 'medium',
+            completed: false
         });
     }
     async toggleTaskCompletionStatus(tenantId, id, userId) {
-        // Prisma doesn't have a direct "NOT column" update atomic operator easily for booleans,
-        // so we find it, then update it. Since we do it by userId, we also check ownership & tenant.
-        const task = await prisma.task.findUnique({
-            where: { id }
-        });
-        if (!task || task.user_id !== userId || task.tenant_id !== tenantId)
+        const task = await taskRepository.findUnique(tenantId, id);
+        if (!task || task.user_id !== userId)
             return null;
-        return await prisma.task.update({
-            where: { id },
-            data: { completed: !task.completed }
-        });
+        return await taskRepository.update(tenantId, id, { completed: !task.completed });
     }
     async deleteTaskById(tenantId, id, userId) {
-        // Prisma allows deleting by unique ID but doesn't easily let you delete by ID AND user_id atomically
-        // without throwing if it doesn't match both.
-        // We can do deleteMany which allows non-unique composed conditions and returns count.
-        const result = await prisma.task.deleteMany({
-            where: {
-                id: id,
-                user_id: userId,
-                tenant_id: tenantId
-            }
-        });
-        return result.count > 0;
+        const task = await taskRepository.findUnique(tenantId, id);
+        if (!task || task.user_id !== userId)
+            return false;
+        await taskRepository.delete(tenantId, id);
+        return true;
     }
 }
 export const taskService = new TaskService();

@@ -2,7 +2,7 @@ import { jest, describe, it, expect, afterEach } from '@jest/globals';
 import request from 'supertest';
 import { prisma } from '../src/core/prisma.js';
 
-const { default: app } = await import('../src/index.js');
+import app from '../src/app.js';
 
 describe('App Endpoints', () => {
     afterEach(() => {

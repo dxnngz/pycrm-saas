@@ -54,7 +54,7 @@ class CommercialIntelligenceJob {
                 await taskService.createTask({
                     userId: opp.assigned_to || 1,
                     title,
-                    deadline: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000).toISOString(),
+                    due_date: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000),
                     priority: 'Alta',
                     client_id: String(opp.client_id)
                 }, tenantId);
@@ -89,7 +89,7 @@ class CommercialIntelligenceJob {
                 await taskService.createTask({
                     userId: 1, // Fallback to main user
                     title,
-                    deadline: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString(), // 3 days
+                    due_date: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000), // 3 days
                     priority: 'Media',
                     client_id: String(client.id)
                 }, tenantId);

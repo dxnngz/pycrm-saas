@@ -41,7 +41,7 @@ export class TaskRepository extends BaseRepository<Task> {
                 ]
             })
         };
-        return await this.count(tenantId, where);
+        return await this.count(tenantId, { where });
     }
 }
 

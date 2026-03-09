@@ -46677,6 +46677,1061 @@ Redis Client Error AggregateError [ECONNREFUSED]:
     }
   ]
 }
+Redis Client Error SocketClosedUnexpectedlyError: Socket closed unexpectedly
+    at Socket.<anonymous> (/Users/danielgimenezzaragoza/Desktop/PROYECTOO/backend/node_modules/@redis/client/dist/lib/client/socket.js:232:33)
+    at Object.onceWrapper (node:events:623:26)
+    at Socket.emit (node:events:508:28)
+    at TCP.<anonymous> (node:net:346:12)
+Redis Client Error AggregateError [ECONNREFUSED]: 
+    at internalConnectMultiple (node:net:1134:18)
+    at afterConnectMultiple (node:net:1715:7) {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:6379
+        at createConnectionError (node:net:1678:14)
+        at afterConnectMultiple (node:net:1708:16) {
+      errno: -61,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 6379
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:6379
+        at createConnectionError (node:net:1678:14)
+        at afterConnectMultiple (node:net:1708:16) {
+      errno: -61,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 6379
+    }
+  ]
+}
+Redis Client Error AggregateError [ECONNREFUSED]: 
+    at internalConnectMultiple (node:net:1134:18)
+    at afterConnectMultiple (node:net:1715:7) {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:6379
+        at createConnectionError (node:net:1678:14)
+        at afterConnectMultiple (node:net:1708:16) {
+      errno: -61,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 6379
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:6379
+        at createConnectionError (node:net:1678:14)
+        at afterConnectMultiple (node:net:1708:16) {
+      errno: -61,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 6379
+    }
+  ]
+}
+Redis Client Error AggregateError [ECONNREFUSED]: 
+    at internalConnectMultiple (node:net:1134:18)
+    at afterConnectMultiple (node:net:1715:7) {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:6379
+        at createConnectionError (node:net:1678:14)
+        at afterConnectMultiple (node:net:1708:16) {
+      errno: -61,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 6379
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:6379
+        at createConnectionError (node:net:1678:14)
+        at afterConnectMultiple (node:net:1708:16) {
+      errno: -61,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 6379
+    }
+  ]
+}
+Redis Client Error AggregateError [ECONNREFUSED]: 
+    at internalConnectMultiple (node:net:1134:18)
+    at afterConnectMultiple (node:net:1715:7) {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:6379
+        at createConnectionError (node:net:1678:14)
+        at afterConnectMultiple (node:net:1708:16) {
+      errno: -61,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 6379
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:6379
+        at createConnectionError (node:net:1678:14)
+        at afterConnectMultiple (node:net:1708:16) {
+      errno: -61,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 6379
+    }
+  ]
+}
+Redis Client Error AggregateError [ECONNREFUSED]: 
+    at internalConnectMultiple (node:net:1134:18)
+    at afterConnectMultiple (node:net:1715:7) {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:6379
+        at createConnectionError (node:net:1678:14)
+        at afterConnectMultiple (node:net:1708:16) {
+      errno: -61,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 6379
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:6379
+        at createConnectionError (node:net:1678:14)
+        at afterConnectMultiple (node:net:1708:16) {
+      errno: -61,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 6379
+    }
+  ]
+}
+Redis Client Error AggregateError [ECONNREFUSED]: 
+    at internalConnectMultiple (node:net:1134:18)
+    at afterConnectMultiple (node:net:1715:7) {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:6379
+        at createConnectionError (node:net:1678:14)
+        at afterConnectMultiple (node:net:1708:16) {
+      errno: -61,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 6379
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:6379
+        at createConnectionError (node:net:1678:14)
+        at afterConnectMultiple (node:net:1708:16) {
+      errno: -61,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 6379
+    }
+  ]
+}
+Redis Client Error AggregateError [ECONNREFUSED]: 
+    at internalConnectMultiple (node:net:1134:18)
+    at afterConnectMultiple (node:net:1715:7) {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:6379
+        at createConnectionError (node:net:1678:14)
+        at afterConnectMultiple (node:net:1708:16) {
+      errno: -61,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 6379
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:6379
+        at createConnectionError (node:net:1678:14)
+        at afterConnectMultiple (node:net:1708:16) {
+      errno: -61,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 6379
+    }
+  ]
+}
+Redis Client Error AggregateError [ECONNREFUSED]: 
+    at internalConnectMultiple (node:net:1134:18)
+    at afterConnectMultiple (node:net:1715:7) {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:6379
+        at createConnectionError (node:net:1678:14)
+        at afterConnectMultiple (node:net:1708:16) {
+      errno: -61,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 6379
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:6379
+        at createConnectionError (node:net:1678:14)
+        at afterConnectMultiple (node:net:1708:16) {
+      errno: -61,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 6379
+    }
+  ]
+}
+Redis Client Error AggregateError [ECONNREFUSED]: 
+    at internalConnectMultiple (node:net:1134:18)
+    at afterConnectMultiple (node:net:1715:7) {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:6379
+        at createConnectionError (node:net:1678:14)
+        at afterConnectMultiple (node:net:1708:16) {
+      errno: -61,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 6379
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:6379
+        at createConnectionError (node:net:1678:14)
+        at afterConnectMultiple (node:net:1708:16) {
+      errno: -61,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 6379
+    }
+  ]
+}
+Redis Client Error AggregateError [ECONNREFUSED]: 
+    at internalConnectMultiple (node:net:1134:18)
+    at afterConnectMultiple (node:net:1715:7) {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:6379
+        at createConnectionError (node:net:1678:14)
+        at afterConnectMultiple (node:net:1708:16) {
+      errno: -61,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 6379
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:6379
+        at createConnectionError (node:net:1678:14)
+        at afterConnectMultiple (node:net:1708:16) {
+      errno: -61,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 6379
+    }
+  ]
+}
+Redis Client Error AggregateError [ECONNREFUSED]: 
+    at internalConnectMultiple (node:net:1134:18)
+    at afterConnectMultiple (node:net:1715:7) {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:6379
+        at createConnectionError (node:net:1678:14)
+        at afterConnectMultiple (node:net:1708:16) {
+      errno: -61,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 6379
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:6379
+        at createConnectionError (node:net:1678:14)
+        at afterConnectMultiple (node:net:1708:16) {
+      errno: -61,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 6379
+    }
+  ]
+}
+Redis Client Error AggregateError [ECONNREFUSED]: 
+    at internalConnectMultiple (node:net:1134:18)
+    at afterConnectMultiple (node:net:1715:7) {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:6379
+        at createConnectionError (node:net:1678:14)
+        at afterConnectMultiple (node:net:1708:16) {
+      errno: -61,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 6379
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:6379
+        at createConnectionError (node:net:1678:14)
+        at afterConnectMultiple (node:net:1708:16) {
+      errno: -61,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 6379
+    }
+  ]
+}
+Redis Client Error AggregateError [ECONNREFUSED]: 
+    at internalConnectMultiple (node:net:1134:18)
+    at afterConnectMultiple (node:net:1715:7) {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:6379
+        at createConnectionError (node:net:1678:14)
+        at afterConnectMultiple (node:net:1708:16) {
+      errno: -61,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 6379
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:6379
+        at createConnectionError (node:net:1678:14)
+        at afterConnectMultiple (node:net:1708:16) {
+      errno: -61,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 6379
+    }
+  ]
+}
+Redis Client Error AggregateError [ECONNREFUSED]: 
+    at internalConnectMultiple (node:net:1134:18)
+    at afterConnectMultiple (node:net:1715:7) {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:6379
+        at createConnectionError (node:net:1678:14)
+        at afterConnectMultiple (node:net:1708:16) {
+      errno: -61,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 6379
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:6379
+        at createConnectionError (node:net:1678:14)
+        at afterConnectMultiple (node:net:1708:16) {
+      errno: -61,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 6379
+    }
+  ]
+}
+Redis Client Error AggregateError [ECONNREFUSED]: 
+    at internalConnectMultiple (node:net:1134:18)
+    at afterConnectMultiple (node:net:1715:7) {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:6379
+        at createConnectionError (node:net:1678:14)
+        at afterConnectMultiple (node:net:1708:16) {
+      errno: -61,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 6379
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:6379
+        at createConnectionError (node:net:1678:14)
+        at afterConnectMultiple (node:net:1708:16) {
+      errno: -61,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 6379
+    }
+  ]
+}
+Redis Client Error AggregateError [ECONNREFUSED]: 
+    at internalConnectMultiple (node:net:1134:18)
+    at afterConnectMultiple (node:net:1715:7) {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:6379
+        at createConnectionError (node:net:1678:14)
+        at afterConnectMultiple (node:net:1708:16) {
+      errno: -61,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 6379
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:6379
+        at createConnectionError (node:net:1678:14)
+        at afterConnectMultiple (node:net:1708:16) {
+      errno: -61,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 6379
+    }
+  ]
+}
+Redis Client Error AggregateError [ECONNREFUSED]: 
+    at internalConnectMultiple (node:net:1134:18)
+    at afterConnectMultiple (node:net:1715:7) {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:6379
+        at createConnectionError (node:net:1678:14)
+        at afterConnectMultiple (node:net:1708:16) {
+      errno: -61,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 6379
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:6379
+        at createConnectionError (node:net:1678:14)
+        at afterConnectMultiple (node:net:1708:16) {
+      errno: -61,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 6379
+    }
+  ]
+}
+Redis Client Error AggregateError [ECONNREFUSED]: 
+    at internalConnectMultiple (node:net:1134:18)
+    at afterConnectMultiple (node:net:1715:7) {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:6379
+        at createConnectionError (node:net:1678:14)
+        at afterConnectMultiple (node:net:1708:16) {
+      errno: -61,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 6379
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:6379
+        at createConnectionError (node:net:1678:14)
+        at afterConnectMultiple (node:net:1708:16) {
+      errno: -61,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 6379
+    }
+  ]
+}
+Redis Client Error AggregateError [ECONNREFUSED]: 
+    at internalConnectMultiple (node:net:1134:18)
+    at afterConnectMultiple (node:net:1715:7) {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:6379
+        at createConnectionError (node:net:1678:14)
+        at afterConnectMultiple (node:net:1708:16) {
+      errno: -61,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 6379
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:6379
+        at createConnectionError (node:net:1678:14)
+        at afterConnectMultiple (node:net:1708:16) {
+      errno: -61,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 6379
+    }
+  ]
+}
+Redis Client Error AggregateError [ECONNREFUSED]: 
+    at internalConnectMultiple (node:net:1134:18)
+    at afterConnectMultiple (node:net:1715:7) {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:6379
+        at createConnectionError (node:net:1678:14)
+        at afterConnectMultiple (node:net:1708:16) {
+      errno: -61,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 6379
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:6379
+        at createConnectionError (node:net:1678:14)
+        at afterConnectMultiple (node:net:1708:16) {
+      errno: -61,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 6379
+    }
+  ]
+}
+Redis Client Error AggregateError [ECONNREFUSED]: 
+    at internalConnectMultiple (node:net:1134:18)
+    at afterConnectMultiple (node:net:1715:7) {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:6379
+        at createConnectionError (node:net:1678:14)
+        at afterConnectMultiple (node:net:1708:16) {
+      errno: -61,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 6379
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:6379
+        at createConnectionError (node:net:1678:14)
+        at afterConnectMultiple (node:net:1708:16) {
+      errno: -61,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 6379
+    }
+  ]
+}
+Redis Client Error AggregateError [ECONNREFUSED]: 
+    at internalConnectMultiple (node:net:1134:18)
+    at afterConnectMultiple (node:net:1715:7) {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:6379
+        at createConnectionError (node:net:1678:14)
+        at afterConnectMultiple (node:net:1708:16) {
+      errno: -61,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 6379
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:6379
+        at createConnectionError (node:net:1678:14)
+        at afterConnectMultiple (node:net:1708:16) {
+      errno: -61,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 6379
+    }
+  ]
+}
+Redis Client Error AggregateError [ECONNREFUSED]: 
+    at internalConnectMultiple (node:net:1134:18)
+    at afterConnectMultiple (node:net:1715:7) {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:6379
+        at createConnectionError (node:net:1678:14)
+        at afterConnectMultiple (node:net:1708:16) {
+      errno: -61,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 6379
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:6379
+        at createConnectionError (node:net:1678:14)
+        at afterConnectMultiple (node:net:1708:16) {
+      errno: -61,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 6379
+    }
+  ]
+}
+Redis Client Error AggregateError [ECONNREFUSED]: 
+    at internalConnectMultiple (node:net:1134:18)
+    at afterConnectMultiple (node:net:1715:7) {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:6379
+        at createConnectionError (node:net:1678:14)
+        at afterConnectMultiple (node:net:1708:16) {
+      errno: -61,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 6379
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:6379
+        at createConnectionError (node:net:1678:14)
+        at afterConnectMultiple (node:net:1708:16) {
+      errno: -61,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 6379
+    }
+  ]
+}
+Redis Client Error AggregateError [ECONNREFUSED]: 
+    at internalConnectMultiple (node:net:1134:18)
+    at afterConnectMultiple (node:net:1715:7) {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:6379
+        at createConnectionError (node:net:1678:14)
+        at afterConnectMultiple (node:net:1708:16) {
+      errno: -61,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 6379
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:6379
+        at createConnectionError (node:net:1678:14)
+        at afterConnectMultiple (node:net:1708:16) {
+      errno: -61,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 6379
+    }
+  ]
+}
+Redis Client Error AggregateError [ECONNREFUSED]: 
+    at internalConnectMultiple (node:net:1134:18)
+    at afterConnectMultiple (node:net:1715:7) {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:6379
+        at createConnectionError (node:net:1678:14)
+        at afterConnectMultiple (node:net:1708:16) {
+      errno: -61,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 6379
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:6379
+        at createConnectionError (node:net:1678:14)
+        at afterConnectMultiple (node:net:1708:16) {
+      errno: -61,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 6379
+    }
+  ]
+}
+Redis Client Error AggregateError [ECONNREFUSED]: 
+    at internalConnectMultiple (node:net:1134:18)
+    at afterConnectMultiple (node:net:1715:7) {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:6379
+        at createConnectionError (node:net:1678:14)
+        at afterConnectMultiple (node:net:1708:16) {
+      errno: -61,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 6379
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:6379
+        at createConnectionError (node:net:1678:14)
+        at afterConnectMultiple (node:net:1708:16) {
+      errno: -61,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 6379
+    }
+  ]
+}
+Redis Client Error AggregateError [ECONNREFUSED]: 
+    at internalConnectMultiple (node:net:1134:18)
+    at afterConnectMultiple (node:net:1715:7) {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:6379
+        at createConnectionError (node:net:1678:14)
+        at afterConnectMultiple (node:net:1708:16) {
+      errno: -61,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 6379
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:6379
+        at createConnectionError (node:net:1678:14)
+        at afterConnectMultiple (node:net:1708:16) {
+      errno: -61,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 6379
+    }
+  ]
+}
+Redis Client Error AggregateError [ECONNREFUSED]: 
+    at internalConnectMultiple (node:net:1134:18)
+    at afterConnectMultiple (node:net:1715:7) {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:6379
+        at createConnectionError (node:net:1678:14)
+        at afterConnectMultiple (node:net:1708:16) {
+      errno: -61,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 6379
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:6379
+        at createConnectionError (node:net:1678:14)
+        at afterConnectMultiple (node:net:1708:16) {
+      errno: -61,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 6379
+    }
+  ]
+}
+Redis Client Error AggregateError [ECONNREFUSED]: 
+    at internalConnectMultiple (node:net:1134:18)
+    at afterConnectMultiple (node:net:1715:7) {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:6379
+        at createConnectionError (node:net:1678:14)
+        at afterConnectMultiple (node:net:1708:16) {
+      errno: -61,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 6379
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:6379
+        at createConnectionError (node:net:1678:14)
+        at afterConnectMultiple (node:net:1708:16) {
+      errno: -61,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 6379
+    }
+  ]
+}
+Redis Client Error AggregateError [ECONNREFUSED]: 
+    at internalConnectMultiple (node:net:1134:18)
+    at afterConnectMultiple (node:net:1715:7) {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:6379
+        at createConnectionError (node:net:1678:14)
+        at afterConnectMultiple (node:net:1708:16) {
+      errno: -61,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 6379
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:6379
+        at createConnectionError (node:net:1678:14)
+        at afterConnectMultiple (node:net:1708:16) {
+      errno: -61,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 6379
+    }
+  ]
+}
+Redis Client Error AggregateError [ECONNREFUSED]: 
+    at internalConnectMultiple (node:net:1134:18)
+    at afterConnectMultiple (node:net:1715:7) {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:6379
+        at createConnectionError (node:net:1678:14)
+        at afterConnectMultiple (node:net:1708:16) {
+      errno: -61,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 6379
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:6379
+        at createConnectionError (node:net:1678:14)
+        at afterConnectMultiple (node:net:1708:16) {
+      errno: -61,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 6379
+    }
+  ]
+}
+Redis Client Error AggregateError [ECONNREFUSED]: 
+    at internalConnectMultiple (node:net:1134:18)
+    at afterConnectMultiple (node:net:1715:7) {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:6379
+        at createConnectionError (node:net:1678:14)
+        at afterConnectMultiple (node:net:1708:16) {
+      errno: -61,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 6379
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:6379
+        at createConnectionError (node:net:1678:14)
+        at afterConnectMultiple (node:net:1708:16) {
+      errno: -61,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 6379
+    }
+  ]
+}
+Redis Client Error AggregateError [ECONNREFUSED]: 
+    at internalConnectMultiple (node:net:1134:18)
+    at afterConnectMultiple (node:net:1715:7) {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:6379
+        at createConnectionError (node:net:1678:14)
+        at afterConnectMultiple (node:net:1708:16) {
+      errno: -61,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 6379
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:6379
+        at createConnectionError (node:net:1678:14)
+        at afterConnectMultiple (node:net:1708:16) {
+      errno: -61,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 6379
+    }
+  ]
+}
+Redis Client Error AggregateError [ECONNREFUSED]: 
+    at internalConnectMultiple (node:net:1134:18)
+    at afterConnectMultiple (node:net:1715:7) {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:6379
+        at createConnectionError (node:net:1678:14)
+        at afterConnectMultiple (node:net:1708:16) {
+      errno: -61,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 6379
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:6379
+        at createConnectionError (node:net:1678:14)
+        at afterConnectMultiple (node:net:1708:16) {
+      errno: -61,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 6379
+    }
+  ]
+}
+Redis Client Error AggregateError [ECONNREFUSED]: 
+    at internalConnectMultiple (node:net:1134:18)
+    at afterConnectMultiple (node:net:1715:7) {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:6379
+        at createConnectionError (node:net:1678:14)
+        at afterConnectMultiple (node:net:1708:16) {
+      errno: -61,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 6379
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:6379
+        at createConnectionError (node:net:1678:14)
+        at afterConnectMultiple (node:net:1708:16) {
+      errno: -61,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 6379
+    }
+  ]
+}
+Redis Client Error AggregateError [ECONNREFUSED]: 
+    at internalConnectMultiple (node:net:1134:18)
+    at afterConnectMultiple (node:net:1715:7) {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:6379
+        at createConnectionError (node:net:1678:14)
+        at afterConnectMultiple (node:net:1708:16) {
+      errno: -61,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 6379
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:6379
+        at createConnectionError (node:net:1678:14)
+        at afterConnectMultiple (node:net:1708:16) {
+      errno: -61,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 6379
+    }
+  ]
+}
+Redis Client Error AggregateError [ECONNREFUSED]: 
+    at internalConnectMultiple (node:net:1134:18)
+    at afterConnectMultiple (node:net:1715:7) {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:6379
+        at createConnectionError (node:net:1678:14)
+        at afterConnectMultiple (node:net:1708:16) {
+      errno: -61,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 6379
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:6379
+        at createConnectionError (node:net:1678:14)
+        at afterConnectMultiple (node:net:1708:16) {
+      errno: -61,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 6379
+    }
+  ]
+}
+Redis Client Error AggregateError [ECONNREFUSED]: 
+    at internalConnectMultiple (node:net:1134:18)
+    at afterConnectMultiple (node:net:1715:7) {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:6379
+        at createConnectionError (node:net:1678:14)
+        at afterConnectMultiple (node:net:1708:16) {
+      errno: -61,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 6379
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:6379
+        at createConnectionError (node:net:1678:14)
+        at afterConnectMultiple (node:net:1708:16) {
+      errno: -61,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 6379
+    }
+  ]
+}
+Redis Client Error AggregateError [ECONNREFUSED]: 
+    at internalConnectMultiple (node:net:1134:18)
+    at afterConnectMultiple (node:net:1715:7) {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:6379
+        at createConnectionError (node:net:1678:14)
+        at afterConnectMultiple (node:net:1708:16) {
+      errno: -61,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 6379
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:6379
+        at createConnectionError (node:net:1678:14)
+        at afterConnectMultiple (node:net:1708:16) {
+      errno: -61,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 6379
+    }
+  ]
+}
+Redis Client Error AggregateError [ECONNREFUSED]: 
+    at internalConnectMultiple (node:net:1134:18)
+    at afterConnectMultiple (node:net:1715:7) {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:6379
+        at createConnectionError (node:net:1678:14)
+        at afterConnectMultiple (node:net:1708:16) {
+      errno: -61,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 6379
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:6379
+        at createConnectionError (node:net:1678:14)
+        at afterConnectMultiple (node:net:1708:16) {
+      errno: -61,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 6379
+    }
+  ]
+}
+Redis Client Error AggregateError [ECONNREFUSED]: 
+    at internalConnectMultiple (node:net:1134:18)
+    at afterConnectMultiple (node:net:1715:7) {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:6379
+        at createConnectionError (node:net:1678:14)
+        at afterConnectMultiple (node:net:1708:16) {
+      errno: -61,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 6379
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:6379
+        at createConnectionError (node:net:1678:14)
+        at afterConnectMultiple (node:net:1708:16) {
+      errno: -61,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 6379
+    }
+  ]
+}
 egateError [ECONNREFUSED]: 
     at internalConnectMultiple (node:net:1134:18)
     at afterConnectMultiple (node:net:1715:7) {
@@ -47277,1069 +48332,7 @@ Redis Client Error AggregateError [ECONNREFUSED]:
     }
   ]
 }
-nError (node:net:1678:14)
-        at afterConnectMultiple (node:net:1708:16) {
-      errno: -61,
-      code: 'ECONNREFUSED',
-      syscall: 'connect',
-      address: '127.0.0.1',
-      port: 6379
-    }
-  ]
-}
-Redis Client Error AggregateError [ECONNREFUSED]: 
-    at internalConnectMultiple (node:net:1134:18)
-    at afterConnectMultiple (node:net:1715:7) {
-  code: 'ECONNREFUSED',
-  [errors]: [
-    Error: connect ECONNREFUSED ::1:6379
-        at createConnectionError (node:net:1678:14)
-        at afterConnectMultiple (node:net:1708:16) {
-      errno: -61,
-      code: 'ECONNREFUSED',
-      syscall: 'connect',
-      address: '::1',
-      port: 6379
-    },
-    Error: connect ECONNREFUSED 127.0.0.1:6379
-        at createConnectionError (node:net:1678:14)
-        at afterConnectMultiple (node:net:1708:16) {
-      errno: -61,
-      code: 'ECONNREFUSED',
-      syscall: 'connect',
-      address: '127.0.0.1',
-      port: 6379
-    }
-  ]
-}
-Redis Client Error AggregateError [ECONNREFUSED]: 
-    at internalConnectMultiple (node:net:1134:18)
-    at afterConnectMultiple (node:net:1715:7) {
-  code: 'ECONNREFUSED',
-  [errors]: [
-    Error: connect ECONNREFUSED ::1:6379
-        at createConnectionError (node:net:1678:14)
-        at afterConnectMultiple (node:net:1708:16) {
-      errno: -61,
-      code: 'ECONNREFUSED',
-      syscall: 'connect',
-      address: '::1',
-      port: 6379
-    },
-    Error: connect ECONNREFUSED 127.0.0.1:6379
-        at createConnectionError (node:net:1678:14)
-        at afterConnectMultiple (node:net:1708:16) {
-      errno: -61,
-      code: 'ECONNREFUSED',
-      syscall: 'connect',
-      address: '127.0.0.1',
-      port: 6379
-    }
-  ]
-}
-Redis Client Error AggregateError [ECONNREFUSED]: 
-    at internalConnectMultiple (node:net:1134:18)
-    at afterConnectMultiple (node:net:1715:7) {
-  code: 'ECONNREFUSED',
-  [errors]: [
-    Error: connect ECONNREFUSED ::1:6379
-        at createConnectionError (node:net:1678:14)
-        at afterConnectMultiple (node:net:1708:16) {
-      errno: -61,
-      code: 'ECONNREFUSED',
-      syscall: 'connect',
-      address: '::1',
-      port: 6379
-    },
-    Error: connect ECONNREFUSED 127.0.0.1:6379
-        at createConnectionError (node:net:1678:14)
-        at afterConnectMultiple (node:net:1708:16) {
-      errno: -61,
-      code: 'ECONNREFUSED',
-      syscall: 'connect',
-      address: '127.0.0.1',
-      port: 6379
-    }
-  ]
-}
-Redis Client Error AggregateError [ECONNREFUSED]: 
-    at internalConnectMultiple (node:net:1134:18)
-    at afterConnectMultiple (node:net:1715:7) {
-  code: 'ECONNREFUSED',
-  [errors]: [
-    Error: connect ECONNREFUSED ::1:6379
-        at createConnectionError (node:net:1678:14)
-        at afterConnectMultiple (node:net:1708:16) {
-      errno: -61,
-      code: 'ECONNREFUSED',
-      syscall: 'connect',
-      address: '::1',
-      port: 6379
-    },
-    Error: connect ECONNREFUSED 127.0.0.1:6379
-        at createConnectionError (node:net:1678:14)
-        at afterConnectMultiple (node:net:1708:16) {
-      errno: -61,
-      code: 'ECONNREFUSED',
-      syscall: 'connect',
-      address: '127.0.0.1',
-      port: 6379
-    }
-  ]
-}
-Redis Client Error AggregateError [ECONNREFUSED]: 
-    at internalConnectMultiple (node:net:1134:18)
-    at afterConnectMultiple (node:net:1715:7) {
-  code: 'ECONNREFUSED',
-  [errors]: [
-    Error: connect ECONNREFUSED ::1:6379
-        at createConnectionError (node:net:1678:14)
-        at afterConnectMultiple (node:net:1708:16) {
-      errno: -61,
-      code: 'ECONNREFUSED',
-      syscall: 'connect',
-      address: '::1',
-      port: 6379
-    },
-    Error: connect ECONNREFUSED 127.0.0.1:6379
-        at createConnectionError (node:net:1678:14)
-        at afterConnectMultiple (node:net:1708:16) {
-      errno: -61,
-      code: 'ECONNREFUSED',
-      syscall: 'connect',
-      address: '127.0.0.1',
-      port: 6379
-    }
-  ]
-}
-Redis Client Error AggregateError [ECONNREFUSED]: 
-    at internalConnectMultiple (node:net:1134:18)
-    at afterConnectMultiple (node:net:1715:7) {
-  code: 'ECONNREFUSED',
-  [errors]: [
-    Error: connect ECONNREFUSED ::1:6379
-        at createConnectionError (node:net:1678:14)
-        at afterConnectMultiple (node:net:1708:16) {
-      errno: -61,
-      code: 'ECONNREFUSED',
-      syscall: 'connect',
-      address: '::1',
-      port: 6379
-    },
-    Error: connect ECONNREFUSED 127.0.0.1:6379
-        at createConnectionError (node:net:1678:14)
-        at afterConnectMultiple (node:net:1708:16) {
-      errno: -61,
-      code: 'ECONNREFUSED',
-      syscall: 'connect',
-      address: '127.0.0.1',
-      port: 6379
-    }
-  ]
-}
-Redis Client Error AggregateError [ECONNREFUSED]: 
-    at internalConnectMultiple (node:net:1134:18)
-    at afterConnectMultiple (node:net:1715:7) {
-  code: 'ECONNREFUSED',
-  [errors]: [
-    Error: connect ECONNREFUSED ::1:6379
-        at createConnectionError (node:net:1678:14)
-        at afterConnectMultiple (node:net:1708:16) {
-      errno: -61,
-      code: 'ECONNREFUSED',
-      syscall: 'connect',
-      address: '::1',
-      port: 6379
-    },
-    Error: connect ECONNREFUSED 127.0.0.1:6379
-        at createConnectionError (node:net:1678:14)
-        at afterConnectMultiple (node:net:1708:16) {
-      errno: -61,
-      code: 'ECONNREFUSED',
-      syscall: 'connect',
-      address: '127.0.0.1',
-      port: 6379
-    }
-  ]
-}
-Redis Client Error AggregateError [ECONNREFUSED]: 
-    at internalConnectMultiple (node:net:1134:18)
-    at afterConnectMultiple (node:net:1715:7) {
-  code: 'ECONNREFUSED',
-  [errors]: [
-    Error: connect ECONNREFUSED ::1:6379
-        at createConnectionError (node:net:1678:14)
-        at afterConnectMultiple (node:net:1708:16) {
-      errno: -61,
-      code: 'ECONNREFUSED',
-      syscall: 'connect',
-      address: '::1',
-      port: 6379
-    },
-    Error: connect ECONNREFUSED 127.0.0.1:6379
-        at createConnectionError (node:net:1678:14)
-        at afterConnectMultiple (node:net:1708:16) {
-      errno: -61,
-      code: 'ECONNREFUSED',
-      syscall: 'connect',
-      address: '127.0.0.1',
-      port: 6379
-    }
-  ]
-}
-Redis Client Error AggregateError [ECONNREFUSED]: 
-    at internalConnectMultiple (node:net:1134:18)
-    at afterConnectMultiple (node:net:1715:7) {
-  code: 'ECONNREFUSED',
-  [errors]: [
-    Error: connect ECONNREFUSED ::1:6379
-        at createConnectionError (node:net:1678:14)
-        at afterConnectMultiple (node:net:1708:16) {
-      errno: -61,
-      code: 'ECONNREFUSED',
-      syscall: 'connect',
-      address: '::1',
-      port: 6379
-    },
-    Error: connect ECONNREFUSED 127.0.0.1:6379
-        at createConnectionError (node:net:1678:14)
-        at afterConnectMultiple (node:net:1708:16) {
-      errno: -61,
-      code: 'ECONNREFUSED',
-      syscall: 'connect',
-      address: '127.0.0.1',
-      port: 6379
-    }
-  ]
-}
-Redis Client Error AggregateError [ECONNREFUSED]: 
-    at internalConnectMultiple (node:net:1134:18)
-    at afterConnectMultiple (node:net:1715:7) {
-  code: 'ECONNREFUSED',
-  [errors]: [
-    Error: connect ECONNREFUSED ::1:6379
-        at createConnectionError (node:net:1678:14)
-        at afterConnectMultiple (node:net:1708:16) {
-      errno: -61,
-      code: 'ECONNREFUSED',
-      syscall: 'connect',
-      address: '::1',
-      port: 6379
-    },
-    Error: connect ECONNREFUSED 127.0.0.1:6379
-        at createConnectionError (node:net:1678:14)
-        at afterConnectMultiple (node:net:1708:16) {
-      errno: -61,
-      code: 'ECONNREFUSED',
-      syscall: 'connect',
-      address: '127.0.0.1',
-      port: 6379
-    }
-  ]
-}
-Redis Client Error AggregateError [ECONNREFUSED]: 
-    at internalConnectMultiple (node:net:1134:18)
-    at afterConnectMultiple (node:net:1715:7) {
-  code: 'ECONNREFUSED',
-  [errors]: [
-    Error: connect ECONNREFUSED ::1:6379
-        at createConnectionError (node:net:1678:14)
-        at afterConnectMultiple (node:net:1708:16) {
-      errno: -61,
-      code: 'ECONNREFUSED',
-      syscall: 'connect',
-      address: '::1',
-      port: 6379
-    },
-    Error: connect ECONNREFUSED 127.0.0.1:6379
-        at createConnectionError (node:net:1678:14)
-        at afterConnectMultiple (node:net:1708:16) {
-      errno: -61,
-      code: 'ECONNREFUSED',
-      syscall: 'connect',
-      address: '127.0.0.1',
-      port: 6379
-    }
-  ]
-}
-Redis Client Error AggregateError [ECONNREFUSED]: 
-    at internalConnectMultiple (node:net:1134:18)
-    at afterConnectMultiple (node:net:1715:7) {
-  code: 'ECONNREFUSED',
-  [errors]: [
-    Error: connect ECONNREFUSED ::1:6379
-        at createConnectionError (node:net:1678:14)
-        at afterConnectMultiple (node:net:1708:16) {
-      errno: -61,
-      code: 'ECONNREFUSED',
-      syscall: 'connect',
-      address: '::1',
-      port: 6379
-    },
-    Error: connect ECONNREFUSED 127.0.0.1:6379
-        at createConnectionError (node:net:1678:14)
-        at afterConnectMultiple (node:net:1708:16) {
-      errno: -61,
-      code: 'ECONNREFUSED',
-      syscall: 'connect',
-      address: '127.0.0.1',
-      port: 6379
-    }
-  ]
-}
-Redis Client Error AggregateError [ECONNREFUSED]: 
-    at internalConnectMultiple (node:net:1134:18)
-    at afterConnectMultiple (node:net:1715:7) {
-  code: 'ECONNREFUSED',
-  [errors]: [
-    Error: connect ECONNREFUSED ::1:6379
-        at createConnectionError (node:net:1678:14)
-        at afterConnectMultiple (node:net:1708:16) {
-      errno: -61,
-      code: 'ECONNREFUSED',
-      syscall: 'connect',
-      address: '::1',
-      port: 6379
-    },
-    Error: connect ECONNREFUSED 127.0.0.1:6379
-        at createConnectionError (node:net:1678:14)
-        at afterConnectMultiple (node:net:1708:16) {
-      errno: -61,
-      code: 'ECONNREFUSED',
-      syscall: 'connect',
-      address: '127.0.0.1',
-      port: 6379
-    }
-  ]
-}
-Redis Client Error AggregateError [ECONNREFUSED]: 
-    at internalConnectMultiple (node:net:1134:18)
-    at afterConnectMultiple (node:net:1715:7) {
-  code: 'ECONNREFUSED',
-  [errors]: [
-    Error: connect ECONNREFUSED ::1:6379
-        at createConnectionError (node:net:1678:14)
-        at afterConnectMultiple (node:net:1708:16) {
-      errno: -61,
-      code: 'ECONNREFUSED',
-      syscall: 'connect',
-      address: '::1',
-      port: 6379
-    },
-    Error: connect ECONNREFUSED 127.0.0.1:6379
-        at createConnectionError (node:net:1678:14)
-        at afterConnectMultiple (node:net:1708:16) {
-      errno: -61,
-      code: 'ECONNREFUSED',
-      syscall: 'connect',
-      address: '127.0.0.1',
-      port: 6379
-    }
-  ]
-}
-Redis Client Error AggregateError [ECONNREFUSED]: 
-    at internalConnectMultiple (node:net:1134:18)
-    at afterConnectMultiple (node:net:1715:7) {
-  code: 'ECONNREFUSED',
-  [errors]: [
-    Error: connect ECONNREFUSED ::1:6379
-        at createConnectionError (node:net:1678:14)
-        at afterConnectMultiple (node:net:1708:16) {
-      errno: -61,
-      code: 'ECONNREFUSED',
-      syscall: 'connect',
-      address: '::1',
-      port: 6379
-    },
-    Error: connect ECONNREFUSED 127.0.0.1:6379
-        at createConnectionError (node:net:1678:14)
-        at afterConnectMultiple (node:net:1708:16) {
-      errno: -61,
-      code: 'ECONNREFUSED',
-      syscall: 'connect',
-      address: '127.0.0.1',
-      port: 6379
-    }
-  ]
-}
-Redis Client Error AggregateError [ECONNREFUSED]: 
-    at internalConnectMultiple (node:net:1134:18)
-    at afterConnectMultiple (node:net:1715:7) {
-  code: 'ECONNREFUSED',
-  [errors]: [
-    Error: connect ECONNREFUSED ::1:6379
-        at createConnectionError (node:net:1678:14)
-        at afterConnectMultiple (node:net:1708:16) {
-      errno: -61,
-      code: 'ECONNREFUSED',
-      syscall: 'connect',
-      address: '::1',
-      port: 6379
-    },
-    Error: connect ECONNREFUSED 127.0.0.1:6379
-        at createConnectionError (node:net:1678:14)
-        at afterConnectMultiple (node:net:1708:16) {
-      errno: -61,
-      code: 'ECONNREFUSED',
-      syscall: 'connect',
-      address: '127.0.0.1',
-      port: 6379
-    }
-  ]
-}
-Redis Client Error AggregateError [ECONNREFUSED]: 
-    at internalConnectMultiple (node:net:1134:18)
-    at afterConnectMultiple (node:net:1715:7) {
-  code: 'ECONNREFUSED',
-  [errors]: [
-    Error: connect ECONNREFUSED ::1:6379
-        at createConnectionError (node:net:1678:14)
-        at afterConnectMultiple (node:net:1708:16) {
-      errno: -61,
-      code: 'ECONNREFUSED',
-      syscall: 'connect',
-      address: '::1',
-      port: 6379
-    },
-    Error: connect ECONNREFUSED 127.0.0.1:6379
-        at createConnectionError (node:net:1678:14)
-        at afterConnectMultiple (node:net:1708:16) {
-      errno: -61,
-      code: 'ECONNREFUSED',
-      syscall: 'connect',
-      address: '127.0.0.1',
-      port: 6379
-    }
-  ]
-}
-Redis Client Error AggregateError [ECONNREFUSED]: 
-    at internalConnectMultiple (node:net:1134:18)
-    at afterConnectMultiple (node:net:1715:7) {
-  code: 'ECONNREFUSED',
-  [errors]: [
-    Error: connect ECONNREFUSED ::1:6379
-        at createConnectionError (node:net:1678:14)
-        at afterConnectMultiple (node:net:1708:16) {
-      errno: -61,
-      code: 'ECONNREFUSED',
-      syscall: 'connect',
-      address: '::1',
-      port: 6379
-    },
-    Error: connect ECONNREFUSED 127.0.0.1:6379
-        at createConnectionError (node:net:1678:14)
-        at afterConnectMultiple (node:net:1708:16) {
-      errno: -61,
-      code: 'ECONNREFUSED',
-      syscall: 'connect',
-      address: '127.0.0.1',
-      port: 6379
-    }
-  ]
-}
-Redis Client Error AggregateError [ECONNREFUSED]: 
-    at internalConnectMultiple (node:net:1134:18)
-    at afterConnectMultiple (node:net:1715:7) {
-  code: 'ECONNREFUSED',
-  [errors]: [
-    Error: connect ECONNREFUSED ::1:6379
-        at createConnectionError (node:net:1678:14)
-        at afterConnectMultiple (node:net:1708:16) {
-      errno: -61,
-      code: 'ECONNREFUSED',
-      syscall: 'connect',
-      address: '::1',
-      port: 6379
-    },
-    Error: connect ECONNREFUSED 127.0.0.1:6379
-        at createConnectionError (node:net:1678:14)
-        at afterConnectMultiple (node:net:1708:16) {
-      errno: -61,
-      code: 'ECONNREFUSED',
-      syscall: 'connect',
-      address: '127.0.0.1',
-      port: 6379
-    }
-  ]
-}
-Redis Client Error AggregateError [ECONNREFUSED]: 
-    at internalConnectMultiple (node:net:1134:18)
-    at afterConnectMultiple (node:net:1715:7) {
-  code: 'ECONNREFUSED',
-  [errors]: [
-    Error: connect ECONNREFUSED ::1:6379
-        at createConnectionError (node:net:1678:14)
-        at afterConnectMultiple (node:net:1708:16) {
-      errno: -61,
-      code: 'ECONNREFUSED',
-      syscall: 'connect',
-      address: '::1',
-      port: 6379
-    },
-    Error: connect ECONNREFUSED 127.0.0.1:6379
-        at createConnectionError (node:net:1678:14)
-        at afterConnectMultiple (node:net:1708:16) {
-      errno: -61,
-      code: 'ECONNREFUSED',
-      syscall: 'connect',
-      address: '127.0.0.1',
-      port: 6379
-    }
-  ]
-}
-Redis Client Error AggregateError [ECONNREFUSED]: 
-    at internalConnectMultiple (node:net:1134:18)
-    at afterConnectMultiple (node:net:1715:7) {
-  code: 'ECONNREFUSED',
-  [errors]: [
-    Error: connect ECONNREFUSED ::1:6379
-        at createConnectionError (node:net:1678:14)
-        at afterConnectMultiple (node:net:1708:16) {
-      errno: -61,
-      code: 'ECONNREFUSED',
-      syscall: 'connect',
-      address: '::1',
-      port: 6379
-    },
-    Error: connect ECONNREFUSED 127.0.0.1:6379
-        at createConnectionError (node:net:1678:14)
-        at afterConnectMultiple (node:net:1708:16) {
-      errno: -61,
-      code: 'ECONNREFUSED',
-      syscall: 'connect',
-      address: '127.0.0.1',
-      port: 6379
-    }
-  ]
-}
-Redis Client Error AggregateError [ECONNREFUSED]: 
-    at internalConnectMultiple (node:net:1134:18)
-    at afterConnectMultiple (node:net:1715:7) {
-  code: 'ECONNREFUSED',
-  [errors]: [
-    Error: connect ECONNREFUSED ::1:6379
-        at createConnectionError (node:net:1678:14)
-        at afterConnectMultiple (node:net:1708:16) {
-      errno: -61,
-      code: 'ECONNREFUSED',
-      syscall: 'connect',
-      address: '::1',
-      port: 6379
-    },
-    Error: connect ECONNREFUSED 127.0.0.1:6379
-        at createConnectionError (node:net:1678:14)
-        at afterConnectMultiple (node:net:1708:16) {
-      errno: -61,
-      code: 'ECONNREFUSED',
-      syscall: 'connect',
-      address: '127.0.0.1',
-      port: 6379
-    }
-  ]
-}
-Redis Client Error AggregateError [ECONNREFUSED]: 
-    at internalConnectMultiple (node:net:1134:18)
-    at afterConnectMultiple (node:net:1715:7) {
-  code: 'ECONNREFUSED',
-  [errors]: [
-    Error: connect ECONNREFUSED ::1:6379
-        at createConnectionError (node:net:1678:14)
-        at afterConnectMultiple (node:net:1708:16) {
-      errno: -61,
-      code: 'ECONNREFUSED',
-      syscall: 'connect',
-      address: '::1',
-      port: 6379
-    },
-    Error: connect ECONNREFUSED 127.0.0.1:6379
-        at createConnectionError (node:net:1678:14)
-        at afterConnectMultiple (node:net:1708:16) {
-      errno: -61,
-      code: 'ECONNREFUSED',
-      syscall: 'connect',
-      address: '127.0.0.1',
-      port: 6379
-    }
-  ]
-}
-Redis Client Error AggregateError [ECONNREFUSED]: 
-    at internalConnectMultiple (node:net:1134:18)
-    at afterConnectMultiple (node:net:1715:7) {
-  code: 'ECONNREFUSED',
-  [errors]: [
-    Error: connect ECONNREFUSED ::1:6379
-        at createConnectionError (node:net:1678:14)
-        at afterConnectMultiple (node:net:1708:16) {
-      errno: -61,
-      code: 'ECONNREFUSED',
-      syscall: 'connect',
-      address: '::1',
-      port: 6379
-    },
-    Error: connect ECONNREFUSED 127.0.0.1:6379
-        at createConnectionError (node:net:1678:14)
-        at afterConnectMultiple (node:net:1708:16) {
-      errno: -61,
-      code: 'ECONNREFUSED',
-      syscall: 'connect',
-      address: '127.0.0.1',
-      port: 6379
-    }
-  ]
-}
-Redis Client Error AggregateError [ECONNREFUSED]: 
-    at internalConnectMultiple (node:net:1134:18)
-    at afterConnectMultiple (node:net:1715:7) {
-  code: 'ECONNREFUSED',
-  [errors]: [
-    Error: connect ECONNREFUSED ::1:6379
-        at createConnectionError (node:net:1678:14)
-        at afterConnectMultiple (node:net:1708:16) {
-      errno: -61,
-      code: 'ECONNREFUSED',
-      syscall: 'connect',
-      address: '::1',
-      port: 6379
-    },
-    Error: connect ECONNREFUSED 127.0.0.1:6379
-        at createConnectionError (node:net:1678:14)
-        at afterConnectMultiple (node:net:1708:16) {
-      errno: -61,
-      code: 'ECONNREFUSED',
-      syscall: 'connect',
-      address: '127.0.0.1',
-      port: 6379
-    }
-  ]
-}
-Redis Client Error AggregateError [ECONNREFUSED]: 
-    at internalConnectMultiple (node:net:1134:18)
-    at afterConnectMultiple (node:net:1715:7) {
-  code: 'ECONNREFUSED',
-  [errors]: [
-    Error: connect ECONNREFUSED ::1:6379
-        at createConnectionError (node:net:1678:14)
-        at afterConnectMultiple (node:net:1708:16) {
-      errno: -61,
-      code: 'ECONNREFUSED',
-      syscall: 'connect',
-      address: '::1',
-      port: 6379
-    },
-    Error: connect ECONNREFUSED 127.0.0.1:6379
-        at createConnectionError (node:net:1678:14)
-        at afterConnectMultiple (node:net:1708:16) {
-      errno: -61,
-      code: 'ECONNREFUSED',
-      syscall: 'connect',
-      address: '127.0.0.1',
-      port: 6379
-    }
-  ]
-}
-Redis Client Error AggregateError [ECONNREFUSED]: 
-    at internalConnectMultiple (node:net:1134:18)
-    at afterConnectMultiple (node:net:1715:7) {
-  code: 'ECONNREFUSED',
-  [errors]: [
-    Error: connect ECONNREFUSED ::1:6379
-        at createConnectionError (node:net:1678:14)
-        at afterConnectMultiple (node:net:1708:16) {
-      errno: -61,
-      code: 'ECONNREFUSED',
-      syscall: 'connect',
-      address: '::1',
-      port: 6379
-    },
-    Error: connect ECONNREFUSED 127.0.0.1:6379
-        at createConnectionError (node:net:1678:14)
-        at afterConnectMultiple (node:net:1708:16) {
-      errno: -61,
-      code: 'ECONNREFUSED',
-      syscall: 'connect',
-      address: '127.0.0.1',
-      port: 6379
-    }
-  ]
-}
-Redis Client Error AggregateError [ECONNREFUSED]: 
-    at internalConnectMultiple (node:net:1134:18)
-    at afterConnectMultiple (node:net:1715:7) {
-  code: 'ECONNREFUSED',
-  [errors]: [
-    Error: connect ECONNREFUSED ::1:6379
-        at createConnectionError (node:net:1678:14)
-        at afterConnectMultiple (node:net:1708:16) {
-      errno: -61,
-      code: 'ECONNREFUSED',
-      syscall: 'connect',
-      address: '::1',
-      port: 6379
-    },
-    Error: connect ECONNREFUSED 127.0.0.1:6379
-        at createConnectionError (node:net:1678:14)
-        at afterConnectMultiple (node:net:1708:16) {
-      errno: -61,
-      code: 'ECONNREFUSED',
-      syscall: 'connect',
-      address: '127.0.0.1',
-      port: 6379
-    }
-  ]
-}
-Redis Client Error AggregateError [ECONNREFUSED]: 
-    at internalConnectMultiple (node:net:1134:18)
-    at afterConnectMultiple (node:net:1715:7) {
-  code: 'ECONNREFUSED',
-  [errors]: [
-    Error: connect ECONNREFUSED ::1:6379
-        at createConnectionError (node:net:1678:14)
-        at afterConnectMultiple (node:net:1708:16) {
-      errno: -61,
-      code: 'ECONNREFUSED',
-      syscall: 'connect',
-      address: '::1',
-      port: 6379
-    },
-    Error: connect ECONNREFUSED 127.0.0.1:6379
-        at createConnectionError (node:net:1678:14)
-        at afterConnectMultiple (node:net:1708:16) {
-      errno: -61,
-      code: 'ECONNREFUSED',
-      syscall: 'connect',
-      address: '127.0.0.1',
-      port: 6379
-    }
-  ]
-}
-Redis Client Error AggregateError [ECONNREFUSED]: 
-    at internalConnectMultiple (node:net:1134:18)
-    at afterConnectMultiple (node:net:1715:7) {
-  code: 'ECONNREFUSED',
-  [errors]: [
-    Error: connect ECONNREFUSED ::1:6379
-        at createConnectionError (node:net:1678:14)
-        at afterConnectMultiple (node:net:1708:16) {
-      errno: -61,
-      code: 'ECONNREFUSED',
-      syscall: 'connect',
-      address: '::1',
-      port: 6379
-    },
-    Error: connect ECONNREFUSED 127.0.0.1:6379
-        at createConnectionError (node:net:1678:14)
-        at afterConnectMultiple (node:net:1708:16) {
-      errno: -61,
-      code: 'ECONNREFUSED',
-      syscall: 'connect',
-      address: '127.0.0.1',
-      port: 6379
-    }
-  ]
-}
-Redis Client Error AggregateError [ECONNREFUSED]: 
-    at internalConnectMultiple (node:net:1134:18)
-    at afterConnectMultiple (node:net:1715:7) {
-  code: 'ECONNREFUSED',
-  [errors]: [
-    Error: connect ECONNREFUSED ::1:6379
-        at createConnectionError (node:net:1678:14)
-        at afterConnectMultiple (node:net:1708:16) {
-      errno: -61,
-      code: 'ECONNREFUSED',
-      syscall: 'connect',
-      address: '::1',
-      port: 6379
-    },
-    Error: connect ECONNREFUSED 127.0.0.1:6379
-        at createConnectionError (node:net:1678:14)
-        at afterConnectMultiple (node:net:1708:16) {
-      errno: -61,
-      code: 'ECONNREFUSED',
-      syscall: 'connect',
-      address: '127.0.0.1',
-      port: 6379
-    }
-  ]
-}
-Redis Client Error AggregateError [ECONNREFUSED]: 
-    at internalConnectMultiple (node:net:1134:18)
-    at afterConnectMultiple (node:net:1715:7) {
-  code: 'ECONNREFUSED',
-  [errors]: [
-    Error: connect ECONNREFUSED ::1:6379
-        at createConnectionError (node:net:1678:14)
-        at afterConnectMultiple (node:net:1708:16) {
-      errno: -61,
-      code: 'ECONNREFUSED',
-      syscall: 'connect',
-      address: '::1',
-      port: 6379
-    },
-    Error: connect ECONNREFUSED 127.0.0.1:6379
-        at createConnectionError (node:net:1678:14)
-        at afterConnectMultiple (node:net:1708:16) {
-      errno: -61,
-      code: 'ECONNREFUSED',
-      syscall: 'connect',
-      address: '127.0.0.1',
-      port: 6379
-    }
-  ]
-}
-Redis Client Error AggregateError [ECONNREFUSED]: 
-    at internalConnectMultiple (node:net:1134:18)
-    at afterConnectMultiple (node:net:1715:7) {
-  code: 'ECONNREFUSED',
-  [errors]: [
-    Error: connect ECONNREFUSED ::1:6379
-        at createConnectionError (node:net:1678:14)
-        at afterConnectMultiple (node:net:1708:16) {
-      errno: -61,
-      code: 'ECONNREFUSED',
-      syscall: 'connect',
-      address: '::1',
-      port: 6379
-    },
-    Error: connect ECONNREFUSED 127.0.0.1:6379
-        at createConnectionError (node:net:1678:14)
-        at afterConnectMultiple (node:net:1708:16) {
-      errno: -61,
-      code: 'ECONNREFUSED',
-      syscall: 'connect',
-      address: '127.0.0.1',
-      port: 6379
-    }
-  ]
-}
-Redis Client Error AggregateError [ECONNREFUSED]: 
-    at internalConnectMultiple (node:net:1134:18)
-    at afterConnectMultiple (node:net:1715:7) {
-  code: 'ECONNREFUSED',
-  [errors]: [
-    Error: connect ECONNREFUSED ::1:6379
-        at createConnectionError (node:net:1678:14)
-        at afterConnectMultiple (node:net:1708:16) {
-      errno: -61,
-      code: 'ECONNREFUSED',
-      syscall: 'connect',
-      address: '::1',
-      port: 6379
-    },
-    Error: connect ECONNREFUSED 127.0.0.1:6379
-        at createConnectionError (node:net:1678:14)
-        at afterConnectMultiple (node:net:1708:16) {
-      errno: -61,
-      code: 'ECONNREFUSED',
-      syscall: 'connect',
-      address: '127.0.0.1',
-      port: 6379
-    }
-  ]
-}
-Redis Client Error AggregateError [ECONNREFUSED]: 
-    at internalConnectMultiple (node:net:1134:18)
-    at afterConnectMultiple (node:net:1715:7) {
-  code: 'ECONNREFUSED',
-  [errors]: [
-    Error: connect ECONNREFUSED ::1:6379
-        at createConnectionError (node:net:1678:14)
-        at afterConnectMultiple (node:net:1708:16) {
-      errno: -61,
-      code: 'ECONNREFUSED',
-      syscall: 'connect',
-      address: '::1',
-      port: 6379
-    },
-    Error: connect ECONNREFUSED 127.0.0.1:6379
-        at createConnectionError (node:net:1678:14)
-        at afterConnectMultiple (node:net:1708:16) {
-      errno: -61,
-      code: 'ECONNREFUSED',
-      syscall: 'connect',
-      address: '127.0.0.1',
-      port: 6379
-    }
-  ]
-}
-Redis Client Error AggregateError [ECONNREFUSED]: 
-    at internalConnectMultiple (node:net:1134:18)
-    at afterConnectMultiple (node:net:1715:7) {
-  code: 'ECONNREFUSED',
-  [errors]: [
-    Error: connect ECONNREFUSED ::1:6379
-        at createConnectionError (node:net:1678:14)
-        at afterConnectMultiple (node:net:1708:16) {
-      errno: -61,
-      code: 'ECONNREFUSED',
-      syscall: 'connect',
-      address: '::1',
-      port: 6379
-    },
-    Error: connect ECONNREFUSED 127.0.0.1:6379
-        at createConnectionError (node:net:1678:14)
-        at afterConnectMultiple (node:net:1708:16) {
-      errno: -61,
-      code: 'ECONNREFUSED',
-      syscall: 'connect',
-      address: '127.0.0.1',
-      port: 6379
-    }
-  ]
-}
-Redis Client Error AggregateError [ECONNREFUSED]: 
-    at internalConnectMultiple (node:net:1134:18)
-    at afterConnectMultiple (node:net:1715:7) {
-  code: 'ECONNREFUSED',
-  [errors]: [
-    Error: connect ECONNREFUSED ::1:6379
-        at createConnectionError (node:net:1678:14)
-        at afterConnectMultiple (node:net:1708:16) {
-      errno: -61,
-      code: 'ECONNREFUSED',
-      syscall: 'connect',
-      address: '::1',
-      port: 6379
-    },
-    Error: connect ECONNREFUSED 127.0.0.1:6379
-        at createConnectionError (node:net:1678:14)
-        at afterConnectMultiple (node:net:1708:16) {
-      errno: -61,
-      code: 'ECONNREFUSED',
-      syscall: 'connect',
-      address: '127.0.0.1',
-      port: 6379
-    }
-  ]
-}
-Redis Client Error AggregateError [ECONNREFUSED]: 
-    at internalConnectMultiple (node:net:1134:18)
-    at afterConnectMultiple (node:net:1715:7) {
-  code: 'ECONNREFUSED',
-  [errors]: [
-    Error: connect ECONNREFUSED ::1:6379
-        at createConnectionError (node:net:1678:14)
-        at afterConnectMultiple (node:net:1708:16) {
-      errno: -61,
-      code: 'ECONNREFUSED',
-      syscall: 'connect',
-      address: '::1',
-      port: 6379
-    },
-    Error: connect ECONNREFUSED 127.0.0.1:6379
-        at createConnectionError (node:net:1678:14)
-        at afterConnectMultiple (node:net:1708:16) {
-      errno: -61,
-      code: 'ECONNREFUSED',
-      syscall: 'connect',
-      address: '127.0.0.1',
-      port: 6379
-    }
-  ]
-}
-Redis Client Error AggregateError [ECONNREFUSED]: 
-    at internalConnectMultiple (node:net:1134:18)
-    at afterConnectMultiple (node:net:1715:7) {
-  code: 'ECONNREFUSED',
-  [errors]: [
-    Error: connect ECONNREFUSED ::1:6379
-        at createConnectionError (node:net:1678:14)
-        at afterConnectMultiple (node:net:1708:16) {
-      errno: -61,
-      code: 'ECONNREFUSED',
-      syscall: 'connect',
-      address: '::1',
-      port: 6379
-    },
-    Error: connect ECONNREFUSED 127.0.0.1:6379
-        at createConnectionError (node:net:1678:14)
-        at afterConnectMultiple (node:net:1708:16) {
-      errno: -61,
-      code: 'ECONNREFUSED',
-      syscall: 'connect',
-      address: '127.0.0.1',
-      port: 6379
-    }
-  ]
-}
-Redis Client Error AggregateError [ECONNREFUSED]: 
-    at internalConnectMultiple (node:net:1134:18)
-    at afterConnectMultiple (node:net:1715:7) {
-  code: 'ECONNREFUSED',
-  [errors]: [
-    Error: connect ECONNREFUSED ::1:6379
-        at createConnectionError (node:net:1678:14)
-        at afterConnectMultiple (node:net:1708:16) {
-      errno: -61,
-      code: 'ECONNREFUSED',
-      syscall: 'connect',
-      address: '::1',
-      port: 6379
-    },
-    Error: connect ECONNREFUSED 127.0.0.1:6379
-        at createConnectionError (node:net:1678:14)
-        at afterConnectMultiple (node:net:1708:16) {
-      errno: -61,
-      code: 'ECONNREFUSED',
-      syscall: 'connect',
-      address: '127.0.0.1',
-      port: 6379
-    }
-  ]
-}
-Redis Client Error AggregateError [ECONNREFUSED]: 
-    at internalConnectMultiple (node:net:1134:18)
-    at afterConnectMultiple (node:net:1715:7) {
-  code: 'ECONNREFUSED',
-  [errors]: [
-    Error: connect ECONNREFUSED ::1:6379
-        at createConnectionError (node:net:1678:14)
-        at afterConnectMultiple (node:net:1708:16) {
-      errno: -61,
-      code: 'ECONNREFUSED',
-      syscall: 'connect',
-      address: '::1',
-      port: 6379
-    },
-    Error: connect ECONNREFUSED 127.0.0.1:6379
-        at createConnectionError (node:net:1678:14)
-        at afterConnectMultiple (node:net:1708:16) {
-      errno: -61,
-      code: 'ECONNREFUSED',
-      syscall: 'connect',
-      address: '127.0.0.1',
-      port: 6379
-    }
-  ]
-}
-Redis Client Error AggregateError [ECONNREFUSED]: 
-    at internalConnectMultiple (node:net:1134:18)
-    at afterConnectMultiple (node:net:1715:7) {
-  code: 'ECONNREFUSED',
-  [errors]: [
-    Error: connect ECONNREFUSED ::1:6379
-        at createConnectionError (node:net:1678:14)
-        at afterConnectMultiple (node:net:1708:16) {
-      errno: -61,
-      code: 'ECONNREFUSED',
-      syscall: 'connect',
-      address: '::1',
-      port: 6379
-    },
-    Error: connect ECONNREFUSED 127.0.0.1:6379
-        at createConnectionError (node:net:1678:14)
-        at afterConnectMultiple (node:net:1708:16) {
-      errno: -61,
-      code: 'ECONNREFUSED',
-      syscall: 'connect',
-      address: '127.0.0.1',
-      port: 6379
-    }
-  ]
-}
-Redis Client Error AggregateError [ECONNREFUSED]: 
-    at internalConnectMultiple (node:net:1134:18)
-    at afterConnectMultiple (node:net:1715:7) {
+715:7) {
   code: 'ECONNREFUSED',
   [errors]: [
     Error: connect ECONNREFUSED ::1:6379
@@ -57524,3 +57517,736 @@ Server is running on port 3001 at 0.0.0.0
 (Use `node --trace-deprecation ...` to show where the warning was created)
 Server is running on port 3001 at 0.0.0.0
 {"level":30,"time":1772668735114,"pid":67493,"hostname":"Mac.home","msg":"Starting BullMQ Workers..."}
+5:34:45 PM [tsx] unlink in ./src/index.ts Restarting...
+c
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/Users/danielgimenezzaragoza/Desktop/PROYECTOO/backend/src/index.ts' imported from /Users/danielgimenezzaragoza/Desktop/PROYECTOO/backend/
+    at finalizeResolution (node:internal/modules/esm/resolve:275:11)
+    at moduleResolve (node:internal/modules/esm/resolve:866:10)
+    at defaultResolve (node:internal/modules/esm/resolve:992:11)
+    at nextResolve (node:internal/modules/esm/hooks:785:28)
+    at resolveBase (file:///Users/danielgimenezzaragoza/Desktop/PROYECTOO/backend/node_modules/tsx/dist/esm/index.mjs?1772814886166:2:3744)
+    at resolveDirectory (file:///Users/danielgimenezzaragoza/Desktop/PROYECTOO/backend/node_modules/tsx/dist/esm/index.mjs?1772814886166:2:4243)
+    at resolveTsPaths (file:///Users/danielgimenezzaragoza/Desktop/PROYECTOO/backend/node_modules/tsx/dist/esm/index.mjs?1772814886166:2:4984)
+    at resolve (file:///Users/danielgimenezzaragoza/Desktop/PROYECTOO/backend/node_modules/tsx/dist/esm/index.mjs?1772814886166:2:5361)
+    at nextResolve (node:internal/modules/esm/hooks:785:28)
+    at AsyncLoaderHooksOnLoaderHookWorker.resolve (node:internal/modules/esm/hooks:269:30) {
+  code: 'ERR_MODULE_NOT_FOUND',
+  url: 'file:///Users/danielgimenezzaragoza/Desktop/PROYECTOO/backend/src/index.ts'
+}
+
+Node.js v24.13.1
+5:35:10 PM [tsx] change in ./src/index.ts Rerunning...
+c[dotenv@17.3.1] injecting env (0) from .env -- tip: ⚙️  enable debug logging with { debug: true }
+(node:78151) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+✅ Conexión a la base de datos PostgreSQL exitosa
+[CRON] Registered Commercial Intelligence Schedule (Daily at 00:00).
+🚀 Server is running on port 3001 at 0.0.0.0
+{"level":30,"time":1772814911986,"pid":78151,"hostname":"MacBook-Pro-de-Daniel.local","msg":"Starting BullMQ Workers..."}
+5:35:47 PM [tsx] change in ./src/modules/clients/client.controller.ts Restarting...
+c[dotenv@17.3.1] injecting env (0) from .env -- tip: 🛠️  run anywhere with `dotenvx run -- yourcommand`
+(node:78185) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+✅ Conexión a la base de datos PostgreSQL exitosa
+[CRON] Registered Commercial Intelligence Schedule (Daily at 00:00).
+🚀 Server is running on port 3001 at 0.0.0.0
+{"level":30,"time":1772814948261,"pid":78185,"hostname":"MacBook-Pro-de-Daniel.local","msg":"Starting BullMQ Workers..."}
+5:36:25 PM [tsx] change in ./src/utils/AppError.ts Restarting...
+c[dotenv@17.3.1] injecting env (0) from .env -- tip: 🤖 agentic secret storage: https://dotenvx.com/as2
+(node:78281) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+✅ Conexión a la base de datos PostgreSQL exitosa
+[CRON] Registered Commercial Intelligence Schedule (Daily at 00:00).
+🚀 Server is running on port 3001 at 0.0.0.0
+{"level":30,"time":1772814986043,"pid":78281,"hostname":"MacBook-Pro-de-Daniel.local","msg":"Starting BullMQ Workers..."}
+5:36:41 PM [tsx] change in ./src/modules/clients/client.routes.ts Restarting...
+c[dotenv@17.3.1] injecting env (0) from .env -- tip: 🛠️  run anywhere with `dotenvx run -- yourcommand`
+(node:78314) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+✅ Conexión a la base de datos PostgreSQL exitosa
+[CRON] Registered Commercial Intelligence Schedule (Daily at 00:00).
+🚀 Server is running on port 3001 at 0.0.0.0
+{"level":30,"time":1772815002457,"pid":78314,"hostname":"MacBook-Pro-de-Daniel.local","msg":"Starting BullMQ Workers..."}
+5:36:55 PM [tsx] change in ./src/core/middlewares/validate.middleware.ts Restarting...
+c[dotenv@17.3.1] injecting env (0) from .env -- tip: 🛠️  run anywhere with `dotenvx run -- yourcommand`
+(node:78329) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+✅ Conexión a la base de datos PostgreSQL exitosa
+[CRON] Registered Commercial Intelligence Schedule (Daily at 00:00).
+🚀 Server is running on port 3001 at 0.0.0.0
+{"level":30,"time":1772815016576,"pid":78329,"hostname":"MacBook-Pro-de-Daniel.local","msg":"Starting BullMQ Workers..."}
+5:36:57 PM [tsx] change in ./src/modules/clients/client.service.ts Restarting...
+c[dotenv@17.3.1] injecting env (0) from .env -- tip: 🔐 encrypt with Dotenvx: https://dotenvx.com
+(node:78336) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+✅ Conexión a la base de datos PostgreSQL exitosa
+[CRON] Registered Commercial Intelligence Schedule (Daily at 00:00).
+🚀 Server is running on port 3001 at 0.0.0.0
+{"level":30,"time":1772815017685,"pid":78336,"hostname":"MacBook-Pro-de-Daniel.local","msg":"Starting BullMQ Workers..."}
+5:37:07 PM [tsx] change in ./src/core/middlewares/validate.middleware.ts Restarting...
+c[dotenv@17.3.1] injecting env (0) from .env -- tip: ⚙️  load multiple .env files with { path: ['.env.local', '.env'] }
+(node:78345) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+✅ Conexión a la base de datos PostgreSQL exitosa
+[CRON] Registered Commercial Intelligence Schedule (Daily at 00:00).
+🚀 Server is running on port 3001 at 0.0.0.0
+{"level":30,"time":1772815028654,"pid":78345,"hostname":"MacBook-Pro-de-Daniel.local","msg":"Starting BullMQ Workers..."}
+5:37:09 PM [tsx] change in ./src/modules/clients/client.controller.ts Restarting...
+c[dotenv@17.3.1] injecting env (0) from .env -- tip: ⚙️  override existing env vars with { override: true }
+(node:78352) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+✅ Conexión a la base de datos PostgreSQL exitosa
+[CRON] Registered Commercial Intelligence Schedule (Daily at 00:00).
+🚀 Server is running on port 3001 at 0.0.0.0
+{"level":30,"time":1772815029615,"pid":78352,"hostname":"MacBook-Pro-de-Daniel.local","msg":"Starting BullMQ Workers..."}
+5:37:38 PM [tsx] change in ./src/modules/opportunities/opportunity.routes.ts Restarting...
+c[dotenv@17.3.1] injecting env (0) from .env -- tip: 🔐 prevent committing .env to code: https://dotenvx.com/precommit
+(node:78378) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+✅ Conexión a la base de datos PostgreSQL exitosa
+[CRON] Registered Commercial Intelligence Schedule (Daily at 00:00).
+🚀 Server is running on port 3001 at 0.0.0.0
+{"level":30,"time":1772815058969,"pid":78378,"hostname":"MacBook-Pro-de-Daniel.local","msg":"Starting BullMQ Workers..."}
+5:38:15 PM [tsx] change in ./src/modules/opportunities/opportunity.schema.ts Restarting...
+c[dotenv@17.3.1] injecting env (0) from .env -- tip: ⚙️  load multiple .env files with { path: ['.env.local', '.env'] }
+(node:78434) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+✅ Conexión a la base de datos PostgreSQL exitosa
+[CRON] Registered Commercial Intelligence Schedule (Daily at 00:00).
+🚀 Server is running on port 3001 at 0.0.0.0
+{"level":30,"time":1772815096813,"pid":78434,"hostname":"MacBook-Pro-de-Daniel.local","msg":"Starting BullMQ Workers..."}
+5:38:21 PM [tsx] change in ./src/modules/opportunities/opportunity.controller.ts Restarting...
+c[dotenv@17.3.1] injecting env (0) from .env -- tip: 🛠️  run anywhere with `dotenvx run -- yourcommand`
+(node:78450) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+✅ Conexión a la base de datos PostgreSQL exitosa
+[CRON] Registered Commercial Intelligence Schedule (Daily at 00:00).
+🚀 Server is running on port 3001 at 0.0.0.0
+{"level":30,"time":1772815102512,"pid":78450,"hostname":"MacBook-Pro-de-Daniel.local","msg":"Starting BullMQ Workers..."}
+5:38:23 PM [tsx] change in ./src/modules/opportunities/opportunity.service.ts Restarting...
+c[dotenv@17.3.1] injecting env (0) from .env -- tip: 🛠️  run anywhere with `dotenvx run -- yourcommand`
+(node:78458) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+✅ Conexión a la base de datos PostgreSQL exitosa
+[CRON] Registered Commercial Intelligence Schedule (Daily at 00:00).
+🚀 Server is running on port 3001 at 0.0.0.0
+{"level":30,"time":1772815103992,"pid":78458,"hostname":"MacBook-Pro-de-Daniel.local","msg":"Starting BullMQ Workers..."}
+5:38:24 PM [tsx] change in ./src/modules/opportunities/opportunity.controller.ts Restarting...
+c[dotenv@17.3.1] injecting env (0) from .env -- tip: 🛡️ auth for agents: https://vestauth.com
+(node:78461) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+✅ Conexión a la base de datos PostgreSQL exitosa
+[CRON] Registered Commercial Intelligence Schedule (Daily at 00:00).
+🚀 Server is running on port 3001 at 0.0.0.0
+{"level":30,"time":1772815105270,"pid":78461,"hostname":"MacBook-Pro-de-Daniel.local","msg":"Starting BullMQ Workers..."}
+5:38:26 PM [tsx] change in ./src/modules/opportunities/opportunity.service.ts Restarting...
+c[dotenv@17.3.1] injecting env (0) from .env -- tip: ⚙️  specify custom .env file path with { path: '/custom/path/.env' }
+(node:78463) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+✅ Conexión a la base de datos PostgreSQL exitosa
+[CRON] Registered Commercial Intelligence Schedule (Daily at 00:00).
+🚀 Server is running on port 3001 at 0.0.0.0
+{"level":30,"time":1772815106867,"pid":78463,"hostname":"MacBook-Pro-de-Daniel.local","msg":"Starting BullMQ Workers..."}
+5:38:48 PM [tsx] change in ./src/modules/opportunities/opportunity.service.ts Restarting...
+c[dotenv@17.3.1] injecting env (0) from .env -- tip: ⚙️  specify custom .env file path with { path: '/custom/path/.env' }
+(node:78476) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+✅ Conexión a la base de datos PostgreSQL exitosa
+[CRON] Registered Commercial Intelligence Schedule (Daily at 00:00).
+🚀 Server is running on port 3001 at 0.0.0.0
+{"level":30,"time":1772815129286,"pid":78476,"hostname":"MacBook-Pro-de-Daniel.local","msg":"Starting BullMQ Workers..."}
+5:38:53 PM [tsx] change in ./src/modules/opportunities/opportunity.controller.ts Restarting...
+c[dotenv@17.3.1] injecting env (0) from .env -- tip: ⚙️  enable debug logging with { debug: true }
+(node:78490) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+✅ Conexión a la base de datos PostgreSQL exitosa
+[CRON] Registered Commercial Intelligence Schedule (Daily at 00:00).
+🚀 Server is running on port 3001 at 0.0.0.0
+{"level":30,"time":1772815134108,"pid":78490,"hostname":"MacBook-Pro-de-Daniel.local","msg":"Starting BullMQ Workers..."}
+5:38:55 PM [tsx] change in ./src/modules/clients/client.service.ts Restarting...
+c5:38:56 PM [tsx] change in ./src/modules/opportunities/opportunity.controller.ts Restarting...
+c[dotenv@17.3.1] injecting env (0) from .env -- tip: ⚙️  override existing env vars with { override: true }
+(node:78506) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+✅ Conexión a la base de datos PostgreSQL exitosa
+[CRON] Registered Commercial Intelligence Schedule (Daily at 00:00).
+🚀 Server is running on port 3001 at 0.0.0.0
+{"level":30,"time":1772815136670,"pid":78506,"hostname":"MacBook-Pro-de-Daniel.local","msg":"Starting BullMQ Workers..."}
+5:38:57 PM [tsx] change in ./src/modules/clients/client.controller.ts Restarting...
+c[dotenv@17.3.1] injecting env (0) from .env -- tip: ⚙️  load multiple .env files with { path: ['.env.local', '.env'] }
+(node:78513) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+✅ Conexión a la base de datos PostgreSQL exitosa
+[CRON] Registered Commercial Intelligence Schedule (Daily at 00:00).
+🚀 Server is running on port 3001 at 0.0.0.0
+{"level":30,"time":1772815137939,"pid":78513,"hostname":"MacBook-Pro-de-Daniel.local","msg":"Starting BullMQ Workers..."}
+5:39:27 PM [tsx] change in ./src/modules/tasks/task.routes.ts Restarting...
+c[dotenv@17.3.1] injecting env (0) from .env -- tip: 🔐 prevent committing .env to code: https://dotenvx.com/precommit
+(node:78543) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+✅ Conexión a la base de datos PostgreSQL exitosa
+[CRON] Registered Commercial Intelligence Schedule (Daily at 00:00).
+🚀 Server is running on port 3001 at 0.0.0.0
+{"level":30,"time":1772815168699,"pid":78543,"hostname":"MacBook-Pro-de-Daniel.local","msg":"Starting BullMQ Workers..."}
+5:39:34 PM [tsx] change in ./src/modules/tasks/task.controller.ts Restarting...
+c[dotenv@17.3.1] injecting env (0) from .env -- tip: 🛡️ auth for agents: https://vestauth.com
+(node:78555) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+✅ Conexión a la base de datos PostgreSQL exitosa
+[CRON] Registered Commercial Intelligence Schedule (Daily at 00:00).
+🚀 Server is running on port 3001 at 0.0.0.0
+{"level":30,"time":1772815174933,"pid":78555,"hostname":"MacBook-Pro-de-Daniel.local","msg":"Starting BullMQ Workers..."}
+5:39:35 PM [tsx] change in ./src/modules/tasks/task.service.ts Restarting...
+c[dotenv@17.3.1] injecting env (0) from .env -- tip: ⚙️  enable debug logging with { debug: true }
+(node:78558) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+✅ Conexión a la base de datos PostgreSQL exitosa
+[CRON] Registered Commercial Intelligence Schedule (Daily at 00:00).
+🚀 Server is running on port 3001 at 0.0.0.0
+{"level":30,"time":1772815175951,"pid":78558,"hostname":"MacBook-Pro-de-Daniel.local","msg":"Starting BullMQ Workers..."}
+5:40:26 PM [tsx] change in ./src/core/middlewares/error.middleware.ts Restarting...
+c[dotenv@17.3.1] injecting env (0) from .env -- tip: ⚙️  override existing env vars with { override: true }
+(node:78644) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+✅ Conexión a la base de datos PostgreSQL exitosa
+[CRON] Registered Commercial Intelligence Schedule (Daily at 00:00).
+🚀 Server is running on port 3001 at 0.0.0.0
+{"level":30,"time":1772815227232,"pid":78644,"hostname":"MacBook-Pro-de-Daniel.local","msg":"Starting BullMQ Workers..."}
+5:43:11 PM [tsx] change in ./src/core/redis.ts Restarting...
+c[dotenv@17.3.1] injecting env (0) from .env -- tip: 🤖 agentic secret storage: https://dotenvx.com/as2
+(node:79056) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+✅ Conexión a la base de datos PostgreSQL exitosa
+[CRON] Registered Commercial Intelligence Schedule (Daily at 00:00).
+🚀 Server is running on port 3001 at 0.0.0.0
+{"level":30,"time":1772815392041,"pid":79056,"hostname":"MacBook-Pro-de-Daniel.local","msg":"Starting BullMQ Workers..."}
+5:43:24 PM [tsx] change in ./src/core/redis.ts Restarting...
+c[dotenv@17.3.1] injecting env (0) from .env -- tip: ⚙️  specify custom .env file path with { path: '/custom/path/.env' }
+(node:79094) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+✅ Conexión a la base de datos PostgreSQL exitosa
+[CRON] Registered Commercial Intelligence Schedule (Daily at 00:00).
+🚀 Server is running on port 3001 at 0.0.0.0
+{"level":30,"time":1772815405157,"pid":79094,"hostname":"MacBook-Pro-de-Daniel.local","msg":"Starting BullMQ Workers..."}
+5:43:34 PM [tsx] change in ./src/modules/clients/client.controller.ts Restarting...
+c[dotenv@17.3.1] injecting env (0) from .env -- tip: ⚡️ secrets for agents: https://dotenvx.com/as2
+(node:79112) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+✅ Conexión a la base de datos PostgreSQL exitosa
+[CRON] Registered Commercial Intelligence Schedule (Daily at 00:00).
+🚀 Server is running on port 3001 at 0.0.0.0
+{"level":30,"time":1772815415444,"pid":79112,"hostname":"MacBook-Pro-de-Daniel.local","msg":"Starting BullMQ Workers..."}
+5:43:49 PM [tsx] change in ./src/modules/clients/client.service.ts Restarting...
+c[dotenv@17.3.1] injecting env (0) from .env -- tip: ⚙️  specify custom .env file path with { path: '/custom/path/.env' }
+(node:79154) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+✅ Conexión a la base de datos PostgreSQL exitosa
+[CRON] Registered Commercial Intelligence Schedule (Daily at 00:00).
+🚀 Server is running on port 3001 at 0.0.0.0
+{"level":30,"time":1772815430289,"pid":79154,"hostname":"MacBook-Pro-de-Daniel.local","msg":"Starting BullMQ Workers..."}
+5:43:53 PM [tsx] change in ./src/modules/clients/client.service.ts Restarting...
+c[dotenv@17.3.1] injecting env (0) from .env -- tip: 🔐 encrypt with Dotenvx: https://dotenvx.com
+(node:79165) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+✅ Conexión a la base de datos PostgreSQL exitosa
+[CRON] Registered Commercial Intelligence Schedule (Daily at 00:00).
+🚀 Server is running on port 3001 at 0.0.0.0
+{"level":30,"time":1772815433504,"pid":79165,"hostname":"MacBook-Pro-de-Daniel.local","msg":"Starting BullMQ Workers..."}
+5:44:01 PM [tsx] change in ./src/modules/clients/client.service.ts Restarting...
+c[dotenv@17.3.1] injecting env (0) from .env -- tip: ⚙️  specify custom .env file path with { path: '/custom/path/.env' }
+(node:79179) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+✅ Conexión a la base de datos PostgreSQL exitosa
+[CRON] Registered Commercial Intelligence Schedule (Daily at 00:00).
+🚀 Server is running on port 3001 at 0.0.0.0
+{"level":30,"time":1772815442243,"pid":79179,"hostname":"MacBook-Pro-de-Daniel.local","msg":"Starting BullMQ Workers..."}
+5:44:13 PM [tsx] change in ./src/modules/opportunities/opportunity.service.ts Restarting...
+c[dotenv@17.3.1] injecting env (0) from .env -- tip: ⚙️  enable debug logging with { debug: true }
+(node:79191) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+✅ Conexión a la base de datos PostgreSQL exitosa
+[CRON] Registered Commercial Intelligence Schedule (Daily at 00:00).
+🚀 Server is running on port 3001 at 0.0.0.0
+{"level":30,"time":1772815453793,"pid":79191,"hostname":"MacBook-Pro-de-Daniel.local","msg":"Starting BullMQ Workers..."}
+5:44:32 PM [tsx] change in ./src/index.ts Restarting...
+c[dotenv@17.3.1] injecting env (0) from .env -- tip: ⚡️ secrets for agents: https://dotenvx.com/as2
+(node:79223) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+✅ Conexión a la base de datos PostgreSQL exitosa
+[CRON] Registered Commercial Intelligence Schedule (Daily at 00:00).
+🚀 Server is running on port 3001 at 0.0.0.0
+{"level":30,"time":1772815473474,"pid":79223,"hostname":"MacBook-Pro-de-Daniel.local","msg":"Starting BullMQ Workers..."}
+5:44:38 PM [tsx] change in ./src/index.ts Restarting...
+c[dotenv@17.3.1] injecting env (0) from .env -- tip: 🔐 prevent committing .env to code: https://dotenvx.com/precommit
+(node:79231) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+✅ Conexión a la base de datos PostgreSQL exitosa
+[CacheSubscriber] Active and listening for cache invalidation events.
+🚀 Server is running on port 3001 at 0.0.0.0
+{"level":30,"time":1772815479452,"pid":79231,"hostname":"MacBook-Pro-de-Daniel.local","msg":"Starting BullMQ Workers..."}
+5:44:47 PM [tsx] change in ./src/index.ts Restarting...
+c[dotenv@17.3.1] injecting env (0) from .env -- tip: 🛠️  run anywhere with `dotenvx run -- yourcommand`
+(node:79243) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+✅ Conexión a la base de datos PostgreSQL exitosa
+[CacheSubscriber] Active and listening for cache invalidation events.
+[CRON] Registered Commercial Intelligence Schedule (Daily at 00:00).
+🚀 Server is running on port 3001 at 0.0.0.0
+{"level":30,"time":1772815488132,"pid":79243,"hostname":"MacBook-Pro-de-Daniel.local","msg":"Starting BullMQ Workers..."}
+5:45:14 PM [tsx] change in ./src/app.ts Restarting...
+c[dotenv@17.3.1] injecting env (0) from .env -- tip: 🤖 agentic secret storage: https://dotenvx.com/as2
+(node:79617) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+✅ Conexión a la base de datos PostgreSQL exitosa
+[CacheSubscriber] Active and listening for cache invalidation events.
+[CRON] Registered Commercial Intelligence Schedule (Daily at 00:00).
+🚀 Server is running on port 3001 at 0.0.0.0
+{"level":30,"time":1772815515355,"pid":79617,"hostname":"MacBook-Pro-de-Daniel.local","msg":"Starting BullMQ Workers..."}
+5:45:34 PM [tsx] change in ./src/app.ts Restarting...
+c
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+Error [ERR_PACKAGE_PATH_NOT_EXPORTED]: Package subpath './bullMQAdapter.js' is not defined by "exports" in /Users/danielgimenezzaragoza/Desktop/PROYECTOO/backend/node_modules/@bull-board/api/package.json imported from /Users/danielgimenezzaragoza/Desktop/PROYECTOO/backend/src/app.ts
+    at exportsNotFound (node:internal/modules/esm/resolve:314:10)
+    at packageExportsResolve (node:internal/modules/esm/resolve:662:9)
+    at packageResolve (node:internal/modules/esm/resolve:775:12)
+    at moduleResolve (node:internal/modules/esm/resolve:860:18)
+    at defaultResolve (node:internal/modules/esm/resolve:992:11)
+    at nextResolve (node:internal/modules/esm/hooks:785:28)
+    at resolveBase (file:///Users/danielgimenezzaragoza/Desktop/PROYECTOO/backend/node_modules/tsx/dist/esm/index.mjs?1772815534768:2:3744)
+    at resolveDirectory (file:///Users/danielgimenezzaragoza/Desktop/PROYECTOO/backend/node_modules/tsx/dist/esm/index.mjs?1772815534768:2:4243)
+    at resolveTsPaths (file:///Users/danielgimenezzaragoza/Desktop/PROYECTOO/backend/node_modules/tsx/dist/esm/index.mjs?1772815534768:2:4984)
+    at resolve (file:///Users/danielgimenezzaragoza/Desktop/PROYECTOO/backend/node_modules/tsx/dist/esm/index.mjs?1772815534768:2:5361) {
+  code: 'ERR_PACKAGE_PATH_NOT_EXPORTED'
+}
+
+Node.js v24.13.1
+5:45:50 PM [tsx] change in ./src/core/middlewares/rbac.middleware.ts Rerunning...
+c
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+Error [ERR_PACKAGE_PATH_NOT_EXPORTED]: Package subpath './bullMQAdapter.js' is not defined by "exports" in /Users/danielgimenezzaragoza/Desktop/PROYECTOO/backend/node_modules/@bull-board/api/package.json imported from /Users/danielgimenezzaragoza/Desktop/PROYECTOO/backend/src/app.ts
+    at exportsNotFound (node:internal/modules/esm/resolve:314:10)
+    at packageExportsResolve (node:internal/modules/esm/resolve:662:9)
+    at packageResolve (node:internal/modules/esm/resolve:775:12)
+    at moduleResolve (node:internal/modules/esm/resolve:860:18)
+    at defaultResolve (node:internal/modules/esm/resolve:992:11)
+    at nextResolve (node:internal/modules/esm/hooks:785:28)
+    at resolveBase (file:///Users/danielgimenezzaragoza/Desktop/PROYECTOO/backend/node_modules/tsx/dist/esm/index.mjs?1772815550866:2:3744)
+    at resolveDirectory (file:///Users/danielgimenezzaragoza/Desktop/PROYECTOO/backend/node_modules/tsx/dist/esm/index.mjs?1772815550866:2:4243)
+    at resolveTsPaths (file:///Users/danielgimenezzaragoza/Desktop/PROYECTOO/backend/node_modules/tsx/dist/esm/index.mjs?1772815550866:2:4984)
+    at resolve (file:///Users/danielgimenezzaragoza/Desktop/PROYECTOO/backend/node_modules/tsx/dist/esm/index.mjs?1772815550866:2:5361) {
+  code: 'ERR_PACKAGE_PATH_NOT_EXPORTED'
+}
+
+Node.js v24.13.1
+5:45:54 PM [tsx] change in ./src/core/middlewares/rbac.middleware.ts Rerunning...
+c
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+Error [ERR_PACKAGE_PATH_NOT_EXPORTED]: Package subpath './bullMQAdapter.js' is not defined by "exports" in /Users/danielgimenezzaragoza/Desktop/PROYECTOO/backend/node_modules/@bull-board/api/package.json imported from /Users/danielgimenezzaragoza/Desktop/PROYECTOO/backend/src/app.ts
+    at exportsNotFound (node:internal/modules/esm/resolve:314:10)
+    at packageExportsResolve (node:internal/modules/esm/resolve:662:9)
+    at packageResolve (node:internal/modules/esm/resolve:775:12)
+    at moduleResolve (node:internal/modules/esm/resolve:860:18)
+    at defaultResolve (node:internal/modules/esm/resolve:992:11)
+    at nextResolve (node:internal/modules/esm/hooks:785:28)
+    at resolveBase (file:///Users/danielgimenezzaragoza/Desktop/PROYECTOO/backend/node_modules/tsx/dist/esm/index.mjs?1772815554862:2:3744)
+    at resolveDirectory (file:///Users/danielgimenezzaragoza/Desktop/PROYECTOO/backend/node_modules/tsx/dist/esm/index.mjs?1772815554862:2:4243)
+    at resolveTsPaths (file:///Users/danielgimenezzaragoza/Desktop/PROYECTOO/backend/node_modules/tsx/dist/esm/index.mjs?1772815554862:2:4984)
+    at resolve (file:///Users/danielgimenezzaragoza/Desktop/PROYECTOO/backend/node_modules/tsx/dist/esm/index.mjs?1772815554862:2:5361) {
+  code: 'ERR_PACKAGE_PATH_NOT_EXPORTED'
+}
+
+Node.js v24.13.1
+5:46:01 PM [tsx] change in ./src/app.ts Rerunning...
+c[dotenv@17.3.1] injecting env (0) from .env -- tip: 🛠️  run anywhere with `dotenvx run -- yourcommand`
+(node:79672) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+✅ Conexión a la base de datos PostgreSQL exitosa
+[CacheSubscriber] Active and listening for cache invalidation events.
+[CRON] Registered Commercial Intelligence Schedule (Daily at 00:00).
+🚀 Server is running on port 3001 at 0.0.0.0
+{"level":30,"time":1772815561996,"pid":79672,"hostname":"MacBook-Pro-de-Daniel.local","msg":"Starting BullMQ Workers..."}
+5:46:10 PM [tsx] change in ./src/app.ts Restarting...
+c[dotenv@17.3.1] injecting env (0) from .env -- tip: 🔐 prevent building .env in docker: https://dotenvx.com/prebuild
+(node:79686) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+✅ Conexión a la base de datos PostgreSQL exitosa
+[CacheSubscriber] Active and listening for cache invalidation events.
+[CRON] Registered Commercial Intelligence Schedule (Daily at 00:00).
+🚀 Server is running on port 3001 at 0.0.0.0
+{"level":30,"time":1772815570959,"pid":79686,"hostname":"MacBook-Pro-de-Daniel.local","msg":"Starting BullMQ Workers..."}
+5:46:27 PM [tsx] change in ./src/jobs/queue.ts Restarting...
+c[dotenv@17.3.1] injecting env (0) from .env -- tip: ⚙️  load multiple .env files with { path: ['.env.local', '.env'] }
+(node:79719) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+✅ Conexión a la base de datos PostgreSQL exitosa
+[CacheSubscriber] Active and listening for cache invalidation events.
+[CRON] Registered Commercial Intelligence Schedule (Daily at 00:00).
+🚀 Server is running on port 3001 at 0.0.0.0
+{"level":30,"time":1772815588254,"pid":79719,"hostname":"MacBook-Pro-de-Daniel.local","msg":"Starting BullMQ Workers..."}
+5:46:36 PM [tsx] change in ./src/jobs/worker.ts Restarting...
+c[dotenv@17.3.1] injecting env (0) from .env -- tip: ⚙️  load multiple .env files with { path: ['.env.local', '.env'] }
+(node:79732) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+✅ Conexión a la base de datos PostgreSQL exitosa
+[CacheSubscriber] Active and listening for cache invalidation events.
+[CRON] Registered Commercial Intelligence Schedule (Daily at 00:00).
+🚀 Server is running on port 3001 at 0.0.0.0
+{"level":30,"time":1772815596820,"pid":79732,"hostname":"MacBook-Pro-de-Daniel.local","msg":"Starting BullMQ Workers..."}
+5:46:44 PM [tsx] change in ./src/jobs/worker.ts Restarting...
+c[dotenv@17.3.1] injecting env (0) from .env -- tip: ⚙️  enable debug logging with { debug: true }
+(node:79750) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+✅ Conexión a la base de datos PostgreSQL exitosa
+[CacheSubscriber] Active and listening for cache invalidation events.
+[CRON] Registered Commercial Intelligence Schedule (Daily at 00:00).
+🚀 Server is running on port 3001 at 0.0.0.0
+{"level":30,"time":1772815605109,"pid":79750,"hostname":"MacBook-Pro-de-Daniel.local","msg":"Starting BullMQ Workers..."}
+5:47:02 PM [tsx] change in ./src/app.ts Restarting...
+c[dotenv@17.3.1] injecting env (0) from .env -- tip: 🔐 prevent committing .env to code: https://dotenvx.com/precommit
+(node:79770) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+✅ Conexión a la base de datos PostgreSQL exitosa
+[CacheSubscriber] Active and listening for cache invalidation events.
+[CRON] Registered Commercial Intelligence Schedule (Daily at 00:00).
+🚀 Server is running on port 3001 at 0.0.0.0
+{"level":30,"time":1772815623524,"pid":79770,"hostname":"MacBook-Pro-de-Daniel.local","msg":"Starting BullMQ Workers..."}
+5:47:06 PM [tsx] change in ./src/app.ts Restarting...
+c[dotenv@17.3.1] injecting env (0) from .env -- tip: ⚙️  suppress all logs with { quiet: true }
+(node:79779) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+✅ Conexión a la base de datos PostgreSQL exitosa
+[CacheSubscriber] Active and listening for cache invalidation events.
+[CRON] Registered Commercial Intelligence Schedule (Daily at 00:00).
+🚀 Server is running on port 3001 at 0.0.0.0
+{"level":30,"time":1772815627237,"pid":79779,"hostname":"MacBook-Pro-de-Daniel.local","msg":"Starting BullMQ Workers..."}
+5:47:08 PM [tsx] change in ./src/jobs/queue.ts Restarting...
+c[dotenv@17.3.1] injecting env (0) from .env -- tip: 🛠️  run anywhere with `dotenvx run -- yourcommand`
+(node:79786) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+✅ Conexión a la base de datos PostgreSQL exitosa
+[CacheSubscriber] Active and listening for cache invalidation events.
+[CRON] Registered Commercial Intelligence Schedule (Daily at 00:00).
+🚀 Server is running on port 3001 at 0.0.0.0
+{"level":30,"time":1772815629398,"pid":79786,"hostname":"MacBook-Pro-de-Daniel.local","msg":"Starting BullMQ Workers..."}
+5:47:17 PM [tsx] change in ./src/index.ts Restarting...
+c[dotenv@17.3.1] injecting env (0) from .env -- tip: 🛡️ auth for agents: https://vestauth.com
+(node:79795) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+✅ Conexión a la base de datos PostgreSQL exitosa
+[CacheSubscriber] Active and listening for cache invalidation events.
+[CRON] Registered Commercial Intelligence Schedule (Daily at 00:00).
+🚀 Server is running on port 3001 at 0.0.0.0
+{"level":30,"time":1772815638263,"pid":79795,"hostname":"MacBook-Pro-de-Daniel.local","msg":"Starting BullMQ Workers..."}
+5:47:19 PM [tsx] change in ./src/index.ts Restarting...
+c[dotenv@17.3.1] injecting env (0) from .env -- tip: 🔐 encrypt with Dotenvx: https://dotenvx.com
+(node:79802) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+✅ Conexión a la base de datos PostgreSQL exitosa
+[CacheSubscriber] Active and listening for cache invalidation events.
+[CRON] Registered Commercial Intelligence Schedule (Daily at 00:00).
+{"level":30,"time":1772815640320,"pid":79802,"hostname":"MacBook-Pro-de-Daniel.local","msg":"Scheduled repeatable task reminder job (9 AM daily)"}
+🚀 Server is running on port 3001 at 0.0.0.0
+{"level":30,"time":1772815640321,"pid":79802,"hostname":"MacBook-Pro-de-Daniel.local","msg":"Starting BullMQ Workers..."}
+5:47:24 PM [tsx] change in ./src/index.ts Restarting...
+c[dotenv@17.3.1] injecting env (0) from .env -- tip: ⚙️  specify custom .env file path with { path: '/custom/path/.env' }
+(node:79812) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+✅ Conexión a la base de datos PostgreSQL exitosa
+[CacheSubscriber] Active and listening for cache invalidation events.
+[CRON] Registered Commercial Intelligence Schedule (Daily at 00:00).
+{"level":30,"time":1772815645142,"pid":79812,"hostname":"MacBook-Pro-de-Daniel.local","msg":"Scheduled repeatable task reminder job (9 AM daily)"}
+🚀 Server is running on port 3001 at 0.0.0.0
+{"level":30,"time":1772815645142,"pid":79812,"hostname":"MacBook-Pro-de-Daniel.local","msg":"Starting BullMQ Workers..."}
+5:47:29 PM [tsx] change in ./src/index.ts Restarting...
+c[dotenv@17.3.1] injecting env (0) from .env -- tip: 🔐 prevent committing .env to code: https://dotenvx.com/precommit
+(node:79814) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+✅ Conexión a la base de datos PostgreSQL exitosa
+[CacheSubscriber] Active and listening for cache invalidation events.
+[CRON] Registered Commercial Intelligence Schedule (Daily at 00:00).
+{"level":30,"time":1772815650090,"pid":79814,"hostname":"MacBook-Pro-de-Daniel.local","msg":"Scheduled repeatable task reminder job (9 AM daily)"}
+🚀 Server is running on port 3001 at 0.0.0.0
+{"level":30,"time":1772815650091,"pid":79814,"hostname":"MacBook-Pro-de-Daniel.local","msg":"Starting BullMQ Workers..."}
+5:47:34 PM [tsx] change in ./src/index.ts Restarting...
+c[dotenv@17.3.1] injecting env (0) from .env -- tip: 🛡️ auth for agents: https://vestauth.com
+(node:79821) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+✅ Conexión a la base de datos PostgreSQL exitosa
+[CacheSubscriber] Active and listening for cache invalidation events.
+[CRON] Registered Commercial Intelligence Schedule (Daily at 00:00).
+{"level":30,"time":1772815654887,"pid":79821,"hostname":"MacBook-Pro-de-Daniel.local","msg":"Scheduled repeatable task reminder job (9 AM daily)"}
+🚀 Server is running on port 3001 at 0.0.0.0
+{"level":30,"time":1772815654892,"pid":79821,"hostname":"MacBook-Pro-de-Daniel.local","msg":"Starting BullMQ Workers..."}
+7:16:48 PM [tsx] change in ./src/modules/ai/ai.service.ts Restarting...
+c[dotenv@17.3.1] injecting env (0) from .env -- tip: ⚙️  load multiple .env files with { path: ['.env.local', '.env'] }
+(node:79951) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+✅ Conexión a la base de datos PostgreSQL exitosa
+[CacheSubscriber] Active and listening for cache invalidation events.
+[CRON] Registered Commercial Intelligence Schedule (Daily at 00:00).
+{"level":30,"time":1772821009482,"pid":79951,"hostname":"MacBook-Pro-de-Daniel.local","msg":"Scheduled repeatable task reminder job (9 AM daily)"}
+🚀 Server is running on port 3001 at 0.0.0.0
+{"level":30,"time":1772821009500,"pid":79951,"hostname":"MacBook-Pro-de-Daniel.local","msg":"Starting BullMQ Workers..."}
+7:17:05 PM [tsx] change in ./src/modules/ai/ai.controller.ts Restarting...
+c[dotenv@17.3.1] injecting env (0) from .env -- tip: 🔐 encrypt with Dotenvx: https://dotenvx.com
+(node:79970) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+✅ Conexión a la base de datos PostgreSQL exitosa
+[CacheSubscriber] Active and listening for cache invalidation events.
+[CRON] Registered Commercial Intelligence Schedule (Daily at 00:00).
+{"level":30,"time":1772821026714,"pid":79970,"hostname":"MacBook-Pro-de-Daniel.local","msg":"Scheduled repeatable task reminder job (9 AM daily)"}
+🚀 Server is running on port 3001 at 0.0.0.0
+{"level":30,"time":1772821026719,"pid":79970,"hostname":"MacBook-Pro-de-Daniel.local","msg":"Starting BullMQ Workers..."}
+7:17:07 PM [tsx] change in ./src/modules/ai/ai.routes.ts Restarting...
+c[dotenv@17.3.1] injecting env (0) from .env -- tip: ⚙️  specify custom .env file path with { path: '/custom/path/.env' }
+(node:79977) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+✅ Conexión a la base de datos PostgreSQL exitosa
+[CacheSubscriber] Active and listening for cache invalidation events.
+[CRON] Registered Commercial Intelligence Schedule (Daily at 00:00).
+{"level":30,"time":1772821028373,"pid":79977,"hostname":"MacBook-Pro-de-Daniel.local","msg":"Scheduled repeatable task reminder job (9 AM daily)"}
+🚀 Server is running on port 3001 at 0.0.0.0
+{"level":30,"time":1772821028378,"pid":79977,"hostname":"MacBook-Pro-de-Daniel.local","msg":"Starting BullMQ Workers..."}
+7:17:48 PM [tsx] change in ./src/modules/ai/ai.service.ts Restarting...
+c[dotenv@17.3.1] injecting env (0) from .env -- tip: ⚡️ secrets for agents: https://dotenvx.com/as2
+(node:79999) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+✅ Conexión a la base de datos PostgreSQL exitosa
+[CacheSubscriber] Active and listening for cache invalidation events.
+[CRON] Registered Commercial Intelligence Schedule (Daily at 00:00).
+{"level":30,"time":1772821068954,"pid":79999,"hostname":"MacBook-Pro-de-Daniel.local","msg":"Scheduled repeatable task reminder job (9 AM daily)"}
+🚀 Server is running on port 3001 at 0.0.0.0
+{"level":30,"time":1772821068958,"pid":79999,"hostname":"MacBook-Pro-de-Daniel.local","msg":"Starting BullMQ Workers..."}
+7:17:49 PM [tsx] change in ./src/modules/ai/ai.routes.ts Restarting...
+c[dotenv@17.3.1] injecting env (0) from .env -- tip: ⚙️  load multiple .env files with { path: ['.env.local', '.env'] }
+(node:80006) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+✅ Conexión a la base de datos PostgreSQL exitosa
+[CacheSubscriber] Active and listening for cache invalidation events.
+[CRON] Registered Commercial Intelligence Schedule (Daily at 00:00).
+{"level":30,"time":1772821070214,"pid":80006,"hostname":"MacBook-Pro-de-Daniel.local","msg":"Scheduled repeatable task reminder job (9 AM daily)"}
+🚀 Server is running on port 3001 at 0.0.0.0
+{"level":30,"time":1772821070218,"pid":80006,"hostname":"MacBook-Pro-de-Daniel.local","msg":"Starting BullMQ Workers..."}
+7:31:02 PM [tsx] change in ./src/modules/clients/client.service.ts Restarting...
+c[dotenv@17.3.1] injecting env (0) from .env -- tip: ⚙️  load multiple .env files with { path: ['.env.local', '.env'] }
+(node:82326) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+✅ Conexión a la base de datos PostgreSQL exitosa
+[CacheSubscriber] Active and listening for cache invalidation events.
+[CRON] Registered Commercial Intelligence Schedule (Daily at 00:00).
+{"level":30,"time":1772821862980,"pid":82326,"hostname":"MacBook-Pro-de-Daniel.local","msg":"Scheduled repeatable task reminder job (9 AM daily)"}
+🚀 Server is running on port 3001 at 0.0.0.0
+{"level":30,"time":1772821862985,"pid":82326,"hostname":"MacBook-Pro-de-Daniel.local","msg":"Starting BullMQ Workers..."}
+7:31:23 PM [tsx] change in ./src/modules/opportunities/opportunity.service.ts Restarting...
+c[dotenv@17.3.1] injecting env (0) from .env -- tip: ⚡️ secrets for agents: https://dotenvx.com/as2
+(node:82347) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+✅ Conexión a la base de datos PostgreSQL exitosa
+[CacheSubscriber] Active and listening for cache invalidation events.
+[CRON] Registered Commercial Intelligence Schedule (Daily at 00:00).
+{"level":30,"time":1772821884569,"pid":82347,"hostname":"MacBook-Pro-de-Daniel.local","msg":"Scheduled repeatable task reminder job (9 AM daily)"}
+🚀 Server is running on port 3001 at 0.0.0.0
+{"level":30,"time":1772821884574,"pid":82347,"hostname":"MacBook-Pro-de-Daniel.local","msg":"Starting BullMQ Workers..."}
+7:31:24 PM [tsx] change in ./src/repositories/opportunity.repository.ts Restarting...
+c[dotenv@17.3.1] injecting env (0) from .env -- tip: ⚡️ secrets for agents: https://dotenvx.com/as2
+(node:82350) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+✅ Conexión a la base de datos PostgreSQL exitosa
+[CacheSubscriber] Active and listening for cache invalidation events.
+[CRON] Registered Commercial Intelligence Schedule (Daily at 00:00).
+{"level":30,"time":1772821885003,"pid":82350,"hostname":"MacBook-Pro-de-Daniel.local","msg":"Scheduled repeatable task reminder job (9 AM daily)"}
+🚀 Server is running on port 3001 at 0.0.0.0
+{"level":30,"time":1772821885008,"pid":82350,"hostname":"MacBook-Pro-de-Daniel.local","msg":"Starting BullMQ Workers..."}
+7:31:44 PM [tsx] change in ./src/modules/tasks/task.service.ts Restarting...
+c[dotenv@17.3.1] injecting env (0) from .env -- tip: ⚙️  load multiple .env files with { path: ['.env.local', '.env'] }
+(node:82365) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+✅ Conexión a la base de datos PostgreSQL exitosa
+[CacheSubscriber] Active and listening for cache invalidation events.
+[CRON] Registered Commercial Intelligence Schedule (Daily at 00:00).
+{"level":30,"time":1772821905549,"pid":82365,"hostname":"MacBook-Pro-de-Daniel.local","msg":"Scheduled repeatable task reminder job (9 AM daily)"}
+🚀 Server is running on port 3001 at 0.0.0.0
+{"level":30,"time":1772821905553,"pid":82365,"hostname":"MacBook-Pro-de-Daniel.local","msg":"Starting BullMQ Workers..."}
+7:31:59 PM [tsx] change in ./src/modules/clients/client.controller.ts Restarting...
+c[dotenv@17.3.1] injecting env (0) from .env -- tip: ⚙️  load multiple .env files with { path: ['.env.local', '.env'] }
+(node:82380) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+✅ Conexión a la base de datos PostgreSQL exitosa
+[CacheSubscriber] Active and listening for cache invalidation events.
+[CRON] Registered Commercial Intelligence Schedule (Daily at 00:00).
+{"level":30,"time":1772821920356,"pid":82380,"hostname":"MacBook-Pro-de-Daniel.local","msg":"Scheduled repeatable task reminder job (9 AM daily)"}
+🚀 Server is running on port 3001 at 0.0.0.0
+{"level":30,"time":1772821920361,"pid":82380,"hostname":"MacBook-Pro-de-Daniel.local","msg":"Starting BullMQ Workers..."}
+7:32:14 PM [tsx] change in ./src/core/middlewares/error.middleware.ts Restarting...
+c[dotenv@17.3.1] injecting env (0) from .env -- tip: ⚙️  load multiple .env files with { path: ['.env.local', '.env'] }
+(node:82393) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+✅ Conexión a la base de datos PostgreSQL exitosa
+[CacheSubscriber] Active and listening for cache invalidation events.
+[CRON] Registered Commercial Intelligence Schedule (Daily at 00:00).
+{"level":30,"time":1772821935083,"pid":82393,"hostname":"MacBook-Pro-de-Daniel.local","msg":"Scheduled repeatable task reminder job (9 AM daily)"}
+🚀 Server is running on port 3001 at 0.0.0.0
+{"level":30,"time":1772821935088,"pid":82393,"hostname":"MacBook-Pro-de-Daniel.local","msg":"Starting BullMQ Workers..."}
+7:32:24 PM [tsx] change in ./src/repositories/client.repository.ts Restarting...
+c[dotenv@17.3.1] injecting env (0) from .env -- tip: 🛡️ auth for agents: https://vestauth.com
+(node:82409) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+✅ Conexión a la base de datos PostgreSQL exitosa
+[CacheSubscriber] Active and listening for cache invalidation events.
+[CRON] Registered Commercial Intelligence Schedule (Daily at 00:00).
+{"level":30,"time":1772821945221,"pid":82409,"hostname":"MacBook-Pro-de-Daniel.local","msg":"Scheduled repeatable task reminder job (9 AM daily)"}
+🚀 Server is running on port 3001 at 0.0.0.0
+{"level":30,"time":1772821945226,"pid":82409,"hostname":"MacBook-Pro-de-Daniel.local","msg":"Starting BullMQ Workers..."}
+7:32:27 PM [tsx] change in ./src/modules/opportunities/opportunity.controller.ts Restarting...
+c[dotenv@17.3.1] injecting env (0) from .env -- tip: ⚡️ secrets for agents: https://dotenvx.com/as2
+(node:82417) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+✅ Conexión a la base de datos PostgreSQL exitosa
+[CacheSubscriber] Active and listening for cache invalidation events.
+[CRON] Registered Commercial Intelligence Schedule (Daily at 00:00).
+{"level":30,"time":1772821947639,"pid":82417,"hostname":"MacBook-Pro-de-Daniel.local","msg":"Scheduled repeatable task reminder job (9 AM daily)"}
+🚀 Server is running on port 3001 at 0.0.0.0
+{"level":30,"time":1772821947644,"pid":82417,"hostname":"MacBook-Pro-de-Daniel.local","msg":"Starting BullMQ Workers..."}
+7:32:28 PM [tsx] change in ./src/modules/tasks/task.controller.ts Restarting...
+c[dotenv@17.3.1] injecting env (0) from .env -- tip: 🔐 prevent building .env in docker: https://dotenvx.com/prebuild
+(node:82420) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+✅ Conexión a la base de datos PostgreSQL exitosa
+[CacheSubscriber] Active and listening for cache invalidation events.
+[CRON] Registered Commercial Intelligence Schedule (Daily at 00:00).
+{"level":30,"time":1772821948710,"pid":82420,"hostname":"MacBook-Pro-de-Daniel.local","msg":"Scheduled repeatable task reminder job (9 AM daily)"}
+🚀 Server is running on port 3001 at 0.0.0.0
+{"level":30,"time":1772821948715,"pid":82420,"hostname":"MacBook-Pro-de-Daniel.local","msg":"Starting BullMQ Workers..."}
+7:38:04 PM [tsx] change in ./src/modules/clients/client.schema.ts Restarting...
+c[dotenv@17.3.1] injecting env (0) from .env -- tip: ⚙️  override existing env vars with { override: true }
+(node:82932) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+✅ Conexión a la base de datos PostgreSQL exitosa
+[CacheSubscriber] Active and listening for cache invalidation events.
+[CRON] Registered Commercial Intelligence Schedule (Daily at 00:00).
+{"level":30,"time":1772822285824,"pid":82932,"hostname":"MacBook-Pro-de-Daniel.local","msg":"Scheduled repeatable task reminder job (9 AM daily)"}
+🚀 Server is running on port 3001 at 0.0.0.0
+{"level":30,"time":1772822285828,"pid":82932,"hostname":"MacBook-Pro-de-Daniel.local","msg":"Starting BullMQ Workers..."}
+7:38:18 PM [tsx] change in ./src/modules/opportunities/opportunity.schema.ts Restarting...
+c[dotenv@17.3.1] injecting env (0) from .env -- tip: ⚙️  suppress all logs with { quiet: true }
+(node:82950) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+✅ Conexión a la base de datos PostgreSQL exitosa
+[CacheSubscriber] Active and listening for cache invalidation events.
+[CRON] Registered Commercial Intelligence Schedule (Daily at 00:00).
+{"level":30,"time":1772822298890,"pid":82950,"hostname":"MacBook-Pro-de-Daniel.local","msg":"Scheduled repeatable task reminder job (9 AM daily)"}
+🚀 Server is running on port 3001 at 0.0.0.0
+{"level":30,"time":1772822298894,"pid":82950,"hostname":"MacBook-Pro-de-Daniel.local","msg":"Starting BullMQ Workers..."}
+7:38:20 PM [tsx] change in ./src/modules/tasks/task.schema.ts Restarting...
+c[dotenv@17.3.1] injecting env (0) from .env -- tip: ⚙️  suppress all logs with { quiet: true }
+(node:82957) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+✅ Conexión a la base de datos PostgreSQL exitosa
+[CacheSubscriber] Active and listening for cache invalidation events.
+[CRON] Registered Commercial Intelligence Schedule (Daily at 00:00).
+{"level":30,"time":1772822300741,"pid":82957,"hostname":"MacBook-Pro-de-Daniel.local","msg":"Scheduled repeatable task reminder job (9 AM daily)"}
+🚀 Server is running on port 3001 at 0.0.0.0
+{"level":30,"time":1772822300746,"pid":82957,"hostname":"MacBook-Pro-de-Daniel.local","msg":"Starting BullMQ Workers..."}
+7:38:23 PM [tsx] change in ./src/modules/tasks/task.schema.ts Restarting...
+c[dotenv@17.3.1] injecting env (0) from .env -- tip: 🔐 prevent building .env in docker: https://dotenvx.com/prebuild
+(node:82960) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+✅ Conexión a la base de datos PostgreSQL exitosa
+[CacheSubscriber] Active and listening for cache invalidation events.
+[CRON] Registered Commercial Intelligence Schedule (Daily at 00:00).
+{"level":30,"time":1772822304491,"pid":82960,"hostname":"MacBook-Pro-de-Daniel.local","msg":"Scheduled repeatable task reminder job (9 AM daily)"}
+🚀 Server is running on port 3001 at 0.0.0.0
+{"level":30,"time":1772822304498,"pid":82960,"hostname":"MacBook-Pro-de-Daniel.local","msg":"Starting BullMQ Workers..."}
+7:38:31 PM [tsx] change in ./src/modules/clients/client.controller.ts Restarting...
+c[dotenv@17.3.1] injecting env (0) from .env -- tip: 🔐 prevent committing .env to code: https://dotenvx.com/precommit
+(node:82971) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+✅ Conexión a la base de datos PostgreSQL exitosa
+[CacheSubscriber] Active and listening for cache invalidation events.
+[CRON] Registered Commercial Intelligence Schedule (Daily at 00:00).
+{"level":30,"time":1772822311953,"pid":82971,"hostname":"MacBook-Pro-de-Daniel.local","msg":"Scheduled repeatable task reminder job (9 AM daily)"}
+🚀 Server is running on port 3001 at 0.0.0.0
+{"level":30,"time":1772822311958,"pid":82971,"hostname":"MacBook-Pro-de-Daniel.local","msg":"Starting BullMQ Workers..."}
+7:38:34 PM [tsx] change in ./src/modules/opportunities/opportunity.controller.ts Restarting...
+c[dotenv@17.3.1] injecting env (0) from .env -- tip: 🛠️  run anywhere with `dotenvx run -- yourcommand`
+(node:82980) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+✅ Conexión a la base de datos PostgreSQL exitosa
+[CacheSubscriber] Active and listening for cache invalidation events.
+[CRON] Registered Commercial Intelligence Schedule (Daily at 00:00).
+{"level":30,"time":1772822314776,"pid":82980,"hostname":"MacBook-Pro-de-Daniel.local","msg":"Scheduled repeatable task reminder job (9 AM daily)"}
+🚀 Server is running on port 3001 at 0.0.0.0
+{"level":30,"time":1772822314780,"pid":82980,"hostname":"MacBook-Pro-de-Daniel.local","msg":"Starting BullMQ Workers..."}
+7:38:36 PM [tsx] change in ./src/modules/tasks/task.controller.ts Restarting...
+c[dotenv@17.3.1] injecting env (0) from .env -- tip: 🔐 prevent committing .env to code: https://dotenvx.com/precommit
+(node:82989) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+✅ Conexión a la base de datos PostgreSQL exitosa
+[CacheSubscriber] Active and listening for cache invalidation events.
+[CRON] Registered Commercial Intelligence Schedule (Daily at 00:00).
+{"level":30,"time":1772822316719,"pid":82989,"hostname":"MacBook-Pro-de-Daniel.local","msg":"Scheduled repeatable task reminder job (9 AM daily)"}
+🚀 Server is running on port 3001 at 0.0.0.0
+{"level":30,"time":1772822316722,"pid":82989,"hostname":"MacBook-Pro-de-Daniel.local","msg":"Starting BullMQ Workers..."}
+7:38:47 PM [tsx] change in ./src/index.ts Restarting...
+c[dotenv@17.3.1] injecting env (0) from .env -- tip: 🛡️ auth for agents: https://vestauth.com
+(node:83008) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+/Users/danielgimenezzaragoza/Desktop/PROYECTOO/backend/src/index.ts:67
+        logger.error({ msg: '❌ Error starting server', err });
+        ^
+
+ReferenceError: logger is not defined
+    at startServer (/Users/danielgimenezzaragoza/Desktop/PROYECTOO/backend/src/index.ts:67:9)
+
+Node.js v24.13.1
+7:38:49 PM [tsx] change in ./src/app.ts Rerunning...
+c[dotenv@17.3.1] injecting env (0) from .env -- tip: ⚡️ secrets for agents: https://dotenvx.com/as2
+(node:83020) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+/Users/danielgimenezzaragoza/Desktop/PROYECTOO/backend/src/index.ts:67
+        logger.error({ msg: '❌ Error starting server', err });
+        ^
+
+ReferenceError: logger is not defined
+    at startServer (/Users/danielgimenezzaragoza/Desktop/PROYECTOO/backend/src/index.ts:67:9)
+
+Node.js v24.13.1
+7:39:07 PM [tsx] change in ./src/index.ts Rerunning...
+c[dotenv@17.3.1] injecting env (0) from .env -- tip: ⚙️  override existing env vars with { override: true }
+(node:83031) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+{"level":30,"time":1772822347974,"pid":83031,"hostname":"MacBook-Pro-de-Daniel.local","msg":"✅ Conexión a la base de datos PostgreSQL exitosa"}
+[CacheSubscriber] Active and listening for cache invalidation events.
+[CRON] Registered Commercial Intelligence Schedule (Daily at 00:00).
+{"level":30,"time":1772822347989,"pid":83031,"hostname":"MacBook-Pro-de-Daniel.local","msg":"Scheduled repeatable task reminder job (9 AM daily)"}
+{"level":30,"time":1772822348001,"pid":83031,"hostname":"MacBook-Pro-de-Daniel.local","msg":"🚀 Server is running on port 3001 at 0.0.0.0"}
+{"level":30,"time":1772822348001,"pid":83031,"hostname":"MacBook-Pro-de-Daniel.local","msg":"Starting BullMQ Workers..."}
+7:50:27 PM [tsx] change in ./src/modules/clients/client.controller.ts Restarting...
+c[dotenv@17.3.1] injecting env (0) from .env -- tip: ⚙️  enable debug logging with { debug: true }
+(node:84500) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+{"level":30,"time":1772823028603,"pid":84500,"hostname":"MacBook-Pro-de-Daniel.local","msg":"✅ Conexión a la base de datos PostgreSQL exitosa"}
+[CacheSubscriber] Active and listening for cache invalidation events.
+[CRON] Registered Commercial Intelligence Schedule (Daily at 00:00).
+{"level":30,"time":1772823028618,"pid":84500,"hostname":"MacBook-Pro-de-Daniel.local","msg":"Scheduled repeatable task reminder job (9 AM daily)"}
+{"level":30,"time":1772823028631,"pid":84500,"hostname":"MacBook-Pro-de-Daniel.local","msg":"🚀 Server is running on port 3001 at 0.0.0.0"}
+{"level":30,"time":1772823028631,"pid":84500,"hostname":"MacBook-Pro-de-Daniel.local","msg":"Starting BullMQ Workers..."}
+7:50:31 PM [tsx] change in ./src/modules/clients/client.controller.ts Restarting...
+c[dotenv@17.3.1] injecting env (0) from .env -- tip: ⚙️  specify custom .env file path with { path: '/custom/path/.env' }
+(node:84508) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+{"level":30,"time":1772823031877,"pid":84508,"hostname":"MacBook-Pro-de-Daniel.local","msg":"✅ Conexión a la base de datos PostgreSQL exitosa"}
+[CacheSubscriber] Active and listening for cache invalidation events.
+[CRON] Registered Commercial Intelligence Schedule (Daily at 00:00).
+{"level":30,"time":1772823031897,"pid":84508,"hostname":"MacBook-Pro-de-Daniel.local","msg":"Scheduled repeatable task reminder job (9 AM daily)"}
+{"level":30,"time":1772823031902,"pid":84508,"hostname":"MacBook-Pro-de-Daniel.local","msg":"🚀 Server is running on port 3001 at 0.0.0.0"}
+{"level":30,"time":1772823031902,"pid":84508,"hostname":"MacBook-Pro-de-Daniel.local","msg":"Starting BullMQ Workers..."}

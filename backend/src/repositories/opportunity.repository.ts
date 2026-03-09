@@ -45,7 +45,7 @@ export class OpportunityRepository extends BaseRepository<Opportunity> {
                 ]
             })
         };
-        return await this.count(tenantId, where);
+        return await this.count(tenantId, { where });
     }
 }
 

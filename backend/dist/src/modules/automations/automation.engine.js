@@ -93,8 +93,8 @@ export class AutomationEngine {
                         await taskService.createTask({
                             userId: payload.userId || 1, // Fallback to an admin or system user
                             title: this.parseTemplate(action.payload.title || 'Automated Task', payload.data),
-                            deadline: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(), // Tomorrow
-                            priority: action.payload.priority || 'Alta',
+                            due_date: new Date(Date.now() + 24 * 60 * 60 * 1000), // Tomorrow
+                            priority: action.payload.priority || 'high',
                         }, payload.tenantId);
                         break;
                     case 'log':

@@ -40,7 +40,7 @@ export class ClientRepository extends BaseRepository<Client> {
                 ]
             })
         };
-        return await this.count(tenantId, where);
+        return await this.count(tenantId, { where });
     }
 
     async findOpportunities(tenantId: number, clientId: number) {

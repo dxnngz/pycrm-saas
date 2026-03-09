@@ -4,38 +4,29 @@ import { asyncHandler } from '../../utils/asyncHandler.js';
 import { AppError } from '../../utils/AppError.js';
 import { eventBus } from '../../core/eventBus.js';
 export const getOpportunities = asyncHandler(async (req, res) => {
-    const page = parseInt(req.query.page) || 1;
-    const limit = parseInt(req.query.limit) || 10;
-    const search = req.query.search || '';
-    const tenantId = req.user?.tenantId;
-    const opportunities = await opportunityService.getAllOpportunities(tenantId, page, limit, search);
+    const { limit, search, cursor } = req.query;
+    const user = req.user;
+    const opportunities = await opportunityService.getAllOpportunities(user.tenantId, { limit, search, cursor });
     res.json(opportunities);
 });
 export const createOpportunity = asyncHandler(async (req, res) => {
     const tenantId = req.user?.tenantId;
-    // Body from route shouldn't parse string if using JSON but we enforce type:
-    const data = {
-        ...req.body,
-        client_id: parseInt(req.body.client_id),
-        amount: parseFloat(req.body.amount)
-    };
-    const opportunity = await opportunityService.createOpportunity(data, tenantId);
+    const userId = req.user?.userId;
+    const opportunity = await opportunityService.createOpportunity(req.body, tenantId);
     // Emit event for Automation Engine
-    eventBus.emit('opportunity.created', { tenantId, userId: req.user?.userId, data: opportunity });
+    eventBus.emit('opportunity.created', { tenantId, userId, data: opportunity });
     res.status(201).json(opportunity);
 });
 export const updateOpportunityStatus = asyncHandler(async (req, res) => {
     try {
         const tenantId = req.user?.tenantId;
-        const id = parseInt(req.params.id);
+        const { id } = req.params; // Transformed to number
         const { status, version } = req.body;
         const opportunity = await opportunityService.updateOpportunityStatusById(tenantId, id, status, version);
         eventBus.emit('opportunity.status_updated', { tenantId, userId: req.user?.userId, data: opportunity });
         res.json(opportunity);
     }
     catch (error) {
-        // P2025 is Prisma "Record to update not found."
-        // Could be missing or optimistic lock fail.
         if (error.code === 'P2025') {
             throw new AppError('Oportunidad no encontrada o fue modificada por otro usuario (Conflicto de Version). Por favor, recarga y vuelve a intentarlo.', 409);
         }
@@ -44,9 +35,9 @@ export const updateOpportunityStatus = asyncHandler(async (req, res) => {
 });
 export const getLeadScore = asyncHandler(async (req, res) => {
     const tenantId = req.user?.tenantId;
-    const { id } = req.params;
+    const { id } = req.params; // Transformed to number
     try {
-        const scoreData = await aiService.calculateLeadScore(parseInt(id), tenantId);
+        const scoreData = await aiService.calculateLeadScore(id, tenantId);
         res.json(scoreData);
     }
     catch (err) {
