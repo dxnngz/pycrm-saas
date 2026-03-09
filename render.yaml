@@ -5,7 +5,7 @@ services:
     env: node
     plan: pro
     rootDir: backend
-    buildCommand: npm install --include=dev && npx prisma migrate resolve --applied "20260309190148_enterprise_features" || true && npx prisma generate && npx prisma migrate deploy && npm run build
+    buildCommand: npm install --include=dev && npx prisma generate && npx prisma migrate deploy && npm run build
     startCommand: npm run start
     healthCheckPath: /api/health
     envVars:
