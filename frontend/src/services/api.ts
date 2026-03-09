@@ -3,6 +3,9 @@ import { clientService } from './client.service';
 import { opportunityService } from './opportunity.service';
 import { taskService } from './task.service';
 import { dashboardService } from './dashboard.service';
+import { eventsService } from './events.service';
+import { documentsService } from './documents.service';
+import { productsService } from './products.service';
 import { customFetch, getHeaders, handleResponse } from './apiClient';
 
 // Export for backward compatibility during transition
@@ -12,6 +15,9 @@ export const api = {
     opportunities: opportunityService,
     tasks: taskService,
     dashboard: dashboardService,
+    events: eventsService,
+    documents: documentsService,
+    products: productsService,
     // Add any minor ones left or placeholders
     contacts: {
         getByClient: (clientId: number) => customFetch(`/contacts/${clientId}`, { headers: getHeaders() }).then(handleResponse),
@@ -19,6 +25,12 @@ export const api = {
     },
     ai: {
         askCopilot: (query: string) => customFetch('/ai/copilot', { method: 'POST', headers: getHeaders(), body: JSON.stringify({ query }) }).then(handleResponse),
+        askCopilotStream: (query: string, onChunk: (chunk: string) => void, onDone: () => void, onError: (error: string) => void) => {
+            const eventSource = new EventSource(`/ai/copilot/stream?query=${encodeURIComponent(query)}`);
+            eventSource.onmessage = (e) => onChunk(e.data);
+            eventSource.onerror = () => { onError('Stream error'); eventSource.close(); };
+            eventSource.addEventListener('end', () => { onDone(); eventSource.close(); });
+        },
         // ... streamline other AI methods similarly
     },
     users: {

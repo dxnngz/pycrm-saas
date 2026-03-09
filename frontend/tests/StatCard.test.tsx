@@ -1,7 +1,6 @@
 import { render, screen } from '@testing-library/react';
 import { describe, it, expect } from 'vitest';
 import StatCard from '../src/components/Dashboard/StatCard';
-import React from 'react';
 
 describe('StatCard', () => {
     it('should render the title and value correctly', () => {
