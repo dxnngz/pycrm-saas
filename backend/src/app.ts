@@ -196,6 +196,7 @@ import productRoutes from './modules/products/product.routes.js';
 import eventRoutes from './modules/events/event.routes.js';
 import documentRoutes from './modules/documents/document.routes.js';
 import aiRoutes from './modules/ai/ai.routes.js';
+import auditRoutes from './modules/audit/audit.routes.js';
 import automationRoutes from './modules/automations/automation.routes.js';
 import { workflowService } from './modules/workflows/workflow.service.js';
 
@@ -230,6 +231,7 @@ app.use('/api/products', productRoutes);
 app.use('/api/events', eventRoutes);
 app.use('/api/documents', documentRoutes);
 app.use('/api/ai', aiRoutes);
+app.use('/api/audit', auditRoutes);
 app.use('/api/automations', automationRoutes);
 app.use('/api/tenants', tenantRoutes);
 app.use('/api/telemetry', telemetryRoutes);
