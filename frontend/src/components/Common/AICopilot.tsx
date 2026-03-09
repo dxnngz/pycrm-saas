@@ -20,6 +20,17 @@ export const AICopilot: React.FC = () => {
     const endOfMessagesRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
+        const handleKeyDown = (e: KeyboardEvent) => {
+            if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+                e.preventDefault();
+                setIsOpen(prev => !prev);
+            }
+        };
+        window.addEventListener('keydown', handleKeyDown);
+        return () => window.removeEventListener('keydown', handleKeyDown);
+    }, []);
+
+    useEffect(() => {
         if (isOpen) {
             endOfMessagesRef.current?.scrollIntoView({ behavior: 'smooth' });
         }
@@ -132,7 +143,12 @@ export const AICopilot: React.FC = () => {
                         </div>
 
                         {/* Chat Area */}
-                        <div className="flex-1 overflow-y-auto p-5 space-y-4 bg-slate-50/50 dark:bg-slate-900/50 custom-scrollbar">
+                        <div
+                            className="flex-1 overflow-y-auto p-5 space-y-4 bg-slate-50/50 dark:bg-slate-900/50 custom-scrollbar"
+                            role="log"
+                            aria-live="polite"
+                            aria-relevant="additions"
+                        >
                             {messages.map((msg, i) => (
                                 <div key={i} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
                                     <div
@@ -174,8 +190,10 @@ export const AICopilot: React.FC = () => {
                                     type="text"
                                     value={input}
                                     onChange={(e) => setInput(e.target.value)}
-                                    placeholder="Pregúntale a Nexus..."
+                                    placeholder="Ask Nexus (Cmd+K)..."
                                     disabled={isLoading}
+                                    aria-label="Nexus AI Input"
+                                    autoFocus
                                     className="w-full pl-12 pr-12 py-3 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:text-white transition-shadow disabled:opacity-50"
                                 />
                                 <button

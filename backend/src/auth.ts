@@ -22,7 +22,8 @@ export const comparePassword = async (password: string, hash: string) => {
 };
 
 export const generateToken = (userId: number, role: string, tenantId: number) => {
-    return jwt.sign({ userId, role, tenantId }, JWT_KEY, { expiresIn: '1h' });
+    const jti = crypto.randomUUID();
+    return jwt.sign({ userId, role, tenantId, jti }, JWT_KEY, { expiresIn: '1h' });
 };
 
 export const generateRefreshToken = (userId: number, tenantId: number) => {

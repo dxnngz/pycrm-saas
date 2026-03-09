@@ -37,6 +37,11 @@ export class AuthService {
             }
         });
     }
+    async revokeAllUserTokens(userId) {
+        return await prisma.refreshToken.deleteMany({
+            where: { user_id: userId }
+        });
+    }
     async findRefreshToken(token) {
         return await prisma.refreshToken.findUnique({
             where: { token }

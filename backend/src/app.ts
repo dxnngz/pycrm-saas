@@ -18,6 +18,8 @@ import userRoutes from './modules/users/user.routes.js';
 // Cleaned up unused legacy routes below these line
 import contactRoutes from './modules/contacts/contact.routes.js';
 import dashboardRoutes from './modules/dashboard/dashboard.routes.js';
+import tenantRoutes from './modules/tenants/tenant.routes.js';
+import telemetryRoutes from './modules/telemetry/telemetry.routes.js';
 import { globalErrorHandler } from './core/middlewares/error.middleware.js';
 import { csrfProtection } from './core/middlewares/csrf.middleware.js';
 import { startWorkers } from './jobs/worker.js';
@@ -195,6 +197,7 @@ import eventRoutes from './modules/events/event.routes.js';
 import documentRoutes from './modules/documents/document.routes.js';
 import aiRoutes from './modules/ai/ai.routes.js';
 import automationRoutes from './modules/automations/automation.routes.js';
+import { workflowService } from './modules/workflows/workflow.service.js';
 
 // Routes
 app.use('/api/auth', authRoutes);
@@ -228,6 +231,8 @@ app.use('/api/events', eventRoutes);
 app.use('/api/documents', documentRoutes);
 app.use('/api/ai', aiRoutes);
 app.use('/api/automations', automationRoutes);
+app.use('/api/tenants', tenantRoutes);
+app.use('/api/telemetry', telemetryRoutes);
 
 app.get('/api/health', async (req, res) => {
     try {

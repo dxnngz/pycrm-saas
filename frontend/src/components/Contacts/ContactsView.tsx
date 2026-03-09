@@ -6,16 +6,16 @@ import {
     Mail,
     Phone,
     Trash2,
+    History,
+    Sparkles,
+    Loader2,
     FileDown,
     Edit2,
     ChevronLeft,
-    ChevronRight,
-    History,
-    Sparkles,
-    Loader2
+    ChevronRight
 } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
-import { getClientBrief } from '../../services/ai';
+import { streamClientBrief } from '../../services/ai';
 import { useClients } from '../../hooks/useClients';
 import { usePermissions } from '../../hooks/usePermissions';
 import { generateClientReport } from '../../services/reportService';
@@ -23,11 +23,12 @@ import { sanitizePayload } from '../../utils/sanitize';
 import Modal from '../Common/Modal';
 import Timeline from './Timeline';
 import type { Client } from '../../types';
-import { Input } from '../UI/Input';
 import { Button } from '../UI/Button';
 import { VirtualTable, type Column as VirtualColumn } from '../UI/VirtualTable';
 import { Badge } from '../UI/Badge';
 import { ConfirmModal } from '../Common/ConfirmModal';
+import { Skeleton } from '../UI/Skeleton';
+import { Input } from '../UI/Input';
 
 const ContactsView = () => {
     const [search, setSearch] = useState('');
@@ -43,6 +44,7 @@ const ContactsView = () => {
 
     const { clients, loading, pagination, loadClients, createClient, updateClient, deleteClient } = useClients(page, 10, debouncedSearch);
     const { canCreateClient, canDeleteClient } = usePermissions();
+
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isTimelineOpen, setIsTimelineOpen] = useState(false);
     const [selectedClient, setSelectedClient] = useState<Client | null>(null);
@@ -61,6 +63,120 @@ const ContactsView = () => {
     const [newEmail, setNewEmail] = useState('');
     const [newPhone, setNewPhone] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
+
+    const handleOpenModal = useCallback((client: Client | null = null) => {
+        if (client) {
+            setEditingClient(client);
+            setNewName(client.name);
+            setNewCompany(client.company);
+            setNewEmail(client.email);
+            setNewPhone(client.phone || '');
+        } else {
+            setEditingClient(null);
+            setNewName('');
+            setNewCompany('');
+            setNewEmail('');
+            setNewPhone('');
+        }
+        setIsModalOpen(true);
+    }, []);
+
+    // Phase 15: Productivity Shortcut
+    useEffect(() => {
+        const handleKeyDown = (e: KeyboardEvent) => {
+            if (e.altKey && e.key === 'n') {
+                e.preventDefault();
+                handleOpenModal();
+            }
+        };
+        window.addEventListener('keydown', handleKeyDown);
+        return () => window.removeEventListener('keydown', handleKeyDown);
+    }, [handleOpenModal]);
+
+    const handleOpenTimeline = useCallback((client: Client) => {
+        setSelectedClient(client);
+        setIsTimelineOpen(true);
+    }, []);
+
+    const handleViewBrief = useCallback(async (client: Client) => {
+        setSelectedClient(client);
+        setIsBriefModalOpen(true);
+        setIsBriefLoading(true);
+        setBriefContent('');
+
+        try {
+            await streamClientBrief(
+                client.id,
+                (text) => {
+                    setIsBriefLoading(false);
+                    setBriefContent(prev => prev + text);
+                },
+                () => {
+                    setIsBriefLoading(false);
+                }
+            );
+        } catch (error) {
+            console.error(error);
+            setIsBriefLoading(false);
+            setBriefContent('Error al generar el resumen. Por favor, inténtelo de nuevo.');
+        }
+    }, []);
+
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setIsSubmitting(true);
+        try {
+            const clientData: Partial<Client> = {
+                name: newName,
+                company: newCompany,
+                email: newEmail,
+                phone: newPhone
+            };
+            const cleanPayload = sanitizePayload(clientData);
+            if (editingClient) {
+                await updateClient(editingClient.id, cleanPayload);
+            } else {
+                await createClient(cleanPayload);
+            }
+            setIsModalOpen(false);
+            setEditingClient(null);
+            loadClients(pagination.page, pagination.limit, debouncedSearch);
+        } catch (error: unknown) {
+            console.error(error);
+            toast.error('Failed to save customer. Please try again.');
+        } finally {
+            setIsSubmitting(false);
+        }
+    };
+
+    const handleDeleteClient = useCallback((id: number) => {
+        setClientToDelete(id);
+        setIsDeleteModalOpen(true);
+    }, []);
+
+    const confirmDelete = async () => {
+        if (!clientToDelete) return;
+        setIsSubmitting(true);
+        try {
+            await deleteClient(clientToDelete);
+            setIsDeleteModalOpen(false);
+            setClientToDelete(null);
+            if (clients && clients.length === 1 && pagination.page > 1) {
+                loadClients(pagination.page - 1, pagination.limit, debouncedSearch);
+            } else {
+                loadClients(pagination.page, pagination.limit, debouncedSearch);
+            }
+        } catch (error: unknown) {
+            console.error(error);
+            toast.error('Failed to delete customer. Please try again.');
+        } finally {
+            setIsSubmitting(false);
+        }
+    };
+
+    const handleExportPDF = useCallback(() => {
+        generateClientReport(clients);
+    }, [clients]);
 
     const columns: VirtualColumn<Client>[] = [
         {
@@ -162,107 +278,34 @@ const ContactsView = () => {
         }
     ];
 
-    const handleOpenModal = useCallback((client: Client | null = null) => {
-        if (client) {
-            setEditingClient(client);
-            setNewName(client.name);
-            setNewCompany(client.company);
-            setNewEmail(client.email);
-            setNewPhone(client.phone || '');
-        } else {
-            setEditingClient(null);
-            setNewName('');
-            setNewCompany('');
-            setNewEmail('');
-            setNewPhone('');
-        }
-        setIsModalOpen(true);
-    }, []);
-
-    const handleOpenTimeline = useCallback((client: Client) => {
-        setSelectedClient(client);
-        setIsTimelineOpen(true);
-    }, []);
-
-    const handleViewBrief = useCallback(async (client: Client) => {
-        setSelectedClient(client);
-        setIsBriefModalOpen(true);
-        setIsBriefLoading(true);
-        setBriefContent('');
-        try {
-            const data = await getClientBrief(client.id);
-            setBriefContent(data.summary);
-        } catch (error) {
-            console.error(error);
-            setBriefContent('Error al generar el resumen. Por favor, inténtelo de nuevo.');
-        } finally {
-            setIsBriefLoading(false);
-        }
-    }, []);
-
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-        setIsSubmitting(true);
-        try {
-            const clientData: Partial<Client> = {
-                name: newName,
-                company: newCompany,
-                email: newEmail,
-                phone: newPhone
-            };
-
-            const cleanPayload = sanitizePayload(clientData);
-
-            if (editingClient) {
-                await updateClient(editingClient.id, cleanPayload);
-            } else {
-                await createClient(cleanPayload);
-            }
-
-            setIsModalOpen(false);
-            setEditingClient(null);
-            loadClients(pagination.page, pagination.limit, debouncedSearch);
-        } catch (error: unknown) {
-            console.error(error);
-            toast.error('Failed to save customer. Please try again.');
-        } finally {
-            setIsSubmitting(false);
-        }
-    };
-
-    const handleDeleteClient = useCallback((id: number) => {
-        setClientToDelete(id);
-        setIsDeleteModalOpen(true);
-    }, []);
-
-    const confirmDelete = async () => {
-        if (!clientToDelete) return;
-        setIsSubmitting(true);
-        try {
-            await deleteClient(clientToDelete);
-            setIsDeleteModalOpen(false);
-            setClientToDelete(null);
-            if (clients && clients.length === 1 && pagination.page > 1) {
-                loadClients(pagination.page - 1, pagination.limit, debouncedSearch);
-            } else {
-                loadClients(pagination.page, pagination.limit, debouncedSearch);
-            }
-        } catch (error: unknown) {
-            console.error(error);
-            toast.error('Failed to delete customer. Please try again.');
-        } finally {
-            setIsSubmitting(false);
-        }
-    };
-
-    const handleExportPDF = useCallback(() => {
-        generateClientReport(clients);
-    }, [clients]);
-
     if (loading && clients.length === 0) {
         return (
-            <div className="p-8">
-                <VirtualTable data={[]} columns={columns} isLoading={true} />
+            <div className="space-y-6">
+                <div className="flex justify-between items-center">
+                    <div className="space-y-2">
+                        <Skeleton className="h-7 w-48" />
+                        <Skeleton className="h-4 w-72" />
+                    </div>
+                    <div className="flex gap-2">
+                        <Skeleton className="h-10 w-24" />
+                        <Skeleton className="h-10 w-32" />
+                    </div>
+                </div>
+                <div className="border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden bg-white dark:bg-slate-900 shadow-sm">
+                    <div className="p-4 border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50 flex gap-4">
+                        {[1, 2, 3, 4, 5].map(i => <Skeleton key={i} className="h-4 flex-1" />)}
+                    </div>
+                    <div className="p-4 space-y-4">
+                        {[1, 2, 3, 4, 5, 6, 7, 8].map(i => (
+                            <div key={i} className="flex gap-4 items-center">
+                                <Skeleton variant="circular" className="w-8 h-8 flex-shrink-0" />
+                                <Skeleton className="h-4 flex-1" />
+                                <Skeleton className="h-4 w-32" />
+                                <Skeleton className="h-4 w-24" />
+                            </div>
+                        ))}
+                    </div>
+                </div>
             </div>
         );
     }
@@ -281,7 +324,7 @@ const ContactsView = () => {
                         <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary-500 transition-colors" size={16} />
                         <input
                             type="text"
-                            placeholder="Search customers..."
+                            placeholder="Search (Cmd+K)..."
                             value={search}
                             onChange={(e) => setSearch(e.target.value)}
                             className="w-full h-10 pl-10 pr-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all"
@@ -304,7 +347,7 @@ const ContactsView = () => {
                             onClick={() => handleOpenModal()}
                         >
                             <UserPlus size={16} className="mr-2" />
-                            New Customer
+                            New Client (Alt+N)
                         </Button>
                     )}
                 </div>

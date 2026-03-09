@@ -3,6 +3,8 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 interface UIContextType {
     isDense: boolean;
     toggleDense: () => void;
+    sidebarCollapsed: boolean;
+    setSidebarCollapsed: (collapsed: boolean) => void;
 }
 
 const UIContext = createContext<UIContextType | undefined>(undefined);
@@ -10,6 +12,11 @@ const UIContext = createContext<UIContextType | undefined>(undefined);
 export const UIProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     const [isDense, setIsDense] = useState(() => {
         const saved = localStorage.getItem('pycrm-dense-mode');
+        return saved === 'true';
+    });
+
+    const [sidebarCollapsed, setSidebarCollapsed] = useState(() => {
+        const saved = localStorage.getItem('pycrm-sidebar-collapsed');
         return saved === 'true';
     });
 
@@ -22,6 +29,10 @@ export const UIProvider: React.FC<{ children: React.ReactNode }> = ({ children }
     };
 
     useEffect(() => {
+        localStorage.setItem('pycrm-sidebar-collapsed', String(sidebarCollapsed));
+    }, [sidebarCollapsed]);
+
+    useEffect(() => {
         if (isDense) {
             document.documentElement.classList.add('dense-mode');
         } else {
@@ -30,7 +41,7 @@ export const UIProvider: React.FC<{ children: React.ReactNode }> = ({ children }
     }, [isDense]);
 
     return (
-        <UIContext.Provider value={{ isDense, toggleDense }}>
+        <UIContext.Provider value={{ isDense, toggleDense, sidebarCollapsed, setSidebarCollapsed }}>
             {children}
         </UIContext.Provider>
     );

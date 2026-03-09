@@ -127,56 +127,102 @@ export class AIService {
             res.end();
         }
     }
-    async getClientSummary(clientId, tenantId) {
-        const client = await prisma.client.findFirst({
-            where: { id: clientId, tenant_id: tenantId },
-            include: {
-                opportunities: { orderBy: { created_at: 'desc' }, take: 5 },
-                tasks: { where: { completed: false }, orderBy: { deadline: 'asc' }, take: 5 }
-            }
-        });
-        if (!client)
-            throw new Error('Cliente no encontrado');
+    async getSmartAlerts(tenantId) {
         if (!process.env.OPENAI_API_KEY && !process.env.GROQ_API_KEY) {
-            return {
-                summary: `## Resumen de ${client.name}\nEste es un resumen generado localmente (AI no configurada).\n- **Empresa**: ${client.company || 'N/A'}\n- **Oportunidades**: ${client.opportunities.length}\n- **Tareas Pendientes**: ${client.tasks.length}`,
-                generatedAt: new Date()
-            };
+            return { alerts: [], message: "AI not configured for proactive alerts." };
+        }
+        // 1. Identify critical issues (stagnant opportunities, overdue tasks)
+        const [stagnantOpps, overdueTasks] = await Promise.all([
+            prisma.opportunity.findMany({
+                where: {
+                    tenant_id: tenantId,
+                    status: { notIn: ['ganado', 'perdido'] },
+                    created_at: { lt: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000) } // Older than 30 days
+                },
+                include: { client: true },
+                take: 5
+            }),
+            prisma.task.findMany({
+                where: { tenant_id: tenantId, completed: false, deadline: { lt: new Date() } },
+                take: 5
+            })
+        ]);
+        if (stagnantOpps.length === 0 && overdueTasks.length === 0) {
+            return { alerts: [], message: "No critical alerts detected." };
         }
         const prompt = `
-        Genera un resumen ejecutivo de ventas para este cliente basado en su historial.
-        Sé profesional, conciso y directo (estilo Linear/Stripe).
-        Usa Markdown para estructurar la respuesta.
+        Analiza estos datos críticos del CRM y genera alertas accionables para el equipo de ventas.
+        Sé directo, profesional y enfocado en resultados (estilo Elite SaaS).
         
-        Cliente: ${client.name}
-        Empresa: ${client.company}
-        Email: ${client.email}
+        Oportunidades estancadas (>30 días): ${JSON.stringify(stagnantOpps.map(o => ({ product: o.product, amount: o.amount, client: o.client?.name })))}
+        Tareas vencidas: ${JSON.stringify(overdueTasks.map(t => ({ title: t.title, deadline: t.deadline })))}
         
-        Últimas Oportunidades: ${JSON.stringify(client.opportunities.map(o => ({ product: o.product, amount: o.amount, status: o.status })))}
-        Tareas Próximas: ${JSON.stringify(client.tasks.map(t => ({ title: t.title, deadline: t.deadline })))}
-        
-        Estructura el resumen en:
-        1. Contexto Actual (Salud de la relación).
-        2. Riesgos u Oportunidades Clave.
-        3. Próximos Pasos Recomendados.
-        `;
+        Devuelve un JSON estrictamente con este formato:
+        {
+            "alerts": [
+                { "type": "WARNING" | "TIP", "title": "string", "description": "string", "impact": "HIGH" | "MEDIUM" }
+            ]
+        }`;
         try {
             const modelName = process.env.GROQ_API_KEY ? "llama-3.1-8b-instant" : "gpt-4o-mini";
             const response = await this.openai.chat.completions.create({
                 model: modelName,
-                messages: [{ role: "system", content: "Eres un Sales Ops Manager experto en resúmenes ejecutivos B2B." }, { role: "user", content: prompt }]
+                response_format: { type: "json_object" },
+                messages: [{ role: "system", content: "Eres un AI Sales Director optimizando el rendimiento del equipo." }, { role: "user", content: prompt }]
             });
-            return {
-                summary: response.choices[0].message.content,
-                generatedAt: new Date()
-            };
+            const parsed = JSON.parse(response.choices[0].message.content || '{"alerts": []}');
+            return parsed;
         }
         catch (error) {
-            console.error("Client Summary AI Error:", error);
-            return {
-                summary: "Hubo un error al generar el resumen con IA. Por favor, revisa manualmente el historial del cliente.",
-                generatedAt: new Date()
-            };
+            console.error("Smart Alerts AI Error:", error);
+            return { alerts: [], error: "Error generating alerts" };
+        }
+    }
+    async streamClientBriefing(clientId, tenantId, res) {
+        const client = await prisma.client.findFirst({
+            where: { id: clientId, tenant_id: tenantId },
+            include: {
+                opportunities: { orderBy: { created_at: 'desc' }, take: 10 },
+                tasks: { where: { completed: false }, orderBy: { deadline: 'asc' }, take: 5 }
+            }
+        });
+        if (!client) {
+            res.write(`data: ${JSON.stringify({ error: "Cliente no encontrado" })}\n\n`);
+            res.end();
+            return;
+        }
+        const prompt = `
+        Genera un briefing ejecutivo Dinámico y de Alta Densidad para el cliente ${client.name}.
+        Enfócate en:
+        1. Estado de Salud (Retención/Crecimiento).
+        2. Análisis de Pipeline (Oportunidades abiertas y monto total).
+        3. Próximos Pasos Proactivos.
+        
+        Datos: ${JSON.stringify({
+            company: client.company,
+            opps: client.opportunities.map(o => ({ p: o.product, a: o.amount, s: o.status })),
+            tasks: client.tasks.map(t => ({ t: t.title, d: t.deadline }))
+        })}
+        `;
+        const modelName = process.env.GROQ_API_KEY ? "llama-3.3-70b-versatile" : "gpt-4o-mini";
+        try {
+            const stream = await this.openai.chat.completions.create({
+                model: modelName,
+                messages: [{ role: "system", content: "Eres un CRM Briefing Agent experto en SaaS Enterprise." }, { role: "user", content: prompt }],
+                stream: true
+            });
+            for await (const chunk of stream) {
+                const text = chunk.choices[0]?.delta?.content || '';
+                if (text) {
+                    res.write(`data: ${JSON.stringify({ text })}\n\n`);
+                }
+            }
+            res.write(`data: ${JSON.stringify({ done: true })}\n\n`);
+            res.end();
+        }
+        catch (error) {
+            res.write(`data: ${JSON.stringify({ error: error.message })}\n\n`);
+            res.end();
         }
     }
     mockLeadScore(opportunity) {

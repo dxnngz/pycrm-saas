@@ -32,6 +32,18 @@ export const Header: React.FC<HeaderProps> = ({
     userName
 }) => {
     const { isDense: isDenseMode, toggleDense: setIsDenseMode } = useUI();
+    const [isOnline, setIsOnline] = React.useState(navigator.onLine);
+
+    React.useEffect(() => {
+        const handleOnline = () => setIsOnline(true);
+        const handleOffline = () => setIsOnline(false);
+        window.addEventListener('online', handleOnline);
+        window.addEventListener('offline', handleOffline);
+        return () => {
+            window.removeEventListener('online', handleOnline);
+            window.removeEventListener('offline', handleOffline);
+        };
+    }, []);
 
     return (
         <header className="h-14 bg-white/80 dark:bg-slate-950/80 backdrop-blur-md flex items-center justify-between px-6 sticky top-0 z-30 border-b border-slate-200 dark:border-slate-800 transition-colors">
@@ -43,8 +55,14 @@ export const Header: React.FC<HeaderProps> = ({
                     <Menu size={20} />
                 </button>
 
-                <div className="hidden sm:block">
+                <div className="hidden sm:flex items-center gap-3">
                     <Breadcrumbs items={[{ label: title }]} />
+                    {!isOnline && (
+                        <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-red-100 dark:bg-red-900/40 border border-red-200 dark:border-red-800 text-[10px] font-bold text-red-600 dark:text-red-400 animate-pulse">
+                            <span className="w-1.5 h-1.5 rounded-full bg-red-500" />
+                            OFFLINE MODE
+                        </div>
+                    )}
                 </div>
             </div>
 

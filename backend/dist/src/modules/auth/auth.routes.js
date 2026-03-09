@@ -11,4 +11,5 @@ router.post('/reset-password', authController.resetPassword);
 // Endpoints protegidos
 router.post('/logout', protect, authController.logout);
 router.get('/me', protect, authController.getProfile);
+router.get('/profile', protect, authController.getProfile);
 export default router;

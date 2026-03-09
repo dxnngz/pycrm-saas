@@ -135,7 +135,7 @@ const DashboardView = () => {
                     </div>
                 </div>
                 <div className="lg:col-span-1 space-y-6">
-                    <SmartAlerts opportunities={data?.rawOpps || []} tasks={data?.rawTasks || []} />
+                    <SmartAlerts />
                     <ExecutiveBriefing />
                 </div>
             </div>

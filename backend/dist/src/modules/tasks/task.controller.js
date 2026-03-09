@@ -4,7 +4,11 @@ import { AppError } from '../../utils/AppError.js';
 export const getTasks = asyncHandler(async (req, res) => {
     const { limit, search, cursor } = req.query;
     const user = req.user;
-    const tasks = await taskService.getTasksByUserId(user.tenantId, user.userId, { limit, search, cursor });
+    const tasks = await taskService.getTasksByUserId(user.tenantId, user.userId, {
+        limit: limit ? parseInt(limit) : 10,
+        search: search,
+        cursor: cursor ? parseInt(cursor) : undefined
+    });
     res.json(tasks);
 });
 export const createTask = asyncHandler(async (req, res) => {
@@ -14,7 +18,7 @@ export const createTask = asyncHandler(async (req, res) => {
     res.status(201).json(task);
 });
 export const toggleTaskCompletion = asyncHandler(async (req, res) => {
-    const { id } = req.params; // Number
+    const id = parseInt(req.params.id);
     const userId = req.user.userId;
     const tenantId = req.user.tenantId;
     const task = await taskService.toggleTaskCompletionStatus(tenantId, id, userId);
@@ -24,7 +28,7 @@ export const toggleTaskCompletion = asyncHandler(async (req, res) => {
     res.json(task);
 });
 export const deleteTask = asyncHandler(async (req, res) => {
-    const { id } = req.params; // Number
+    const id = parseInt(req.params.id);
     const userId = req.user.userId;
     const tenantId = req.user.tenantId;
     const deleted = await taskService.deleteTaskById(tenantId, id, userId);

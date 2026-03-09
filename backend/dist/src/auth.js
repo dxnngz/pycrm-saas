@@ -16,7 +16,8 @@ export const comparePassword = async (password, hash) => {
     return await bcrypt.compare(password, hash);
 };
 export const generateToken = (userId, role, tenantId) => {
-    return jwt.sign({ userId, role, tenantId }, JWT_KEY, { expiresIn: '1h' });
+    const jti = crypto.randomUUID();
+    return jwt.sign({ userId, role, tenantId, jti }, JWT_KEY, { expiresIn: '1h' });
 };
 export const generateRefreshToken = (userId, tenantId) => {
     const jti = crypto.randomUUID();

@@ -5,8 +5,9 @@ import { contextStore } from '../context.js';
 
 const JWT_KEY = process.env.JWT_SECRET || 'fallback_secret_key_123';
 
+import { redisCache } from '../redis.js';
+
 export const protect = (req: Request, res: Response, next: NextFunction) => {
-    // 1. Obtiene el token de manera ultra-segura desde la cookie o del header Authorization
     let token = req.cookies.jwt;
 
     if (!token && req.headers.authorization?.startsWith('Bearer')) {
@@ -17,15 +18,21 @@ export const protect = (req: Request, res: Response, next: NextFunction) => {
         return next(new AppError('No estás autenticado. Por favor, inicia sesión.', 401));
     }
 
-    jwt.verify(token, JWT_KEY, (err: any, decoded: any) => {
+    jwt.verify(token, JWT_KEY, async (err: any, decoded: any) => {
         if (err) {
             return next(new AppError('Token inválido o expirado.', 401));
         }
 
-        // 2. Adjuntar usuario a la request para uso futuro (Ej. Role based access)
+        // REDIS REVOCATION CHECK: Elite security
+        if (decoded.jti) {
+            const isBlacklisted = await redisCache.isTokenBlacklisted(decoded.jti);
+            if (isBlacklisted) {
+                return next(new AppError('Sesión invalidada por motivos de seguridad.', 401));
+            }
+        }
+
         (req as any).user = decoded;
 
-        // 3. Montar el Contexto de Ejecución Asíncrona para Prisma Audit Logs y Multi-Tenant
         contextStore.run({ userId: decoded.userId, tenantId: decoded.tenantId, requestId: (req as any).id }, () => {
             next();
         });

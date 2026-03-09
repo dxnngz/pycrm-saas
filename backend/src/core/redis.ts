@@ -77,6 +77,17 @@ class RedisClient {
         return await this.client.ping();
     }
 
+    async blacklistToken(jti: string, ttlSeconds: number) {
+        if (!this.client.isOpen) return;
+        await this.client.setEx(`revoked:token:${jti}`, ttlSeconds, '1');
+    }
+
+    async isTokenBlacklisted(jti: string): Promise<boolean> {
+        if (!this.client.isOpen) return false;
+        const exists = await this.client.exists(`revoked:token:${jti}`);
+        return exists === 1;
+    }
+
     async getTelemetry() {
         if (!this.client.isOpen) return null;
         try {

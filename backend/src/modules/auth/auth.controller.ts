@@ -6,9 +6,14 @@ import { AppError } from '../../utils/AppError.js';
 import crypto from 'crypto';
 
 // Utilidad para establecer las cookies JWT seguras
-const sendTokenResponse = (user: any, statusCode: number, res: Response) => {
+const sendTokenResponse = async (user: any, statusCode: number, res: Response) => {
     const token = generateToken(user.id, user.role, user.tenant_id);
     const refreshToken = generateRefreshToken(user.id, user.tenant_id);
+
+    // Save refresh token to DB
+    const expiresAt = new Date();
+    expiresAt.setDate(expiresAt.getDate() + 7);
+    await authService.saveRefreshToken(user.id, refreshToken, expiresAt);
 
     const isProduction = process.env.NODE_ENV === 'production';
 
@@ -16,34 +21,24 @@ const sendTokenResponse = (user: any, statusCode: number, res: Response) => {
     const cookieOptions = {
         httpOnly: true,
         secure: true,
-        sameSite: 'strict' as const, // Strict for SaaS internal security
+        sameSite: 'strict' as const,
         path: '/'
     };
 
-    const refreshCookieOptions = {
-        ...cookieOptions,
-        expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 dias
-    };
-
-    // Double Submit CSRF Token - NO HttpOnly para ser leído por JS
-    const csrfToken = crypto.randomBytes(32).toString('hex');
-    const csrfCookieOptions = {
-        ...cookieOptions,
-        httpOnly: false // CRÍTICO: Frontend necesita leerlo
-    };
-
-    // Access Token is short-lived
+    // Access Token
     res.cookie('jwt', token, {
         ...cookieOptions,
-        maxAge: 15 * 60 * 1000 // 15 minutes
+        maxAge: 15 * 60 * 1000
     });
 
-    // Refresh Token is long-lived
+    // Refresh Token
     res.cookie('refreshToken', refreshToken, {
         ...cookieOptions,
-        maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
+        maxAge: 7 * 24 * 60 * 60 * 1000
     });
 
+    // CSRF Token
+    const csrfToken = crypto.randomBytes(32).toString('hex');
     res.cookie('csrfToken', csrfToken, {
         ...cookieOptions,
         httpOnly: false,
@@ -72,12 +67,7 @@ export const login = asyncHandler(async (req: Request, res: Response) => {
         throw new AppError('Email o contraseña incorrectos', 401);
     }
 
-    const refreshToken = generateRefreshToken(user.id, user.tenant_id);
-    const expiresAt = new Date();
-    expiresAt.setDate(expiresAt.getDate() + 7);
-    await authService.saveRefreshToken(user.id, refreshToken, expiresAt);
-
-    sendTokenResponse(user, 200, res);
+    await sendTokenResponse(user, 200, res);
 });
 
 export const register = asyncHandler(async (req: Request, res: Response) => {
@@ -89,7 +79,6 @@ export const register = asyncHandler(async (req: Request, res: Response) => {
 
     const passwordHash = await hashPassword(password);
 
-    // Ejecuta transacción atómica: Crea Tenant + Crea Usuario B2B vinculado a dicho Tenant
     const { user, tenant } = await authService.registerTenantWithUser({
         name,
         email,
@@ -98,12 +87,7 @@ export const register = asyncHandler(async (req: Request, res: Response) => {
         companyName
     });
 
-    const refreshTokenString = generateRefreshToken(user.id, user.tenant_id);
-    const expiresAt = new Date();
-    expiresAt.setDate(expiresAt.getDate() + 7);
-    await authService.saveRefreshToken(user.id, refreshTokenString, expiresAt);
-
-    sendTokenResponse(user, 201, res);
+    await sendTokenResponse(user, 201, res);
 });
 
 export const logout = asyncHandler(async (req: Request, res: Response) => {
@@ -141,13 +125,23 @@ export const refreshToken = asyncHandler(async (req: Request, res: Response) => 
     }
 
     const storedToken = await authService.findRefreshToken(rfToken);
+
+    // REUSE DETECTION: If we receive a token that is NOT in the DB but is valid (not expired),
+    // it might have been stolen and already rotated.
     if (!storedToken) {
-        // POSIBLE REINTENTO MALICIOSO: Si el token no existe pero llega, alguien podría haberlo robado y usado.
-        // En una arquitectura Enterprise, aquí invalidaríamos todos los tokens del usuario.
-        throw new AppError('Invalid or expired refresh token', 401);
+        try {
+            const payload = verifyToken(rfToken) as any;
+            // High alert: revoke everything for this user
+            console.warn(`[SECURITY] Refresh token reuse detected for user ${payload.userId}. Revoking all tokens.`);
+            await authService.revokeAllUserTokens(payload.userId);
+            // Optionally: add user to a temporary lockout in Redis
+        } catch (err) {
+            // Token was truly invalid/expired, no action needed
+        }
+        throw new AppError('Security violation: Session compromised. Please login again.', 401);
     }
 
-    // ROTACIÓN: Borramos el token usado para que no se pueda volver a usar
+    // ROTATION: Delete the used token immediately
     await authService.deleteRefreshToken(rfToken);
 
     const payload = verifyToken(rfToken) as any;
@@ -157,13 +151,9 @@ export const refreshToken = asyncHandler(async (req: Request, res: Response) => 
         throw new AppError('User not found', 404);
     }
 
-    // Generamos un nuevo par de tokens
-    const newRefreshToken = generateRefreshToken(user.id, user.tenant_id);
-    const expiresAt = new Date();
-    expiresAt.setDate(expiresAt.getDate() + 7);
-    await authService.saveRefreshToken(user.id, newRefreshToken, expiresAt);
-
-    sendTokenResponse(user, 200, res);
+    // Issue new pair
+    res.setHeader('X-Refresh-Rotation', 'true');
+    await sendTokenResponse(user, 200, res);
 });
 
 export const forgotPassword = asyncHandler(async (req: Request, res: Response) => {

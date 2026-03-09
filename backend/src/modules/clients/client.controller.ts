@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import { clientService } from './client.service.js';
+import { tenantService } from '../tenants/tenant.service.js';
 import { asyncHandler } from '../../utils/asyncHandler.js';
 import { AppError } from '../../utils/AppError.js';
 import { eventBus } from '../../core/eventBus.js';
@@ -27,6 +28,13 @@ export const getClients = asyncHandler(async (req: Request, res: Response) => {
 
 export const createClient = asyncHandler(async (req: Request, res: Response) => {
     const { user } = req as AuthenticatedRequest;
+
+    // Phase 14: Plan-based limits
+    const canCreate = await tenantService.checkLimit(user.tenantId, 'clients');
+    if (!canCreate) {
+        throw new AppError('Límite de clientes alcanzado para su plan actual. Por favor, suba de nivel.', 403);
+    }
+
     // req.body is already validated and sanitized by Zod
     const client = await clientService.createClient(req.body, user.tenantId);
 

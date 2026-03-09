@@ -49,8 +49,11 @@ const UsersView = React.lazy(() => import('./components/Users/UsersView'));
 
 type View = 'dashboard' | 'contacts' | 'pipeline' | 'tasks' | 'calendar' | 'products' | 'documents' | 'settings' | 'users';
 
+import { useUI } from './context/UIContext';
+
 const App: FC = () => {
   const { user, logout, loading } = useAuth();
+  const { sidebarCollapsed } = useUI();
   const [activeView, setActiveView] = useState<View>('dashboard');
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
   const [isCommandCenterOpen, setIsCommandCenterOpen] = useState(false);
@@ -172,7 +175,7 @@ const App: FC = () => {
           prefetchView={prefetchView}
         />
 
-        <main className="flex-1 flex flex-col min-w-0 min-h-screen lg:ml-64">
+        <main className={`flex-1 flex flex-col min-w-0 min-h-screen transition-all duration-300 ${sidebarCollapsed ? 'lg:ml-16' : 'lg:ml-64'}`}>
           <Header
             title={getViewLabel(activeView)}
             isDarkMode={isDarkMode}

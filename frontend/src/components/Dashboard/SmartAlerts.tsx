@@ -1,100 +1,77 @@
 import React from 'react';
-import { AlertCircle, Clock, Zap } from 'lucide-react';
+import { useQuery } from '@tanstack/react-query';
+import { getSmartAlerts } from '../../services/ai';
+import { AlertCircle, Lightbulb, Loader2, ShieldAlert } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Card } from '../UI/Card';
 import { Badge } from '../UI/Badge';
 
-interface Alert {
-    id: string;
-    type: 'stagnant' | 'urgent' | 'high-prob';
-    title: string;
-    description: string;
-    targetId?: number;
-}
-
-interface SmartAlertsProps {
-    opportunities: any[];
-    tasks: any[];
-}
-
-const SmartAlerts: React.FC<SmartAlertsProps> = ({ opportunities = [], tasks = [] }) => {
-    const alerts: Alert[] = [];
-
-    // 1. Identify Stagnant Deals (>30 days since creation without closing)
-    const thirtyDaysAgo = new Date();
-    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-
-    opportunities.filter(o => o.status === 'pendiente').forEach(opp => {
-        const createdDate = new Date(opp.created_at || new Date());
-        if (createdDate < thirtyDaysAgo) {
-            alerts.push({
-                id: `stagnant-${opp.id}`,
-                type: 'stagnant',
-                title: 'Stagnant Deal',
-                description: `${opp.product} for ${opp.client_company} has seen no movement in 30 days.`,
-                targetId: opp.id
-            });
-        }
+const SmartAlerts: React.FC = () => {
+    const { data, isLoading } = useQuery({
+        queryKey: ['smart-alerts'],
+        queryFn: getSmartAlerts,
+        refetchInterval: 1000 * 60 * 5,
     });
 
-    // 2. Identify Urgent Tasks (due in < 24h)
-    const twentyFourHoursFromNow = new Date();
-    twentyFourHoursFromNow.setHours(twentyFourHoursFromNow.getHours() + 24);
+    if (isLoading) {
+        return (
+            <Card className="h-full flex items-center justify-center p-8 bg-slate-50/50 dark:bg-slate-900/50">
+                <Loader2 className="w-5 h-5 text-primary-500 animate-spin mr-2" />
+                <span className="text-xs text-slate-500 font-medium italic">IA analizando pipeline...</span>
+            </Card>
+        );
+    }
 
-    tasks.filter(t => t.status === 'pendiente').forEach(task => {
-        const dueDate = new Date(task.due_date);
-        if (dueDate < twentyFourHoursFromNow && dueDate > new Date()) {
-            alerts.push({
-                id: `task-${task.id}`,
-                type: 'urgent',
-                title: 'Urgent Deadline',
-                description: `Task "${task.title}" is due in less than 24 hours.`,
-                targetId: task.id
-            });
-        }
-    });
+    const alerts = data?.alerts || [];
 
     if (alerts.length === 0) {
         return (
-            <Card className="h-full flex flex-col items-center justify-center text-center p-8 border-dashed opacity-60">
-                <Zap size={32} className="text-slate-300 mb-3" />
-                <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest">No Critical Alerts</h3>
-                <p className="text-[10px] text-slate-400 mt-1 uppercase tracking-tight">Your pipeline operational health is optimal.</p>
+            <Card className="h-full flex flex-col items-center justify-center text-center p-8 opacity-60 border-dashed">
+                <ShieldAlert className="w-6 h-6 text-slate-300 dark:text-slate-700 mx-auto mb-2" />
+                <p className="text-[11px] text-slate-500 font-medium">No se detectaron riesgos críticos.</p>
             </Card>
         );
     }
 
     return (
-        <Card className="h-full space-y-4">
-            <div className="flex items-center justify-between">
+        <Card className="h-full space-y-3">
+            <div className="flex items-center justify-between mb-4">
                 <div>
                     <h3 className="text-[11px] font-bold text-slate-900 dark:text-white uppercase tracking-wider">Smart Intelligence</h3>
-                    <p className="text-[9px] text-slate-500 font-bold mt-0.5 uppercase tracking-tight">Proactive risk & opportunity mapping</p>
+                    <p className="text-[9px] text-slate-500 font-bold mt-0.5 uppercase tracking-tight">AI-driven risk & opportunity mapping</p>
                 </div>
                 <Badge variant="secondary">{alerts.length}</Badge>
             </div>
 
-            <div className="space-y-3 overflow-y-auto max-h-[320px] pr-2 custom-scrollbar">
-                {alerts.map(alert => (
-                    <div
-                        key={alert.id}
-                        className={`p-3 rounded-lg border flex gap-3 transition-all hover:translate-x-1 ${alert.type === 'stagnant'
-                            ? 'bg-amber-50/50 dark:bg-amber-500/5 border-amber-200/50 dark:border-amber-500/20'
-                            : 'bg-red-50/50 dark:bg-red-500/5 border-red-200/50 dark:border-red-500/20'
-                            }`}
-                    >
-                        <div className={`mt-0.5 ${alert.type === 'stagnant' ? 'text-amber-600' : 'text-red-600'}`}>
-                            {alert.type === 'stagnant' ? <Clock size={16} /> : <AlertCircle size={16} />}
-                        </div>
-                        <div className="space-y-1">
-                            <h4 className="text-[10px] font-bold uppercase tracking-wider text-slate-900 dark:text-white">
-                                {alert.title}
-                            </h4>
-                            <p className="text-[10px] leading-relaxed text-slate-500 dark:text-slate-400 font-bold opacity-80 uppercase tracking-tight">
-                                {alert.description}
-                            </p>
-                        </div>
-                    </div>
-                ))}
+            <div className="space-y-3 overflow-y-auto max-h-[400px] pr-1">
+                <AnimatePresence>
+                    {alerts.map((alert: any, idx: number) => (
+                        <motion.div
+                            key={idx}
+                            initial={{ opacity: 0, x: -10 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            transition={{ delay: idx * 0.1 }}
+                            className={`p-3 rounded-lg border flex gap-3 transition-all hover:bg-slate-50 dark:hover:bg-slate-800/50 ${alert.type === 'WARNING'
+                                    ? 'bg-red-50/30 dark:bg-red-900/10 border-red-100 dark:border-red-900/30'
+                                    : 'bg-primary-50/30 dark:bg-primary-900/10 border-primary-100 dark:border-primary-900/30'
+                                }`}
+                        >
+                            <div className={`mt-0.5 w-7 h-7 rounded-md flex items-center justify-center flex-shrink-0 ${alert.type === 'WARNING' ? 'bg-red-100 dark:bg-red-900/30 text-red-600' : 'bg-primary-100 dark:bg-primary-900/30 text-primary-600'
+                                }`}>
+                                {alert.type === 'WARNING' ? <AlertCircle size={14} /> : <Lightbulb size={14} />}
+                            </div>
+                            <div className="min-w-0">
+                                <div className="flex items-center gap-2 mb-0.5">
+                                    <span className="text-[11px] font-bold text-slate-900 dark:text-white truncate">{alert.title}</span>
+                                    {alert.impact === 'HIGH' && (
+                                        <span className="px-1 py-0.5 rounded-[4px] text-[8px] font-black bg-red-100 dark:bg-red-900/40 text-red-600 dark:text-red-400 uppercase">Prioridad</span>
+                                    )}
+                                </div>
+                                <p className="text-[10px] text-slate-500 dark:text-slate-400 leading-relaxed font-medium line-clamp-2">{alert.description}</p>
+                            </div>
+                        </motion.div>
+                    ))}
+                </AnimatePresence>
             </div>
         </Card>
     );
