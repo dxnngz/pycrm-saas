@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, lazy, Suspense } from 'react';
 import {
     User,
     Bell,
@@ -6,12 +6,16 @@ import {
     Palette,
     Save,
     RefreshCw,
+    History,
     Settings as SettingsIcon
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { Button } from '../UI/Button';
 import { Input } from '../UI/Input';
 import { Badge } from '../UI/Badge';
+import { Skeleton } from '../UI/Skeleton';
+
+const AuditLogs = lazy(() => import('./AuditLogs'));
 
 const SettingsView = () => {
     const { user } = useAuth();
@@ -24,6 +28,10 @@ const SettingsView = () => {
         { id: 'security', label: 'Security', icon: Shield },
         { id: 'appearance', label: 'Appearance', icon: Palette },
     ];
+
+    if (user?.role === 'admin') {
+        tabs.push({ id: 'audit', label: 'Activity Log', icon: History });
+    }
 
     const handleSave = () => {
         setIsSaving(true);
@@ -116,7 +124,13 @@ const SettingsView = () => {
                         </div>
                     )}
 
-                    {activeTab !== 'profile' && (
+                    {activeTab === 'audit' && (
+                        <Suspense fallback={<div className="space-y-4 pt-4"><Skeleton className="h-40 w-full rounded-2xl" /><Skeleton className="h-40 w-full rounded-2xl" /></div>}>
+                            <AuditLogs />
+                        </Suspense>
+                    )}
+
+                    {activeTab !== 'profile' && activeTab !== 'audit' && (
                         <div className="h-full flex flex-col items-center justify-center text-slate-400 py-12">
                             <RefreshCw size={48} className="mb-4 opacity-10" />
                             <p className="text-xs font-bold uppercase tracking-widest opacity-60">Module in Development</p>
