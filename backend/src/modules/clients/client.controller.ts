@@ -14,10 +14,14 @@ interface AuthenticatedRequest extends Request {
 }
 
 export const getClients = asyncHandler(async (req: Request, res: Response) => {
-    const { limit, search, cursor } = req.query as unknown as { limit: number; search: string; cursor?: number };
+    const { limit, search, cursor } = req.query as any;
     const { user } = req as AuthenticatedRequest;
 
-    const clients = await clientService.getAllClients(user.tenantId, { limit, search, cursor });
+    const clients = await clientService.getAllClients(user.tenantId, {
+        limit: limit ? parseInt(limit as string) : 10,
+        search: search as string,
+        cursor: cursor ? parseInt(cursor as string) : undefined
+    });
     res.json(clients);
 });
 
@@ -34,7 +38,7 @@ export const createClient = asyncHandler(async (req: Request, res: Response) => 
 export const updateClient = asyncHandler(async (req: Request, res: Response) => {
     try {
         const { user } = req as AuthenticatedRequest;
-        const { id } = req.params as unknown as { id: number }; // Transformed to number by Zod
+        const id = parseInt(req.params.id as string);
         const client = await clientService.updateClientById(user.tenantId, id, req.body);
 
         eventBus.emit('client.updated', { tenantId: user.tenantId, userId: user.userId, data: client });
@@ -51,7 +55,7 @@ export const updateClient = asyncHandler(async (req: Request, res: Response) => 
 export const deleteClient = asyncHandler(async (req: Request, res: Response) => {
     try {
         const { user } = req as AuthenticatedRequest;
-        const { id } = req.params as unknown as { id: number }; // Transformed to number by Zod
+        const id = parseInt(req.params.id as string);
         await clientService.deleteClientById(user.tenantId, id);
 
         eventBus.emit('client.deleted', { tenantId: user.tenantId, userId: user.userId, data: { id } });
@@ -67,7 +71,7 @@ export const deleteClient = asyncHandler(async (req: Request, res: Response) => 
 
 export const getClientOpportunities = asyncHandler(async (req: Request, res: Response) => {
     const { user } = req as AuthenticatedRequest;
-    const { id } = req.params as unknown as { id: number }; // Transformed to number by Zod
+    const id = parseInt(req.params.id as string);
     const opportunities = await clientService.getClientOpportunitiesById(user.tenantId, id);
     res.json(opportunities);
 });
