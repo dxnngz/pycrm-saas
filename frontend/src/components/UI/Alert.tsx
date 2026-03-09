@@ -1,5 +1,6 @@
 import React from 'react';
 import { AlertCircle, CheckCircle2, Info, XCircle } from 'lucide-react';
+import { useUI } from '../../context/UIContext';
 
 interface AlertProps {
     variant?: 'success' | 'danger' | 'warning' | 'info';
@@ -14,6 +15,7 @@ export const Alert: React.FC<AlertProps> = ({
     children,
     className = ''
 }) => {
+    const { isDense } = useUI();
     const variants = {
         success: {
             bg: 'bg-emerald-50 dark:bg-emerald-500/10',
@@ -45,7 +47,7 @@ export const Alert: React.FC<AlertProps> = ({
 
     return (
         <div className={`
-            p-4 rounded-lg border flex gap-3
+            ${isDense ? 'p-2.5' : 'p-3'} rounded-md border flex gap-3
             ${style.bg} ${style.border} ${style.text}
             ${className}
         `} role="alert">

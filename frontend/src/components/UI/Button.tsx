@@ -1,6 +1,7 @@
 import React from 'react';
 import type { ButtonHTMLAttributes } from 'react';
 import { Loader2 } from 'lucide-react';
+import { useUI } from '../../context/UIContext';
 
 export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
     variant?: 'primary' | 'secondary' | 'outline' | 'ghost' | 'danger';
@@ -37,10 +38,11 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
         };
 
         // Sizes
+        const { isDense } = useUI();
         const sizes = {
-            sm: 'h-8 px-3 text-xs',
-            md: 'h-10 px-4 py-2 text-sm',
-            lg: 'h-12 px-6 text-base',
+            sm: isDense ? 'h-7 px-2 text-[10px]' : 'h-8 px-3 text-xs',
+            md: isDense ? 'h-8 px-3 text-xs' : 'h-10 px-4 py-2 text-sm',
+            lg: isDense ? 'h-10 px-4 py-2 text-sm' : 'h-12 px-6 text-base',
         };
 
         const classes = [

@@ -33,3 +33,18 @@ export const scoreOpportunity = asyncHandler(async (req: Request, res: Response)
         throw err;
     }
 });
+
+export const getClientBrief = asyncHandler(async (req: Request, res: Response) => {
+    const tenantId = (req as any).user?.tenantId;
+    const { id } = req.params;
+
+    try {
+        const briefData = await aiService.getClientSummary(parseInt(id as string), tenantId);
+        res.json(briefData);
+    } catch (err: any) {
+        if (err.message === 'Cliente no encontrado') {
+            throw new AppError(err.message, 404);
+        }
+        throw err;
+    }
+});

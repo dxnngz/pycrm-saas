@@ -47,11 +47,13 @@ export const Sidebar: React.FC<SidebarProps> = ({
                         <span className="font-bold text-lg tracking-tight text-slate-900 dark:text-white uppercase tracking-[0.05em]">PyCRM</span>
                     </div>
 
-                    <nav className="space-y-1">
+                    <nav className="space-y-1" aria-label="Main Navigation">
                         <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-3 pl-3">Navigation</p>
                         {navItems.map((item) => (
                             <button
                                 key={item.id}
+                                type="button"
+                                aria-current={activeView === item.id ? 'page' : undefined}
                                 onClick={() => {
                                     setActiveView(item.id);
                                     setIsMobileMenuOpen(false);
@@ -62,7 +64,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                                     : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100'
                                     }`}
                             >
-                                <item.icon size={16} className={`${activeView === item.id ? 'text-primary-600 dark:text-primary-400' : 'opacity-70 group-hover:opacity-100 group-hover:text-primary-600'} transition-colors`} />
+                                <item.icon size={16} className={`${activeView === item.id ? 'text-primary-600 dark:text-primary-400' : 'opacity-70 group-hover:opacity-100 group-hover:text-primary-600'} transition-colors`} aria-hidden="true" />
                                 <span className="text-xs">{item.label}</span>
                             </button>
                         ))}

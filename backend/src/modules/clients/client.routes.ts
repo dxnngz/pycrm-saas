@@ -2,19 +2,17 @@ import { Router } from 'express';
 import * as clientController from './client.controller.js';
 import { protect } from '../../core/middlewares/auth.middleware.js';
 import { requirePermission, Permission } from '../../core/middlewares/rbac.middleware.js';
-import { validate } from '../../middleware/validate.js';
-import { clientSchema } from '../../schemas/apiSchemas.js';
+import { validate } from '../../core/middlewares/validate.middleware.js';
+import { createClientSchema, updateClientSchema, getClientsSchema, clientIdSchema } from './client.schema.js';
 
 const router = Router();
 
-router.use(protect); // Todas las rutas de cliente requieren autenticación
+router.use(protect);
 
-router.get('/', requirePermission(Permission.READ_CLIENT), clientController.getClients);
-router.post('/', requirePermission(Permission.WRITE_CLIENT), validate(clientSchema), clientController.createClient);
-router.put('/:id', requirePermission(Permission.WRITE_CLIENT), validate(clientSchema), clientController.updateClient);
-router.delete('/:id', requirePermission(Permission.DELETE_CLIENT), clientController.deleteClient);
-
-// Ruta anidada u orientada a recurso específico
-router.get('/:id/opportunities', requirePermission(Permission.READ_CLIENT), clientController.getClientOpportunities);
+router.get('/', validate(getClientsSchema), requirePermission(Permission.READ_CLIENT), clientController.getClients);
+router.post('/', validate(createClientSchema), requirePermission(Permission.WRITE_CLIENT), clientController.createClient);
+router.put('/:id', validate(updateClientSchema), requirePermission(Permission.WRITE_CLIENT), clientController.updateClient);
+router.delete('/:id', validate(clientIdSchema), requirePermission(Permission.DELETE_CLIENT), clientController.deleteClient);
+router.get('/:id/opportunities', validate(clientIdSchema), requirePermission(Permission.READ_CLIENT), clientController.getClientOpportunities);
 
 export default router;

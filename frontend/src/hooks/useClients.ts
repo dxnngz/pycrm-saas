@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { api } from '../services/api';
+import { clientService } from '../services/client.service';
 import type { Client } from '../types';
 
 export const useClients = (page: number = 1, limit: number = 10, search: string = '') => {
@@ -8,7 +8,7 @@ export const useClients = (page: number = 1, limit: number = 10, search: string 
     const { data: qData, isLoading: loading, refetch } = useQuery({
         queryKey: ['clients', page, limit, search],
         queryFn: async () => {
-            const response = await api.clients.getAll(page, limit, search);
+            const response = await clientService.getAll(page, limit, search);
 
             if (response && Array.isArray(response.data)) {
                 return {
@@ -33,17 +33,17 @@ export const useClients = (page: number = 1, limit: number = 10, search: string 
     });
 
     const createMutation = useMutation({
-        mutationFn: (data: Partial<Client>) => api.clients.create(data),
+        mutationFn: (data: Partial<Client>) => clientService.create(data),
         onSuccess: () => queryClient.invalidateQueries({ queryKey: ['clients'] })
     });
 
     const updateMutation = useMutation({
-        mutationFn: ({ id, data }: { id: number; data: Partial<Client> }) => api.clients.update(id, data),
+        mutationFn: ({ id, data }: { id: number; data: Partial<Client> }) => clientService.update(id, data),
         onSuccess: () => queryClient.invalidateQueries({ queryKey: ['clients'] })
     });
 
     const deleteMutation = useMutation({
-        mutationFn: (id: number) => api.clients.delete(id),
+        mutationFn: (id: number) => clientService.delete(id),
         onSuccess: () => queryClient.invalidateQueries({ queryKey: ['clients'] })
     });
 

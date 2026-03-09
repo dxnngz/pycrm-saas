@@ -52,7 +52,7 @@ export const ForgotForm: React.FC<ForgotFormProps> = ({ onSubmit, isLoading, onB
                 variant="ghost"
                 fullWidth
                 onClick={onBack}
-                className="text-xs"
+                className="text-[10px] font-bold uppercase tracking-widest text-slate-500"
             >
                 Back to sign in
             </Button>

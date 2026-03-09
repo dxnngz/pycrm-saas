@@ -8,9 +8,22 @@ const connection = new Redis(env.REDIS_URL || 'redis://localhost:6379', {
     maxRetriesPerRequest: null,
 });
 
+import { processTaskReminders } from './taskReminders.js';
+
 export const startWorkers = () => {
     logger.info('Starting BullMQ Workers...');
 
+    // ... (rest of workers)
+    const systemWorker = new Worker('system', async (job: Job) => {
+        if (job.name === 'task-reminders') {
+            await processTaskReminders();
+        }
+    }, { connection: connection as any });
+
+    systemWorker.on('completed', (job) => logger.info(`System job ${job.id} completed.`));
+    systemWorker.on('failed', (job, err) => logger.error(err, `System job ${job?.id} failed.`));
+
+    // Existing workers
     const emailWorker = new Worker('emails', async (job: Job) => {
         logger.info(`Processing email job ${job.id}...`);
         const { to, subject, html } = job.data;
@@ -41,5 +54,5 @@ export const startWorkers = () => {
         logger.error(err, `Report job ${job?.id} has failed`);
     });
 
-    return { emailWorker, reportWorker };
+    return { emailWorker, reportWorker, systemWorker };
 };

@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { api } from '../services/api';
+import { opportunityService } from '../services/opportunity.service';
 import type { Opportunity } from '../types';
 
 export const useOpportunities = (page: number = 1, limit: number = 10, search: string = '') => {
@@ -8,7 +8,7 @@ export const useOpportunities = (page: number = 1, limit: number = 10, search: s
     const { data: qData, isLoading: loading, refetch } = useQuery({
         queryKey: ['opportunities', page, limit, search],
         queryFn: async () => {
-            const response = await api.opportunities.getAll(page, limit, search);
+            const response = await opportunityService.getAll(page, limit, search);
 
             if (response && Array.isArray(response.data)) {
                 return {
@@ -33,12 +33,12 @@ export const useOpportunities = (page: number = 1, limit: number = 10, search: s
     });
 
     const createMutation = useMutation({
-        mutationFn: (data: Partial<Opportunity>) => api.opportunities.create(data),
+        mutationFn: (data: Partial<Opportunity>) => opportunityService.create(data),
         onSuccess: () => queryClient.invalidateQueries({ queryKey: ['opportunities'] })
     });
 
     const updateStatusMutation = useMutation({
-        mutationFn: ({ id, status }: { id: number; status: 'pendiente' | 'ganado' | 'perdido' }) => api.opportunities.updateStatus(id, status),
+        mutationFn: ({ id, status }: { id: number; status: 'pendiente' | 'ganado' | 'perdido' }) => opportunityService.updateStatus(id, status),
         onMutate: async ({ id, status }) => {
             // Cancel any outgoing refetches
             await queryClient.cancelQueries({ queryKey: ['opportunities', page, limit, search] });

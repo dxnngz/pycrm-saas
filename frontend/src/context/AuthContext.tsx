@@ -1,56 +1,64 @@
-import { createContext, useContext, useState, type ReactNode } from 'react';
-import type { User, AuthResponse } from '../types';
+import React, { createContext, useContext, useState, useEffect } from 'react';
+import { authService } from '../services/auth.service';
+import type { User, AuthResponse, LoginCredentials, RegisterData } from '../types';
 
 interface AuthContextType {
     user: User | null;
-    token: string | null;
-    login: (data: AuthResponse) => void;
+    loading: boolean;
+    login: (credentials: LoginCredentials) => Promise<void>;
+    register: (data: RegisterData) => Promise<void>;
     logout: () => void;
-    isAuthenticated: boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-export const AuthProvider = ({ children }: { children: ReactNode }) => {
-    const [user, setUser] = useState<User | null>(() => {
-        const savedUser = localStorage.getItem('user');
-        if (savedUser) {
-            try {
-                return JSON.parse(savedUser);
-            } catch (e) {
-                console.error('Failed to parse saved user', e);
-                localStorage.removeItem('user');
+export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+    const [user, setUser] = useState<User | null>(null);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        const checkAuth = async () => {
+            const token = localStorage.getItem('token');
+            if (token) {
+                try {
+                    const profile = await authService.getProfile();
+                    setUser(profile);
+                } catch (error) {
+                    console.error('Auth check failed:', error);
+                    localStorage.removeItem('token');
+                    localStorage.removeItem('refreshToken');
+                }
             }
-        }
-        return null;
-    });
+            setLoading(false);
+        };
+        checkAuth();
+    }, []);
 
-    const [token, setToken] = useState<string | null>(() => localStorage.getItem('token'));
+    const login = async (credentials: LoginCredentials) => {
+        const response: AuthResponse = await authService.login(credentials);
+        localStorage.setItem('token', response.token);
+        if (response.refreshToken) localStorage.setItem('refreshToken', response.refreshToken);
+        if (response.csrfToken) localStorage.setItem('csrfToken', response.csrfToken);
+        setUser(response.user);
+    };
 
-    const login = (data: AuthResponse) => {
-        setUser(data.user);
-        setToken(data.token);
-        localStorage.setItem('user', JSON.stringify(data.user));
-        localStorage.setItem('token', data.token);
-        if (data.refreshToken) {
-            localStorage.setItem('refreshToken', data.refreshToken);
-        }
-        if (data.csrfToken) {
-            localStorage.setItem('csrfToken', data.csrfToken);
-        }
+    const register = async (data: RegisterData) => {
+        const response: AuthResponse = await authService.register(data);
+        localStorage.setItem('token', response.token);
+        if (response.refreshToken) localStorage.setItem('refreshToken', response.refreshToken);
+        if (response.csrfToken) localStorage.setItem('csrfToken', response.csrfToken);
+        setUser(response.user);
     };
 
     const logout = () => {
         setUser(null);
-        setToken(null);
-        localStorage.removeItem('user');
         localStorage.removeItem('token');
         localStorage.removeItem('refreshToken');
         localStorage.removeItem('csrfToken');
     };
 
     return (
-        <AuthContext.Provider value={{ user, token, login, logout, isAuthenticated: !!user }}>
+        <AuthContext.Provider value={{ user, loading, login, register, logout }}>
             {children}
         </AuthContext.Provider>
     );

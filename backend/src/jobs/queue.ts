@@ -8,8 +8,32 @@ const connection = new Redis(env.REDIS_URL || 'redis://localhost:6379', {
     maxRetriesPerRequest: null,
 });
 
-export const reportQueue = new Queue('reports', { connection: connection as any });
-export const emailQueue = new Queue('emails', { connection: connection as any });
+const defaultJobOptions = {
+    attempts: 5,
+    backoff: {
+        type: 'exponential',
+        delay: 5000, // 5s, 10s, 20s...
+    },
+    removeOnComplete: { count: 100 },
+    removeOnFail: { count: 500 },
+};
+
+export const reportQueue = new Queue('reports', {
+    connection: connection as any,
+    defaultJobOptions
+});
+export const emailQueue = new Queue('emails', {
+    connection: connection as any,
+    defaultJobOptions
+});
+export const systemQueue = new Queue('system', {
+    connection: connection as any,
+    defaultJobOptions
+});
+export const automationQueue = new Queue('automations', {
+    connection: connection as any,
+    defaultJobOptions
+});
 
 export const addReportJob = async (userId: number, reportType: string) => {
     try {
@@ -40,5 +64,19 @@ export const addEmailJob = async (to: string, subject: string, html: string) => 
     } catch (error) {
         logger.error(error, 'Error adding email job:');
         throw error;
+    }
+};
+
+export const addReminderJob = async () => {
+    try {
+        await systemQueue.add('task-reminders', {}, {
+            repeat: { pattern: '0 9 * * *' }, // Daily at 9 AM
+            jobId: 'daily-reminders', // Ensure unique
+            removeOnComplete: true,
+            removeOnFail: false
+        });
+        logger.info('Scheduled repeatable task reminder job (9 AM daily)');
+    } catch (error) {
+        logger.error(error, 'Error scheduling reminder job:');
     }
 };

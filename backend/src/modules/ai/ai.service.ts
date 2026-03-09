@@ -143,6 +143,62 @@ export class AIService {
         }
     }
 
+    async getClientSummary(clientId: number, tenantId: number) {
+        const client = await prisma.client.findFirst({
+            where: { id: clientId, tenant_id: tenantId },
+            include: {
+                opportunities: { orderBy: { created_at: 'desc' }, take: 5 },
+                tasks: { where: { completed: false }, orderBy: { deadline: 'asc' }, take: 5 }
+            }
+        });
+
+        if (!client) throw new Error('Cliente no encontrado');
+
+        if (!process.env.OPENAI_API_KEY && !process.env.GROQ_API_KEY) {
+            return {
+                summary: `## Resumen de ${client.name}\nEste es un resumen generado localmente (AI no configurada).\n- **Empresa**: ${client.company || 'N/A'}\n- **Oportunidades**: ${client.opportunities.length}\n- **Tareas Pendientes**: ${client.tasks.length}`,
+                generatedAt: new Date()
+            };
+        }
+
+        const prompt = `
+        Genera un resumen ejecutivo de ventas para este cliente basado en su historial.
+        Sé profesional, conciso y directo (estilo Linear/Stripe).
+        Usa Markdown para estructurar la respuesta.
+        
+        Cliente: ${client.name}
+        Empresa: ${client.company}
+        Email: ${client.email}
+        
+        Últimas Oportunidades: ${JSON.stringify(client.opportunities.map(o => ({ product: o.product, amount: o.amount, status: o.status })))}
+        Tareas Próximas: ${JSON.stringify(client.tasks.map(t => ({ title: t.title, deadline: t.deadline })))}
+        
+        Estructura el resumen en:
+        1. Contexto Actual (Salud de la relación).
+        2. Riesgos u Oportunidades Clave.
+        3. Próximos Pasos Recomendados.
+        `;
+
+        try {
+            const modelName = process.env.GROQ_API_KEY ? "llama-3.1-8b-instant" : "gpt-4o-mini";
+            const response = await this.openai.chat.completions.create({
+                model: modelName,
+                messages: [{ role: "system", content: "Eres un Sales Ops Manager experto en resúmenes ejecutivos B2B." }, { role: "user", content: prompt }]
+            });
+
+            return {
+                summary: response.choices[0].message.content,
+                generatedAt: new Date()
+            };
+        } catch (error: any) {
+            console.error("Client Summary AI Error:", error);
+            return {
+                summary: "Hubo un error al generar el resumen con IA. Por favor, revisa manualmente el historial del cliente.",
+                generatedAt: new Date()
+            };
+        }
+    }
+
     private mockLeadScore(opportunity: any) {
         let baseScore = 50;
         if (opportunity.status === 'ganado') baseScore += 40;

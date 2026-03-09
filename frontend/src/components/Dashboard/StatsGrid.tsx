@@ -1,5 +1,5 @@
 import React from 'react';
-import { TrendingUp, Target, Trophy, CheckSquare } from 'lucide-react';
+import { TrendingUp, Target, DollarSign, Activity } from 'lucide-react';
 import StatCard from './StatCard';
 
 interface StatsGridProps {
@@ -15,32 +15,36 @@ export const StatsGrid: React.FC<StatsGridProps> = ({ stats }) => {
     return (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             <StatCard
-                title="Revenue"
-                value={`${new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(stats.totalSales)}`}
-                icon={<TrendingUp size={16} />}
+                title="Total Sales"
+                value={`$${stats.totalSales.toLocaleString()}`}
+                icon={<DollarSign size={20} />}
                 trend="+12.5%"
-                trendColor="success"
+                trendUp={true}
+                color="primary"
             />
             <StatCard
-                title="Active Deals"
+                title="Active Opportunities"
                 value={stats.activeOpportunities.toString()}
-                icon={<Target size={16} />}
+                icon={<Target size={20} />}
                 trend="+3 new"
-                trendColor="warning"
+                trendUp={true}
+                color="indigo"
             />
             <StatCard
-                title="Win Rate"
-                value={`${stats.winRate.toFixed(1)}%`}
-                icon={<Trophy size={16} />}
-                trend="Stable"
-                trendColor="neutral"
+                title="Pipeline Win Rate"
+                value={`${stats.winRate}%`}
+                icon={<TrendingUp size={20} />}
+                trend="-2.4%"
+                trendUp={false}
+                color="emerald"
             />
             <StatCard
                 title="Pending Tasks"
                 value={stats.pendingTasks.toString()}
-                icon={<CheckSquare size={16} />}
-                trend="Due soon"
-                trendColor="danger"
+                icon={<Activity size={20} />}
+                trend="Normal"
+                trendUp={true}
+                color="amber"
             />
         </div>
     );

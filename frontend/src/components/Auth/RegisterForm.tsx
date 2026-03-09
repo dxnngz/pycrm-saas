@@ -20,7 +20,7 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({ onSubmit, isLoading,
     };
 
     return (
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-3">
             <Input
                 label="Company name"
                 placeholder="Your corporate name"
@@ -52,7 +52,7 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({ onSubmit, isLoading,
                 required
                 minLength={8}
             />
-            <Button type="submit" fullWidth isLoading={isLoading} className="mt-2">
+            <Button type="submit" fullWidth isLoading={isLoading} className="mt-4">
                 Create account
             </Button>
             <Button
@@ -60,7 +60,7 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({ onSubmit, isLoading,
                 variant="ghost"
                 fullWidth
                 onClick={onBack}
-                className="text-xs"
+                className="text-[10px] font-bold uppercase tracking-widest text-slate-500"
             >
                 Already have an account? Sign in
             </Button>

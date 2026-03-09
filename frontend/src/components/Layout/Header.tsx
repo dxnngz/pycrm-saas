@@ -10,13 +10,12 @@ import {
 } from 'lucide-react';
 import { Breadcrumbs } from '../Common/Breadcrumbs';
 import { Avatar } from '../UI/Avatar';
+import { useUI } from '../../context/UIContext';
 
 interface HeaderProps {
     title: string;
     isDarkMode: boolean;
     setIsDarkMode: (dark: boolean) => void;
-    isDenseMode: boolean;
-    setIsDenseMode: (dense: boolean) => void;
     setIsMobileMenuOpen: (open: boolean) => void;
     setIsNotificationsOpen: (open: boolean) => void;
     setIsCommandCenterOpen: (open: boolean) => void;
@@ -27,13 +26,13 @@ export const Header: React.FC<HeaderProps> = ({
     title,
     isDarkMode,
     setIsDarkMode,
-    isDenseMode,
-    setIsDenseMode,
     setIsMobileMenuOpen,
     setIsNotificationsOpen,
     setIsCommandCenterOpen,
     userName
 }) => {
+    const { isDense: isDenseMode, toggleDense: setIsDenseMode } = useUI();
+
     return (
         <header className="h-14 bg-white/80 dark:bg-slate-950/80 backdrop-blur-md flex items-center justify-between px-6 sticky top-0 z-30 border-b border-slate-200 dark:border-slate-800 transition-colors">
             <div className="flex items-center gap-4">
@@ -69,7 +68,7 @@ export const Header: React.FC<HeaderProps> = ({
                 {/* Preference Switchers */}
                 <div className="flex items-center gap-1 bg-slate-100 dark:bg-slate-900/50 p-1 rounded-lg border border-slate-200 dark:border-slate-800">
                     <button
-                        onClick={() => setIsDenseMode(!isDenseMode)}
+                        onClick={() => setIsDenseMode()}
                         className={`p-1.5 rounded-md transition-all ${isDenseMode ? 'bg-white dark:bg-slate-800 shadow-sm text-primary-600' : 'text-slate-400 hover:text-slate-600'}`}
                         title="Toggle high density mode"
                     >

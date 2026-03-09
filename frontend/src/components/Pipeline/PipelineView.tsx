@@ -12,6 +12,7 @@ import {
     ShieldCheck,
     Zap
 } from 'lucide-react';
+import { getOpportunityScore } from '../../services/ai';
 import { useOpportunities } from '../../hooks/useOpportunities';
 import { useClients } from '../../hooks/useClients';
 import { usePermissions } from '../../hooks/usePermissions';
@@ -21,6 +22,8 @@ import Modal from '../Common/Modal';
 import { Input } from '../UI/Input';
 import { Button } from '../UI/Button';
 import { Badge } from '../UI/Badge';
+import { Select } from '../UI/Select';
+import { toast } from 'sonner';
 
 const OpportunityCard = memo(({
     opp,
@@ -96,6 +99,86 @@ const OpportunityCard = memo(({
 
 OpportunityCard.displayName = 'OpportunityCard';
 
+import { useVirtualizer } from '@tanstack/react-virtual';
+
+const VirtualColumnBody = ({
+    opps,
+    provided,
+    snapshot,
+    scores,
+    canCreateOpportunity,
+    handleUpdateStatus
+}: {
+    opps: Opportunity[],
+    provided: any,
+    snapshot: any,
+    scores: Record<number, { score: number; classification: string }>,
+    canCreateOpportunity: boolean,
+    handleUpdateStatus: (id: number, status: 'pendiente' | 'ganado' | 'perdido') => void
+}) => {
+    const parentRef = React.useRef<HTMLDivElement>(null);
+
+    const rowVirtualizer = useVirtualizer({
+        count: opps.length,
+        getScrollElement: () => parentRef.current,
+        estimateSize: () => 160, // Estimated height of OpportunityCard
+        overscan: 5,
+    });
+
+    return (
+        <div
+            ref={(el) => {
+                provided.innerRef(el);
+                (parentRef as any).current = el;
+            }}
+            {...provided.droppableProps}
+            className={`flex-1 overflow-y-auto custom-scrollbar p-3 rounded-lg border transition-colors min-h-[400px] ${snapshot.isDraggingOver ? 'bg-slate-50 dark:bg-slate-800/50 border-primary-500/30' : 'bg-slate-50/30 dark:bg-slate-900/10 border-slate-200 dark:border-slate-800'}`}
+        >
+            <div
+                style={{
+                    height: `${rowVirtualizer.getTotalSize()}px`,
+                    width: '100%',
+                    position: 'relative',
+                }}
+            >
+                {rowVirtualizer.getVirtualItems().map((virtualRow) => {
+                    const opp = opps[virtualRow.index];
+                    return (
+                        <div
+                            key={opp.id}
+                            className="absolute top-0 left-0 w-full"
+                            style={{
+                                height: `${virtualRow.size}px`,
+                                transform: `translateY(${virtualRow.start}px)`,
+                            }}
+                        >
+                            <Draggable draggableId={`opp-${opp.id}`} index={virtualRow.index} isDragDisabled={!canCreateOpportunity}>
+                                {(provided, snapshot) => (
+                                    <div
+                                        ref={provided.innerRef}
+                                        {...provided.draggableProps}
+                                        {...provided.dragHandleProps}
+                                        style={{ ...provided.draggableProps.style, opacity: snapshot.isDragging ? 0.8 : 1 }}
+                                        className="mb-3"
+                                    >
+                                        <OpportunityCard
+                                            opp={opp}
+                                            scores={scores}
+                                            canEditOpportunity={canCreateOpportunity}
+                                            onUpdateStatus={handleUpdateStatus}
+                                        />
+                                    </div>
+                                )}
+                            </Draggable>
+                        </div>
+                    );
+                })}
+            </div>
+            {provided.placeholder}
+        </div>
+    );
+};
+
 const PipelineView = () => {
     const [page, setPage] = useState(1);
     const [search, setSearch] = useState('');
@@ -153,8 +236,7 @@ const PipelineView = () => {
             for (const opp of safeOpportunities) {
                 if (opp.status === 'pendiente' && !newScores[opp.id]) {
                     try {
-                        const { api } = await import('../../services/api');
-                        const data = await api.ai.getLeadScore(opp.id);
+                        const data = await getOpportunityScore(opp.id);
                         newScores[opp.id] = data;
                         hasChanges = true;
                     } catch (e) {
@@ -178,6 +260,7 @@ const PipelineView = () => {
             await updateOpportunityStatus(id, newStatus);
         } catch (error: unknown) {
             console.error(error);
+            toast.error('Failed to update opportunity status.');
         }
     }, [updateOpportunityStatus]);
 
@@ -215,12 +298,13 @@ const PipelineView = () => {
             loadOpportunities(pagination.page, pagination.limit, search);
         } catch (error: unknown) {
             console.error(error);
+            toast.error('Failed to create opportunity. Please try again.');
         } finally {
             setIsSubmitting(false);
         }
     };
 
-    const columns = [
+    const columnConfig = [
         { id: 'pendiente' as const, title: 'Pipeline', color: 'bg-primary-500' },
         { id: 'ganado' as const, title: 'Won', color: 'bg-emerald-500' },
         { id: 'perdido' as const, title: 'Lost', color: 'bg-slate-500' }
@@ -281,7 +365,7 @@ const PipelineView = () => {
 
             <DragDropContext onDragEnd={handleDragEnd}>
                 <div className="flex gap-4 overflow-x-auto pb-4 h-full">
-                    {columns.map(column => (
+                    {columnConfig.map(column => (
                         <div key={column.id} className="flex-1 min-w-[300px] flex flex-col gap-3">
                             <div className="flex items-center justify-between px-2">
                                 <div className="flex items-center gap-2">
@@ -297,46 +381,44 @@ const PipelineView = () => {
                             </div>
 
                             <Droppable droppableId={column.id}>
-                                {(provided, snapshot) => (
-                                    <div
-                                        ref={provided.innerRef}
-                                        {...provided.droppableProps}
-                                        className={`flex flex-col gap-3 p-3 rounded-lg border transition-colors min-h-[400px] flex-1 overflow-y-auto ${snapshot.isDraggingOver ? 'bg-slate-50 dark:bg-slate-800/50 border-primary-500/30' : 'bg-slate-50/30 dark:bg-slate-900/10 border-slate-200 dark:border-slate-800'}`}
-                                    >
-                                        {loading ? (
-                                            <div className="space-y-3">
+                                {(provided, snapshot) => {
+                                    const columnOpps = safeOpportunities.filter(o => o.status === column.id);
+
+                                    if (loading) {
+                                        return (
+                                            <div className="space-y-3 p-3 bg-slate-50/30 dark:bg-slate-900/10 border border-slate-200 dark:border-slate-800 rounded-lg flex-1">
                                                 {[1, 2, 3].map(i => (
                                                     <div key={i} className="h-24 bg-white dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-800 animate-pulse"></div>
                                                 ))}
                                             </div>
-                                        ) : safeOpportunities.filter(o => o.status === column.id).map((opp, index) => (
-                                            <Draggable key={opp.id} draggableId={`opp-${opp.id}`} index={index} isDragDisabled={!canCreateOpportunity}>
-                                                {(provided, snapshot) => (
-                                                    <div
-                                                        ref={provided.innerRef}
-                                                        {...provided.draggableProps}
-                                                        {...provided.dragHandleProps}
-                                                        style={{ ...provided.draggableProps.style, opacity: snapshot.isDragging ? 0.8 : 1 }}
-                                                    >
-                                                        <OpportunityCard
-                                                            opp={opp}
-                                                            scores={scores}
-                                                            canEditOpportunity={canCreateOpportunity}
-                                                            onUpdateStatus={handleUpdateStatus}
-                                                        />
-                                                    </div>
-                                                )}
-                                            </Draggable>
-                                        ))}
-                                        {!loading && safeOpportunities.filter(o => o.status === column.id).length === 0 && (
-                                            <div className="flex-1 flex flex-col items-center justify-center text-slate-400 dark:text-slate-600 border border-dashed border-slate-200 dark:border-slate-800 rounded-lg bg-white/50 dark:bg-slate-900/50 h-32">
+                                        );
+                                    }
+
+                                    if (columnOpps.length === 0) {
+                                        return (
+                                            <div
+                                                ref={provided.innerRef}
+                                                {...provided.droppableProps}
+                                                className={`flex-1 flex flex-col items-center justify-center text-slate-400 dark:text-slate-600 border border-dashed border-slate-200 dark:border-slate-800 rounded-lg bg-white/50 dark:bg-slate-900/50 h-32 ${snapshot.isDraggingOver ? 'bg-slate-50 dark:bg-slate-800/50' : ''}`}
+                                            >
                                                 <Target size={24} className="mb-2 opacity-20" />
                                                 <p className="text-[10px] font-bold uppercase tracking-wider opacity-60">No deals</p>
+                                                {provided.placeholder}
                                             </div>
-                                        )}
-                                        {provided.placeholder}
-                                    </div>
-                                )}
+                                        );
+                                    }
+
+                                    return (
+                                        <VirtualColumnBody
+                                            opps={columnOpps}
+                                            provided={provided}
+                                            snapshot={snapshot}
+                                            scores={scores}
+                                            canCreateOpportunity={canCreateOpportunity}
+                                            handleUpdateStatus={handleUpdateStatus}
+                                        />
+                                    );
+                                }}
                             </Droppable>
                         </div>
                     ))}
@@ -351,21 +433,18 @@ const PipelineView = () => {
                 maxWidth="max-w-xl"
             >
                 <form onSubmit={handleCreateOpportunity} className="space-y-4">
-                    <div className="space-y-1.5">
-                        <label className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Account / Client</label>
-                        <select
-                            required
-                            name="clientId"
-                            value={clientId}
-                            onChange={(e) => setClientId(e.target.value)}
-                            className="w-full h-10 px-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all text-sm dark:text-white"
-                        >
-                            <option value="">Select a client...</option>
-                            {clients.map(c => (
-                                <option key={c.id} value={c.id}>{c.name}</option>
-                            ))}
-                        </select>
-                    </div>
+                    <Select
+                        label="Account / Client"
+                        required
+                        name="clientId"
+                        value={clientId}
+                        onChange={(e) => setClientId(e.target.value)}
+                    >
+                        <option value="">Select a client...</option>
+                        {clients.map(c => (
+                            <option key={c.id} value={c.id}>{c.name}</option>
+                        ))}
+                    </Select>
 
                     <Input
                         label="Product / Solution"
@@ -385,18 +464,15 @@ const PipelineView = () => {
                             onChange={(e) => setAmount(e.target.value)}
                             placeholder="0.00"
                         />
-                        <div className="space-y-1.5">
-                            <label className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Pipeline Stage</label>
-                            <select
-                                value={status}
-                                onChange={(e) => setStatus(e.target.value as 'pendiente' | 'ganado' | 'perdido')}
-                                className="w-full h-10 px-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all text-sm dark:text-white"
-                            >
-                                <option value="pendiente">Pending</option>
-                                <option value="ganado">Won</option>
-                                <option value="perdido">Lost</option>
-                            </select>
-                        </div>
+                        <Select
+                            label="Pipeline Stage"
+                            value={status}
+                            onChange={(e) => setStatus(e.target.value as 'pendiente' | 'ganado' | 'perdido')}
+                        >
+                            <option value="pendiente">Pending</option>
+                            <option value="ganado">Won</option>
+                            <option value="perdido">Lost</option>
+                        </Select>
                     </div>
 
                     <div className="pt-4 flex justify-end gap-3">

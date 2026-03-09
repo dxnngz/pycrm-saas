@@ -49,24 +49,25 @@ class RedisClient {
         if (!this.client.isOpen) return;
         try {
             let cursor = 0;
-            const keysToDelete: string[] = [];
-
             do {
                 const result = await (this.client as any).scan(cursor, {
                     MATCH: pattern,
-                    COUNT: 100
+                    COUNT: 500
                 });
                 cursor = result.cursor;
-                keysToDelete.push(...result.keys);
+                if (result.keys.length > 0) {
+                    await this.client.unlink(result.keys);
+                    console.info(`[Redis] Unlinked ${result.keys.length} keys matching pattern: ${pattern}`);
+                }
             } while (cursor !== 0);
-
-            if (keysToDelete.length > 0) {
-                await this.client.del(keysToDelete);
-                console.info(`[Redis] Purged ${keysToDelete.length} keys matching pattern: ${pattern}`);
-            }
         } catch (error) {
             console.error(`Error invalidando caché Redis para ${pattern}:`, error);
         }
+    }
+
+    async invalidateTenantCache(tenantId: number, namespace: string) {
+        const pattern = `cache:${namespace}:${tenantId}:*`;
+        await this.invalidate(pattern);
     }
 
     async ping(): Promise<string> {

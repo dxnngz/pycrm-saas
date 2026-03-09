@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { toast } from 'sonner';
 import {
     Search,
     UserPlus,
@@ -9,8 +10,12 @@ import {
     Edit2,
     ChevronLeft,
     ChevronRight,
-    History
+    History,
+    Sparkles,
+    Loader2
 } from 'lucide-react';
+import ReactMarkdown from 'react-markdown';
+import { getClientBrief } from '../../services/ai';
 import { useClients } from '../../hooks/useClients';
 import { usePermissions } from '../../hooks/usePermissions';
 import { generateClientReport } from '../../services/reportService';
@@ -20,7 +25,7 @@ import Timeline from './Timeline';
 import type { Client } from '../../types';
 import { Input } from '../UI/Input';
 import { Button } from '../UI/Button';
-import { Table, type Column } from '../UI/Table';
+import { VirtualTable, type Column as VirtualColumn } from '../UI/VirtualTable';
 import { Badge } from '../UI/Badge';
 import { ConfirmModal } from '../Common/ConfirmModal';
 
@@ -45,6 +50,11 @@ const ContactsView = () => {
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
     const [clientToDelete, setClientToDelete] = useState<number | null>(null);
 
+    // AI Brief states
+    const [isBriefModalOpen, setIsBriefModalOpen] = useState(false);
+    const [briefContent, setBriefContent] = useState('');
+    const [isBriefLoading, setIsBriefLoading] = useState(false);
+
     // Form state
     const [newName, setNewName] = useState('');
     const [newCompany, setNewCompany] = useState('');
@@ -52,16 +62,17 @@ const ContactsView = () => {
     const [newPhone, setNewPhone] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
 
-    const columns: Column<Client>[] = [
+    const columns: VirtualColumn<Client>[] = [
         {
             header: 'Customer',
+            width: '35%',
             accessor: (client: Client) => (
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-3 py-1">
                     <div className="w-8 h-8 rounded-md bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-[10px] font-bold text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-700">
                         {client.name.split(' ').map((n: string) => n[0]).join('')}
                     </div>
-                    <div>
-                        <div className="font-medium text-slate-900 dark:text-white">{client.name}</div>
+                    <div className="truncate">
+                        <div className="font-medium text-slate-900 dark:text-white truncate">{client.name}</div>
                         <div className="text-[10px] text-slate-400">ID: #{client.id.toString().padStart(4, '0')}</div>
                     </div>
                 </div>
@@ -70,43 +81,65 @@ const ContactsView = () => {
         {
             header: 'Organization',
             accessor: 'company',
-            className: 'hidden md:table-cell',
+            width: '25%',
+            className: 'hidden md:flex items-center',
         },
         {
             header: 'Contact',
+            width: '25%',
             accessor: (client: Client) => (
-                <div className="space-y-0.5">
-                    <div className="flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400">
-                        <Mail size={12} /> {client.email}
+                <div className="space-y-0.5 py-1 truncate">
+                    <div className="flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400 truncate">
+                        <Mail size={12} className="flex-shrink-0" /> {client.email}
                     </div>
                     {client.phone && (
-                        <div className="flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400">
-                            <Phone size={12} /> {client.phone}
+                        <div className="flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400 truncate">
+                            <Phone size={12} className="flex-shrink-0" /> {client.phone}
                         </div>
                     )}
                 </div>
             ),
-            className: 'hidden lg:table-cell',
+            className: 'hidden lg:flex items-center',
         },
         {
             header: 'Status',
+            width: '10%',
             accessor: () => <Badge variant="success">Active</Badge>,
             align: 'center',
+            className: 'flex items-center justify-center',
         },
         {
             header: 'Actions',
+            width: '5%',
             align: 'right',
+            className: 'flex items-center justify-end',
             accessor: (client: Client) => (
                 <div className="flex items-center justify-end gap-1">
                     <button
-                        onClick={() => handleOpenTimeline(client)}
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            handleOpenTimeline(client);
+                        }}
                         className="p-1.5 text-slate-400 hover:text-slate-900 dark:hover:text-white rounded-md transition-colors"
                         title="Timeline"
                     >
                         <History size={16} />
                     </button>
                     <button
-                        onClick={() => handleOpenModal(client)}
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            handleViewBrief(client);
+                        }}
+                        className="p-1.5 text-slate-400 hover:text-amber-500 dark:hover:text-amber-400 rounded-md transition-colors"
+                        title="AI Executive Brief"
+                    >
+                        <Sparkles size={16} />
+                    </button>
+                    <button
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            handleOpenModal(client);
+                        }}
                         className="p-1.5 text-slate-400 hover:text-primary-600 rounded-md transition-colors"
                         title="Edit"
                     >
@@ -114,7 +147,10 @@ const ContactsView = () => {
                     </button>
                     {canDeleteClient && (
                         <button
-                            onClick={() => handleDeleteClient(client.id)}
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                handleDeleteClient(client.id);
+                            }}
                             className="p-1.5 text-slate-400 hover:text-red-600 rounded-md transition-colors"
                             title="Delete"
                         >
@@ -148,6 +184,22 @@ const ContactsView = () => {
         setIsTimelineOpen(true);
     }, []);
 
+    const handleViewBrief = useCallback(async (client: Client) => {
+        setSelectedClient(client);
+        setIsBriefModalOpen(true);
+        setIsBriefLoading(true);
+        setBriefContent('');
+        try {
+            const data = await getClientBrief(client.id);
+            setBriefContent(data.summary);
+        } catch (error) {
+            console.error(error);
+            setBriefContent('Error al generar el resumen. Por favor, inténtelo de nuevo.');
+        } finally {
+            setIsBriefLoading(false);
+        }
+    }, []);
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setIsSubmitting(true);
@@ -172,6 +224,7 @@ const ContactsView = () => {
             loadClients(pagination.page, pagination.limit, debouncedSearch);
         } catch (error: unknown) {
             console.error(error);
+            toast.error('Failed to save customer. Please try again.');
         } finally {
             setIsSubmitting(false);
         }
@@ -196,6 +249,7 @@ const ContactsView = () => {
             }
         } catch (error: unknown) {
             console.error(error);
+            toast.error('Failed to delete customer. Please try again.');
         } finally {
             setIsSubmitting(false);
         }
@@ -208,7 +262,7 @@ const ContactsView = () => {
     if (loading && clients.length === 0) {
         return (
             <div className="p-8">
-                <Table data={[]} columns={columns} isLoading={true} />
+                <VirtualTable data={[]} columns={columns} isLoading={true} />
             </div>
         );
     }
@@ -256,11 +310,12 @@ const ContactsView = () => {
                 </div>
             </div>
 
-            <Table
+            <VirtualTable
                 data={clients}
                 columns={columns}
                 isLoading={loading}
                 emptyMessage="No customers found."
+                height="600px"
             />
 
             {clients && clients.length > 0 && (
@@ -375,6 +430,42 @@ const ContactsView = () => {
                 maxWidth="max-w-4xl"
             >
                 {selectedClient && <Timeline clientId={selectedClient.id} />}
+            </Modal>
+
+            {/* Modal for AI Brief */}
+            <Modal
+                isOpen={isBriefModalOpen}
+                onClose={() => setIsBriefModalOpen(false)}
+                title={`AI Executive Brief: ${selectedClient?.name}`}
+                maxWidth="max-w-2xl"
+            >
+                {isBriefLoading ? (
+                    <div className="flex flex-col items-center justify-center py-12 gap-4">
+                        <Loader2 className="w-8 h-8 text-primary-500 animate-spin" />
+                        <p className="text-sm text-slate-500 animate-pulse font-medium">Analyzing history and drafting brief...</p>
+                    </div>
+                ) : (
+                    <div className="prose prose-slate dark:prose-invert max-w-none text-sm">
+                        <div className="bg-amber-50/50 dark:bg-amber-900/10 border border-amber-200/50 dark:border-amber-800/30 rounded-xl p-6 text-slate-700 dark:text-slate-300 shadow-sm leading-relaxed">
+                            <ReactMarkdown
+                                components={{
+                                    h1: ({ ...props }) => <h1 className="text-lg font-bold text-slate-900 dark:text-white mb-4 flex items-center gap-2" {...props} />,
+                                    h2: ({ ...props }) => <h2 className="text-md font-bold text-slate-900 dark:text-white mt-4 mb-2 border-b border-slate-200 dark:border-slate-800 pb-1" {...props} />,
+                                    ul: ({ ...props }) => <ul className="list-disc ml-4 space-y-1 my-2" {...props} />,
+                                    li: ({ ...props }) => <li className="text-slate-600 dark:text-slate-400" {...props} />,
+                                    strong: ({ ...props }) => <strong className="font-semibold text-slate-900 dark:text-white" {...props} />,
+                                }}
+                            >
+                                {briefContent}
+                            </ReactMarkdown>
+                        </div>
+                        <div className="mt-6 flex justify-end">
+                            <Button variant="outline" size="sm" onClick={() => setIsBriefModalOpen(false)}>
+                                Close Brief
+                            </Button>
+                        </div>
+                    </div>
+                )}
             </Modal>
 
             {/* Confirm Delete Modal */}

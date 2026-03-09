@@ -30,18 +30,18 @@ interface CommandCenterProps {
 }
 
 const QUICK_ACTIONS: CommandCenterItem[] = [
-    { id: 'new-client', label: 'Nuevo Cliente', icon: Plus, color: 'text-emerald-500', bg: 'bg-emerald-500/10' },
-    { id: 'new-opp', label: 'Nueva Oportunidad', icon: Target, color: 'text-primary-500', bg: 'bg-primary-500/10' },
-    { id: 'new-task', label: 'Asignar Tarea', icon: CheckSquare, color: 'text-amber-500', bg: 'bg-amber-500/10' },
+    { id: 'new-client', label: 'Create New Customer', icon: Plus, color: 'text-emerald-500', bg: 'bg-emerald-500/10' },
+    { id: 'new-opp', label: 'New Sales Opportunity', icon: Target, color: 'text-primary-500', bg: 'bg-primary-500/10' },
+    { id: 'new-task', label: 'Assign Priority Task', icon: CheckSquare, color: 'text-amber-500', bg: 'bg-amber-500/10' },
 ];
 
 const NAVIGATION: CommandCenterItem[] = [
-    { id: 'dashboard', label: 'Ir al Panel', icon: Command, color: 'text-slate-400', bg: 'bg-slate-100' },
-    { id: 'contacts', label: 'Ver Clientes', icon: Users, color: 'text-slate-400', bg: 'bg-slate-100' },
-    { id: 'pipeline', label: 'Ventas y Embudo', icon: Target, color: 'text-slate-400', bg: 'bg-slate-100' },
-    { id: 'tasks', label: 'Gestor de Tareas', icon: CheckSquare, color: 'text-slate-400', bg: 'bg-slate-100' },
-    { id: 'documents', label: 'Repositorio Documental', icon: FileText, color: 'text-slate-400', bg: 'bg-slate-100' },
-    { id: 'settings', label: 'Configuración', icon: Settings, color: 'text-slate-400', bg: 'bg-slate-100' },
+    { id: 'dashboard', label: 'Go to Dashboard', icon: Command, color: 'text-slate-400', bg: 'bg-slate-100' },
+    { id: 'contacts', label: 'Manage Customers', icon: Users, color: 'text-slate-400', bg: 'bg-slate-100' },
+    { id: 'pipeline', label: 'Sales Pipeline', icon: Target, color: 'text-slate-400', bg: 'bg-slate-100' },
+    { id: 'tasks', label: 'Global Task Manager', icon: CheckSquare, color: 'text-slate-400', bg: 'bg-slate-100' },
+    { id: 'documents', label: 'Vault & Documents', icon: FileText, color: 'text-slate-400', bg: 'bg-slate-100' },
+    { id: 'settings', label: 'Access Settings', icon: Settings, color: 'text-slate-400', bg: 'bg-slate-100' },
 ];
 
 export const CommandCenter: React.FC<CommandCenterProps> = ({ isOpen, onClose, onNavigate }) => {
@@ -64,7 +64,7 @@ export const CommandCenter: React.FC<CommandCenterProps> = ({ isOpen, onClose, o
 
     const handleAction = useCallback((item: CommandCenterItem) => {
         if (item.id.startsWith('new-')) {
-            toast.info(`Funcionalidad '${item.label}' se abrirá en el modal correspondiente.`);
+            toast.info(`Action '${item.label}' will open in a creation modal.`);
         } else {
             onNavigate(item.id);
         }
@@ -107,36 +107,34 @@ export const CommandCenter: React.FC<CommandCenterProps> = ({ isOpen, onClose, o
                     />
 
                     <motion.div
-                        initial={{ opacity: 0, scale: 0.95, y: -20 }}
+                        initial={{ opacity: 0, scale: 0.98, y: -10 }}
                         animate={{ opacity: 1, scale: 1, y: 0 }}
-                        exit={{ opacity: 0, scale: 0.95, y: -20 }}
-                        className="relative w-full max-w-2xl bg-white dark:bg-slate-900 rounded-[2rem] shadow-2xl border border-slate-200 dark:border-slate-800 overflow-hidden"
+                        exit={{ opacity: 0, scale: 0.98, y: -10 }}
+                        className="relative w-full max-w-xl bg-white dark:bg-slate-900 rounded-lg shadow-2xl border border-slate-200 dark:border-slate-800 overflow-hidden"
                     >
-                        <div className="p-6 border-b border-slate-100 dark:border-slate-800 flex items-center gap-4">
-                            <div className="w-10 h-10 bg-primary-600/10 text-primary-600 rounded-xl flex items-center justify-center">
-                                <Search size={20} />
-                            </div>
+                        <div className="p-4 border-b border-slate-100 dark:border-slate-800 flex items-center gap-3">
+                            <Search size={18} className="text-slate-400" />
                             <input
                                 ref={inputRef}
                                 type="text"
-                                placeholder="Escribe para buscar comandos o clientes..."
+                                placeholder="Search commands, customers, or actions..."
                                 value={query}
                                 onChange={(e) => setQuery(e.target.value)}
-                                className="flex-1 bg-transparent border-none outline-none text-lg font-bold text-slate-900 dark:text-white placeholder:text-slate-400"
+                                className="flex-1 bg-transparent border-none outline-none text-sm font-medium text-slate-900 dark:text-white placeholder:text-slate-400"
                             />
-                            <div className="flex items-center gap-2 px-3 py-1.5 bg-slate-100 dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700">
-                                <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">ESC para salir</span>
+                            <div className="flex items-center gap-1.5 px-2 py-1 bg-slate-50 dark:bg-slate-800 rounded border border-slate-200 dark:border-slate-700">
+                                <span className="text-[9px] font-bold text-slate-500 uppercase tracking-wider">ESC</span>
                             </div>
                         </div>
 
-                        <div className="max-h-[60vh] overflow-y-auto p-4 custom-scrollbar">
+                        <div className="max-h-[50vh] overflow-y-auto p-2 custom-scrollbar">
                             {allItems.length > 0 ? (
-                                <div className="space-y-6">
+                                <div className="space-y-4">
                                     {/* Quick Actions Section */}
                                     {allItems.some(i => i.id.startsWith('new-')) && (
-                                        <div className="space-y-3">
-                                            <p className="px-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Acciones Rápidas</p>
-                                            <div className="space-y-1">
+                                        <div className="space-y-1">
+                                            <p className="px-3 py-2 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Quick Actions</p>
+                                            <div className="space-y-0.5">
                                                 {allItems.filter(i => i.id.startsWith('new-')).map((item) => {
                                                     const globalIdx = allItems.indexOf(item);
                                                     return (
@@ -144,15 +142,15 @@ export const CommandCenter: React.FC<CommandCenterProps> = ({ isOpen, onClose, o
                                                             key={item.id}
                                                             onClick={() => handleAction(item)}
                                                             onMouseEnter={() => setSelectedIndex(globalIdx)}
-                                                            className={`w-full flex items-center justify-between p-4 rounded-2xl transition-all group ${selectedIndex === globalIdx ? 'bg-primary-600 text-white shadow-xl shadow-primary-600/30' : 'hover:bg-slate-50 dark:hover:bg-slate-800'}`}
+                                                            className={`w-full flex items-center justify-between p-2 rounded-md transition-all group ${selectedIndex === globalIdx ? 'bg-slate-100 dark:bg-slate-800' : 'hover:bg-slate-50 dark:hover:bg-slate-800/50'}`}
                                                         >
-                                                            <div className="flex items-center gap-4">
-                                                                <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${selectedIndex === globalIdx ? 'bg-white/20' : item.bg + ' ' + (item.color || '')}`}>
-                                                                    <item.icon size={20} />
+                                                            <div className="flex items-center gap-3">
+                                                                <div className={`w-8 h-8 rounded-md flex items-center justify-center border border-slate-200 dark:border-slate-700 ${selectedIndex === globalIdx ? 'bg-white dark:bg-slate-900 shadow-sm' : 'bg-slate-50 dark:bg-slate-900'}`}>
+                                                                    <item.icon size={14} className={item.color} />
                                                                 </div>
-                                                                <span className="font-bold">{item.label}</span>
+                                                                <span className={`text-sm font-medium ${selectedIndex === globalIdx ? 'text-slate-900 dark:text-white' : 'text-slate-600 dark:text-slate-400'}`}>{item.label}</span>
                                                             </div>
-                                                            <div className={`px-2 py-1 rounded-lg text-[10px] font-black uppercase ${selectedIndex === globalIdx ? 'bg-white/20 text-white' : 'bg-slate-100 dark:bg-slate-700 text-slate-400'}`}>Acción</div>
+                                                            <div className={`px-1.5 py-0.5 rounded border text-[9px] font-bold uppercase ${selectedIndex === globalIdx ? 'bg-primary-50 border-primary-100 text-primary-600' : 'bg-slate-100 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-400'}`}>Action</div>
                                                         </button>
                                                     );
                                                 })}
@@ -162,9 +160,9 @@ export const CommandCenter: React.FC<CommandCenterProps> = ({ isOpen, onClose, o
 
                                     {/* Navigation Section */}
                                     {allItems.some(i => !i.id.startsWith('new-')) && (
-                                        <div className="space-y-3">
-                                            <p className="px-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Navegación del Sistema</p>
-                                            <div className="space-y-1">
+                                        <div className="space-y-1">
+                                            <p className="px-3 py-2 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Navigation</p>
+                                            <div className="space-y-0.5">
                                                 {allItems.filter(i => !i.id.startsWith('new-')).map((item) => {
                                                     const globalIdx = allItems.indexOf(item);
                                                     return (
@@ -172,15 +170,15 @@ export const CommandCenter: React.FC<CommandCenterProps> = ({ isOpen, onClose, o
                                                             key={item.id}
                                                             onClick={() => handleAction(item)}
                                                             onMouseEnter={() => setSelectedIndex(globalIdx)}
-                                                            className={`w-full flex items-center justify-between p-4 rounded-2xl transition-all group ${selectedIndex === globalIdx ? 'bg-primary-600 text-white shadow-xl shadow-primary-600/30' : 'hover:bg-slate-50 dark:hover:bg-slate-800'}`}
+                                                            className={`w-full flex items-center justify-between p-2 rounded-md transition-all group ${selectedIndex === globalIdx ? 'bg-slate-100 dark:bg-slate-800' : 'hover:bg-slate-50 dark:hover:bg-slate-800/50'}`}
                                                         >
-                                                            <div className="flex items-center gap-4">
-                                                                <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${selectedIndex === globalIdx ? 'bg-white/20' : 'bg-slate-100 dark:bg-slate-800 text-slate-400'}`}>
-                                                                    <item.icon size={20} />
+                                                            <div className="flex items-center gap-3">
+                                                                <div className={`w-8 h-8 rounded-md flex items-center justify-center border border-slate-200 dark:border-slate-700 ${selectedIndex === globalIdx ? 'bg-white dark:bg-slate-900 shadow-sm' : 'bg-slate-50 dark:bg-slate-900'}`}>
+                                                                    <item.icon size={14} className="text-slate-400" />
                                                                 </div>
-                                                                <span className="font-bold">{item.label}</span>
+                                                                <span className={`text-sm font-medium ${selectedIndex === globalIdx ? 'text-slate-900 dark:text-white' : 'text-slate-600 dark:text-slate-400'}`}>{item.label}</span>
                                                             </div>
-                                                            <ArrowRight size={18} className={`transition-transform ${selectedIndex === globalIdx ? 'translate-x-0 opacity-100' : '-translate-x-2 opacity-0'}`} />
+                                                            <ArrowRight size={14} className={`text-slate-400 transition-transform ${selectedIndex === globalIdx ? 'translate-x-0 opacity-100' : '-translate-x-2 opacity-0'}`} />
                                                         </button>
                                                     );
                                                 })}
@@ -189,29 +187,29 @@ export const CommandCenter: React.FC<CommandCenterProps> = ({ isOpen, onClose, o
                                     )}
                                 </div>
                             ) : (
-                                <div className="text-center py-20">
-                                    <div className="inline-flex items-center justify-center w-16 h-16 bg-slate-100 dark:bg-slate-800 text-slate-400 rounded-3xl mb-4">
-                                        <Zap size={32} />
+                                <div className="text-center py-12">
+                                    <div className="inline-flex items-center justify-center w-12 h-12 bg-slate-50 dark:bg-slate-800 text-slate-300 rounded-lg mb-4 border border-slate-200 dark:border-slate-700">
+                                        <Zap size={24} />
                                     </div>
-                                    <p className="text-slate-500 font-bold">No se encontraron resultados para "{query}"</p>
-                                    <p className="text-xs text-slate-400 mt-2">Intenta buscar 'Panel', 'Ventas' o 'Nuevo Cliente'</p>
+                                    <p className="text-slate-500 text-sm font-medium">No results found for "{query}"</p>
+                                    <p className="text-[11px] text-slate-400 mt-1">Try searching for 'Panel', 'Contacts' or 'New Action'</p>
                                 </div>
                             )}
                         </div>
 
-                        <div className="p-4 bg-slate-50 dark:bg-slate-950 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between">
+                        <div className="px-4 py-3 bg-slate-50/50 dark:bg-slate-950/50 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between">
                             <div className="flex items-center gap-4">
-                                <div className="flex items-center gap-1.5 font-bold text-[10px] text-slate-400">
-                                    <kbd className="px-1.5 py-0.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-md">↑↓</kbd>
-                                    Navegar
+                                <div className="flex items-center gap-1.5 text-[10px] font-medium text-slate-400">
+                                    <kbd className="px-1.5 py-0.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded shadow-sm text-slate-500">↑↓</kbd>
+                                    Navigate
                                 </div>
-                                <div className="flex items-center gap-1.5 font-bold text-[10px] text-slate-400">
-                                    <kbd className="px-1.5 py-0.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-md">Enter</kbd>
-                                    Seleccionar
+                                <div className="flex items-center gap-1.5 text-[10px] font-medium text-slate-400">
+                                    <kbd className="px-1.5 py-0.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded shadow-sm text-slate-500">Enter</kbd>
+                                    Select
                                 </div>
                             </div>
-                            <div className="flex items-center gap-2">
-                                <span className="text-[10px] font-black text-primary-600 dark:text-primary-400 uppercase tracking-widest">PyCRM COMMAND CENTER</span>
+                            <div className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">
+                                PyCRM Command Center
                             </div>
                         </div>
                     </motion.div>

@@ -1,5 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
-import { api } from '../services/api';
+import { opportunityService } from '../services/opportunity.service';
+import { taskService } from '../services/task.service';
+import { dashboardService } from '../services/dashboard.service';
 import { predictFutureSales } from '../services/mlService';
 
 export const useDashboardData = (period: 'monthly' | 'yearly') => {
@@ -7,9 +9,9 @@ export const useDashboardData = (period: 'monthly' | 'yearly') => {
         queryKey: ['dashboard_data', period],
         queryFn: async () => {
             const [oppsResponse, tasks, backendMetrics] = await Promise.all([
-                api.opportunities.getAll(1, 100),
-                api.tasks.getAll(),
-                api.dashboard.getMetrics(period)
+                opportunityService.getAll(1, 100),
+                taskService.getAll(),
+                dashboardService.getMetrics(period)
             ]);
 
             const opps = Array.isArray(oppsResponse?.data) ? oppsResponse.data : [];
@@ -42,6 +44,7 @@ export const useDashboardData = (period: 'monthly' | 'yearly') => {
 
             return {
                 rawOpps: opps,
+                rawTasks: tasksList,
                 stats: {
                     totalSales: backendMetrics?.totalSales || 0,
                     activeOpportunities: opps.filter(o => o.status === 'pendiente').length,

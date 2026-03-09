@@ -1,5 +1,6 @@
 import React from 'react';
 import type { InputHTMLAttributes } from 'react';
+import { useUI } from '../../context/UIContext';
 
 export interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
     label?: string;
@@ -24,6 +25,7 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
         },
         ref
     ) => {
+        const { isDense } = useUI();
         const inputId = id || `input-${Math.random().toString(36).substr(2, 9)}`;
 
         return (
@@ -31,7 +33,7 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
                 {label && (
                     <label
                         htmlFor={inputId}
-                        className="block mb-1 text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider"
+                        className={`block mb-1 ${isDense ? 'text-[10px]' : 'text-[11px]'} font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider`}
                     >
                         {label}
                         {props.required && <span className="text-red-500 ml-1">*</span>}
@@ -40,7 +42,7 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
                 <div className="relative">
                     {icon && iconPosition === 'left' && (
                         <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
-                            {icon}
+                            {React.isValidElement(icon) ? React.cloneElement(icon as React.ReactElement<any>, { size: isDense ? 14 : 16 }) : icon}
                         </div>
                     )}
                     <input
@@ -48,17 +50,15 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
                         ref={ref}
                         type={type}
                         className={`
-              block w-full rounded-md border text-sm transition-all
-              bg-white dark:bg-slate-900 text-slate-900 dark:text-white
-              placeholder-slate-400 dark:placeholder-slate-500
-              focus:outline-none focus:ring-2 focus:ring-primary-500/10 focus:border-primary-500
-              disabled:opacity-50 disabled:cursor-not-allowed
-              ${error ? 'border-red-500 focus:border-red-500 focus:ring-red-500/10' : 'border-slate-200 dark:border-slate-800'}
-              ${icon && iconPosition === 'left' ? 'pl-9' : 'pl-3'}
-              ${icon && iconPosition === 'right' ? 'pr-9' : 'pr-3'}
-              py-1.5 h-9
-              ${className}
-            `}
+                            glass-input block w-full rounded-xl text-sm transition-all
+                            placeholder-slate-400 dark:placeholder-slate-500
+                            disabled:opacity-50 disabled:cursor-not-allowed
+                            ${error ? 'border-red-500 focus:border-red-500 focus:ring-red-500/10' : ''}
+                            ${icon && iconPosition === 'left' ? 'pl-10' : 'pl-4'}
+                            ${icon && iconPosition === 'right' ? 'pr-10' : 'pr-4'}
+                            ${isDense ? 'py-2 px-3' : 'py-3'}
+                            ${className}
+                        `}
                         aria-invalid={!!error}
                         aria-describedby={error ? `${inputId}-error` : helperText ? `${inputId}-helper` : undefined}
                         {...props}

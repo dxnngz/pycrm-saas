@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { AppError } from '../../utils/AppError.js';
+import { logger } from '../../utils/logger.js';
 
 export const globalErrorHandler = (err: any, req: Request, res: Response, next: NextFunction) => {
     err.statusCode = err.statusCode || 500;
@@ -10,21 +11,24 @@ export const globalErrorHandler = (err: any, req: Request, res: Response, next: 
             status: err.status,
             error: err,
             message: err.message,
-            stack: err.stack
+            stack: err.stack,
+            details: err.details
         });
     } else {
         // En producción, esconder errores de programación/internos
         if (err.isOperational) {
             res.status(err.statusCode).json({
                 status: err.status,
-                message: err.message
+                message: err.message,
+                details: err.details
             });
         } else {
-            console.error('CRITICAL_ERROR 💥', {
+            logger.error({
+                msg: 'CRITICAL_ERROR 💥',
                 requestId: (req as any).id,
-                message: err.message,
+                error: err.message,
                 stack: err.stack,
-                tenant: (req as any).user?.tenant_id
+                tenant: (req as any).user?.tenantId
             });
 
             res.status(500).json({

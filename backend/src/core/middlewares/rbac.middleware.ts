@@ -74,3 +74,23 @@ export const requirePermission = (requiredPermission: Permission) => {
         });
     };
 };
+
+// Middleware de Autorización por Rol
+export const requireRole = (allowedRoles: SystemRole[]) => {
+    return (req: Request, res: Response, next: NextFunction) => {
+        const user = (req as any).user;
+
+        if (!user || !user.role) {
+            return res.status(401).json({ status: 'error', message: 'Unauthorized' });
+        }
+
+        if (allowedRoles.includes(user.role.toLowerCase() as SystemRole)) {
+            return next();
+        }
+
+        return res.status(403).json({
+            status: 'error',
+            message: 'Forbidden: No tienes el rol necesario para realizar esta acción'
+        });
+    };
+};

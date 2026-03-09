@@ -21,7 +21,10 @@ import type { Task } from '../../types';
 import { Input } from '../UI/Input';
 import { Button } from '../UI/Button';
 import { Badge } from '../UI/Badge';
+import { Select } from '../UI/Select';
 import { ConfirmModal } from '../Common/ConfirmModal';
+import { useVirtualizer } from '@tanstack/react-virtual';
+import { toast } from 'sonner';
 
 const TasksView = () => {
     const { tasks, loading, loadTasks, createTask, toggleTask, deleteTask } = useTasks();
@@ -31,6 +34,8 @@ const TasksView = () => {
     const [filterPriority, setFilterPriority] = useState('All');
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
     const [taskToDelete, setTaskToDelete] = useState<number | null>(null);
+
+    const parentRef = React.useRef<HTMLDivElement>(null);
 
     // Form state
     const [newTitle, setNewTitle] = useState('');
@@ -58,6 +63,7 @@ const TasksView = () => {
             setNewPriority('Media');
         } catch (error: unknown) {
             console.error(error);
+            toast.error('Failed to create task. Please try again.');
         } finally {
             setIsSubmitting(false);
         }
@@ -68,6 +74,7 @@ const TasksView = () => {
             await toggleTask(id);
         } catch (error: unknown) {
             console.error('Error toggling task:', error);
+            toast.error('Failed to update task status.');
         }
     };
 
@@ -85,6 +92,7 @@ const TasksView = () => {
             setTaskToDelete(null);
         } catch (error: unknown) {
             console.error('Error deleting task:', error);
+            toast.error('Failed to delete task. Please try again.');
         } finally {
             setIsSubmitting(false);
         }
@@ -104,6 +112,13 @@ const TasksView = () => {
         };
         const matchesPriority = filterPriority === 'All' || task.priority === priorityMap[filterPriority];
         return matchesSearch && matchesPriority;
+    });
+
+    const rowVirtualizer = useVirtualizer({
+        count: filteredTasks.length,
+        getScrollElement: () => parentRef.current,
+        estimateSize: () => 72,
+        overscan: 5,
     });
 
     const stats = {
@@ -205,53 +220,74 @@ const TasksView = () => {
                         <p className="text-xs font-bold uppercase tracking-widest opacity-60">No tasks found</p>
                     </div>
                 ) : (
-                    <div className="flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-slate-200 dark:scrollbar-thumb-slate-800 px-6">
-                        {filteredTasks.map((task: Task) => (
-                            <div key={task.id} className="py-4 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors flex items-center gap-6 border-b border-slate-100 dark:border-slate-800/50 last:border-0">
-                                <button
-                                    onClick={() => handleToggle(task.id)}
-                                    className={`shrink-0 transition-transform hover:scale-110 ${task.completed ? 'text-emerald-500' : 'text-slate-300 dark:text-slate-700 hover:text-primary-500'}`}
-                                >
-                                    {task.completed ? <CheckCircle2 size={24} /> : <Circle size={24} />}
-                                </button>
-
-                                <div className="flex-1 min-w-0">
-                                    <h4 className={`text-sm font-semibold truncate ${task.completed ? 'text-slate-400 line-through' : 'text-slate-900 dark:text-white'}`}>
-                                        {task.title}
-                                    </h4>
-                                    <div className="flex items-center gap-4 mt-1">
-                                        <div className="flex items-center gap-1.5 text-[10px] text-slate-500 dark:text-slate-400">
-                                            <Users size={12} />
-                                            <span className="truncate max-w-[120px]">{task.client_name || 'Individual'}</span>
-                                        </div>
-                                        {task.deadline && (
-                                            <div className="flex items-center gap-1.5 text-[10px] text-slate-500 dark:text-slate-400">
-                                                <Calendar size={12} />
-                                                <span>{new Date(task.deadline).toLocaleDateString()}</span>
-                                            </div>
-                                        )}
-                                    </div>
-                                </div>
-
-                                <div className="shrink-0 flex items-center gap-4">
-                                    <Badge variant={
-                                        task.priority === 'Alta' ? 'danger' :
-                                            task.priority === 'Media' ? 'warning' : 'secondary'
-                                    }>
-                                        {task.priority === 'Alta' ? 'High' : task.priority === 'Media' ? 'Medium' : 'Low'}
-                                    </Badge>
-
-                                    {canDeleteTask && (
+                    <div
+                        ref={parentRef}
+                        className="flex-1 overflow-y-auto custom-scrollbar px-6"
+                    >
+                        <div
+                            style={{
+                                height: `${rowVirtualizer.getTotalSize()}px`,
+                                width: '100%',
+                                position: 'relative',
+                            }}
+                        >
+                            {rowVirtualizer.getVirtualItems().map((virtualRow) => {
+                                const task = filteredTasks[virtualRow.index];
+                                return (
+                                    <div
+                                        key={virtualRow.key}
+                                        className="absolute top-0 left-0 w-full hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors flex items-center gap-6 border-b border-slate-100 dark:border-slate-800/50 last:border-0"
+                                        style={{
+                                            height: `${virtualRow.size}px`,
+                                            transform: `translateY(${virtualRow.start}px)`,
+                                        }}
+                                    >
                                         <button
-                                            onClick={() => handleDeleteClick(task.id)}
-                                            className="p-2 text-slate-400 hover:text-red-600 rounded-md transition-colors"
+                                            onClick={() => handleToggle(task.id)}
+                                            className={`shrink-0 transition-transform hover:scale-110 ${task.completed ? 'text-emerald-500' : 'text-slate-300 dark:text-slate-700 hover:text-primary-500'}`}
                                         >
-                                            <Trash2 size={16} />
+                                            {task.completed ? <CheckCircle2 size={24} /> : <Circle size={24} />}
                                         </button>
-                                    )}
-                                </div>
-                            </div>
-                        ))}
+
+                                        <div className="flex-1 min-w-0">
+                                            <h4 className={`text-sm font-semibold truncate ${task.completed ? 'text-slate-400 line-through' : 'text-slate-900 dark:text-white'}`}>
+                                                {task.title}
+                                            </h4>
+                                            <div className="flex items-center gap-4 mt-1">
+                                                <div className="flex items-center gap-1.5 text-[10px] text-slate-500 dark:text-slate-400">
+                                                    <Users size={12} />
+                                                    <span className="truncate max-w-[120px]">{task.client_name || 'Individual'}</span>
+                                                </div>
+                                                {task.deadline && (
+                                                    <div className="flex items-center gap-1.5 text-[10px] text-slate-500 dark:text-slate-400">
+                                                        <Calendar size={12} />
+                                                        <span>{new Date(task.deadline).toLocaleDateString()}</span>
+                                                    </div>
+                                                )}
+                                            </div>
+                                        </div>
+
+                                        <div className="shrink-0 flex items-center gap-4 pr-2">
+                                            <Badge variant={
+                                                task.priority === 'Alta' ? 'danger' :
+                                                    task.priority === 'Media' ? 'warning' : 'secondary'
+                                            }>
+                                                {task.priority === 'Alta' ? 'High' : task.priority === 'Media' ? 'Medium' : 'Low'}
+                                            </Badge>
+
+                                            {canDeleteTask && (
+                                                <button
+                                                    onClick={() => handleDeleteClick(task.id)}
+                                                    className="p-2 text-slate-400 hover:text-red-600 rounded-md transition-colors"
+                                                >
+                                                    <Trash2 size={16} />
+                                                </button>
+                                            )}
+                                        </div>
+                                    </div>
+                                );
+                            })}
+                        </div>
                     </div>
                 )}
             </div>
@@ -281,18 +317,15 @@ const TasksView = () => {
                             value={newDeadline}
                             onChange={(e) => setNewDeadline(e.target.value)}
                         />
-                        <div className="space-y-1.5">
-                            <label className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Priority Level</label>
-                            <select
-                                value={newPriority}
-                                onChange={(e) => setNewPriority(e.target.value as 'Alta' | 'Media' | 'Baja')}
-                                className="w-full h-10 px-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all text-sm dark:text-white"
-                            >
-                                <option value="Baja">Low Priority</option>
-                                <option value="Media">Medium Priority</option>
-                                <option value="Alta">High Priority</option>
-                            </select>
-                        </div>
+                        <Select
+                            label="Priority Level"
+                            value={newPriority}
+                            onChange={(e) => setNewPriority(e.target.value as 'Alta' | 'Media' | 'Baja')}
+                        >
+                            <option value="Baja">Low Priority</option>
+                            <option value="Media">Medium Priority</option>
+                            <option value="Alta">High Priority</option>
+                        </Select>
                     </div>
 
                     <div className="pt-4 flex justify-end gap-3">

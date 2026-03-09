@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, lazy, Suspense } from 'react';
 import {
     Download,
     RefreshCw,
@@ -11,10 +11,12 @@ import { Tabs } from '../UI/Tabs';
 import { Skeleton } from '../UI/Skeleton';
 import { Badge } from '../UI/Badge';
 
-// Dashboard Components
-import SalesChart from './SalesChart';
-import RecentActivity from './RecentActivity';
+// Dashboard Components (Lazy Loaded)
+const SalesChart = lazy(() => import('./SalesChart'));
+const RecentActivity = lazy(() => import('./RecentActivity'));
+
 import ExecutiveBriefing from './ExecutiveBriefing';
+import SmartAlerts from './SmartAlerts';
 import { StatsGrid } from './StatsGrid';
 import { PerformanceList } from './PerformanceList';
 
@@ -127,17 +129,22 @@ const DashboardView = () => {
                         )}
                     </div>
                     <div className="h-[320px]">
-                        <SalesChart data={stats.chartData} />
+                        <Suspense fallback={<Skeleton className="w-full h-full rounded-lg" />}>
+                            <SalesChart data={stats.chartData} />
+                        </Suspense>
                     </div>
                 </div>
-                <div className="lg:col-span-1">
+                <div className="lg:col-span-1 space-y-6">
+                    <SmartAlerts opportunities={data?.rawOpps || []} tasks={data?.rawTasks || []} />
                     <ExecutiveBriefing />
                 </div>
             </div>
 
             {/* Activity & Performance Row */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <RecentActivity activities={stats.recentActivity} />
+                <Suspense fallback={<Skeleton className="h-[400px] w-full rounded-lg" />}>
+                    <RecentActivity activities={stats.recentActivity} />
+                </Suspense>
                 <PerformanceList performance={stats.repPerformance} />
             </div>
         </div>

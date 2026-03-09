@@ -1,45 +1,46 @@
-import { useState, useCallback } from 'react';
-import { api } from '../services/api';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { taskService } from '../services/task.service';
 import type { Task } from '../types';
 
 export const useTasks = () => {
-    const [tasks, setTasks] = useState<Task[]>([]);
-    const [loading, setLoading] = useState(false);
+    const queryClient = useQueryClient();
 
-    const loadTasks = useCallback(async () => {
-        setLoading(true);
-        try {
-            const data = await api.tasks.getAll();
-            setTasks(data);
-        } catch (error) {
-            console.error('Error loading tasks:', error);
-        } finally {
-            setLoading(false);
+    const { data: qData, isLoading: loading, refetch } = useQuery({
+        queryKey: ['tasks'],
+        queryFn: () => taskService.getAll(),
+        staleTime: 1000 * 60 * 5,
+    });
+
+    const createMutation = useMutation({
+        mutationFn: (data: Partial<Task>) => taskService.create(data),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['tasks'] });
+            queryClient.invalidateQueries({ queryKey: ['dashboard_data'] });
         }
-    }, []);
+    });
 
-    const createTask = async (data: Partial<Task>) => {
-        const newTask = await api.tasks.create(data);
-        setTasks(prev => [...prev, newTask]);
-        return newTask;
-    };
+    const toggleMutation = useMutation({
+        mutationFn: (id: number) => taskService.toggle(id),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['tasks'] });
+            queryClient.invalidateQueries({ queryKey: ['dashboard_data'] });
+        }
+    });
 
-    const toggleTask = async (id: number) => {
-        await api.tasks.toggle(id);
-        setTasks(prev => prev.map(t => t.id === id ? { ...t, completed: !t.completed } : t));
-    };
-
-    const deleteTask = async (id: number) => {
-        await api.tasks.delete(id);
-        setTasks(prev => prev.filter(t => t.id !== id));
-    };
+    const deleteMutation = useMutation({
+        mutationFn: (id: number) => taskService.delete(id),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['tasks'] });
+            queryClient.invalidateQueries({ queryKey: ['dashboard_data'] });
+        }
+    });
 
     return {
-        tasks,
+        tasks: qData || [],
         loading,
-        loadTasks,
-        createTask,
-        toggleTask,
-        deleteTask,
+        loadTasks: () => refetch(),
+        createTask: (data: Partial<Task>) => createMutation.mutateAsync(data),
+        toggleTask: (id: number) => toggleMutation.mutateAsync(id),
+        deleteTask: (id: number) => deleteMutation.mutateAsync(id),
     };
 };

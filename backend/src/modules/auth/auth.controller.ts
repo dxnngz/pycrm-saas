@@ -14,10 +14,10 @@ const sendTokenResponse = (user: any, statusCode: number, res: Response) => {
 
     // Cookie options
     const cookieOptions = {
-        expires: new Date(Date.now() + 60 * 60 * 1000), // 1 hora para el AT
-        httpOnly: true, // Accesible sólo por la red, no JS
-        secure: true, // Debe ser true para sameSite: 'none'
-        sameSite: 'none' as const
+        httpOnly: true,
+        secure: true,
+        sameSite: 'strict' as const, // Strict for SaaS internal security
+        path: '/'
     };
 
     const refreshCookieOptions = {
@@ -32,9 +32,23 @@ const sendTokenResponse = (user: any, statusCode: number, res: Response) => {
         httpOnly: false // CRÍTICO: Frontend necesita leerlo
     };
 
-    res.cookie('jwt', token, cookieOptions);
-    res.cookie('refreshToken', refreshToken, refreshCookieOptions);
-    res.cookie('csrfToken', csrfToken, csrfCookieOptions);
+    // Access Token is short-lived
+    res.cookie('jwt', token, {
+        ...cookieOptions,
+        maxAge: 15 * 60 * 1000 // 15 minutes
+    });
+
+    // Refresh Token is long-lived
+    res.cookie('refreshToken', refreshToken, {
+        ...cookieOptions,
+        maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
+    });
+
+    res.cookie('csrfToken', csrfToken, {
+        ...cookieOptions,
+        httpOnly: false,
+        maxAge: 7 * 24 * 60 * 60 * 1000
+    });
 
     res.status(statusCode).json({
         success: true,
@@ -128,8 +142,13 @@ export const refreshToken = asyncHandler(async (req: Request, res: Response) => 
 
     const storedToken = await authService.findRefreshToken(rfToken);
     if (!storedToken) {
+        // POSIBLE REINTENTO MALICIOSO: Si el token no existe pero llega, alguien podría haberlo robado y usado.
+        // En una arquitectura Enterprise, aquí invalidaríamos todos los tokens del usuario.
         throw new AppError('Invalid or expired refresh token', 401);
     }
+
+    // ROTACIÓN: Borramos el token usado para que no se pueda volver a usar
+    await authService.deleteRefreshToken(rfToken);
 
     const payload = verifyToken(rfToken) as any;
     const user = await authService.getUserProfileById(payload.userId);
@@ -138,7 +157,13 @@ export const refreshToken = asyncHandler(async (req: Request, res: Response) => 
         throw new AppError('User not found', 404);
     }
 
-    sendTokenResponse(user, 200, res); // Resets both cookies
+    // Generamos un nuevo par de tokens
+    const newRefreshToken = generateRefreshToken(user.id, user.tenant_id);
+    const expiresAt = new Date();
+    expiresAt.setDate(expiresAt.getDate() + 7);
+    await authService.saveRefreshToken(user.id, newRefreshToken, expiresAt);
+
+    sendTokenResponse(user, 200, res);
 });
 
 export const forgotPassword = asyncHandler(async (req: Request, res: Response) => {

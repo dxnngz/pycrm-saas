@@ -50,7 +50,7 @@ const UsersView = React.lazy(() => import('./components/Users/UsersView'));
 type View = 'dashboard' | 'contacts' | 'pipeline' | 'tasks' | 'calendar' | 'products' | 'documents' | 'settings' | 'users';
 
 const App: FC = () => {
-  const { isAuthenticated, logout, user } = useAuth();
+  const { user, logout, loading } = useAuth();
   const [activeView, setActiveView] = useState<View>('dashboard');
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
   const [isCommandCenterOpen, setIsCommandCenterOpen] = useState(false);
@@ -58,9 +58,6 @@ const App: FC = () => {
   const [isDarkMode, setIsDarkMode] = useState(() => {
     return localStorage.getItem('theme') === 'dark' ||
       (!localStorage.getItem('theme') && window.matchMedia('(prefers-color-scheme: dark)').matches);
-  });
-  const [isDenseMode, setIsDenseMode] = useState(() => {
-    return localStorage.getItem('dense_mode') === 'true';
   });
 
   useEffect(() => {
@@ -100,13 +97,22 @@ const App: FC = () => {
     localStorage.setItem('theme', isDarkMode ? 'dark' : 'light');
   }, [isDarkMode]);
 
-  useEffect(() => {
-    document.documentElement.classList.toggle('dense-mode', isDenseMode);
-    localStorage.setItem('dense_mode', String(isDenseMode));
-  }, [isDenseMode]);
 
-  if (!isAuthenticated) return <LoginView />;
 
+  if (loading) {
+    return (
+      <div className="h-screen w-screen flex items-center justify-center bg-white dark:bg-slate-950">
+        <div className="animate-pulse space-y-4 text-center">
+          <div className="w-12 h-12 bg-slate-100 dark:bg-slate-800 rounded-xl mx-auto" />
+          <div className="h-2 w-24 bg-slate-50 dark:bg-slate-900 rounded mx-auto" />
+        </div>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return <LoginView />;
+  }
   const prefetchView = (viewId: string) => {
     const views: Record<string, () => Promise<any>> = {
       dashboard: () => import('./components/Dashboard/DashboardView'),
@@ -143,7 +149,7 @@ const App: FC = () => {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <div className={`min-h-screen ${isDarkMode ? 'dark bg-slate-950' : 'bg-white'} font-inter selection:bg-primary-500/30 overflow-x-hidden`}>
+      <div className={`min-h-screen ${isDarkMode ? 'dark bg-slate-950' : 'bg-white'} font-sans selection:bg-primary-500/30 overflow-x-hidden`}>
         <AnimatePresence>
           {isMobileMenuOpen && (
             <motion.div
@@ -171,8 +177,6 @@ const App: FC = () => {
             title={getViewLabel(activeView)}
             isDarkMode={isDarkMode}
             setIsDarkMode={setIsDarkMode}
-            isDenseMode={isDenseMode}
-            setIsDenseMode={setIsDenseMode}
             setIsMobileMenuOpen={setIsMobileMenuOpen}
             setIsNotificationsOpen={setIsNotificationsOpen}
             setIsCommandCenterOpen={setIsCommandCenterOpen}

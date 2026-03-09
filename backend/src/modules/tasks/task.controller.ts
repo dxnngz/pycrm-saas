@@ -4,21 +4,23 @@ import { asyncHandler } from '../../utils/asyncHandler.js';
 import { AppError } from '../../utils/AppError.js';
 
 export const getTasks = asyncHandler(async (req: Request, res: Response) => {
-    const userId = (req as any).user.userId;
-    const tenantId = (req as any).user.tenantId;
-    const tasks = await taskService.getTasksByUserId(tenantId, userId);
+    const { limit, search, cursor } = req.query as unknown as { limit: number; search: string; cursor?: number };
+    const user = (req as any).user;
+
+    const tasks = await taskService.getTasksByUserId(user.tenantId, user.userId, { limit, search, cursor });
     res.json(tasks);
 });
 
 export const createTask = asyncHandler(async (req: Request, res: Response) => {
     const userId = (req as any).user.userId;
     const tenantId = (req as any).user.tenantId;
+
     const task = await taskService.createTask({ ...req.body, userId }, tenantId);
     res.status(201).json(task);
 });
 
 export const toggleTaskCompletion = asyncHandler(async (req: Request, res: Response) => {
-    const id = parseInt(req.params.id as string);
+    const { id } = req.params as any; // Number
     const userId = (req as any).user.userId;
     const tenantId = (req as any).user.tenantId;
 
@@ -31,7 +33,7 @@ export const toggleTaskCompletion = asyncHandler(async (req: Request, res: Respo
 });
 
 export const deleteTask = asyncHandler(async (req: Request, res: Response) => {
-    const id = parseInt(req.params.id as string);
+    const { id } = req.params as any; // Number
     const userId = (req as any).user.userId;
     const tenantId = (req as any).user.tenantId;
 

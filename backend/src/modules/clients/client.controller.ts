@@ -4,32 +4,44 @@ import { asyncHandler } from '../../utils/asyncHandler.js';
 import { AppError } from '../../utils/AppError.js';
 import { eventBus } from '../../core/eventBus.js';
 
-export const getClients = asyncHandler(async (req: Request, res: Response) => {
-    const page = parseInt(req.query.page as string) || 1;
-    const limit = parseInt(req.query.limit as string) || 10;
-    const search = (req.query.search as string) || '';
+// Typed extension for requests authenticated by the JWT middleware
+interface AuthenticatedRequest extends Request {
+    user: {
+        userId: number;
+        tenantId: number;
+        role: string;
+    };
+}
 
-    const tenantId = (req as any).user?.tenantId;
-    const clients = await clientService.getAllClients(tenantId, page, limit, search);
+export const getClients = asyncHandler(async (req: Request, res: Response) => {
+    const { limit, search, cursor } = req.query as unknown as { limit: number; search: string; cursor?: number };
+    const { user } = req as AuthenticatedRequest;
+
+    const clients = await clientService.getAllClients(user.tenantId, { limit, search, cursor });
     res.json(clients);
 });
 
 export const createClient = asyncHandler(async (req: Request, res: Response) => {
-    const tenantId = (req as any).user?.tenantId;
-    const client = await clientService.createClient(req.body, tenantId);
+    const { user } = req as AuthenticatedRequest;
+    // req.body is already validated and sanitized by Zod
+    const client = await clientService.createClient(req.body, user.tenantId);
 
-    eventBus.emit('client.created', { tenantId, userId: (req as any).user?.userId, data: client });
+    eventBus.emit('client.created', { tenantId: user.tenantId, userId: user.userId, data: client });
 
     res.status(201).json(client);
 });
 
 export const updateClient = asyncHandler(async (req: Request, res: Response) => {
     try {
-        const tenantId = (req as any).user?.tenantId;
-        const client = await clientService.updateClientById(tenantId, parseInt(req.params.id as string), req.body);
+        const { user } = req as AuthenticatedRequest;
+        const { id } = req.params as unknown as { id: number }; // Transformed to number by Zod
+        const client = await clientService.updateClientById(user.tenantId, id, req.body);
+
+        eventBus.emit('client.updated', { tenantId: user.tenantId, userId: user.userId, data: client });
+
         res.json(client);
-    } catch (error: any) {
-        if (error.code === 'P2025') { // Code for record not found in Prisma
+    } catch (error: unknown) {
+        if (error && typeof error === 'object' && 'code' in error && error.code === 'P2025') {
             throw new AppError('Cliente no encontrado', 404);
         }
         throw error;
@@ -38,11 +50,15 @@ export const updateClient = asyncHandler(async (req: Request, res: Response) => 
 
 export const deleteClient = asyncHandler(async (req: Request, res: Response) => {
     try {
-        const tenantId = (req as any).user?.tenantId;
-        await clientService.deleteClientById(tenantId, parseInt(req.params.id as string));
+        const { user } = req as AuthenticatedRequest;
+        const { id } = req.params as unknown as { id: number }; // Transformed to number by Zod
+        await clientService.deleteClientById(user.tenantId, id);
+
+        eventBus.emit('client.deleted', { tenantId: user.tenantId, userId: user.userId, data: { id } });
+
         res.json({ message: 'Cliente eliminado correctamente' });
-    } catch (error: any) {
-        if (error.code === 'P2025') {
+    } catch (error: unknown) {
+        if (error && typeof error === 'object' && 'code' in error && error.code === 'P2025') {
             throw new AppError('Cliente no encontrado', 404);
         }
         throw error;
@@ -50,7 +66,8 @@ export const deleteClient = asyncHandler(async (req: Request, res: Response) => 
 });
 
 export const getClientOpportunities = asyncHandler(async (req: Request, res: Response) => {
-    const tenantId = (req as any).user?.tenantId;
-    const opportunities = await clientService.getClientOpportunitiesById(tenantId, parseInt(req.params.id as string));
+    const { user } = req as AuthenticatedRequest;
+    const { id } = req.params as unknown as { id: number }; // Transformed to number by Zod
+    const opportunities = await clientService.getClientOpportunitiesById(user.tenantId, id);
     res.json(opportunities);
 });

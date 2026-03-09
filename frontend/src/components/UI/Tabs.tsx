@@ -1,4 +1,5 @@
 import React from 'react';
+import { useUI } from '../../context/UIContext';
 
 interface TabItem {
     id: string;
@@ -14,8 +15,9 @@ interface TabsProps {
 }
 
 export const Tabs: React.FC<TabsProps> = ({ tabs, activeTab, onChange, className = '' }) => {
+    const { isDense } = useUI();
     return (
-        <div className={`flex items-center gap-1 bg-slate-100 dark:bg-slate-900/50 p-1 rounded-lg border border-slate-200 dark:border-slate-800 w-fit ${className}`}>
+        <div className={`flex items-center gap-0.5 bg-slate-50 dark:bg-slate-950 p-0.5 rounded-md border border-slate-200 dark:border-slate-800 w-fit ${className}`}>
             {tabs.map((tab) => {
                 const isActive = activeTab === tab.id;
                 return (
@@ -23,7 +25,7 @@ export const Tabs: React.FC<TabsProps> = ({ tabs, activeTab, onChange, className
                         key={tab.id}
                         onClick={() => onChange(tab.id)}
                         className={`
-                            flex items-center gap-2 px-4 py-1.5 rounded-md text-xs font-bold transition-all
+                            flex items-center gap-2 ${isDense ? 'px-2.5 py-1 text-[10px]' : 'px-4 py-1.5 text-xs'} font-bold transition-all
                             ${isActive
                                 ? 'bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-sm'
                                 : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'}

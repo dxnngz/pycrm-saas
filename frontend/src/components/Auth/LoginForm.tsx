@@ -20,7 +20,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onSubmit, isLoading, onFor
     };
 
     return (
-        <form onSubmit={handleSubmit} className="space-y-5">
+        <form onSubmit={handleSubmit} className="space-y-4">
             <Input
                 label="Email address"
                 type="email"
@@ -31,14 +31,14 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onSubmit, isLoading, onFor
                 required
             />
             <div className="space-y-1">
-                <div className="flex items-center justify-between">
-                    <label className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                <div className="flex items-center justify-between mb-1">
+                    <label className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
                         Password
                     </label>
                     <button
                         type="button"
                         onClick={onForgotPassword}
-                        className="text-xs font-semibold text-primary-600 hover:text-primary-700 dark:text-primary-400"
+                        className="text-[10px] font-bold text-primary-600 hover:text-primary-700 dark:text-primary-400 uppercase tracking-tight"
                     >
                         Forgot password?
                     </button>
@@ -54,15 +54,15 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onSubmit, isLoading, onFor
                     <button
                         type="button"
                         onClick={() => setShowPassword(!showPassword)}
-                        className="absolute right-3 top-2.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
+                        className="absolute right-3 top-2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
                     >
-                        {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                        {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                     </button>
                 </div>
             </div>
 
-            <Button type="submit" fullWidth isLoading={isLoading}>
-                Sign in <ChevronRight size={16} className="ml-1" />
+            <Button type="submit" fullWidth isLoading={isLoading} className="mt-2">
+                Sign in <ChevronRight size={14} className="ml-1" />
             </Button>
         </form>
     );

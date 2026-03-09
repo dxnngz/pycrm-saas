@@ -1,91 +1,62 @@
-import { prisma } from '../../core/prisma.js';
-import { Prisma } from '@prisma/client';
+import { redisCache } from '../../core/redis.js';
+import { opportunityRepository } from '../../repositories/opportunity.repository.js';
 
 export class OpportunityService {
 
-    async getAllOpportunities(tenantId: number, page: number = 1, limit: number = 10, search: string = '') {
-        const offset = (page - 1) * limit;
+    async getAllOpportunities(tenantId: number, options: { limit?: number; search?: string; cursor?: number } = {}) {
+        const { limit = 10, search = '', cursor } = options;
+        const cacheKey = `cache:opportunities:${tenantId}:l${limit}:s${search}:c${cursor || 0}`;
 
-        const whereClause: Prisma.OpportunityWhereInput = { tenant_id: tenantId };
-        if (search) {
-            whereClause.OR = [
-                { product: { contains: search, mode: 'insensitive' as const } },
-                {
-                    client: {
-                        OR: [
-                            { name: { contains: search, mode: 'insensitive' as const } },
-                            { company: { contains: search, mode: 'insensitive' as const } }
-                        ]
-                    }
-                }
-            ];
-        }
+        return await redisCache.getOrSet(cacheKey, 300, async () => {
+            const [opportunities, total] = await Promise.all([
+                opportunityRepository.findManyPaged(tenantId, { cursor, limit, search }),
+                opportunityRepository.countSearch(tenantId, search)
+            ]);
 
-        const [opportunities, total] = await Promise.all([
-            prisma.opportunity.findMany({
-                where: whereClause,
-                include: {
-                    client: {
-                        select: { name: true, company: true }
-                    }
-                },
-                orderBy: { created_at: 'desc' },
-                skip: offset,
-                take: limit
-            }),
-            prisma.opportunity.count({ where: whereClause })
-        ]);
+            const hasMore = opportunities.length > limit;
+            const items = hasMore ? opportunities.slice(0, limit) : opportunities;
 
-        const mappedData = opportunities.map(opp => ({
-            ...opp,
-            client_name: opp.client?.name || 'Cliente Desconocido',
-            client_company: opp.client?.company || 'Empresa Desconocida'
-        }));
+            const mappedData = items.map((opp: any) => ({
+                ...opp,
+                client_name: opp.client?.name || 'Cliente Desconocido',
+                client_company: opp.client?.company || 'Empresa Desconocida'
+            }));
 
-        return {
-            data: mappedData,
-            total,
-            page,
-            limit,
-            totalPages: Math.ceil(total / limit)
-        };
+            const lastItem = items[items.length - 1];
+            const nextCursor = hasMore ? lastItem?.id : null;
+
+            return {
+                data: mappedData,
+                total,
+                limit,
+                nextCursor,
+                hasMore
+            };
+        });
     }
 
     async createOpportunity(data: { client_id: number; product: string; amount: number; status?: string; estimated_close_date?: string }, tenantId: number) {
-        return await prisma.opportunity.create({
-            data: {
-                client_id: data.client_id,
-                tenant_id: tenantId,
-                product: data.product,
-                amount: data.amount,
-                status: data.status || 'pendiente',
-                estimated_close_date: data.estimated_close_date ? new Date(data.estimated_close_date) : new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
-            }
+        return await opportunityRepository.create({
+            client_id: data.client_id,
+            tenant_id: tenantId,
+            product: data.product,
+            amount: data.amount,
+            status: data.status || 'pendiente',
+            estimated_close_date: data.estimated_close_date ? new Date(data.estimated_close_date) : new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
         });
     }
 
     async updateOpportunityStatusById(tenantId: number, id: number, status: string, version?: number) {
-        // Enforce tenant manually using findFirst since there is no compound unique index easily passed to update.
-        const opp = await prisma.opportunity.findFirst({ where: { id, tenant_id: tenantId } });
+        const opp = await opportunityRepository.findUnique(tenantId, id);
         if (!opp) throw new Error('Opportunity not found or access denied');
 
-        // Implement optimistic locking if version is provided, otherwise just update
         if (version !== undefined) {
-            return await prisma.opportunity.update({
-                where: {
-                    id,
-                    version
-                },
-                data: {
-                    status,
-                    version: { increment: 1 }
-                }
-            });
+            return await opportunityRepository.update(tenantId, id, {
+                status,
+                version: { increment: 1 }
+            } as any);
         } else {
-            return await prisma.opportunity.update({
-                where: { id },
-                data: { status }
-            });
+            return await opportunityRepository.update(tenantId, id, { status });
         }
     }
 }
