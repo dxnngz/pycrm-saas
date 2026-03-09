@@ -8,10 +8,7 @@
     "skipLibCheck": true,
     "esModuleInterop": true,
     "isolatedModules": false,
-    "verbatimModuleSyntax": false,
-    "types": [
-      "node"
-    ]
+    "verbatimModuleSyntax": false
   },
   "include": [
     "src",
