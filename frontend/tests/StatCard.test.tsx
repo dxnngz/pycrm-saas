@@ -10,7 +10,7 @@ describe('StatCard', () => {
                 value="€15,000"
                 icon={<span>Icon</span>}
                 trend="+15%"
-                color="primary"
+                trendColor="success"
             />
         );
 
@@ -18,4 +18,19 @@ describe('StatCard', () => {
         expect(screen.getByText('€15,000')).toBeInTheDocument();
         expect(screen.getByText('+15%')).toBeInTheDocument();
     });
+
+    it('should render negative trend with danger color class', () => {
+        render(
+            <StatCard
+                title="Churn Rate"
+                value="4.2%"
+                icon={<span>Icon</span>}
+                trend="-2%"
+                trendColor="danger"
+            />
+        );
+        expect(screen.getByText('-2%')).toBeInTheDocument();
+        expect(screen.getByText('Churn Rate')).toBeInTheDocument();
+    });
 });
+
