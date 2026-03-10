@@ -1,6 +1,7 @@
 /// <reference types="vite-plugin-pwa/client" />
 import React from 'react';
 import 'virtual:pwa-register';
+import ReactDOM from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
 import App from './App.tsx';
 import './index.css';
