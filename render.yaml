@@ -3,10 +3,10 @@ services:
   - type: web
     name: pycrm-backend
     env: node
-    plan: pro
+    plan: free
     rootDir: backend
     buildCommand: npm install --include=dev && npx prisma generate && npx prisma migrate deploy && npm run build
-    startCommand: npm run start
+    startCommand: node dist/index.js
     healthCheckPath: /api/health
     envVars:
       - key: NODE_ENV
