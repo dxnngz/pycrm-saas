@@ -36,7 +36,18 @@ export abstract class BaseRepository<T extends BaseModel> {
 
         const softDeleteModels = ['user', 'client', 'contact', 'opportunity', 'task', 'product', 'event', 'document', 'automation'];
         const modelName = this.modelName.toLowerCase();
-        const tableName = modelName === 'user' ? 'users' : `${modelName}s`;
+        const TABLE_MAP: Record<string, string> = {
+            'opportunity': 'opportunities',
+            'user': 'users',
+            'client': 'clients',
+            'contact': 'contacts',
+            'task': 'tasks',
+            'product': 'products',
+            'event': 'events',
+            'document': 'documents',
+            'automation': 'automations'
+        };
+        const tableName = TABLE_MAP[modelName] || `${modelName}s`;
 
         if (!includeDeleted && softDeleteModels.includes(modelName)) {
             const hasDeletedAt = await ResilienceService.checkColumnExists(tableName, 'deleted_at');
@@ -60,7 +71,18 @@ export abstract class BaseRepository<T extends BaseModel> {
 
         const softDeleteModels = ['user', 'client', 'contact', 'opportunity', 'task', 'product', 'event', 'document', 'automation'];
         const modelName = this.modelName.toLowerCase();
-        const tableName = modelName === 'user' ? 'users' : `${modelName}s`;
+        const TABLE_MAP: Record<string, string> = {
+            'opportunity': 'opportunities',
+            'user': 'users',
+            'client': 'clients',
+            'contact': 'contacts',
+            'task': 'tasks',
+            'product': 'products',
+            'event': 'events',
+            'document': 'documents',
+            'automation': 'automations'
+        };
+        const tableName = TABLE_MAP[modelName] || `${modelName}s`;
 
         if (!includeDeleted && softDeleteModels.includes(modelName)) {
             const hasDeletedAt = await ResilienceService.checkColumnExists(tableName, 'deleted_at');
@@ -167,7 +189,13 @@ export abstract class BaseRepository<T extends BaseModel> {
 
         const softDeleteModels = ['client', 'opportunity', 'task', 'product'];
         const modelName = this.modelName.toLowerCase();
-        const tableName = modelName === 'user' ? 'users' : `${modelName}s`;
+        const TABLE_MAP: Record<string, string> = {
+            'opportunity': 'opportunities',
+            'client': 'clients',
+            'task': 'tasks',
+            'product': 'products'
+        };
+        const tableName = TABLE_MAP[modelName] || `${modelName}s`;
 
         if (!includeDeleted && softDeleteModels.includes(modelName)) {
             const hasDeletedAt = await ResilienceService.checkColumnExists(tableName, 'deleted_at');
