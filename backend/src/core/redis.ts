@@ -20,8 +20,12 @@ class RedisClient {
         }
     }
 
+    private isClientReady(): boolean {
+        return this.client.isOpen && this.client.isReady;
+    }
+
     async get<T>(key: string): Promise<T | null> {
-        if (!this.client.isOpen) return null;
+        if (!this.isClientReady()) return null;
         try {
             const value = await this.client.get(key);
             return value ? JSON.parse(value) as T : null;
@@ -31,7 +35,7 @@ class RedisClient {
     }
 
     async set<T>(key: string, value: T, ttlSeconds?: number): Promise<void> {
-        if (!this.client.isOpen) return;
+        if (!this.isClientReady()) return;
         try {
             const data = JSON.stringify(value);
             if (ttlSeconds) {
@@ -45,7 +49,7 @@ class RedisClient {
     }
 
     async getOrSet<T>(key: string, ttlSeconds: number, fetcher: () => Promise<T>): Promise<T> {
-        if (!this.client.isOpen) {
+        if (!this.isClientReady()) {
             return await fetcher();
         }
 
@@ -71,7 +75,7 @@ class RedisClient {
     }
 
     async invalidate(pattern: string) {
-        if (!this.client.isOpen) return;
+        if (!this.isClientReady()) return;
         try {
             let cursor = 0;
             do {
@@ -96,25 +100,30 @@ class RedisClient {
     }
 
     async ping(): Promise<string> {
-        if (!this.client.isOpen) {
-            throw new Error('Redis client is not open');
+        if (!this.isClientReady()) {
+            throw new Error('Redis client is not ready');
         }
-        return await this.client.ping();
+
+        // Safety timeout for ping
+        return Promise.race([
+            this.client.ping(),
+            new Promise<string>((_, reject) => setTimeout(() => reject(new Error('Redis ping timeout')), 1000))
+        ]);
     }
 
     async blacklistToken(jti: string, ttlSeconds: number) {
-        if (!this.client.isOpen) return;
+        if (!this.isClientReady()) return;
         await this.client.setEx(`revoked:token:${jti}`, ttlSeconds, '1');
     }
 
     async isTokenBlacklisted(jti: string): Promise<boolean> {
-        if (!this.client.isOpen) return false;
+        if (!this.isClientReady()) return false;
         const exists = await this.client.exists(`revoked:token:${jti}`);
         return exists === 1;
     }
 
     async getTelemetry() {
-        if (!this.client.isOpen) return { status: 'disconnected', hits: 0, misses: 0, total: 0, hitRatio: '0%' };
+        if (!this.isClientReady()) return { status: 'disconnected', hits: 0, misses: 0, total: 0, hitRatio: '0%' };
         try {
             const hits = parseInt(await this.client.get('system:cache:hits') || '0', 10);
             const misses = parseInt(await this.client.get('system:cache:misses') || '0', 10);
