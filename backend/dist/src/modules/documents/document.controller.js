@@ -5,12 +5,12 @@ export const getDocuments = asyncHandler(async (req, res) => {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;
     const search = req.query.search || '';
-    const tenantId = req.user?.tenantId;
+    const tenantId = req.user.tenantId;
     const result = await documentService.getAllDocuments(tenantId, page, limit, search);
     res.json(result);
 });
 export const createDocument = asyncHandler(async (req, res) => {
-    const tenantId = req.user?.tenantId;
+    const tenantId = req.user.tenantId;
     // Basic casting mapping from JSON
     const data = {
         ...req.body,
@@ -30,7 +30,7 @@ export const updateDocument = asyncHandler(async (req, res) => {
         amount: req.body.amount !== undefined ? parseFloat(req.body.amount) : null
     };
     try {
-        const tenantId = req.user?.tenantId;
+        const tenantId = req.user.tenantId;
         const doc = await documentService.updateDocumentById(tenantId, id, data, req.body.version);
         res.json(doc);
     }
@@ -43,7 +43,7 @@ export const updateDocument = asyncHandler(async (req, res) => {
 });
 export const deleteDocument = asyncHandler(async (req, res) => {
     try {
-        const tenantId = req.user?.tenantId;
+        const tenantId = req.user.tenantId;
         await documentService.deleteDocumentById(tenantId, parseInt(req.params.id));
         res.json({ message: 'Documento eliminado correctamente' });
     }

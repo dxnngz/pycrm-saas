@@ -1,5 +1,5 @@
 import { type ReactNode } from 'react';
-import { useUI } from '../../context/UIContext';
+import { useUI } from '../../hooks/useUI';
 
 export interface Column<T> {
     header: string;

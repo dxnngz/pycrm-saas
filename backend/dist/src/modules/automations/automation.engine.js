@@ -1,4 +1,5 @@
-import { eventBus } from '../../core/eventBus.js';
+import { events } from '../../core/events.js';
+import { logger } from '../../utils/logger.js';
 import { prisma } from '../../core/prisma.js';
 import { taskService } from '../tasks/task.service.js';
 // Add more imports for actions (emails, webhooks, etc.) as the system grows
@@ -7,12 +8,12 @@ export class AutomationEngine {
         this.initializeListeners();
     }
     initializeListeners() {
-        // Listen to all events emitted through the bus
-        eventBus.onAny(async (eventName, value) => {
-            const eventString = Array.isArray(eventName) ? eventName.join('.') : eventName;
-            await this.handleEvent(eventString, value);
+        // Listen to all workflow events emitted through the bus
+        events.on('workflow:*', async (value, info) => {
+            const eventName = info.event;
+            await this.handleEvent(eventName, value);
         });
-        console.log(`[Automation Engine] Initialized and listening to events.`);
+        logger.info(`[Automation Engine] Initialized and listening to workflow events.`);
     }
     async handleEvent(eventName, payload) {
         if (!payload || !payload.tenantId)
@@ -98,7 +99,7 @@ export class AutomationEngine {
                         }, payload.tenantId);
                         break;
                     case 'log':
-                        console.log(`[Automation Action Log]`, this.parseTemplate(action.payload.message || 'Log triggered', payload.data));
+                        logger.info(`[Automation Action Log] ${this.parseTemplate(action.payload.message || 'Log triggered', payload.data)}`);
                         break;
                     default:
                         console.warn(`[Automation Engine] Unknown action type: ${action.type}`);

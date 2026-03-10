@@ -5,7 +5,7 @@ import { AppError } from '../../utils/AppError.js';
 
 export const getTasks = asyncHandler(async (req: Request, res: Response) => {
     const { limit, search, cursor } = req.query as any;
-    const user = (req as any).user;
+    const user = req.user!;
 
     const tasks = await taskService.getTasksByUserId(
         user.tenantId,
@@ -20,8 +20,8 @@ export const getTasks = asyncHandler(async (req: Request, res: Response) => {
 });
 
 export const createTask = asyncHandler(async (req: Request, res: Response) => {
-    const userId = (req as any).user.userId;
-    const tenantId = (req as any).user.tenantId;
+    const userId = req.user!.userId;
+    const tenantId = req.user!.tenantId;
 
     const task = await taskService.createTask({ ...req.body, userId }, tenantId);
     res.status(201).json(task);
@@ -29,8 +29,8 @@ export const createTask = asyncHandler(async (req: Request, res: Response) => {
 
 export const toggleTaskCompletion = asyncHandler(async (req: Request, res: Response) => {
     const id = parseInt(req.params.id as string);
-    const userId = (req as any).user.userId;
-    const tenantId = (req as any).user.tenantId;
+    const userId = req.user!.userId;
+    const tenantId = req.user!.tenantId;
 
     const task = await taskService.toggleTaskCompletionStatus(tenantId, id, userId);
     if (!task) {
@@ -42,8 +42,8 @@ export const toggleTaskCompletion = asyncHandler(async (req: Request, res: Respo
 
 export const deleteTask = asyncHandler(async (req: Request, res: Response) => {
     const id = parseInt(req.params.id as string);
-    const userId = (req as any).user.userId;
-    const tenantId = (req as any).user.tenantId;
+    const userId = req.user!.userId;
+    const tenantId = req.user!.tenantId;
 
     const deleted = await taskService.deleteTaskById(tenantId, id, userId);
     if (!deleted) {

@@ -46,6 +46,8 @@ const startServer = async () => {
         commercialIntelligenceJob.init();
         // Initialize background tasks scheduling
         await addReminderJob();
+        // Initialize Workflow Engine
+        logger.info('🚀 Workflow Engine Initialized');
         await ensureAdmin();
         app.listen(Number(port), '0.0.0.0', () => {
             logger.info(`🚀 Server is running on port ${port} at 0.0.0.0`);

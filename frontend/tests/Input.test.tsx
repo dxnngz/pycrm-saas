@@ -1,7 +1,7 @@
 import { render, screen, fireEvent } from '@testing-library/react';
 import { describe, it, expect, vi } from 'vitest';
 import { Input } from '../src/components/UI/Input';
-import { UIProvider } from '../src/context/UIContext';
+import { UIProvider } from '../src/context/UIProvider';
 
 // Helper wrapper — Input consumes useUI() context
 const renderInput = (props: React.ComponentProps<typeof Input>) =>

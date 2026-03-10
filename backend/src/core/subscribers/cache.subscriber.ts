@@ -1,9 +1,9 @@
-import { eventBus } from '../eventBus.js';
+import { events } from '../events.js';
 import { redisCache } from '../redis.js';
 
 export const initCacheSubscriber = () => {
     // Client invalidation
-    eventBus.on('client.*', async (payload: { tenantId: number }) => {
+    events.on('workflow:client_*', async (payload: { tenantId: number }) => {
         if (payload.tenantId) {
             await redisCache.invalidateTenantCache(payload.tenantId, 'clients');
             console.info(`[CacheSubscriber] Invalidated client cache for tenant ${payload.tenantId}`);
@@ -11,7 +11,7 @@ export const initCacheSubscriber = () => {
     });
 
     // Opportunity invalidation
-    eventBus.on('opportunity.*', async (payload: { tenantId: number }) => {
+    events.on('workflow:opportunity_*', async (payload: { tenantId: number }) => {
         if (payload.tenantId) {
             await redisCache.invalidateTenantCache(payload.tenantId, 'opportunities');
             // Dashboard also depends on opportunities
@@ -21,7 +21,7 @@ export const initCacheSubscriber = () => {
     });
 
     // Dashboard-specific (if any other events trigger it)
-    eventBus.on('dashboard.refresh', async (payload: { tenantId: number }) => {
+    events.on('workflow:dashboard_refresh', async (payload: { tenantId: number }) => {
         if (payload.tenantId) {
             await redisCache.invalidateTenantCache(payload.tenantId, 'dashboard');
         }

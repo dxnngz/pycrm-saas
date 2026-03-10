@@ -1,13 +1,5 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
-
-interface UIContextType {
-    isDense: boolean;
-    toggleDense: () => void;
-    sidebarCollapsed: boolean;
-    setSidebarCollapsed: (collapsed: boolean) => void;
-}
-
-const UIContext = createContext<UIContextType | undefined>(undefined);
+import React, { useState, useEffect } from 'react';
+import { UIContext } from './UIContext';
 
 export const UIProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     const [isDense, setIsDense] = useState(() => {
@@ -45,12 +37,4 @@ export const UIProvider: React.FC<{ children: React.ReactNode }> = ({ children }
             {children}
         </UIContext.Provider>
     );
-};
-
-export const useUI = () => {
-    const context = useContext(UIContext);
-    if (!context) {
-        throw new Error('useUI must be used within a UIProvider');
-    }
-    return context;
 };

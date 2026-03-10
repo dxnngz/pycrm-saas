@@ -10,7 +10,7 @@ import {
 } from 'lucide-react';
 import { Breadcrumbs } from '../Common/Breadcrumbs';
 import { Avatar } from '../UI/Avatar';
-import { useUI } from '../../context/UIContext';
+import { useUI } from '../../hooks/useUI';
 
 interface HeaderProps {
     title: string;

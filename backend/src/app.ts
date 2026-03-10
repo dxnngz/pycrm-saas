@@ -19,7 +19,10 @@ import userRoutes from './modules/users/user.routes.js';
 import contactRoutes from './modules/contacts/contact.routes.js';
 import dashboardRoutes from './modules/dashboard/dashboard.routes.js';
 import tenantRoutes from './modules/tenants/tenant.routes.js';
+import { tenantService } from './modules/tenants/tenant.service.js';
 import telemetryRoutes from './modules/telemetry/telemetry.routes.js';
+import integrationRoutes from './modules/integrations/integrations.routes.js';
+import healthRoutes from './modules/health/health.controller.js';
 import { globalErrorHandler } from './core/middlewares/error.middleware.js';
 import { csrfProtection } from './core/middlewares/csrf.middleware.js';
 import { startWorkers } from './jobs/worker.js';
@@ -95,16 +98,15 @@ app.use(requestIdMiddleware);
 // Logging estructurado con Pino
 app.use(pinoHttp({
     level: process.env.NODE_ENV === 'development' ? 'info' : 'warn',
-    autoLogging: false, // Evitamos ruido excesivo en logs de producción
-    genReqId: (req, res) => {
-        return (req as any).id || res.getHeader('X-Request-Id');
+    autoLogging: false,
+    genReqId: (req: any) => {
+        return req.id || req.headers['x-request-id'];
     },
-    customProps: (req, res) => {
-        // Obtenemos el contexto desde el req si está disponible (inyectado por auth.middleware)
+    customProps: (req: any) => {
         return {
-            tenantId: (req as any).user?.tenantId || 'anonymous',
-            userId: (req as any).user?.userId || 'anonymous',
-            trace_id: (req as any).id
+            tenantId: req.user?.tenantId || 'anonymous',
+            userId: req.user?.userId || 'anonymous',
+            trace_id: req.id
         };
     }
 }));
@@ -206,17 +208,37 @@ app.use('/api/auth', authRoutes);
 // Apply CSRF protection globally for state mutating endpoints
 app.use(csrfProtection);
 
-// Authn-aware Tenant Rate Limiter (Protects internal endpoints against noisy neighbors)
+// Authn-aware Plan-based Tenant Rate Limiter (Protects internal endpoints based on tier)
 const tenantLimiter = rateLimit({
     windowMs: 5 * 60 * 1000, // 5 minutes window
-    max: 300, // Strict limit per Tenant per pod
+    max: async (req, res) => {
+        const tenantId = req.user?.tenantId;
+        if (!tenantId) return 100; // Default for unauthenticated/anonymous in /api if any
+
+        try {
+            const { plan } = await tenantService.getTenantPlan(tenantId);
+            switch (plan) {
+                case 'enterprise': return 2000;
+                case 'pro': return 500;
+                case 'free':
+                default: return 100;
+            }
+        } catch (error) {
+            logger.error({ error, tenantId }, 'Error fetching tenant plan for rate limiting');
+            return 100; // Fallback to safest limit
+        }
+    },
     keyGenerator: (req, res) => {
         if ((req as any).user?.tenantId) {
             return `tenant_${(req as any).user.tenantId}`;
         }
         return ipKeyGenerator(req.ip || 'unknown');
     },
-    message: 'Too many requests from your Organization (Tenant). Please try again later.'
+    message: {
+        status: 429,
+        error: 'Too many requests from your Organization (Tenant).',
+        message: 'You have reached the limit for your current plan. Please upgrade for higher throughput.'
+    }
 });
 app.use('/api', tenantLimiter);
 
@@ -234,40 +256,9 @@ app.use('/api/ai', aiRoutes);
 app.use('/api/audit', auditRoutes);
 app.use('/api/automations', automationRoutes);
 app.use('/api/tenants', tenantRoutes);
+app.use('/api/integrations', integrationRoutes);
 app.use('/api/telemetry', telemetryRoutes);
-
-app.get('/api/health', async (req, res) => {
-    try {
-        const dbStatus = await prisma.$queryRaw`SELECT 1`;
-        let redisStatus = 'disconnected';
-        let cacheStats: any = null;
-        try {
-            await redisCache.ping();
-            redisStatus = 'connected';
-            cacheStats = await redisCache.getTelemetry();
-        } catch (e) {
-            redisStatus = 'error';
-        }
-
-        res.json({
-            status: 'ok',
-            message: 'PyCRM API is running',
-            database: dbStatus ? 'connected' : 'error',
-            redis: redisStatus,
-            cache_telemetry: cacheStats,
-            memory: {
-                rss: `${Math.round(process.memoryUsage().rss / 1024 / 1024)} MB`,
-                heapTotal: `${Math.round(process.memoryUsage().heapTotal / 1024 / 1024)} MB`,
-                heapUsed: `${Math.round(process.memoryUsage().heapUsed / 1024 / 1024)} MB`,
-            },
-            uptime: `${Math.round(process.uptime())}s`,
-            timestamp: new Date().toISOString()
-        });
-    } catch (err) {
-        req.log.error(err, 'Healthcheck failed');
-        res.status(500).json({ status: 'error', message: 'Core dependencies failed' });
-    }
-});
+app.use('/api/health', healthRoutes);
 
 // Global Error Handler
 app.use(globalErrorHandler);

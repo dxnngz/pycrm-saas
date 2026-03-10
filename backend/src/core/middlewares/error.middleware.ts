@@ -25,10 +25,10 @@ export const globalErrorHandler = (err: any, req: Request, res: Response, next: 
         } else {
             logger.error({
                 msg: 'CRITICAL_ERROR 💥',
-                requestId: (req as any).id,
+                requestId: req.id,
                 error: err.message,
                 stack: err.stack,
-                tenant: (req as any).user?.tenantId
+                tenant: req.user?.tenantId
             });
 
             res.status(500).json({

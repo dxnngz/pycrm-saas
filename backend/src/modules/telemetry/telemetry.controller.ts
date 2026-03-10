@@ -5,7 +5,7 @@ import { AppError } from '../../utils/AppError.js';
 
 export const getOverview = asyncHandler(async (req: Request, res: Response) => {
     // Only admins should access this
-    if ((req as any).user?.role !== 'admin') {
+    if (req.user?.role !== 'admin') {
         throw new AppError('Forbidden: Admin access required', 403);
     }
 
@@ -14,7 +14,7 @@ export const getOverview = asyncHandler(async (req: Request, res: Response) => {
 });
 
 export const getMyUsage = asyncHandler(async (req: Request, res: Response) => {
-    const tenantId = (req as any).user?.tenantId;
-    const usage = await telemetryService.getTenantUsage(tenantId);
+    const tenantId = req.user?.tenantId;
+    const usage = await telemetryService.getTenantUsage(tenantId!);
     res.json(usage);
 });

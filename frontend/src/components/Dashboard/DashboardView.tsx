@@ -94,7 +94,7 @@ const DashboardView = () => {
                             { id: 'yearly', label: 'Yearly' }
                         ]}
                         activeTab={period}
-                        onChange={(id) => setPeriod(id as any)}
+                        onChange={(id: string) => setPeriod(id as 'monthly' | 'yearly')}
                     />
 
                     <button

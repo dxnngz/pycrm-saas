@@ -7,6 +7,7 @@ import { hashPassword } from './auth.js';
 import { env } from './env.js';
 import { initCacheSubscriber } from './core/subscribers/cache.subscriber.js';
 import { addReminderJob } from './jobs/queue.js';
+import { workflowEngine } from './modules/workflows/workflow.engine.js';
 
 const port = env.PORT || 3001;
 
@@ -53,6 +54,9 @@ const startServer = async () => {
 
         // Initialize background tasks scheduling
         await addReminderJob();
+
+        // Initialize Workflow Engine
+        logger.info('🚀 Workflow Engine Initialized');
 
         await ensureAdmin();
 

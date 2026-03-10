@@ -20,7 +20,7 @@ import { Header } from './components/Layout/Header';
 // Common Components
 import { NotificationSystem } from './components/Notifications/NotificationSystem';
 import { AppViewSkeleton } from './components/Common/Skeletons';
-import { CommandCenter } from './components/Common/CommandCenter';
+import { CommandBar } from './components/Navigation/CommandBar';
 import { AICopilot } from './components/Common/AICopilot';
 
 // View Components
@@ -49,14 +49,14 @@ const UsersView = React.lazy(() => import('./components/Users/UsersView'));
 
 type View = 'dashboard' | 'contacts' | 'pipeline' | 'tasks' | 'calendar' | 'products' | 'documents' | 'settings' | 'users';
 
-import { useUI } from './context/UIContext';
+import { useUI } from './hooks/useUI';
 
 const App: FC = () => {
   const { user, logout, loading } = useAuth();
   const { sidebarCollapsed } = useUI();
   const [activeView, setActiveView] = useState<View>('dashboard');
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
-  const [isCommandCenterOpen, setIsCommandCenterOpen] = useState(false);
+  const [isCommandBarOpen, setIsCommandBarOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isDarkMode, setIsDarkMode] = useState(() => {
     return localStorage.getItem('theme') === 'dark' ||
@@ -64,15 +64,15 @@ const App: FC = () => {
   });
 
   useEffect(() => {
-    let keysPressed: Record<string, boolean> = {};
+    const keysPressed = new Set<string>();
 
     const handleKeyDown = (e: KeyboardEvent) => {
-      keysPressed[e.key.toLowerCase()] = true;
+      keysPressed.add(e.key.toLowerCase());
       if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
         e.preventDefault();
-        setIsCommandCenterOpen(true);
+        setIsCommandBarOpen(true);
       }
-      if (keysPressed['g']) {
+      if (keysPressed.has('g')) {
         const viewMap: Record<string, View> = {
           'd': 'dashboard', 'c': 'contacts', 'p': 'pipeline', 't': 'tasks', 'a': 'calendar', 's': 'settings', 'u': 'users'
         };
@@ -85,7 +85,7 @@ const App: FC = () => {
       }
     };
 
-    const handleKeyUp = (e: KeyboardEvent) => { delete keysPressed[e.key.toLowerCase()]; };
+    const handleKeyUp = (e: KeyboardEvent) => { keysPressed.delete(e.key.toLowerCase()); };
 
     window.addEventListener('keydown', handleKeyDown);
     window.addEventListener('keyup', handleKeyUp);
@@ -117,7 +117,7 @@ const App: FC = () => {
     return <LoginView />;
   }
   const prefetchView = (viewId: string) => {
-    const views: Record<string, () => Promise<any>> = {
+    const views: Record<string, () => Promise<unknown>> = {
       dashboard: () => import('./components/Dashboard/DashboardView'),
       contacts: () => import('./components/Contacts/ContactsView'),
       pipeline: () => import('./components/Pipeline/PipelineView'),
@@ -168,7 +168,7 @@ const App: FC = () => {
         <Sidebar
           navItems={navItems}
           activeView={activeView}
-          setActiveView={setActiveView}
+          setActiveView={(v) => setActiveView(v as View)}
           onLogout={logout}
           isMobileMenuOpen={isMobileMenuOpen}
           setIsMobileMenuOpen={setIsMobileMenuOpen}
@@ -182,7 +182,7 @@ const App: FC = () => {
             setIsDarkMode={setIsDarkMode}
             setIsMobileMenuOpen={setIsMobileMenuOpen}
             setIsNotificationsOpen={setIsNotificationsOpen}
-            setIsCommandCenterOpen={setIsCommandCenterOpen}
+            setIsCommandCenterOpen={setIsCommandBarOpen}
             userName={user?.name || 'User'}
           />
 
@@ -212,7 +212,7 @@ const App: FC = () => {
         </main>
 
         <NotificationSystem isOpen={isNotificationsOpen} onClose={() => setIsNotificationsOpen(false)} />
-        <CommandCenter isOpen={isCommandCenterOpen} onClose={() => setIsCommandCenterOpen(false)} onNavigate={(v) => setActiveView(v as View)} />
+        <CommandBar isOpen={isCommandBarOpen} onClose={() => setIsCommandBarOpen(false)} />
         <AICopilot />
         <Toaster position="bottom-right" richColors closeButton theme={isDarkMode ? 'dark' : 'light'} />
       </div>

@@ -1,7 +1,7 @@
 import { render, screen, fireEvent } from '@testing-library/react';
 import { describe, it, expect, vi } from 'vitest';
 import { Button } from '../src/components/UI/Button';
-import { UIProvider } from '../src/context/UIContext';
+import { UIProvider } from '../src/context/UIProvider';
 
 // Helper wrapper — Button consumes useUI() context
 const renderButton = (props: React.ComponentProps<typeof Button>) =>

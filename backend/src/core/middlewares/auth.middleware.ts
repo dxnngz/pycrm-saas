@@ -18,10 +18,12 @@ export const protect = (req: Request, res: Response, next: NextFunction) => {
         return next(new AppError('No estás autenticado. Por favor, inicia sesión.', 401));
     }
 
-    jwt.verify(token, JWT_KEY, async (err: any, decoded: any) => {
-        if (err) {
+    jwt.verify(token, JWT_KEY, async (err: jwt.VerifyErrors | null, decoded: any) => {
+        if (err || !decoded) {
             return next(new AppError('Token inválido o expirado.', 401));
         }
+
+        const payload = decoded as Express.UserPayload;
 
         // REDIS REVOCATION CHECK: Elite security
         if (decoded.jti) {
@@ -31,9 +33,10 @@ export const protect = (req: Request, res: Response, next: NextFunction) => {
             }
         }
 
-        (req as any).user = decoded;
+        req.user = payload;
 
-        contextStore.run({ userId: decoded.userId, tenantId: decoded.tenantId, requestId: (req as any).id }, () => {
+        const requestId = req.id ? String(req.id) : undefined;
+        contextStore.run({ userId: payload.userId, tenantId: payload.tenantId, requestId }, () => {
             next();
         });
     });

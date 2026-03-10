@@ -2,10 +2,11 @@ import { clientService } from './client.service.js';
 import { tenantService } from '../tenants/tenant.service.js';
 import { asyncHandler } from '../../utils/asyncHandler.js';
 import { AppError } from '../../utils/AppError.js';
-import { eventBus } from '../../core/eventBus.js';
+import { events } from '../../core/events.js';
+// El tipo AuthenticatedRequest ya no es necesario gracias a src/types/express.d.ts
 export const getClients = asyncHandler(async (req, res) => {
     const { limit, search, cursor } = req.query;
-    const { user } = req;
+    const user = req.user;
     const clients = await clientService.getAllClients(user.tenantId, {
         limit: limit ? parseInt(limit) : 10,
         search: search,
@@ -14,7 +15,7 @@ export const getClients = asyncHandler(async (req, res) => {
     res.json(clients);
 });
 export const createClient = asyncHandler(async (req, res) => {
-    const { user } = req;
+    const user = req.user;
     // Phase 14: Plan-based limits
     const canCreate = await tenantService.checkLimit(user.tenantId, 'clients');
     if (!canCreate) {
@@ -22,15 +23,15 @@ export const createClient = asyncHandler(async (req, res) => {
     }
     // req.body is already validated and sanitized by Zod
     const client = await clientService.createClient(req.body, user.tenantId);
-    eventBus.emit('client.created', { tenantId: user.tenantId, userId: user.userId, data: client });
+    events.emit('workflow:client_created', { tenantId: user.tenantId, userId: user.userId, data: client });
     res.status(201).json(client);
 });
 export const updateClient = asyncHandler(async (req, res) => {
     try {
-        const { user } = req;
+        const user = req.user;
         const id = parseInt(req.params.id);
         const client = await clientService.updateClientById(user.tenantId, id, req.body);
-        eventBus.emit('client.updated', { tenantId: user.tenantId, userId: user.userId, data: client });
+        events.emit('workflow:client_updated', { tenantId: user.tenantId, userId: user.userId, data: client });
         res.json(client);
     }
     catch (error) {
@@ -42,10 +43,10 @@ export const updateClient = asyncHandler(async (req, res) => {
 });
 export const deleteClient = asyncHandler(async (req, res) => {
     try {
-        const { user } = req;
+        const user = req.user;
         const id = parseInt(req.params.id);
         await clientService.deleteClientById(user.tenantId, id);
-        eventBus.emit('client.deleted', { tenantId: user.tenantId, userId: user.userId, data: { id } });
+        events.emit('workflow:client_deleted', { tenantId: user.tenantId, userId: user.userId, data: { id } });
         res.json({ message: 'Cliente eliminado correctamente' });
     }
     catch (error) {
@@ -56,7 +57,7 @@ export const deleteClient = asyncHandler(async (req, res) => {
     }
 });
 export const getClientOpportunities = asyncHandler(async (req, res) => {
-    const { user } = req;
+    const user = req.user;
     const id = parseInt(req.params.id);
     const opportunities = await clientService.getClientOpportunitiesById(user.tenantId, id);
     res.json(opportunities);

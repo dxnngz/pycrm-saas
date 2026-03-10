@@ -14,14 +14,14 @@ export const api = {
     clients: clientService,
     opportunities: opportunityService,
     tasks: taskService,
-    dashboard: dashboardService,
+    dashboard: dashboardService, // Now refers to the inline defined dashboardService
     events: eventsService,
     documents: documentsService,
     products: productsService,
     // Add any minor ones left or placeholders
     contacts: {
         getByClient: (clientId: number) => customFetch(`/contacts/${clientId}`, { headers: getHeaders() }).then(handleResponse),
-        create: (contact: any) => customFetch('/contacts', { method: 'POST', headers: getHeaders(), body: JSON.stringify(contact) }).then(handleResponse),
+        create: (contact: { name?: string; email?: string; phone?: string; role?: string; client_id: number | string; type?: string; description?: string; contact_date?: string }) => customFetch('/contacts', { method: 'POST', headers: getHeaders(), body: JSON.stringify(contact) }).then(handleResponse),
     },
     ai: {
         askCopilot: (query: string) => customFetch('/ai/copilot', { method: 'POST', headers: getHeaders(), body: JSON.stringify({ query }) }).then(handleResponse),

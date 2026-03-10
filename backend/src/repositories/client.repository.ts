@@ -4,7 +4,7 @@ import { BaseRepository } from './base.repository.js';
 
 export class ClientRepository extends BaseRepository<Client> {
     constructor() {
-        super(prisma.client);
+        super(prisma.client, 'Client');
     }
 
     async findManyPaged(tenantId: number, options: { cursor?: number; limit?: number; search?: string }) {

@@ -28,8 +28,8 @@ const LoginView = () => {
         setError('');
         try {
             await login({ email, password: pass });
-        } catch (err: any) {
-            const msg = err.message || 'Authentication failed';
+        } catch (err: unknown) {
+            const msg = err instanceof Error ? err.message : 'Authentication failed';
             setError(msg);
             toast.error('Access denied', { description: msg });
         } finally {
@@ -49,8 +49,8 @@ const LoginView = () => {
             });
             await login({ email: data.email, password: data.pass });
             toast.success('Account created successfully');
-        } catch (err: any) {
-            setError(err.message || 'Registration failed');
+        } catch (err: unknown) {
+            setError(err instanceof Error ? err.message : 'Registration failed');
         } finally {
             setLoading(false);
         }
@@ -62,8 +62,8 @@ const LoginView = () => {
         try {
             await authService.forgotPassword(email);
             setSuccess(true);
-        } catch (err: any) {
-            setError(err.message || 'Request failed');
+        } catch (err: unknown) {
+            setError(err instanceof Error ? err.message : 'Request failed');
         } finally {
             setLoading(false);
         }

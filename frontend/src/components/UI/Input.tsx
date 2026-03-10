@@ -1,6 +1,6 @@
 import React from 'react';
 import type { InputHTMLAttributes } from 'react';
-import { useUI } from '../../context/UIContext';
+import { useUI } from '../../hooks/useUI';
 
 export interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
     label?: string;
@@ -26,7 +26,8 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
         ref
     ) => {
         const { isDense } = useUI();
-        const inputId = id || `input-${Math.random().toString(36).substr(2, 9)}`;
+        const generatedId = React.useId();
+        const inputId = id || generatedId;
 
         return (
             <div className="w-full">
@@ -42,7 +43,7 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
                 <div className="relative">
                     {icon && iconPosition === 'left' && (
                         <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
-                            {React.isValidElement(icon) ? React.cloneElement(icon as React.ReactElement<any>, { size: isDense ? 14 : 16 }) : icon}
+                            {React.isValidElement(icon) ? React.cloneElement(icon as React.ReactElement<{ size?: number }>, { size: isDense ? 14 : 16 }) : icon}
                         </div>
                     )}
                     <input

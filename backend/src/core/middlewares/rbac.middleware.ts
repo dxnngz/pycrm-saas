@@ -55,7 +55,7 @@ export const RolePermissions: Record<string, Permission[]> = {
 // Middleware de Autorización por Permiso
 export const requirePermission = (requiredPermission: Permission) => {
     return (req: Request, res: Response, next: NextFunction) => {
-        const user = (req as any).user;
+        const user = req.user;
 
         if (!user || !user.role) {
             return res.status(401).json({ status: 'error', message: 'Unauthorized' });
@@ -78,7 +78,7 @@ export const requirePermission = (requiredPermission: Permission) => {
 // Middleware de Autorización por Rol
 export const requireRole = (allowedRoles: SystemRole[]) => {
     return (req: Request, res: Response, next: NextFunction) => {
-        const user = (req as any).user;
+        const user = req.user;
 
         if (!user || !user.role) {
             return res.status(401).json({ status: 'error', message: 'Unauthorized' });

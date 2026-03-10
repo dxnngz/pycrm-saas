@@ -2,14 +2,13 @@ import React from 'react';
 import {
     LogOut,
     Settings,
-    BarChart3,
     PanelLeftClose,
     PanelLeftOpen,
     Zap,
     ZapOff
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
-import { useUI } from '../../context/UIContext';
+import { useUI } from '../../hooks/useUI';
 
 interface NavItem {
     id: string;
@@ -20,7 +19,7 @@ interface NavItem {
 interface SidebarProps {
     navItems: NavItem[];
     activeView: string;
-    setActiveView: (view: any) => void;
+    setActiveView: (view: string) => void;
     onLogout: () => void;
     isMobileMenuOpen: boolean;
     setIsMobileMenuOpen: (open: boolean) => void;
@@ -49,8 +48,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 <div className="p-4 lg:p-6 flex-shrink-0">
                     <div className="flex items-center justify-between mb-8 group/header">
                         <div className="flex items-center gap-2.5 overflow-hidden">
-                            <div className="w-8 h-8 bg-slate-900 dark:bg-white rounded-lg flex items-center justify-center flex-shrink-0">
-                                <BarChart3 size={18} className="text-white dark:text-slate-900" />
+                            <div className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 overflow-hidden">
+                                <img src="/logo.png" alt="PyCRM Logo" className="w-full h-full object-contain" />
                             </div>
                             {!sidebarCollapsed && (
                                 <span className="font-bold text-lg tracking-tight text-slate-900 dark:text-white uppercase tracking-[0.05em] truncate">PyCRM</span>

@@ -1,6 +1,6 @@
 import { type ReactNode, useRef } from 'react';
 import { useVirtualizer } from '@tanstack/react-virtual';
-import { useUI } from '../../context/UIContext';
+import { useUI } from '../../hooks/useUI';
 
 export interface Column<T> {
     header: string;

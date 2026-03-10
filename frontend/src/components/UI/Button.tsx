@@ -1,7 +1,7 @@
 import React from 'react';
 import type { ButtonHTMLAttributes } from 'react';
 import { Loader2 } from 'lucide-react';
-import { useUI } from '../../context/UIContext';
+import { useUI } from '../../hooks/useUI';
 
 export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
     variant?: 'primary' | 'secondary' | 'outline' | 'ghost' | 'danger';

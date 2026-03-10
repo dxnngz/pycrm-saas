@@ -1,5 +1,6 @@
 import OpenAI from 'openai';
 import { prisma } from '../../core/prisma.js';
+import { logger } from '../../utils/logger.js';
 export class AIService {
     openai;
     constructor() {
@@ -52,8 +53,7 @@ export class AIService {
             };
         }
         catch (error) {
-            console.error("AI Scoring Error:", error.message || error);
-            console.warn("Retornando scoring de fallback por fallo en la API externa.");
+            logger.error({ opportunityId, err: error.message }, 'AI Lead Scoring Error');
             return this.mockLeadScore(opportunity);
         }
     }

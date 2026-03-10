@@ -3,7 +3,7 @@ import { tenantService } from '../tenants/tenant.service.js';
 import { asyncHandler } from '../../utils/asyncHandler.js';
 import { AppError } from '../../utils/AppError.js';
 export const askCopilot = asyncHandler(async (req, res) => {
-    const tenantId = req.user?.tenantId;
+    const tenantId = req.user.tenantId;
     const { query } = req.body;
     if (!query) {
         throw new AppError('La consulta (query) es requerida', 400);
@@ -15,8 +15,12 @@ export const askCopilot = asyncHandler(async (req, res) => {
     await aiService.copilotQueryStream(tenantId, query, res);
 });
 export const scoreOpportunity = asyncHandler(async (req, res) => {
-    const tenantId = req.user?.tenantId;
+    const tenantId = req.user.tenantId;
     const { id } = req.params;
+    const isScoreEnabled = await tenantService.isFeatureEnabled(tenantId, 'aiBriefs');
+    if (!isScoreEnabled) {
+        throw new AppError('Lead Scoring avanzado requiere un plan superior (PRO/Enterprise).', 403);
+    }
     try {
         const scoreData = await aiService.calculateLeadScore(parseInt(id), tenantId);
         res.json(scoreData);
@@ -43,7 +47,7 @@ export const getClientBrief = asyncHandler(async (req, res) => {
     await aiService.streamClientBriefing(parseInt(id), tenantId, res);
 });
 export const getSmartAlerts = asyncHandler(async (req, res) => {
-    const tenantId = req.user?.tenantId;
+    const tenantId = req.user.tenantId;
     const alerts = await aiService.getSmartAlerts(tenantId);
     res.json(alerts);
 });

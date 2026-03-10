@@ -1,7 +1,9 @@
 import { prisma } from '../../core/prisma.js';
 import { asyncHandler } from '../../utils/asyncHandler.js';
+import { tenantService } from '../tenants/tenant.service.js';
+import { AppError } from '../../utils/AppError.js';
 export const getAutomations = asyncHandler(async (req, res) => {
-    const tenantId = req.user?.tenantId;
+    const tenantId = req.user.tenantId;
     const automations = await prisma.automation.findMany({
         where: { tenant_id: tenantId },
         include: { triggers: { include: { conditions: true } }, actions: true }
@@ -9,7 +11,12 @@ export const getAutomations = asyncHandler(async (req, res) => {
     res.json(automations);
 });
 export const createAutomation = asyncHandler(async (req, res) => {
-    const tenantId = req.user?.tenantId;
+    const tenantId = req.user.tenantId;
+    // Feature gating
+    const isEnabled = await tenantService.isFeatureEnabled(tenantId, 'workflows');
+    if (!isEnabled) {
+        throw new AppError('Las automatizaciones de flujo de trabajo requieren un plan superior (PRO/Enterprise).', 403);
+    }
     const { name, description, active, triggers, actions } = req.body;
     const automation = await prisma.automation.create({
         data: {
@@ -38,7 +45,8 @@ export const createAutomation = asyncHandler(async (req, res) => {
     res.status(201).json(automation);
 });
 export const toggleAutomation = asyncHandler(async (req, res) => {
-    const tenantId = req.user?.tenantId;
+    const tenantId = req.user.tenantId;
+    const userId = req.user.userId;
     const id = parseInt(req.params.id);
     const { active } = req.body;
     const automation = await prisma.automation.findFirst({ where: { id, tenant_id: tenantId } });

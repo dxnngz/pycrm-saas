@@ -9,8 +9,18 @@ import {
 import { Skeleton } from '../UI/Skeleton';
 import { Badge } from '../UI/Badge';
 
-const AuditLogs = () => {
-    const { data: logs, isLoading } = useQuery({
+interface LogEntry {
+    id: string | number;
+    entity: string;
+    entity_id: string | number;
+    changes: Record<string, unknown> | null;
+    action: string;
+    user: { name: string };
+    created_at: string;
+}
+
+export const AuditLogs = () => {
+    const { data: logs, isLoading } = useQuery<LogEntry[]>({
         queryKey: ['audit-logs'],
         queryFn: async () => {
             const res = await fetch(`${import.meta.env.VITE_API_URL}/api/audit`, {
@@ -57,7 +67,7 @@ const AuditLogs = () => {
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-100 dark:divide-slate-800/50">
-                        {logs?.map((log: any) => (
+                        {logs?.map((log) => (
                             <tr key={log.id} className="hover:bg-white/40 dark:hover:bg-white/5 transition-colors group">
                                 <td className="px-4 py-4">
                                     <div className="flex items-center gap-3">

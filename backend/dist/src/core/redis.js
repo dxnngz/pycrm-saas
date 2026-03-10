@@ -1,15 +1,16 @@
 import { createClient } from 'redis';
+import { logger } from '../utils/logger.js';
 import { redisCacheHits, redisCacheMisses } from './metrics.js';
 const REDIS_URL = process.env.REDIS_URL || 'redis://localhost:6379';
 class RedisClient {
     client;
     constructor() {
         this.client = createClient({ url: REDIS_URL });
-        this.client.on('error', (err) => console.error('Redis Client Error', err));
+        this.client.on('error', (err) => logger.error({ err }, 'Redis Client Error'));
         // No bloqueamos el hilo principal si Redis no está levantado, ni en tests
         if (process.env.NODE_ENV !== 'test') {
             this.client.connect().catch((e) => {
-                console.warn('⚠️ No se pudo conectar a Redis. Pasando a fallback in-memory (bypass de caché).', e.message);
+                logger.warn({ error: e.message }, '⚠️ No se pudo conectar a Redis. Pasando a fallback in-memory (bypass de caché).');
             });
         }
     }
@@ -33,7 +34,7 @@ class RedisClient {
             return freshData;
         }
         catch (error) {
-            console.error(`Error en caché Redis para llave ${key}:`, error);
+            logger.error({ error, key }, 'Error en caché Redis');
             return await fetcher(); // Fallback a la base de datos si Redis falla
         }
     }
@@ -50,12 +51,12 @@ class RedisClient {
                 cursor = result.cursor;
                 if (result.keys.length > 0) {
                     await this.client.unlink(result.keys);
-                    console.info(`[Redis] Unlinked ${result.keys.length} keys matching pattern: ${pattern}`);
+                    logger.info({ keysCount: result.keys.length, pattern }, '[Redis] Unlinked keys matching pattern');
                 }
             } while (cursor !== 0);
         }
         catch (error) {
-            console.error(`Error invalidando caché Redis para ${pattern}:`, error);
+            logger.error({ error, pattern }, 'Error invalidando caché Redis');
         }
     }
     async invalidateTenantCache(tenantId, namespace) {

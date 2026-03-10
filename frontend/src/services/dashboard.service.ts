@@ -2,8 +2,17 @@ import { customFetch, getHeaders, handleResponse } from './apiClient';
 
 const dashboardCache = new Map<string, { data: unknown, timestamp: number }>();
 
+export interface DashboardStats {
+    totalSales: number;
+    conversionRate: number;
+    averageTicket: number;
+    repPerformance: Array<{ id: string | number; name: string; total_sales: number }>;
+    chartData: Array<{ name: string; sales: number }>;
+    _cached?: boolean;
+}
+
 export const dashboardService = {
-    getMetrics: async (period: string = 'monthly'): Promise<{ totalSales: number, conversionRate: number, averageTicket: number, repPerformance: any[], chartData: any[], _cached?: boolean }> => {
+    getMetrics: async (period: string = 'monthly'): Promise<DashboardStats> => {
         const cacheKey = `metrics_${period}`;
         const cachedValue = dashboardCache.get(cacheKey);
 
@@ -18,7 +27,7 @@ export const dashboardService = {
             });
 
         if (cachedValue && (Date.now() - cachedValue.timestamp < 120000)) {
-            return { ...(cachedValue.data as any), _cached: true };
+            return { ...(cachedValue.data as DashboardStats), _cached: true };
         }
 
         return fetchPromise;

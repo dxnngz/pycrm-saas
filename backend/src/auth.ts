@@ -2,13 +2,14 @@ import jwt from 'jsonwebtoken';
 import bcrypt from 'bcrypt';
 import crypto from 'crypto';
 import { Request, Response, NextFunction } from 'express';
+import { logger } from './utils/logger.js';
 
 const SECRET = process.env.JWT_SECRET;
 if (!SECRET) {
     if (process.env.NODE_ENV === 'production') {
         throw new Error('FATAL: JWT_SECRET environment variable is not defined!');
     }
-    console.warn('WARNING: JWT_SECRET is not defined, using fallback. Not safe for production.');
+    logger.warn('WARNING: JWT_SECRET is not defined, using fallback. Not safe for production.');
 }
 const JWT_KEY = SECRET || 'fallback_secret_key_123';
 
@@ -42,10 +43,10 @@ export const authenticateToken = (req: Request, res: Response, next: NextFunctio
 
     if (!token) return res.status(401).json({ message: 'Token missing' });
 
-    jwt.verify(token, JWT_KEY, (err: any, user: any) => {
+    jwt.verify(token, JWT_KEY, (err, user) => {
         if (err) return res.status(403).json({ message: 'Invalid token' });
 
-        (req as any).user = user;
+        req.user = user as Express.UserPayload;
         next();
     });
 };

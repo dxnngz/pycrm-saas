@@ -16,7 +16,7 @@ export class AuthService {
     }
 
     async registerTenantWithUser(data: { name: string, email: string, passwordHash: string, role: string, companyName: string }) {
-        return await prisma.$transaction(async (tx: any) => {
+        return await prisma.$transaction(async (tx) => {
             const tenant = await tx.tenant.create({
                 data: {
                     name: data.companyName,

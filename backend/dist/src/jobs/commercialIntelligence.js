@@ -1,15 +1,16 @@
 import cron from 'node-cron';
+import { logger } from '../utils/logger.js';
 import { prisma } from '../core/prisma.js';
 import { taskService } from '../modules/tasks/task.service.js';
 class CommercialIntelligenceJob {
     init() {
         // Runs every day at 00:00 midnight UTC
         cron.schedule('0 0 * * *', async () => {
-            console.log('[CRON] Starting Daily Commercial Intelligence Job...');
+            logger.info('[CRON] Starting Daily Commercial Intelligence Job...');
             await this.runIntelligenceScan();
-            console.log('[CRON] Finished Daily Commercial Intelligence Job.');
+            logger.info('[CRON] Finished Daily Commercial Intelligence Job.');
         });
-        console.log('[CRON] Registered Commercial Intelligence Schedule (Daily at 00:00).');
+        logger.info('[CRON] Registered Commercial Intelligence Schedule (Daily at 00:00).');
     }
     async runIntelligenceScan() {
         try {
@@ -49,7 +50,7 @@ class CommercialIntelligenceJob {
                     priority: 'Alta',
                     client_id: String(opp.client_id)
                 }, tenantId);
-                console.log(`[CRON] Created stuck opportunity task for Ops: ${opp.id} (Tenant ${tenantId})`);
+                logger.info(`[CRON] Created stuck opportunity task for Ops: ${opp.id} (Tenant ${tenantId})`);
             }
         }
     }
@@ -79,7 +80,7 @@ class CommercialIntelligenceJob {
                     priority: 'Media',
                     client_id: String(client.id)
                 }, tenantId);
-                console.log(`[CRON] Created neglected client task: ${client.id} (Tenant ${tenantId})`);
+                logger.info(`[CRON] Created neglected client task: ${client.id} (Tenant ${tenantId})`);
             }
         }
     }

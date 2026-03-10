@@ -6,7 +6,7 @@ export const requestIdMiddleware = (req: Request, res: Response, next: NextFunct
     const reqId = req.headers['x-request-id'] || uuidv4();
 
     // Attach to request object for easy access
-    (req as any).id = reqId;
+    req.id = reqId as string;
 
     // Also attach to response headers so the client knows their tracking ID
     res.setHeader('X-Request-Id', reqId as string);

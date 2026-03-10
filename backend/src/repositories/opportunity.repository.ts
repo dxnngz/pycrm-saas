@@ -4,7 +4,7 @@ import { BaseRepository } from './base.repository.js';
 
 export class OpportunityRepository extends BaseRepository<Opportunity> {
     constructor() {
-        super(prisma.opportunity);
+        super(prisma.opportunity, 'Opportunity');
     }
 
     async findManyPaged(tenantId: number, options: { cursor?: number; limit?: number; search?: string }) {

@@ -1,6 +1,6 @@
 import React from 'react';
 import { AlertCircle, CheckCircle2, Info, XCircle } from 'lucide-react';
-import { useUI } from '../../context/UIContext';
+import { useUI } from '../../hooks/useUI';
 
 interface AlertProps {
     variant?: 'success' | 'danger' | 'warning' | 'info';

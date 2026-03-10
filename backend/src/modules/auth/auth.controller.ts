@@ -1,198 +1,255 @@
 import { Request, Response } from 'express';
 import { authService } from './auth.service.js';
+import { mfaService } from './mfa.service.js';
+import { auditService } from './audit.service.js';
 import { comparePassword, hashPassword, generateToken, generateRefreshToken, verifyToken } from '../../auth.js';
+import { logger } from '../../utils/logger.js';
 import { asyncHandler } from '../../utils/asyncHandler.js';
 import { AppError } from '../../utils/AppError.js';
 import crypto from 'crypto';
 
 // Utilidad para establecer las cookies JWT seguras
-const sendTokenResponse = async (user: any, statusCode: number, res: Response) => {
-    const token = generateToken(user.id, user.role, user.tenant_id);
+const sendTokenResponse = async (user: { id: number; name: string; email: string; role: string | null; tenant_id: number }, statusCode: number, res: Response, req: Request) => {
+    const token = generateToken(user.id, user.role || 'empleado', user.tenant_id);
     const refreshToken = generateRefreshToken(user.id, user.tenant_id);
 
-    // Save refresh token to DB
-    const expiresAt = new Date();
-    expiresAt.setDate(expiresAt.getDate() + 7);
+    // Save refresh token to DB (7 days expiry)
+    const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
     await authService.saveRefreshToken(user.id, refreshToken, expiresAt);
 
-    const isProduction = process.env.NODE_ENV === 'production';
-
-    // Cookie options
     const cookieOptions = {
+        expires: expiresAt,
         httpOnly: true,
-        secure: true,
-        sameSite: 'strict' as const,
-        path: '/'
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'strict' as const
     };
 
-    // Access Token
-    res.cookie('jwt', token, {
-        ...cookieOptions,
-        maxAge: 15 * 60 * 1000
-    });
-
-    // Refresh Token
-    res.cookie('refreshToken', refreshToken, {
-        ...cookieOptions,
-        maxAge: 7 * 24 * 60 * 60 * 1000
-    });
-
-    // CSRF Token
     const csrfToken = crypto.randomBytes(32).toString('hex');
-    res.cookie('csrfToken', csrfToken, {
-        ...cookieOptions,
-        httpOnly: false,
-        maxAge: 7 * 24 * 60 * 60 * 1000
-    });
+    res.cookie('jwt', token, cookieOptions);
+    res.cookie('refreshToken', refreshToken, cookieOptions);
+    res.cookie('x-csrf-token', csrfToken, { ...cookieOptions, httpOnly: false });
 
     res.status(statusCode).json({
         success: true,
         token,
         refreshToken,
         csrfToken,
-        user: { id: user.id, name: user.name, email: user.email, role: user.role, tenant_id: user.tenant_id }
+        user: { id: user.id, name: user.name, email: user.email, role: user.role || 'empleado', tenant_id: user.tenant_id }
     });
+
+    await auditService.logAuth(user.id, user.tenant_id, 'LOGIN', { ip: req.ip, userAgent: req.get('user-agent') });
 };
+
+export const register = asyncHandler(async (req: Request, res: Response) => {
+    const { name, email, password, companyName } = req.body;
+
+    const existingUser = await authService.getUserByEmail(email);
+    if (existingUser) {
+        throw new AppError('El usuario ya existe', 400);
+    }
+
+    const passwordHash = await hashPassword(password);
+    const { user } = await authService.registerTenantWithUser({
+        name,
+        email,
+        passwordHash,
+        role: 'admin',
+        companyName
+    });
+
+    await auditService.logAuth(user.id, user.tenant_id, 'PASSWORD_RESET', { action: 'REGISTER' });
+    await sendTokenResponse(user, 201, res, req);
+});
 
 export const login = asyncHandler(async (req: Request, res: Response) => {
     const { email, password } = req.body;
 
+    if (!email || !password) {
+        throw new AppError('Por favor, proporciona email y contraseña', 400);
+    }
+
     const user = await authService.getUserByEmail(email);
-    if (!user) {
-        throw new AppError('Email o contraseña incorrectos', 401);
+    if (!user || !(await comparePassword(password, user.password))) {
+        throw new AppError('Credenciales incorrectas', 401);
     }
 
-    const isMatch = await comparePassword(password, user.password);
-    if (!isMatch) {
-        throw new AppError('Email o contraseña incorrectos', 401);
+    if ((user as any).mfa_enabled) {
+        // Return a temporary "mfa_required" token or session
+        const mfaToken = generateToken(user.id, 'mfa_pending', user.tenant_id);
+        return res.status(200).json({
+            success: true,
+            mfa_required: true,
+            mfa_token: mfaToken
+        });
     }
 
-    await sendTokenResponse(user, 200, res);
+    await sendTokenResponse(user, 200, res, req);
 });
 
-export const register = asyncHandler(async (req: Request, res: Response) => {
-    const { name, email, password, role, companyName } = req.body;
+export const setupMFA = asyncHandler(async (req: Request, res: Response) => {
+    const userId = req.user?.userId;
+    const userEmail = req.user?.email;
 
-    if (!companyName) {
-        throw new AppError('El nombre de la empresa (Tenant) es obligatorio para un SaaS B2B.', 400);
-    }
+    if (!userId || !userEmail) throw new AppError('No autenticado', 401);
 
-    const passwordHash = await hashPassword(password);
-
-    const { user, tenant } = await authService.registerTenantWithUser({
-        name,
-        email,
-        passwordHash,
-        role: role || 'admin',
-        companyName
-    });
-
-    await sendTokenResponse(user, 201, res);
+    const data = await mfaService.initiateMFA(userId, userEmail);
+    res.status(200).json({ success: true, ...data });
 });
 
-export const logout = asyncHandler(async (req: Request, res: Response) => {
-    const refreshToken = req.cookies.refreshToken;
-    if (refreshToken) {
-        await authService.deleteRefreshToken(refreshToken);
+export const verifyAndEnableMFA = asyncHandler(async (req: Request, res: Response) => {
+    const userId = req.user?.userId;
+    const { secret, token } = req.body;
+
+    if (!userId) throw new AppError('No autenticado', 401);
+
+    const recoveryCodes = await mfaService.enableMFA(userId, secret, token);
+    if (!recoveryCodes) {
+        throw new AppError('Código MFA inválido', 400);
     }
 
-    res.cookie('jwt', 'loggedout', {
-        expires: new Date(Date.now() + 10 * 1000),
-        httpOnly: true,
-        secure: true,
-        sameSite: 'none' as const
-    });
-    res.cookie('refreshToken', 'loggedout', {
-        expires: new Date(Date.now() + 10 * 1000),
-        httpOnly: true,
-        secure: true,
-        sameSite: 'none' as const
-    });
-    res.cookie('csrfToken', 'loggedout', {
-        expires: new Date(Date.now() + 10 * 1000),
-        httpOnly: false,
-        secure: true,
-        sameSite: 'none' as const
-    });
+    const user = await authService.getUserProfileById(userId);
+    if (user) {
+        await auditService.logAuth(userId, user.tenant_id, 'MFA_ENABLED');
+    }
 
-    res.status(200).json({ success: true, message: 'Logged out successfully' });
+    res.status(200).json({
+        success: true,
+        message: 'MFA habilitado correctamente',
+        recoveryCodes
+    });
+});
+
+export const verifyMFALogin = asyncHandler(async (req: Request, res: Response) => {
+    const { mfaToken, token } = req.body;
+
+    if (!mfaToken || !token) {
+        throw new AppError('Token MFA o código faltante', 400);
+    }
+
+    try {
+        const payload = verifyToken(mfaToken) as any;
+        if (payload.role !== 'mfa_pending') {
+            throw new AppError('Token inválido', 401);
+        }
+
+        const isValid = await mfaService.verifyMFAToken(payload.userId, token);
+        if (!isValid) {
+            throw new AppError('Código MFA o de recuperación inválido', 401);
+        }
+
+        const user = await authService.getUserProfileById(payload.userId);
+        if (!user) throw new AppError('Usuario no encontrado', 404);
+
+        await sendTokenResponse(user, 200, res, req);
+    } catch (err) {
+        throw new AppError('Sesión de MFA expirada o inválida', 401);
+    }
+});
+
+export const disableMFA = asyncHandler(async (req: Request, res: Response) => {
+    const userId = req.user?.userId;
+    if (!userId) throw new AppError('No autenticado', 401);
+
+    await mfaService.disableMFA(userId);
+    res.status(200).json({ success: true, message: 'MFA deshabilitado' });
 });
 
 export const refreshToken = asyncHandler(async (req: Request, res: Response) => {
-    const rfToken = req.cookies.refreshToken;
+    const rfToken = req.cookies.refreshToken || req.body.refreshToken;
+
     if (!rfToken) {
-        throw new AppError('Refresh token missing', 400);
+        throw new AppError('Refresh token missing', 401);
     }
 
     const storedToken = await authService.findRefreshToken(rfToken);
 
-    // REUSE DETECTION: If we receive a token that is NOT in the DB but is valid (not expired),
-    // it might have been stolen and already rotated.
+    // SECURITY: Detect Refresh Token Reuse (Stolen tokens)
     if (!storedToken) {
         try {
-            const payload = verifyToken(rfToken) as any;
-            // High alert: revoke everything for this user
-            console.warn(`[SECURITY] Refresh token reuse detected for user ${payload.userId}. Revoking all tokens.`);
+            const payload = verifyToken(rfToken) as Express.UserPayload;
+            logger.warn({ userId: payload.userId }, 'Refresh token reuse detected. Revoking all tokens.');
             await authService.revokeAllUserTokens(payload.userId);
-            // Optionally: add user to a temporary lockout in Redis
         } catch (err) {
-            // Token was truly invalid/expired, no action needed
+            // Token invalid or expired anyway
         }
-        throw new AppError('Security violation: Session compromised. Please login again.', 401);
+        throw new AppError('Seguridad comprometida: Inicia sesión de nuevo', 403);
     }
 
     // ROTATION: Delete the used token immediately
     await authService.deleteRefreshToken(rfToken);
 
-    const payload = verifyToken(rfToken) as any;
+    const payload = verifyToken(rfToken) as Express.UserPayload;
     const user = await authService.getUserProfileById(payload.userId);
 
     if (!user) {
-        throw new AppError('User not found', 404);
+        throw new AppError('Usuario no encontrado', 404);
     }
 
-    // Issue new pair
-    res.setHeader('X-Refresh-Rotation', 'true');
-    await sendTokenResponse(user, 200, res);
+    // Generate NEW pair
+    await sendTokenResponse(user, 200, res, req);
+});
+
+export const logout = asyncHandler(async (req: Request, res: Response) => {
+    const rfToken = req.cookies.refreshToken || req.body.refreshToken;
+    if (rfToken) {
+        await authService.deleteRefreshToken(rfToken);
+    }
+
+    res.cookie('jwt', 'loggedout', {
+        expires: new Date(Date.now() + 10 * 1000),
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'strict'
+    });
+
+    res.cookie('refreshToken', 'loggedout', {
+        expires: new Date(Date.now() + 10 * 1000),
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'strict'
+    });
+
+    res.status(200).json({ success: true, message: 'Sesión cerrada' });
 });
 
 export const forgotPassword = asyncHandler(async (req: Request, res: Response) => {
     const { email } = req.body;
     const user = await authService.getUserByEmail(email);
+
     if (!user) {
-        return res.status(200).json({ message: 'Si el correo existe, se enviará un enlace de recuperación' });
+        return res.status(200).json({ success: true, message: 'Si el email existe, se ha enviado un enlace de recuperación' });
     }
 
     const resetToken = crypto.randomBytes(32).toString('hex');
-    const expiresAt = new Date();
-    expiresAt.setHours(expiresAt.getHours() + 1);
-
+    const expiresAt = new Date(Date.now() + 1 * 60 * 60 * 1000); // 1 hour
     await authService.savePasswordResetToken(user.id, resetToken, expiresAt);
 
-    console.log(`Reset link: http://localhost/reset-password?token=${resetToken}`);
+    logger.info(`Password reset link: ${process.env.FRONTEND_URL}/reset-password/${resetToken}`);
 
-    res.status(200).json({ message: 'Si el correo existe, se enviará un enlace de recuperación' });
+    res.status(200).json({ success: true, message: 'Email de recuperación enviado' });
 });
 
 export const resetPassword = asyncHandler(async (req: Request, res: Response) => {
-    const { token, newPassword } = req.body;
-    const resetData = await authService.findPasswordResetToken(token);
-    if (!resetData) {
+    const token = String(req.params.token);
+    const { password } = req.body;
+
+    const resetRecord = await authService.findPasswordResetToken(token);
+    if (!resetRecord || resetRecord.expires_at < new Date()) {
         throw new AppError('Token inválido o expirado', 400);
     }
 
-    const passwordHash = await hashPassword(newPassword);
-    if (resetData.user_id) {
-        // Enforce type because user_id string int constraint might complain
-        await authService.updatePassword(resetData.user_id, passwordHash);
-    }
+    const hashed = await hashPassword(password);
+    await authService.updatePassword(resetRecord.user_id!, hashed);
     await authService.deletePasswordResetToken(token);
 
-    res.status(200).json({ message: 'Contraseña actualizada con éxito' });
+    res.status(200).json({ success: true, message: 'Contraseña actualizada correctamente' });
 });
 
 export const getProfile = asyncHandler(async (req: Request, res: Response) => {
-    const userId = (req as any).user.userId;
+    const userId = req.user?.userId;
+    if (!userId) {
+        throw new AppError('No autenticado', 401);
+    }
     const user = await authService.getUserProfileById(userId);
     if (!user) {
         throw new AppError('Usuario no encontrado', 404);

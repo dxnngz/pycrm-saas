@@ -3,11 +3,12 @@ import { opportunityService } from './opportunity.service.js';
 import { aiService } from '../ai/ai.service.js';
 import { asyncHandler } from '../../utils/asyncHandler.js';
 import { AppError } from '../../utils/AppError.js';
-import { eventBus } from '../../core/eventBus.js';
+import { events } from '../../core/events.js';
+import { tenantService } from '../tenants/tenant.service.js';
 
 export const getOpportunities = asyncHandler(async (req: Request, res: Response) => {
     const { limit, search, cursor } = req.query as any;
-    const user = (req as any).user;
+    const user = req.user!;
 
     const opportunities = await opportunityService.getAllOpportunities(user.tenantId, {
         limit: limit ? parseInt(limit as string) : 10,
@@ -18,26 +19,26 @@ export const getOpportunities = asyncHandler(async (req: Request, res: Response)
 });
 
 export const createOpportunity = asyncHandler(async (req: Request, res: Response) => {
-    const tenantId = (req as any).user?.tenantId;
-    const userId = (req as any).user?.userId;
+    const tenantId = req.user!.tenantId;
+    const userId = req.user!.userId;
 
     const opportunity = await opportunityService.createOpportunity(req.body, tenantId);
 
     // Emit event for Automation Engine
-    eventBus.emit('opportunity.created', { tenantId, userId, data: opportunity });
+    events.emit('workflow:opportunity_created', { tenantId, userId, data: opportunity });
 
     res.status(201).json(opportunity);
 });
 
 export const updateOpportunityStatus = asyncHandler(async (req: Request, res: Response) => {
     try {
-        const tenantId = (req as any).user?.tenantId;
+        const tenantId = req.user!.tenantId;
         const id = parseInt(req.params.id as string);
         const { status, version } = req.body;
 
         const opportunity = await opportunityService.updateOpportunityStatusById(tenantId, id, status, version);
 
-        eventBus.emit('opportunity.status_updated', { tenantId, userId: (req as any).user?.userId, data: opportunity });
+        events.emit('workflow:opportunity_status_updated', { tenantId, userId: req.user?.userId, data: opportunity });
 
         res.json(opportunity);
     } catch (error: any) {
@@ -49,8 +50,14 @@ export const updateOpportunityStatus = asyncHandler(async (req: Request, res: Re
 });
 
 export const getLeadScore = asyncHandler(async (req: Request, res: Response) => {
-    const tenantId = (req as any).user?.tenantId;
+    const tenantId = req.user!.tenantId;
     const id = parseInt(req.params.id as string);
+
+    // Feature gating
+    const isEnabled = await tenantService.isFeatureEnabled(tenantId, 'aiBriefs');
+    if (!isEnabled) {
+        throw new AppError('Lead Scoring avanzado requiere un plan superior (PRO/Enterprise).', 403);
+    }
 
     try {
         const scoreData = await aiService.calculateLeadScore(id, tenantId);

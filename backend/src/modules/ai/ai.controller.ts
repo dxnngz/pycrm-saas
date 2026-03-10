@@ -5,7 +5,7 @@ import { asyncHandler } from '../../utils/asyncHandler.js';
 import { AppError } from '../../utils/AppError.js';
 
 export const askCopilot = asyncHandler(async (req: Request, res: Response) => {
-    const tenantId = (req as any).user?.tenantId;
+    const tenantId = req.user!.tenantId;
     const { query } = req.body;
 
     if (!query) {
@@ -21,8 +21,13 @@ export const askCopilot = asyncHandler(async (req: Request, res: Response) => {
 });
 
 export const scoreOpportunity = asyncHandler(async (req: Request, res: Response) => {
-    const tenantId = (req as any).user?.tenantId;
+    const tenantId = req.user!.tenantId;
     const { id } = req.params;
+
+    const isScoreEnabled = await tenantService.isFeatureEnabled(tenantId, 'aiBriefs');
+    if (!isScoreEnabled) {
+        throw new AppError('Lead Scoring avanzado requiere un plan superior (PRO/Enterprise).', 403);
+    }
 
     try {
         const scoreData = await aiService.calculateLeadScore(parseInt(id as string), tenantId);
@@ -54,7 +59,7 @@ export const getClientBrief = asyncHandler(async (req: Request, res: Response) =
 });
 
 export const getSmartAlerts = asyncHandler(async (req: Request, res: Response) => {
-    const tenantId = (req as any).user?.tenantId;
+    const tenantId = req.user!.tenantId;
     const alerts = await aiService.getSmartAlerts(tenantId);
     res.json(alerts);
 });

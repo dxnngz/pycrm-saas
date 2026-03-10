@@ -1,23 +1,40 @@
 import { prisma } from '../core/prisma.js';
-import { eventBus } from '../core/eventBus.js';
+import { events } from '../core/events.js';
 import { auditService } from '../modules/audit/audit.service.js';
 import { contextStore } from '../core/context.js';
 
-export abstract class BaseRepository<T extends { id: number; tenant_id: number }> {
-    constructor(protected model: any) { }
+interface BaseModel {
+    id: number;
+    tenant_id: number;
+    [key: string]: any;
+}
+
+interface PrismaModel<T> {
+    name?: string;
+    findMany(args: { where: any; take?: number; skip?: number; cursor?: any; orderBy?: any; include?: any }): Promise<T[]>;
+    findFirst(args: { where: any; include?: any }): Promise<T | null>;
+    create(args: { data: any }): Promise<T>;
+    update(args: { where: any; data: any }): Promise<T>;
+    delete(args: { where: any }): Promise<T>;
+    count(args: { where: any }): Promise<number>;
+}
+
+export abstract class BaseRepository<T extends BaseModel> {
+    protected modelName: string;
+    constructor(protected model: any, name: string) {
+        this.modelName = name;
+    }
 
     async findMany(tenantId: number, options: { where?: any; take?: number; skip?: number; cursor?: number; orderBy?: any; include?: any; includeDeleted?: boolean } = {}) {
         const { where = {}, take, skip, cursor, orderBy, include, includeDeleted = false } = options;
 
-        const finalWhere = {
+        const finalWhere: any = {
             ...where,
             tenant_id: tenantId,
         };
 
-        // SAFETY: Only apply soft-delete filter if the model supports it
-        // In this schema: Client, Opportunity, Task, Product have deleted_at
-        const softDeleteModels = ['client', 'opportunity', 'task', 'product'];
-        const modelName = this.model.name?.toLowerCase() || '';
+        const softDeleteModels = ['user', 'client', 'contact', 'opportunity', 'task', 'product', 'event', 'document', 'automation'];
+        const modelName = this.modelName.toLowerCase();
 
         if (!includeDeleted && softDeleteModels.includes(modelName)) {
             finalWhere.deleted_at = null;
@@ -36,8 +53,8 @@ export abstract class BaseRepository<T extends { id: number; tenant_id: number }
     async findUnique(tenantId: number, id: number, includeDeleted = false) {
         const where: any = { id, tenant_id: tenantId };
 
-        const softDeleteModels = ['client', 'opportunity', 'task', 'product'];
-        const modelName = this.model.name?.toLowerCase() || '';
+        const softDeleteModels = ['user', 'client', 'contact', 'opportunity', 'task', 'product', 'event', 'document', 'automation'];
+        const modelName = this.modelName.toLowerCase();
 
         if (!includeDeleted && softDeleteModels.includes(modelName)) {
             where.deleted_at = null;
@@ -50,7 +67,7 @@ export abstract class BaseRepository<T extends { id: number; tenant_id: number }
         const ctx = contextStore.getStore();
 
         // Emit for Workflows
-        eventBus.emit(`${this.model.name.toLowerCase()}.created`, {
+        events.emit(`workflow:${this.modelName.toLowerCase()}_created`, {
             tenantId: result.tenant_id,
             userId: ctx?.userId,
             data: result
@@ -58,7 +75,7 @@ export abstract class BaseRepository<T extends { id: number; tenant_id: number }
 
         // Audit Log
         await auditService.log({
-            entity: this.model.name,
+            entity: this.modelName,
             entityId: result.id,
             tenantId: result.tenant_id,
             action: 'CREATE',
@@ -77,7 +94,7 @@ export abstract class BaseRepository<T extends { id: number; tenant_id: number }
         const ctx = contextStore.getStore();
 
         // Emit for Workflows
-        eventBus.emit(`${this.model.name.toLowerCase()}.updated`, {
+        events.emit(`workflow:${this.modelName.toLowerCase()}_updated`, {
             tenantId,
             userId: ctx?.userId,
             data: result
@@ -85,7 +102,7 @@ export abstract class BaseRepository<T extends { id: number; tenant_id: number }
 
         // Audit Log
         await auditService.log({
-            entity: this.model.name,
+            entity: this.modelName,
             entityId: id,
             tenantId,
             action: 'UPDATE',
@@ -97,8 +114,8 @@ export abstract class BaseRepository<T extends { id: number; tenant_id: number }
     }
 
     async delete(tenantId: number, id: number, hardDelete = false) {
-        const softDeleteModels = ['client', 'opportunity', 'task', 'product'];
-        const modelName = this.model.name?.toLowerCase() || '';
+        const softDeleteModels = ['user', 'client', 'contact', 'opportunity', 'task', 'product', 'event', 'document', 'automation'];
+        const modelName = this.modelName.toLowerCase();
         const ctx = contextStore.getStore();
 
         let result;
@@ -114,7 +131,7 @@ export abstract class BaseRepository<T extends { id: number; tenant_id: number }
         }
 
         // Emit for Workflows
-        eventBus.emit(`${modelName}.deleted`, {
+        events.emit(`workflow:${modelName}_deleted`, {
             tenantId,
             userId: ctx?.userId,
             data: { id }
@@ -122,7 +139,7 @@ export abstract class BaseRepository<T extends { id: number; tenant_id: number }
 
         // Audit Log
         await auditService.log({
-            entity: this.model.name,
+            entity: this.modelName,
             entityId: id,
             tenantId,
             action: 'DELETE',

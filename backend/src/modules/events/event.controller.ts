@@ -4,7 +4,7 @@ import { asyncHandler } from '../../utils/asyncHandler.js';
 import { AppError } from '../../utils/AppError.js';
 
 export const getEvents = asyncHandler(async (req: Request, res: Response) => {
-    const userId = (req as any).user.userId;
+    const userId = req.user!.userId;
     const startDate = req.query.startDate as string;
     const endDate = req.query.endDate as string;
 
@@ -13,8 +13,8 @@ export const getEvents = asyncHandler(async (req: Request, res: Response) => {
 });
 
 export const createEvent = asyncHandler(async (req: Request, res: Response) => {
-    const userId = (req as any).user.userId;
-    const tenantId = (req as any).user.tenantId;
+    const userId = req.user!.userId;
+    const tenantId = req.user!.tenantId;
     let clientId = req.body.client_id;
     if (clientId) clientId = parseInt(clientId);
 
@@ -24,7 +24,7 @@ export const createEvent = asyncHandler(async (req: Request, res: Response) => {
 });
 
 export const updateEvent = asyncHandler(async (req: Request, res: Response) => {
-    const userId = (req as any).user.userId;
+    const userId = req.user!.userId;
     const eventId = parseInt(req.params.id as string);
     if (req.body.client_id) req.body.client_id = parseInt(req.body.client_id);
 
@@ -37,7 +37,7 @@ export const updateEvent = asyncHandler(async (req: Request, res: Response) => {
 });
 
 export const deleteEvent = asyncHandler(async (req: Request, res: Response) => {
-    const userId = (req as any).user.userId;
+    const userId = req.user!.userId;
     const eventId = parseInt(req.params.id as string);
 
     const deleted = await eventService.deleteEventById(eventId, userId);

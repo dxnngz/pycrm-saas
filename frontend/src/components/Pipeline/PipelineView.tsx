@@ -110,8 +110,8 @@ const VirtualColumnBody = ({
     handleUpdateStatus
 }: {
     opps: Opportunity[],
-    provided: any,
-    snapshot: any,
+    provided: unknown,
+    snapshot: unknown,
     scores: Record<number, { score: number; classification: string }>,
     canCreateOpportunity: boolean,
     handleUpdateStatus: (id: number, status: 'pendiente' | 'ganado' | 'perdido') => void
@@ -125,14 +125,17 @@ const VirtualColumnBody = ({
         overscan: 5,
     });
 
+    const p = provided as Record<string, unknown>;
+    const s = snapshot as Record<string, unknown>;
+
     return (
         <div
             ref={(el) => {
-                provided.innerRef(el);
-                (parentRef as any).current = el;
+                (p.innerRef as (el: HTMLElement | null) => void)(el);
+                (parentRef as React.MutableRefObject<HTMLDivElement | null>).current = el;
             }}
-            {...provided.droppableProps}
-            className={`flex-1 overflow-y-auto custom-scrollbar p-3 rounded-lg border transition-colors min-h-[400px] ${snapshot.isDraggingOver ? 'bg-slate-50 dark:bg-slate-800/50 border-primary-500/30' : 'bg-slate-50/30 dark:bg-slate-900/10 border-slate-200 dark:border-slate-800'}`}
+            {...(p.droppableProps as Record<string, unknown>)}
+            className={`flex-1 overflow-y-auto custom-scrollbar p-3 rounded-lg border transition-colors min-h-[400px] ${(s.isDraggingOver as boolean) ? 'bg-slate-50 dark:bg-slate-800/50 border-primary-500/30' : 'bg-slate-50/30 dark:bg-slate-900/10 border-slate-200 dark:border-slate-800'}`}
         >
             <div
                 style={{
@@ -153,12 +156,12 @@ const VirtualColumnBody = ({
                             }}
                         >
                             <Draggable draggableId={`opp-${opp.id}`} index={virtualRow.index} isDragDisabled={!canCreateOpportunity}>
-                                {(provided, snapshot) => (
+                                {(draggableProvided, draggableSnapshot) => (
                                     <div
-                                        ref={provided.innerRef}
-                                        {...provided.draggableProps}
-                                        {...provided.dragHandleProps}
-                                        style={{ ...provided.draggableProps.style, opacity: snapshot.isDragging ? 0.8 : 1 }}
+                                        ref={draggableProvided.innerRef}
+                                        {...draggableProvided.draggableProps}
+                                        {...draggableProvided.dragHandleProps}
+                                        style={{ ...draggableProvided.draggableProps.style, opacity: draggableSnapshot.isDragging ? 0.8 : 1 }}
                                         className="mb-3"
                                     >
                                         <OpportunityCard
@@ -174,7 +177,7 @@ const VirtualColumnBody = ({
                     );
                 })}
             </div>
-            {provided.placeholder}
+            {p.placeholder as React.ReactNode}
         </div>
     );
 };

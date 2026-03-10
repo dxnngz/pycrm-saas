@@ -3,20 +3,12 @@ import { clientService } from './client.service.js';
 import { tenantService } from '../tenants/tenant.service.js';
 import { asyncHandler } from '../../utils/asyncHandler.js';
 import { AppError } from '../../utils/AppError.js';
-import { eventBus } from '../../core/eventBus.js';
+import { events } from '../../core/events.js';
 
-// Typed extension for requests authenticated by the JWT middleware
-interface AuthenticatedRequest extends Request {
-    user: {
-        userId: number;
-        tenantId: number;
-        role: string;
-    };
-}
-
+// El tipo AuthenticatedRequest ya no es necesario gracias a src/types/express.d.ts
 export const getClients = asyncHandler(async (req: Request, res: Response) => {
     const { limit, search, cursor } = req.query as any;
-    const { user } = req as AuthenticatedRequest;
+    const user = req.user!;
 
     const clients = await clientService.getAllClients(user.tenantId, {
         limit: limit ? parseInt(limit as string) : 10,
@@ -27,7 +19,7 @@ export const getClients = asyncHandler(async (req: Request, res: Response) => {
 });
 
 export const createClient = asyncHandler(async (req: Request, res: Response) => {
-    const { user } = req as AuthenticatedRequest;
+    const user = req.user!;
 
     // Phase 14: Plan-based limits
     const canCreate = await tenantService.checkLimit(user.tenantId, 'clients');
@@ -38,18 +30,18 @@ export const createClient = asyncHandler(async (req: Request, res: Response) => 
     // req.body is already validated and sanitized by Zod
     const client = await clientService.createClient(req.body, user.tenantId);
 
-    eventBus.emit('client.created', { tenantId: user.tenantId, userId: user.userId, data: client });
+    events.emit('workflow:client_created', { tenantId: user.tenantId, userId: user.userId, data: client });
 
     res.status(201).json(client);
 });
 
 export const updateClient = asyncHandler(async (req: Request, res: Response) => {
     try {
-        const { user } = req as AuthenticatedRequest;
+        const user = req.user!;
         const id = parseInt(req.params.id as string);
         const client = await clientService.updateClientById(user.tenantId, id, req.body);
 
-        eventBus.emit('client.updated', { tenantId: user.tenantId, userId: user.userId, data: client });
+        events.emit('workflow:client_updated', { tenantId: user.tenantId, userId: user.userId, data: client });
 
         res.json(client);
     } catch (error: unknown) {
@@ -62,11 +54,11 @@ export const updateClient = asyncHandler(async (req: Request, res: Response) => 
 
 export const deleteClient = asyncHandler(async (req: Request, res: Response) => {
     try {
-        const { user } = req as AuthenticatedRequest;
+        const user = req.user!;
         const id = parseInt(req.params.id as string);
         await clientService.deleteClientById(user.tenantId, id);
 
-        eventBus.emit('client.deleted', { tenantId: user.tenantId, userId: user.userId, data: { id } });
+        events.emit('workflow:client_deleted', { tenantId: user.tenantId, userId: user.userId, data: { id } });
 
         res.json({ message: 'Cliente eliminado correctamente' });
     } catch (error: unknown) {
@@ -78,7 +70,7 @@ export const deleteClient = asyncHandler(async (req: Request, res: Response) => 
 });
 
 export const getClientOpportunities = asyncHandler(async (req: Request, res: Response) => {
-    const { user } = req as AuthenticatedRequest;
+    const user = req.user!;
     const id = parseInt(req.params.id as string);
     const opportunities = await clientService.getClientOpportunitiesById(user.tenantId, id);
     res.json(opportunities);

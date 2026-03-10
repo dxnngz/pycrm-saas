@@ -1,5 +1,5 @@
 import React from 'react';
-import { useUI } from '../../context/UIContext';
+import { useUI } from '../../hooks/useUI';
 
 interface AvatarProps {
     src?: string;

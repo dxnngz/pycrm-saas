@@ -7,13 +7,13 @@ import { PrismaClient } from '@prisma/client';
 const prisma = new PrismaClient();
 
 export const getMyPlan = asyncHandler(async (req: Request, res: Response) => {
-    const tenantId = (req as any).user?.tenantId;
-    const planInfo = await tenantService.getTenantPlan(tenantId);
+    const tenantId = req.user?.tenantId;
+    const planInfo = await tenantService.getTenantPlan(tenantId!);
     res.json(planInfo);
 });
 
 export const updateSettings = asyncHandler(async (req: Request, res: Response) => {
-    const tenantId = (req as any).user?.tenantId;
+    const tenantId = req.user?.tenantId;
     const { settings } = req.body;
 
     const updated = await prisma.tenant.update({
@@ -26,7 +26,7 @@ export const updateSettings = asyncHandler(async (req: Request, res: Response) =
 
 // Admin only: upgrade a tenant plan
 export const upgradePlan = asyncHandler(async (req: Request, res: Response) => {
-    if ((req as any).user?.role !== 'admin') {
+    if (req.user?.role !== 'admin') {
         throw new AppError('Forbidden: Admin access required', 403);
     }
 

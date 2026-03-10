@@ -110,9 +110,9 @@ export const AICopilot: React.FC = () => {
                         initial={{ opacity: 0, y: 20, scale: 0.95 }}
                         animate={{ opacity: 1, y: 0, scale: 1 }}
                         exit={{ opacity: 0, y: 20, scale: 0.95, transition: { duration: 0.2 } }}
-                        className={`fixed ${isExpanded ? 'inset-4 md:inset-10' : 'bottom-6 right-6 w-full max-w-sm h-[550px] sm:w-[400px]'} z-50 flex flex-col bg-white dark:bg-slate-900 rounded-3xl shadow-2xl overflow-hidden border border-slate-200 dark:border-slate-800 ring-1 ring-slate-900/5 dark:ring-white/10 flex`}
+                        className={`fixed ${isExpanded ? 'inset-4 md:inset-10' : 'bottom-6 right-6 w-full max-w-sm h-[550px] sm:w-[400px]'} z-50 flex flex-col glass-card rounded-3xl shadow-2xl overflow-hidden ring-1 ring-slate-900/5 dark:ring-white/10`}
                         style={{
-                            boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25), 0 0 0 1px rgba(0,0,0,0.05)'
+                            boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)'
                         }}
                     >
                         {/* Header */}
@@ -144,7 +144,7 @@ export const AICopilot: React.FC = () => {
 
                         {/* Chat Area */}
                         <div
-                            className="flex-1 overflow-y-auto p-5 space-y-4 bg-slate-50/50 dark:bg-slate-900/50 custom-scrollbar"
+                            className="flex-1 overflow-y-auto p-5 space-y-4 bg-slate-50/10 dark:bg-slate-900/10 glass-blur custom-scrollbar"
                             role="log"
                             aria-live="polite"
                             aria-relevant="additions"

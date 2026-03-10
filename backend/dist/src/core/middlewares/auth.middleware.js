@@ -12,9 +12,10 @@ export const protect = (req, res, next) => {
         return next(new AppError('No estás autenticado. Por favor, inicia sesión.', 401));
     }
     jwt.verify(token, JWT_KEY, async (err, decoded) => {
-        if (err) {
+        if (err || !decoded) {
             return next(new AppError('Token inválido o expirado.', 401));
         }
+        const payload = decoded;
         // REDIS REVOCATION CHECK: Elite security
         if (decoded.jti) {
             const isBlacklisted = await redisCache.isTokenBlacklisted(decoded.jti);
@@ -22,8 +23,9 @@ export const protect = (req, res, next) => {
                 return next(new AppError('Sesión invalidada por motivos de seguridad.', 401));
             }
         }
-        req.user = decoded;
-        contextStore.run({ userId: decoded.userId, tenantId: decoded.tenantId, requestId: req.id }, () => {
+        req.user = payload;
+        const requestId = req.id ? String(req.id) : undefined;
+        contextStore.run({ userId: payload.userId, tenantId: payload.tenantId, requestId }, () => {
             next();
         });
     });

@@ -1,12 +1,13 @@
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcrypt';
 import crypto from 'crypto';
+import { logger } from './utils/logger.js';
 const SECRET = process.env.JWT_SECRET;
 if (!SECRET) {
     if (process.env.NODE_ENV === 'production') {
         throw new Error('FATAL: JWT_SECRET environment variable is not defined!');
     }
-    console.warn('WARNING: JWT_SECRET is not defined, using fallback. Not safe for production.');
+    logger.warn('WARNING: JWT_SECRET is not defined, using fallback. Not safe for production.');
 }
 const JWT_KEY = SECRET || 'fallback_secret_key_123';
 export const hashPassword = async (password) => {

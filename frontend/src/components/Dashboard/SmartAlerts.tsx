@@ -45,15 +45,15 @@ const SmartAlerts: React.FC = () => {
 
             <div className="space-y-3 overflow-y-auto max-h-[400px] pr-1">
                 <AnimatePresence>
-                    {alerts.map((alert: any, idx: number) => (
+                    {alerts.map((alert: { type: string; title: string; impact: string; description: string }, idx: number) => (
                         <motion.div
                             key={idx}
                             initial={{ opacity: 0, x: -10 }}
                             animate={{ opacity: 1, x: 0 }}
                             transition={{ delay: idx * 0.1 }}
                             className={`p-3 rounded-lg border flex gap-3 transition-all hover:bg-slate-50 dark:hover:bg-slate-800/50 ${alert.type === 'WARNING'
-                                    ? 'bg-red-50/30 dark:bg-red-900/10 border-red-100 dark:border-red-900/30'
-                                    : 'bg-primary-50/30 dark:bg-primary-900/10 border-primary-100 dark:border-primary-900/30'
+                                ? 'bg-red-50/30 dark:bg-red-900/10 border-red-100 dark:border-red-900/30'
+                                : 'bg-primary-50/30 dark:bg-primary-900/10 border-primary-100 dark:border-primary-900/30'
                                 }`}
                         >
                             <div className={`mt-0.5 w-7 h-7 rounded-md flex items-center justify-center flex-shrink-0 ${alert.type === 'WARNING' ? 'bg-red-100 dark:bg-red-900/30 text-red-600' : 'bg-primary-100 dark:bg-primary-900/30 text-primary-600'

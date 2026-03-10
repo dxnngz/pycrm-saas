@@ -1,5 +1,5 @@
 import { prisma } from '../../core/prisma.js';
-import { eventBus } from '../../core/eventBus.js';
+import { events } from '../../core/events.js';
 
 export class WorkflowService {
     constructor() {
@@ -7,12 +7,10 @@ export class WorkflowService {
     }
 
     private initializeListeners() {
-        // Listen to all events and route them to the engine
+        // Listen to all workflow events and route them to the engine
         const self = this;
-        eventBus.onAny(async function (this: any, ...args: any[]) {
+        events.on('workflow:*', async function (this: any, payload: any) {
             const eventName = this.event;
-            // The last argument is usually the payload in our system pattern
-            const payload = args[args.length - 1];
             if (typeof eventName === 'string' && payload && typeof payload === 'object') {
                 await self.processEvent(eventName, payload);
             }

@@ -4,7 +4,7 @@ import { prisma } from '../../core/prisma.js';
 export class AuditController {
     async getLogs(req: Request, res: Response, next: NextFunction) {
         try {
-            const { tenantId } = (req as any).user;
+            const tenantId = req.user!.tenantId;
             const { limit = 50, entity } = req.query;
 
             const logs = await prisma.auditLog.findMany({
