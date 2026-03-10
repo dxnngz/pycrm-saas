@@ -2,13 +2,21 @@ import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 import { AppError } from '../../utils/AppError.js';
 import { contextStore } from '../context.js';
+import { logger } from '../../utils/logger.js';
+import { redisCache } from '../redis.js';
 
 const JWT_KEY = process.env.JWT_SECRET || 'fallback_secret_key_123';
 
-import { redisCache } from '../redis.js';
+interface JWTPayload extends jwt.JwtPayload {
+    userId: number;
+    tenantId: number;
+    role: string;
+    email: string;
+    name: string;
+}
 
 export const protect = (req: Request, res: Response, next: NextFunction) => {
-    let token = req.cookies.jwt;
+    let token = req.cookies?.jwt;
 
     if (!token && req.headers.authorization?.startsWith('Bearer')) {
         token = req.headers.authorization.split(' ')[1];
@@ -20,24 +28,40 @@ export const protect = (req: Request, res: Response, next: NextFunction) => {
 
     jwt.verify(token, JWT_KEY, async (err: jwt.VerifyErrors | null, decoded: any) => {
         if (err || !decoded) {
-            return next(new AppError('Token inválido o expirado.', 401));
+            return res.status(401).json({ error: 'Auth failed' });
         }
 
-        const payload = decoded as Express.UserPayload;
+        const payload = decoded as JWTPayload;
 
         // REDIS REVOCATION CHECK: Elite security
-        if (decoded.jti) {
-            const isBlacklisted = await redisCache.isTokenBlacklisted(decoded.jti);
+        if (payload.jti) {
+            const isBlacklisted = await redisCache.isTokenBlacklisted(payload.jti);
             if (isBlacklisted) {
                 return next(new AppError('Sesión invalidada por motivos de seguridad.', 401));
             }
         }
 
-        req.user = payload;
+        req.user = {
+            id: payload.userId,
+            tenantId: payload.tenantId,
+            role: payload.role,
+            email: payload.email,
+            name: payload.name
+        } as any;
 
-        const requestId = req.id ? String(req.id) : undefined;
-        contextStore.run({ userId: payload.userId, tenantId: payload.tenantId, requestId }, () => {
+        req.id = payload.jti || `req-${Math.random().toString(36).substr(2, 9)}`;
+
+        contextStore.run({ userId: payload.userId, tenantId: payload.tenantId, requestId: req.id as string }, () => {
+            logger.info({
+                msg: 'Authenticated Request',
+                requestId: req.id,
+                userId: payload.userId,
+                tenantId: payload.tenantId,
+                path: req.path
+            });
             next();
         });
     });
 };
+
+export const authMiddleware = protect;

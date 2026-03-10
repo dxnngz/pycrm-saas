@@ -1,28 +1,29 @@
 import { taskRepository } from '../../repositories/task.repository.js';
+import { Task } from '@prisma/client';
 
 export class TaskService {
 
     async getTasksByUserId(tenantId: number, userId: number, options: { limit?: number; search?: string; cursor?: number } = {}) {
         const { limit = 10, search = '', cursor } = options;
 
-        const [tasks, total] = await Promise.all([
+        const [items, total] = await Promise.all([
             taskRepository.findManyPaged(tenantId, { cursor, limit, search }),
             taskRepository.countSearch(tenantId, search)
         ]);
 
-        const hasMore = tasks.length > limit;
-        const items = hasMore ? tasks.slice(0, limit) : tasks;
-
         const mappedData = items.map((task: any) => ({
             ...task,
-            client_name: task.client?.name || null
+            client_name: (task as any).client?.name || 'Individual',
+            user_name: (task as any).user?.name || 'Unassigned'
         }));
 
-        const lastItem = items[items.length - 1];
+        const hasMore = items.length > limit;
+        const resultItems = hasMore ? mappedData.slice(0, limit) : mappedData;
+        const lastItem = resultItems[resultItems.length - 1];
         const nextCursor = hasMore ? lastItem?.id : null;
 
         return {
-            data: mappedData,
+            data: resultItems,
             total,
             limit,
             nextCursor,
@@ -30,14 +31,14 @@ export class TaskService {
         };
     }
 
-    async createTask(data: { userId: number; title: string; due_date?: Date; priority?: string; client_id?: string }, tenantId: number) {
+    async createTask(data: any, tenantId: number) {
         return await taskRepository.create({
-            user_id: data.userId,
             tenant_id: tenantId,
+            user_id: data.userId,
             client_id: data.client_id ? parseInt(data.client_id) : null,
             title: data.title,
-            deadline: data.due_date ? data.due_date : new Date(),
-            priority: data.priority || 'medium',
+            deadline: data.due_date ? new Date(data.due_date) : new Date(),
+            priority: data.priority || 'media',
             completed: false
         });
     }
@@ -46,7 +47,9 @@ export class TaskService {
         const task = await taskRepository.findUnique(tenantId, id);
         if (!task || task.user_id !== userId) return null;
 
-        return await taskRepository.update(tenantId, id, { completed: !task.completed });
+        return await taskRepository.update(tenantId, id, {
+            completed: !task.completed
+        });
     }
 
     async deleteTaskById(tenantId: number, id: number, userId: number) {
