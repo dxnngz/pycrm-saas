@@ -33,10 +33,11 @@ echo "🏗️ [4/6] Building Production Bundles..."
 # 5. Elite Service Restart
 echo "🔄 [5/6] Restarting PyCRM Ecosystem..."
 if command -v pm2 &> /dev/null; then
-    pm2 restart all --update-env || pm2 start dist/index.js --name pycrm-backend
+    pm2 restart all --update-env || pm2 start backend/dist/index.js --name pycrm-backend
 else
     echo "⚠️ PM2 not detected. Starting via Node..."
-    nohup node dist/index.js > server.log 2>&1 &
+    pkill -f "node backend/dist/index.js" || true
+    nohup node backend/dist/index.js > backend/server.log 2>&1 &
 fi
 
 # 6. Post-deploy Health Benchmark
