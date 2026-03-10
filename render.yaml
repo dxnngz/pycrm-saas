@@ -5,7 +5,7 @@ services:
     env: node
     plan: pro
     rootDir: backend
-    buildCommand: npm install --include=dev && npx prisma generate && node scripts/reset-migrations.js && npx prisma migrate deploy && npm run build
+    buildCommand: npm install --include=dev && npx prisma generate && node scripts/reset-migrations.cjs && npx prisma migrate deploy && npm run build
     startCommand: npm run start
     healthCheckPath: /api/health
     envVars:
