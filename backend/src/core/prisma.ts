@@ -41,7 +41,7 @@ export const prisma = basePrisma.$extends({
                                 action: 'CREATE',
                                 user_id: Number(store.userId),
                                 request_id: store.requestId || null,
-                                tenant_id: Number(store.tenantId) || (result as any).tenant_id || 1,
+                                tenant_id: safeTenant(store.tenantId) || (result as any).tenant_id || 1,
                                 changes: JSON.parse(JSON.stringify(result)),
                             } as any,
                         });
@@ -51,7 +51,7 @@ export const prisma = basePrisma.$extends({
                 // REDIS CACHE INVALIDATION
                 if (model === 'Opportunity') {
                     const currentStore = contextStore.getStore();
-                    const tenantId = (result as any).tenant_id || Number(currentStore?.tenantId);
+                    const tenantId = (result as any).tenant_id || safeTenant(currentStore?.tenantId);
                     if (tenantId) {
                         redisCache.invalidate(`dashboard:metrics:${tenantId}:*`);
                     }
@@ -82,7 +82,7 @@ export const prisma = basePrisma.$extends({
                                 action: 'UPDATE',
                                 user_id: Number(store.userId),
                                 request_id: store.requestId || null,
-                                tenant_id: Number(store.tenantId) || (result as any).tenant_id || 1,
+                                tenant_id: safeTenant(store.tenantId) || (result as any).tenant_id || 1,
                                 changes: {
                                     updatedData: JSON.parse(JSON.stringify(args.data)),
                                     finalState: JSON.parse(JSON.stringify(result))
@@ -95,7 +95,7 @@ export const prisma = basePrisma.$extends({
                 // REDIS CACHE INVALIDATION
                 if (model === 'Opportunity') {
                     const currentStore = contextStore.getStore();
-                    const tenantId = (result as any).tenant_id || Number(currentStore?.tenantId);
+                    const tenantId = (result as any).tenant_id || safeTenant(currentStore?.tenantId);
                     if (tenantId) {
                         redisCache.invalidate(`dashboard:metrics:${tenantId}:*`);
                     }
@@ -126,7 +126,7 @@ export const prisma = basePrisma.$extends({
                                 action: 'DELETE',
                                 user_id: Number(store.userId),
                                 request_id: store.requestId || null,
-                                tenant_id: Number(store.tenantId) || (result as any).tenant_id || 1,
+                                tenant_id: safeTenant(store.tenantId) || (result as any).tenant_id || 1,
                                 changes: JSON.parse(JSON.stringify(result)),
                             } as any,
                         });
@@ -136,7 +136,7 @@ export const prisma = basePrisma.$extends({
                 // REDIS CACHE INVALIDATION
                 if (model === 'Opportunity') {
                     const currentStore = contextStore.getStore();
-                    const tenantId = (result as any).tenant_id || Number(currentStore?.tenantId);
+                    const tenantId = (result as any).tenant_id || safeTenant(currentStore?.tenantId);
                     if (tenantId) {
                         redisCache.invalidate(`dashboard:metrics:${tenantId}:*`);
                     }

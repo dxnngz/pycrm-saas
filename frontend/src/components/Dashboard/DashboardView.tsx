@@ -1,4 +1,4 @@
-import { useState, lazy, Suspense } from 'react';
+import { useState, lazy, Suspense, useEffect } from 'react';
 import {
     Download,
     RefreshCw,
@@ -51,7 +51,13 @@ const DashboardSkeleton = () => (
 );
 
 const DashboardView = () => {
+    const [isMounted, setIsMounted] = useState(false);
     const [period, setPeriod] = useState<'monthly' | 'yearly'>('monthly');
+
+    useEffect(() => {
+        setIsMounted(true);
+    }, []);
+
     const { data, isLoading: loading, isFetching, refetch } = useDashboardData(period);
 
     const stats = data?.stats || {
@@ -128,9 +134,9 @@ const DashboardView = () => {
                             <Badge variant="success" className="animate-pulse">Optimized</Badge>
                         )}
                     </div>
-                    <div className="h-[320px]">
+                    <div className="h-[320px] w-full">
                         <Suspense fallback={<Skeleton className="w-full h-full rounded-lg" />}>
-                            <SalesChart data={stats.chartData} />
+                            {isMounted && <SalesChart data={stats.chartData} />}
                         </Suspense>
                     </div>
                 </div>
