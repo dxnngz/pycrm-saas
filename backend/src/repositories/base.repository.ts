@@ -2,6 +2,7 @@ import { prisma } from '../core/prisma.js';
 import { events } from '../core/events.js';
 import { auditService } from '../modules/audit/audit.service.js';
 import { contextStore } from '../core/context.js';
+import { ResilienceService } from '../core/resilience.service.js';
 
 interface BaseModel {
     id: number;
@@ -35,9 +36,13 @@ export abstract class BaseRepository<T extends BaseModel> {
 
         const softDeleteModels = ['user', 'client', 'contact', 'opportunity', 'task', 'product', 'event', 'document', 'automation'];
         const modelName = this.modelName.toLowerCase();
+        const tableName = modelName === 'user' ? 'users' : `${modelName}s`;
 
         if (!includeDeleted && softDeleteModels.includes(modelName)) {
-            finalWhere.deleted_at = null;
+            const hasDeletedAt = await ResilienceService.checkColumnExists(tableName, 'deleted_at');
+            if (hasDeletedAt) {
+                finalWhere.deleted_at = null;
+            }
         }
 
         return await this.model.findMany({
@@ -55,9 +60,13 @@ export abstract class BaseRepository<T extends BaseModel> {
 
         const softDeleteModels = ['user', 'client', 'contact', 'opportunity', 'task', 'product', 'event', 'document', 'automation'];
         const modelName = this.modelName.toLowerCase();
+        const tableName = modelName === 'user' ? 'users' : `${modelName}s`;
 
         if (!includeDeleted && softDeleteModels.includes(modelName)) {
-            where.deleted_at = null;
+            const hasDeletedAt = await ResilienceService.checkColumnExists(tableName, 'deleted_at');
+            if (hasDeletedAt) {
+                where.deleted_at = null;
+            }
         }
         return await this.model.findFirst({ where });
     }
@@ -157,10 +166,14 @@ export abstract class BaseRepository<T extends BaseModel> {
         };
 
         const softDeleteModels = ['client', 'opportunity', 'task', 'product'];
-        const modelName = this.model.name?.toLowerCase() || '';
+        const modelName = this.modelName.toLowerCase();
+        const tableName = modelName === 'user' ? 'users' : `${modelName}s`;
 
         if (!includeDeleted && softDeleteModels.includes(modelName)) {
-            finalWhere.deleted_at = null;
+            const hasDeletedAt = await ResilienceService.checkColumnExists(tableName, 'deleted_at');
+            if (hasDeletedAt) {
+                finalWhere.deleted_at = null;
+            }
         }
 
         return await this.model.count({

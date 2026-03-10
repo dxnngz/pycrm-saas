@@ -9,6 +9,31 @@ import { execSync } from 'child_process';
 export class ResilienceService {
     private static healingEvents = 0;
     private static totalRetries = 0;
+    private static columnCache: Record<string, Set<string>> = {};
+
+    /**
+     * Checks if a column exists in a specific table.
+     */
+    static async checkColumnExists(table: string, column: string): Promise<boolean> {
+        if (this.columnCache[table]?.has(column)) return true;
+
+        try {
+            const result = await prisma.$queryRawUnsafe<{ column_name: string }[]>(`
+                SELECT column_name 
+                FROM information_schema.columns 
+                WHERE table_name = '${table}' AND column_name = '${column}'
+            `);
+
+            if (result.length > 0) {
+                if (!this.columnCache[table]) this.columnCache[table] = new Set();
+                this.columnCache[table].add(column);
+                return true;
+            }
+        } catch (e) {
+            return false;
+        }
+        return false;
+    }
 
     /**
      * MigrationGuard: Ensures the database schema is healthy and synced before the server accepts traffic.
@@ -97,6 +122,8 @@ export class ResilienceService {
             }
 
             this.healingEvents++;
+            // Refresh cache after healing
+            this.columnCache = {};
             logger.info('🔍 [Resilience] Self-healing event detected: Elite Schema synchronization complete.');
         } catch (err: any) {
             logger.error({ msg: '❌ [Resilience] Fatal healing failure', err: err.message });

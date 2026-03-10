@@ -43,15 +43,20 @@ export const prisma = basePrisma.$extends({
                 // --- OPTIMISTIC LOCKING AUTOMATION ---
                 if (VERSIONED_MODELS.includes(model)) {
                     const anyArgs = args as any;
-                    if (operation === 'update' || operation === 'updateMany') {
-                        const anyData = (anyArgs.data || {}) as any;
-                        if (typeof anyData === 'object' && !anyData.version) {
-                            anyArgs.data = { ...anyData, version: { increment: 1 } };
-                        }
-                    }
+                    const tableName = model.toLowerCase() === 'user' ? 'users' : `${model.toLowerCase()}s`;
+                    const hasVersion = await ResilienceService.checkColumnExists(tableName, 'version');
 
-                    if (operation === 'create') {
-                        anyArgs.data = { ...(anyArgs.data || {}), version: 1 };
+                    if (hasVersion) {
+                        if (operation === 'update' || operation === 'updateMany') {
+                            const anyData = (anyArgs.data || {}) as any;
+                            if (typeof anyData === 'object' && !anyData.version) {
+                                anyArgs.data = { ...anyData, version: { increment: 1 } };
+                            }
+                        }
+
+                        if (operation === 'create') {
+                            anyArgs.data = { ...(anyArgs.data || {}), version: 1 };
+                        }
                     }
                 }
 
