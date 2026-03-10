@@ -14,11 +14,12 @@ export const prisma = basePrisma.$extends({
         $allModels: {
             // MULTI-TENANT: CREATE INTERCEPTOR
             async create({ model, args, query }) {
-                if (AUDITABLE_MODELS.includes(model) && model !== 'User') { // User handles its own tenant assignment during registration
+                if (AUDITABLE_MODELS.includes(model) && model !== 'User') {
                     const store = contextStore.getStore();
+                    const tenantId = Number(store?.tenantId) || 1;
                     if (!store?.isSystem && store?.tenantId) {
                         if (args.data) {
-                            (args.data as Record<string, unknown>).tenant_id = store.tenantId;
+                            (args.data as Record<string, unknown>).tenant_id = tenantId;
                         }
                     }
                 }
@@ -46,7 +47,7 @@ export const prisma = basePrisma.$extends({
                 // REDIS CACHE INVALIDATION
                 if (model === 'Opportunity') {
                     const currentStore = contextStore.getStore();
-                    const tenantId = (result as any).tenant_id || currentStore?.tenantId;
+                    const tenantId = (result as any).tenant_id || Number(currentStore?.tenantId);
                     if (tenantId) {
                         redisCache.invalidate(`dashboard:metrics:${tenantId}:*`);
                     }
@@ -60,7 +61,7 @@ export const prisma = basePrisma.$extends({
                 if (AUDITABLE_MODELS.includes(model)) {
                     const store = contextStore.getStore();
                     if (!store?.isSystem && store?.tenantId) {
-                        args.where = { ...args.where, tenant_id: store.tenantId };
+                        args.where = { ...(args.where || {}), tenant_id: Number(store.tenantId) };
                     }
                 }
 
@@ -90,7 +91,7 @@ export const prisma = basePrisma.$extends({
                 // REDIS CACHE INVALIDATION
                 if (model === 'Opportunity') {
                     const currentStore = contextStore.getStore();
-                    const tenantId = (result as any).tenant_id || currentStore?.tenantId;
+                    const tenantId = (result as any).tenant_id || Number(currentStore?.tenantId);
                     if (tenantId) {
                         redisCache.invalidate(`dashboard:metrics:${tenantId}:*`);
                     }
@@ -104,7 +105,7 @@ export const prisma = basePrisma.$extends({
                 if (AUDITABLE_MODELS.includes(model)) {
                     const store = contextStore.getStore();
                     if (!store?.isSystem && store?.tenantId) {
-                        args.where = { ...args.where, tenant_id: store.tenantId };
+                        args.where = { ...(args.where || {}), tenant_id: Number(store.tenantId) };
                     }
                 }
 
@@ -131,7 +132,7 @@ export const prisma = basePrisma.$extends({
                 // REDIS CACHE INVALIDATION
                 if (model === 'Opportunity') {
                     const currentStore = contextStore.getStore();
-                    const tenantId = (result as any).tenant_id || currentStore?.tenantId;
+                    const tenantId = (result as any).tenant_id || Number(currentStore?.tenantId);
                     if (tenantId) {
                         redisCache.invalidate(`dashboard:metrics:${tenantId}:*`);
                     }
@@ -145,7 +146,7 @@ export const prisma = basePrisma.$extends({
                 if (AUDITABLE_MODELS.includes(model)) {
                     const store = contextStore.getStore();
                     if (!store?.isSystem && store?.tenantId) {
-                        args.where = { ...args.where, tenant_id: store.tenantId } as any;
+                        args.where = { ...(args.where || {}), tenant_id: Number(store.tenantId) } as any;
                     }
                 }
                 return query(args);
@@ -154,7 +155,7 @@ export const prisma = basePrisma.$extends({
                 if (AUDITABLE_MODELS.includes(model)) {
                     const store = contextStore.getStore();
                     if (!store?.isSystem && store?.tenantId) {
-                        args.where = { ...args.where, tenant_id: store.tenantId } as any;
+                        args.where = { ...(args.where || {}), tenant_id: Number(store.tenantId) } as any;
                     }
                 }
                 return query(args);
@@ -163,7 +164,7 @@ export const prisma = basePrisma.$extends({
                 if (AUDITABLE_MODELS.includes(model)) {
                     const store = contextStore.getStore();
                     if (!store?.isSystem && store?.tenantId) {
-                        args.where = { ...args.where, tenant_id: store.tenantId } as any;
+                        args.where = { ...(args.where || {}), tenant_id: Number(store.tenantId) } as any;
                     }
                 }
                 return query(args);
@@ -172,7 +173,7 @@ export const prisma = basePrisma.$extends({
                 if (AUDITABLE_MODELS.includes(model)) {
                     const store = contextStore.getStore();
                     if (!store?.isSystem && store?.tenantId) {
-                        args.where = { ...args.where, tenant_id: store.tenantId } as any;
+                        args.where = { ...(args.where || {}), tenant_id: Number(store.tenantId) } as any;
                     }
                 }
                 return query(args);
@@ -181,7 +182,7 @@ export const prisma = basePrisma.$extends({
                 if (AUDITABLE_MODELS.includes(model)) {
                     const store = contextStore.getStore();
                     if (!store?.isSystem && store?.tenantId) {
-                        args.where = { ...args.where, tenant_id: store.tenantId } as any;
+                        args.where = { ...(args.where || {}), tenant_id: Number(store.tenantId) } as any;
                     }
                 }
                 return query(args);
