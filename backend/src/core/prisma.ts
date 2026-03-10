@@ -43,7 +43,18 @@ export const prisma = basePrisma.$extends({
                 // --- OPTIMISTIC LOCKING AUTOMATION ---
                 if (VERSIONED_MODELS.includes(model)) {
                     const anyArgs = args as any;
-                    const tableName = model.toLowerCase() === 'user' ? 'users' : `${model.toLowerCase()}s`;
+                    const TABLE_MAP: Record<string, string> = {
+                        'Opportunity': 'opportunities',
+                        'User': 'users',
+                        'Client': 'clients',
+                        'Contact': 'contacts',
+                        'Task': 'tasks',
+                        'Product': 'products',
+                        'Event': 'events',
+                        'Document': 'documents',
+                        'Automation': 'automations'
+                    };
+                    const tableName = TABLE_MAP[model] || `${model.toLowerCase()}s`;
                     const hasVersion = await ResilienceService.checkColumnExists(tableName, 'version');
 
                     if (hasVersion) {

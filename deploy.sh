@@ -48,7 +48,7 @@ URL="http://localhost:3001/api/health"
 
 while [ $COUNT -lt $MAX_RETRIES ]; do
     RESPONSE=$(curl -s $URL || true)
-    if [[ $RESPONSE == *"status\":\"ok\""* ]]; then
+    if [[ $RESPONSE == *"status\":\"ok\""* ]] || [[ $RESPONSE == *"status\":\"Optimal\""* ]]; then
         echo "✅ [SUCCESS] System is HEALTHY and ARMORED."
         echo "   Metrics: $(echo $RESPONSE | grep -o 'healing_events\":[0-9]*')"
         exit 0

@@ -8,6 +8,8 @@ const connection = new Redis(env.REDIS_URL || 'redis://localhost:6379', {
     maxRetriesPerRequest: null,
 });
 
+connection.on('error', (err) => logger.error({ err }, 'BullMQ ioredis Connection Error'));
+
 const defaultJobOptions = {
     attempts: 5,
     backoff: {

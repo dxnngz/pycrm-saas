@@ -8,6 +8,8 @@ const connection = new Redis(env.REDIS_URL || 'redis://localhost:6379', {
     maxRetriesPerRequest: null,
 });
 
+connection.on('error', (err) => logger.error({ err }, 'BullMQ Worker ioredis Connection Error'));
+
 import { processTaskReminders } from './taskReminders.js';
 
 export const startWorkers = () => {
