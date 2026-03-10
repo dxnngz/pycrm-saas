@@ -42,6 +42,7 @@ fi
 
 # 6. Post-deploy Health Benchmark
 echo "🔍 [6/6] Running Performance & Health Benchmark..."
+[ -f backend/.env ] && export $(grep -v '^#' backend/.env | xargs)
 MAX_RETRIES=5
 COUNT=0
 URL="http://localhost:${PORT:-3000}/api/health"
