@@ -66,8 +66,8 @@ export const CommandBar = ({ isOpen, onClose }: { isOpen: boolean, onClose: () =
             return;
         }
 
-        const filteredActions: SearchResult[] = QUICK_ACTIONS.filter(a => a.label.toLowerCase().includes(val.toLowerCase()));
-        const filteredNav: SearchResult[] = NAVIGATION.filter(n => n.label.toLowerCase().includes(val.toLowerCase()));
+        const filteredActions: SearchResult[] = QUICK_ACTIONS.filter(a => (a.label ?? '').toLowerCase().includes((val ?? '').toLowerCase()));
+        const filteredNav: SearchResult[] = NAVIGATION.filter(n => (n.label ?? '').toLowerCase().includes((val ?? '').toLowerCase()));
 
         // Mock AI items
         const aiResults: SearchResult[] = val.length > 2 ? [
