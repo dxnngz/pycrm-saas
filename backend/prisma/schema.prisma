@@ -203,6 +203,7 @@ model Document {
   opportunity    Opportunity? @relation(fields: [opportunity_id], references: [id], onUpdate: NoAction)
   tenant         Tenant       @relation(fields: [tenant_id], references: [id], onDelete: Cascade)
 
+  @@unique([id, tenant_id])
   @@index([tenant_id, client_id], map: "idx_documents_tenant_client")
   @@index([tenant_id, opportunity_id], map: "idx_documents_tenant_opp")
   @@index([tenant_id, created_at], map: "idx_documents_tenant_date")

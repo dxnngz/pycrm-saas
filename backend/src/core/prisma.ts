@@ -186,37 +186,34 @@ export const prisma = basePrisma.$extends({
                 }
                 return query(args);
             },
-            async findUnique({ model, args, query }) {
-                if (AUDITABLE_MODELS.includes(model)) {
-                    const store = contextStore.getStore();
-                    if (!store?.isSystem && store?.tenantId) {
-                        // Con el nuevo índice compuesto, podemos hacer findUnique de forma nativa y segura
-                        args.where = {
-                            ...args.where,
-                            id_tenant_id: {
-                                id: (args.where as any).id,
-                                tenant_id: store.tenantId
-                            }
-                        } as any;
-                    }
+            if(AUDITABLE_MODELS.includes(model)) {
+                const store = contextStore.getStore();
+if (!store?.isSystem && store?.tenantId && (args.where as any).id) {
+    // Solo interceptamos si se busca por ID y tenemos tenantId
+    args.where = {
+        id_tenant_id: {
+            id: (args.where as any).id,
+            tenant_id: store.tenantId
+        }
+    } as any;
+}
                 }
-                return query(args);
+return query(args);
             },
             async findUniqueOrThrow({ model, args, query }) {
-                if (AUDITABLE_MODELS.includes(model)) {
-                    const store = contextStore.getStore();
-                    if (!store?.isSystem && store?.tenantId) {
-                        args.where = {
-                            ...args.where,
-                            id_tenant_id: {
-                                id: (args.where as any).id,
-                                tenant_id: store.tenantId
-                            }
-                        } as any;
-                    }
+    if (AUDITABLE_MODELS.includes(model)) {
+        const store = contextStore.getStore();
+        if (!store?.isSystem && store?.tenantId && (args.where as any).id) {
+            args.where = {
+                id_tenant_id: {
+                    id: (args.where as any).id,
+                    tenant_id: store.tenantId
                 }
-                return query(args);
-            }
+            } as any;
+        }
+    }
+    return query(args);
+}
         }
     }
 });
