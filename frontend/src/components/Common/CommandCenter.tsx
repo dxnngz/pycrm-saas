@@ -50,7 +50,7 @@ export const CommandCenter: React.FC<CommandCenterProps> = ({ isOpen, onClose, o
     const inputRef = useRef<HTMLInputElement>(null);
 
     const allItems = [...QUICK_ACTIONS, ...NAVIGATION].filter(item =>
-        (item.label ?? '').toLowerCase().includes(query.toLowerCase())
+        (item.label ?? '').toLowerCase().includes((query ?? '').toLowerCase())
     );
 
     useEffect(() => {

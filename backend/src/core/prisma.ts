@@ -10,6 +10,7 @@ const basePrisma = new PrismaClient({
 });
 
 const AUDITABLE_MODELS = ['Client', 'Opportunity', 'Contact', 'Task', 'Event', 'Document', 'Product', 'User'];
+const VERSIONED_MODELS = ['Client', 'Opportunity', 'Contact', 'Task', 'Event', 'Document', 'Product', 'User', 'Automation', 'Trigger', 'Condition', 'Action'];
 const safeTenant = (id: any): number => Number(id) || 1;
 
 export const prisma = basePrisma.$extends({
@@ -20,7 +21,6 @@ export const prisma = basePrisma.$extends({
                 const tenantId = safeTenant(store?.tenantId);
 
                 // --- MULTI-TENANT ISOLATION ARMOR ---
-                // We enforce tenant_id FILTERING on all standard operations
                 if (AUDITABLE_MODELS.includes(model) && !store?.isSystem && store?.tenantId) {
                     const anyArgs = args as any;
                     if (['findMany', 'findFirst', 'count', 'aggregate', 'groupBy', 'updateMany', 'deleteMany'].includes(operation)) {
@@ -28,8 +28,6 @@ export const prisma = basePrisma.$extends({
                     }
 
                     if (['findUnique', 'findUniqueOrThrow', 'update', 'delete'].includes(operation)) {
-                        // For unique operations, we MUST include tenant_id in the where clause
-                        // to ensure a user from Tenant B cannot guess an ID from Tenant A.
                         if (anyArgs.where?.id) {
                             anyArgs.where = { id: anyArgs.where.id, tenant_id: tenantId };
                         } else if (anyArgs.where) {
@@ -37,6 +35,14 @@ export const prisma = basePrisma.$extends({
                         }
                     }
 
+                    if (operation === 'create' && model !== 'User') {
+                        anyArgs.data = { ...(anyArgs.data || {}), tenant_id: tenantId };
+                    }
+                }
+
+                // --- OPTIMISTIC LOCKING AUTOMATION ---
+                if (VERSIONED_MODELS.includes(model)) {
+                    const anyArgs = args as any;
                     if (operation === 'update' || operation === 'updateMany') {
                         const anyData = (anyArgs.data || {}) as any;
                         if (typeof anyData === 'object' && !anyData.version) {
@@ -45,11 +51,7 @@ export const prisma = basePrisma.$extends({
                     }
 
                     if (operation === 'create') {
-                        if (model !== 'User' && model !== 'Tenant') {
-                            anyArgs.data = { ...(anyArgs.data || {}), tenant_id: tenantId, version: 1 };
-                        } else if (model === 'User') {
-                            anyArgs.data = { ...(anyArgs.data || {}), version: 1 };
-                        }
+                        anyArgs.data = { ...(anyArgs.data || {}), version: 1 };
                     }
                 }
 

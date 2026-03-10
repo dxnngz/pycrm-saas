@@ -67,7 +67,7 @@ const App: FC = () => {
     const keysPressed = new Set<string>();
 
     const handleKeyDown = (e: KeyboardEvent) => {
-      keysPressed.add(e.key.toLowerCase());
+      keysPressed.add(e.key?.toLowerCase() || '');
       if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
         e.preventDefault();
         setIsCommandBarOpen(true);
@@ -76,7 +76,7 @@ const App: FC = () => {
         const viewMap: Record<string, View> = {
           'd': 'dashboard', 'c': 'contacts', 'p': 'pipeline', 't': 'tasks', 'a': 'calendar', 's': 'settings', 'u': 'users'
         };
-        const targetView = viewMap[e.key.toLowerCase()];
+        const targetView = viewMap[e.key?.toLowerCase() || ''];
         if (targetView) {
           e.preventDefault();
           setActiveView(targetView);
@@ -85,7 +85,7 @@ const App: FC = () => {
       }
     };
 
-    const handleKeyUp = (e: KeyboardEvent) => { keysPressed.delete(e.key.toLowerCase()); };
+    const handleKeyUp = (e: KeyboardEvent) => { keysPressed.delete(e.key?.toLowerCase() || ''); };
 
     window.addEventListener('keydown', handleKeyDown);
     window.addEventListener('keyup', handleKeyUp);

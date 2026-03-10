@@ -23,7 +23,7 @@ export const useFPSMonitor = (componentName: string, threshold: number = 30) => 
                     // Export this to our mock telemetry
                     captureRUMMetrics({
                         latencyMs: delta,
-                        endpoint: `ui_jank_${componentName.toLowerCase()}`,
+                        endpoint: `ui_jank_${(componentName || 'unknown').toLowerCase()}`,
                         method: 'UI_EVENT',
                         status: Math.round(currentFps), // Abusing status field to send FPS for now
                         requestID: `fps-${Math.random().toString(36).substring(7)}`,
