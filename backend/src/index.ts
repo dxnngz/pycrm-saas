@@ -11,7 +11,7 @@ import { workflowEngine } from './modules/workflows/workflow.engine.js';
 
 import { ResilienceService } from './core/resilience.service.js';
 
-const port = env.PORT || 3001;
+const port = env.PORT || 3000;
 // ... (lines 14-44)
 const ensureAdmin = async () => {
     try {
@@ -63,7 +63,7 @@ const startServer = async () => {
         commercialIntelligenceJob.init();
 
         // Initialize background tasks scheduling
-        await addReminderJob();
+        addReminderJob().catch(e => logger.warn({ err: e.message }, 'Failed to schedule daily reminders (Redis likely offline)'));
 
         // Initialize Workflow Engine
         logger.info('🚀 Workflow Engine Initialized');
