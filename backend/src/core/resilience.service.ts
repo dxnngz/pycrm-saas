@@ -1,4 +1,4 @@
-import { prisma } from './prisma.js';
+import { prisma, basePrisma } from './prisma.js';
 import { logger } from '../utils/logger.js';
 import { execSync } from 'child_process';
 
@@ -18,7 +18,7 @@ export class ResilienceService {
         if (this.columnCache[table]?.has(column)) return true;
 
         try {
-            const result = await prisma.$queryRawUnsafe<{ column_name: string }[]>(`
+            const result = await basePrisma.$queryRawUnsafe<{ column_name: string }[]>(`
                 SELECT column_name 
                 FROM information_schema.columns 
                 WHERE table_name = '${table}' AND column_name = '${column}'
@@ -79,16 +79,16 @@ export class ResilienceService {
         try {
             for (const table of tables) {
                 // Enterprise Soft-Delete Support
-                await prisma.$executeRawUnsafe(`ALTER TABLE "${table}" ADD COLUMN IF NOT EXISTS "deleted_at" TIMESTAMP(6)`).catch(() => { });
+                await basePrisma.$executeRawUnsafe(`ALTER TABLE "${table}" ADD COLUMN IF NOT EXISTS "deleted_at" TIMESTAMP(6)`).catch(() => { });
                 // Versioning for Optimistic Locks
-                await prisma.$executeRawUnsafe(`ALTER TABLE "${table}" ADD COLUMN IF NOT EXISTS "version" INTEGER NOT NULL DEFAULT 1`).catch(() => { });
+                await basePrisma.$executeRawUnsafe(`ALTER TABLE "${table}" ADD COLUMN IF NOT EXISTS "version" INTEGER NOT NULL DEFAULT 1`).catch(() => { });
 
                 // Ensure tenant_id unique constraint for the "Strict Isolation" armor
                 // Industry Standard: @@unique([id, tenant_id])
                 if (table !== 'tenants' && table !== 'refresh_tokens' && table !== 'password_resets') {
                     try {
                         const constraintName = `uq_${table}_id_tenant`;
-                        await prisma.$executeRawUnsafe(`
+                        await basePrisma.$executeRawUnsafe(`
                             DO $$ BEGIN
                                 IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = '${constraintName}') THEN
                                     ALTER TABLE "${table}" ADD CONSTRAINT "${constraintName}" UNIQUE (id, tenant_id);
@@ -100,9 +100,9 @@ export class ResilienceService {
             }
 
             // Specific healing for Users (MFA & Security Armor)
-            await prisma.$executeRawUnsafe(`ALTER TABLE "users" ADD COLUMN IF NOT EXISTS "mfa_enabled" BOOLEAN NOT NULL DEFAULT false`).catch(() => { });
-            await prisma.$executeRawUnsafe(`ALTER TABLE "users" ADD COLUMN IF NOT EXISTS "mfa_secret" VARCHAR(255)`).catch(() => { });
-            await prisma.$executeRawUnsafe(`ALTER TABLE "users" ADD COLUMN IF NOT EXISTS "mfa_recovery_codes" TEXT[] DEFAULT ARRAY[]::TEXT[]`).catch(() => { });
+            await basePrisma.$executeRawUnsafe(`ALTER TABLE "users" ADD COLUMN IF NOT EXISTS "mfa_enabled" BOOLEAN NOT NULL DEFAULT false`).catch(() => { });
+            await basePrisma.$executeRawUnsafe(`ALTER TABLE "users" ADD COLUMN IF NOT EXISTS "mfa_secret" VARCHAR(255)`).catch(() => { });
+            await basePrisma.$executeRawUnsafe(`ALTER TABLE "users" ADD COLUMN IF NOT EXISTS "mfa_recovery_codes" TEXT[] DEFAULT ARRAY[]::TEXT[]`).catch(() => { });
 
             // Specific healing for Multi-tenant composite indexes (Performance Armor)
             const compositeIndexes = [
@@ -117,7 +117,7 @@ export class ResilienceService {
 
             for (const idx of compositeIndexes) {
                 try {
-                    await prisma.$executeRawUnsafe(`CREATE INDEX IF NOT EXISTS "${idx.name}" ON "${idx.table}" (${idx.cols})`);
+                    await basePrisma.$executeRawUnsafe(`CREATE INDEX IF NOT EXISTS "${idx.name}" ON "${idx.table}" (${idx.cols})`);
                 } catch (e) { }
             }
 

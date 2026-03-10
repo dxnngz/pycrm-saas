@@ -5,7 +5,7 @@ import { ResilienceService } from './resilience.service.js';
 import { AppError } from '../utils/AppError.js';
 import { logger } from '../utils/logger.js';
 
-const basePrisma = new PrismaClient({
+export const basePrisma = new PrismaClient({
     log: process.env.NODE_ENV === 'development' ? ['query', 'error', 'warn'] : ['error'],
 });
 
