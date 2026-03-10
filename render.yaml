@@ -5,7 +5,7 @@ services:
     env: node
     plan: pro
     rootDir: backend
-    buildCommand: npm install --include=dev && npx prisma generate && npx prisma migrate deploy && npm run build
+    buildCommand: npm install --include=dev && npx prisma generate && (npx prisma migrate resolve --rolled-back "20260309232603_elite_hardening_soft_delete" || true) && npx prisma migrate deploy && npm run build
     startCommand: npm run start
     healthCheckPath: /api/health
     envVars:
