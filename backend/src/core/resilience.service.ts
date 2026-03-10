@@ -1,6 +1,7 @@
 import { prisma, basePrisma } from './prisma.js';
 import { logger } from '../utils/logger.js';
 import { execSync } from 'child_process';
+import { TENANT_SCOPED_MODELS, TABLE_MAP } from './schema.constants.js';
 
 /**
  * ResilienceService: The core of the "Triple Self-Healing Armor".
@@ -21,7 +22,7 @@ export class ResilienceService {
             const result = await basePrisma.$queryRawUnsafe<{ column_name: string }[]>(`
                 SELECT column_name 
                 FROM information_schema.columns 
-                WHERE table_name = '${table}' AND column_name = '${column}'
+                WHERE table_name = '${table.replace(/"/g, '')}' AND column_name = '${column}'
             `);
 
             if (result.length > 0) {
@@ -73,19 +74,18 @@ export class ResilienceService {
 
         logger.info('🔍 [Resilience] Starting Triple-Shield Schema Audit...');
 
-        // Expanded list of core models
-        const tables = ['users', 'clients', 'contacts', 'opportunities', 'tasks', 'events', 'products', 'documents', 'audit_logs', 'automations', 'triggers', 'conditions', 'actions'];
-
         try {
-            for (const table of tables) {
+            for (const model of TENANT_SCOPED_MODELS) {
+                const table = TABLE_MAP[model] || `${model.toLowerCase()}s`;
+
                 // Enterprise Soft-Delete Support
                 await basePrisma.$executeRawUnsafe(`ALTER TABLE "${table}" ADD COLUMN IF NOT EXISTS "deleted_at" TIMESTAMP(6)`).catch(() => { });
                 // Versioning for Optimistic Locks
                 await basePrisma.$executeRawUnsafe(`ALTER TABLE "${table}" ADD COLUMN IF NOT EXISTS "version" INTEGER NOT NULL DEFAULT 1`).catch(() => { });
 
                 // Ensure tenant_id unique constraint for the "Strict Isolation" armor
-                // Industry Standard: @@unique([id, tenant_id])
-                if (table !== 'tenants' && table !== 'refresh_tokens' && table !== 'password_resets') {
+                // Only for models that are definitely tenant-scoped
+                if (model !== 'Tenant' && model !== 'AuditLog') {
                     try {
                         const constraintName = `uq_${table}_id_tenant`;
                         await basePrisma.$executeRawUnsafe(`
@@ -98,6 +98,10 @@ export class ResilienceService {
                     } catch (e) { }
                 }
             }
+
+            // Specific healing for Audit Logs (Correlation Armor)
+            await basePrisma.$executeRawUnsafe(`ALTER TABLE "audit_logs" ADD COLUMN IF NOT EXISTS "request_id" VARCHAR(100)`).catch(() => { });
+            await basePrisma.$executeRawUnsafe(`ALTER TABLE "audit_logs" ADD COLUMN IF NOT EXISTS "changes" JSONB`).catch(() => { });
 
             // Specific healing for Users (MFA & Security Armor)
             await basePrisma.$executeRawUnsafe(`ALTER TABLE "users" ADD COLUMN IF NOT EXISTS "mfa_enabled" BOOLEAN NOT NULL DEFAULT false`).catch(() => { });

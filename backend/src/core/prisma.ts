@@ -9,8 +9,8 @@ export const basePrisma = new PrismaClient({
     log: process.env.NODE_ENV === 'development' ? ['query', 'error', 'warn'] : ['error'],
 });
 
-const AUDITABLE_MODELS = ['Client', 'Opportunity', 'Contact', 'Task', 'Event', 'Document', 'Product', 'User'];
-const VERSIONED_MODELS = ['Client', 'Opportunity', 'Contact', 'Task', 'Event', 'Document', 'Product', 'User', 'Automation', 'Trigger', 'Condition', 'Action'];
+import { AUDITABLE_MODELS, VERSIONED_MODELS, TABLE_MAP } from './schema.constants.js';
+
 const safeTenant = (id: any): number => Number(id) || 1;
 
 export const prisma = basePrisma.$extends({
@@ -43,17 +43,6 @@ export const prisma = basePrisma.$extends({
                 // --- OPTIMISTIC LOCKING AUTOMATION ---
                 if (VERSIONED_MODELS.includes(model)) {
                     const anyArgs = args as any;
-                    const TABLE_MAP: Record<string, string> = {
-                        'Opportunity': 'opportunities',
-                        'User': 'users',
-                        'Client': 'clients',
-                        'Contact': 'contacts',
-                        'Task': 'tasks',
-                        'Product': 'products',
-                        'Event': 'events',
-                        'Document': 'documents',
-                        'Automation': 'automations'
-                    };
                     const tableName = TABLE_MAP[model] || `${model.toLowerCase()}s`;
                     const hasVersion = await ResilienceService.checkColumnExists(tableName, 'version');
 

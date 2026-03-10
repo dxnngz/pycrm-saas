@@ -44,7 +44,7 @@ fi
 echo "🔍 [6/6] Running Performance & Health Benchmark..."
 MAX_RETRIES=5
 COUNT=0
-URL="http://localhost:3001/api/health"
+URL="http://localhost:${PORT:-3000}/api/health"
 
 while [ $COUNT -lt $MAX_RETRIES ]; do
     RESPONSE=$(curl -s $URL || true)
