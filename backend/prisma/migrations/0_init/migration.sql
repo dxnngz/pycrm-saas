@@ -1,8 +1,13 @@
+-- CreateSchema
+CREATE SCHEMA IF NOT EXISTS "public";
+
 -- CreateTable
 CREATE TABLE "tenants" (
     "id" SERIAL NOT NULL,
     "name" VARCHAR(100) NOT NULL,
     "domain" VARCHAR(100),
+    "plan" VARCHAR(20) NOT NULL DEFAULT 'free',
+    "settings" JSONB DEFAULT '{}',
     "created_at" TIMESTAMP(6) DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT "tenants_pkey" PRIMARY KEY ("id")
@@ -17,6 +22,10 @@ CREATE TABLE "users" (
     "password" VARCHAR(255) NOT NULL,
     "role" VARCHAR(20) DEFAULT 'empleado',
     "created_at" TIMESTAMP(6) DEFAULT CURRENT_TIMESTAMP,
+    "deleted_at" TIMESTAMP(6),
+    "mfa_enabled" BOOLEAN NOT NULL DEFAULT false,
+    "mfa_secret" VARCHAR(255),
+    "mfa_recovery_codes" TEXT[] DEFAULT ARRAY[]::TEXT[],
 
     CONSTRAINT "users_pkey" PRIMARY KEY ("id")
 );
@@ -31,6 +40,7 @@ CREATE TABLE "clients" (
     "phone" VARCHAR(20),
     "status" VARCHAR(20) DEFAULT 'activo',
     "created_at" TIMESTAMP(6) DEFAULT CURRENT_TIMESTAMP,
+    "deleted_at" TIMESTAMP(6),
 
     CONSTRAINT "clients_pkey" PRIMARY KEY ("id")
 );
@@ -43,6 +53,7 @@ CREATE TABLE "contacts" (
     "type" VARCHAR(50) NOT NULL,
     "description" TEXT,
     "contact_date" TIMESTAMP(6) DEFAULT CURRENT_TIMESTAMP,
+    "deleted_at" TIMESTAMP(6),
 
     CONSTRAINT "contacts_pkey" PRIMARY KEY ("id")
 );
@@ -59,6 +70,7 @@ CREATE TABLE "opportunities" (
     "estimated_close_date" DATE,
     "interactions" INTEGER DEFAULT 0,
     "created_at" TIMESTAMP(6) DEFAULT CURRENT_TIMESTAMP,
+    "deleted_at" TIMESTAMP(6),
     "version" INTEGER NOT NULL DEFAULT 1,
 
     CONSTRAINT "opportunities_pkey" PRIMARY KEY ("id")
@@ -75,6 +87,7 @@ CREATE TABLE "tasks" (
     "priority" VARCHAR(20) DEFAULT 'Media',
     "completed" BOOLEAN DEFAULT false,
     "created_at" TIMESTAMP(6) DEFAULT CURRENT_TIMESTAMP,
+    "deleted_at" TIMESTAMP(6),
     "version" INTEGER NOT NULL DEFAULT 1,
 
     CONSTRAINT "tasks_pkey" PRIMARY KEY ("id")
@@ -92,6 +105,7 @@ CREATE TABLE "events" (
     "end_date" TIMESTAMP(6) NOT NULL,
     "color" TEXT DEFAULT '#4f46e5',
     "created_at" TIMESTAMP(6) DEFAULT CURRENT_TIMESTAMP,
+    "deleted_at" TIMESTAMP(6),
     "version" INTEGER NOT NULL DEFAULT 1,
 
     CONSTRAINT "events_pkey" PRIMARY KEY ("id")
@@ -106,6 +120,7 @@ CREATE TABLE "products" (
     "price" DECIMAL(12,2) NOT NULL,
     "category" TEXT,
     "created_at" TIMESTAMP(6) DEFAULT CURRENT_TIMESTAMP,
+    "deleted_at" TIMESTAMP(6),
     "version" INTEGER NOT NULL DEFAULT 1,
 
     CONSTRAINT "products_pkey" PRIMARY KEY ("id")
@@ -122,6 +137,7 @@ CREATE TABLE "documents" (
     "status" TEXT DEFAULT 'draft',
     "amount" DECIMAL(12,2),
     "created_at" TIMESTAMP(6) DEFAULT CURRENT_TIMESTAMP,
+    "deleted_at" TIMESTAMP(6),
     "version" INTEGER NOT NULL DEFAULT 1,
 
     CONSTRAINT "documents_pkey" PRIMARY KEY ("id")
@@ -157,10 +173,56 @@ CREATE TABLE "audit_logs" (
     "tenant_id" INTEGER NOT NULL,
     "action" VARCHAR(20) NOT NULL,
     "user_id" INTEGER,
+    "request_id" VARCHAR(100),
     "changes" JSONB,
     "created_at" TIMESTAMP(6) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT "audit_logs_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "automations" (
+    "id" SERIAL NOT NULL,
+    "tenant_id" INTEGER NOT NULL,
+    "name" VARCHAR(255) NOT NULL,
+    "description" TEXT,
+    "active" BOOLEAN NOT NULL DEFAULT true,
+    "created_at" TIMESTAMP(6) DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMP(6) DEFAULT CURRENT_TIMESTAMP,
+    "deleted_at" TIMESTAMP(6),
+
+    CONSTRAINT "automations_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "triggers" (
+    "id" SERIAL NOT NULL,
+    "automation_id" INTEGER NOT NULL,
+    "event_name" VARCHAR(100) NOT NULL,
+
+    CONSTRAINT "triggers_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "conditions" (
+    "id" SERIAL NOT NULL,
+    "trigger_id" INTEGER NOT NULL,
+    "field" VARCHAR(100) NOT NULL,
+    "operator" VARCHAR(20) NOT NULL,
+    "value" VARCHAR(255) NOT NULL,
+
+    CONSTRAINT "conditions_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "actions" (
+    "id" SERIAL NOT NULL,
+    "automation_id" INTEGER NOT NULL,
+    "type" VARCHAR(100) NOT NULL,
+    "payload" JSONB NOT NULL,
+    "order" INTEGER NOT NULL DEFAULT 0,
+
+    CONSTRAINT "actions_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateIndex
@@ -173,13 +235,34 @@ CREATE UNIQUE INDEX "users_email_key" ON "users"("email");
 CREATE INDEX "idx_users_tenant_email" ON "users"("tenant_id", "email");
 
 -- CreateIndex
+CREATE INDEX "idx_users_tenant_date" ON "users"("tenant_id", "created_at");
+
+-- CreateIndex
 CREATE UNIQUE INDEX "unique_users_tenant_email" ON "users"("tenant_id", "email");
+
+-- CreateIndex
+CREATE INDEX "idx_clients_tenant_date" ON "clients"("tenant_id", "created_at");
+
+-- CreateIndex
+CREATE INDEX "idx_clients_tenant_status" ON "clients"("tenant_id", "status");
 
 -- CreateIndex
 CREATE INDEX "idx_clients_tenant" ON "clients"("tenant_id");
 
 -- CreateIndex
+CREATE UNIQUE INDEX "clients_id_tenant_id_key" ON "clients"("id", "tenant_id");
+
+-- CreateIndex
 CREATE INDEX "idx_contacts_tenant_client" ON "contacts"("tenant_id", "client_id");
+
+-- CreateIndex
+CREATE INDEX "idx_contacts_tenant_date" ON "contacts"("tenant_id", "contact_date");
+
+-- CreateIndex
+CREATE INDEX "idx_opps_tenant_status" ON "opportunities"("tenant_id", "status");
+
+-- CreateIndex
+CREATE INDEX "idx_opps_tenant_date" ON "opportunities"("tenant_id", "created_at");
 
 -- CreateIndex
 CREATE INDEX "idx_opps_tenant_assigned" ON "opportunities"("tenant_id", "assigned_to");
@@ -188,10 +271,22 @@ CREATE INDEX "idx_opps_tenant_assigned" ON "opportunities"("tenant_id", "assigne
 CREATE INDEX "idx_opps_tenant_client" ON "opportunities"("tenant_id", "client_id");
 
 -- CreateIndex
+CREATE UNIQUE INDEX "opportunities_id_tenant_id_key" ON "opportunities"("id", "tenant_id");
+
+-- CreateIndex
+CREATE INDEX "idx_tasks_tenant_completed" ON "tasks"("tenant_id", "completed");
+
+-- CreateIndex
+CREATE INDEX "idx_tasks_tenant_date" ON "tasks"("tenant_id", "created_at");
+
+-- CreateIndex
 CREATE INDEX "idx_tasks_tenant_client" ON "tasks"("tenant_id", "client_id");
 
 -- CreateIndex
 CREATE INDEX "idx_tasks_tenant_user" ON "tasks"("tenant_id", "user_id");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "tasks_id_tenant_id_key" ON "tasks"("id", "tenant_id");
 
 -- CreateIndex
 CREATE INDEX "idx_events_tenant_user" ON "events"("tenant_id", "user_id");
@@ -200,7 +295,19 @@ CREATE INDEX "idx_events_tenant_user" ON "events"("tenant_id", "user_id");
 CREATE INDEX "idx_products_tenant" ON "products"("tenant_id");
 
 -- CreateIndex
+CREATE INDEX "idx_products_tenant_date" ON "products"("tenant_id", "created_at");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "products_id_tenant_id_key" ON "products"("id", "tenant_id");
+
+-- CreateIndex
 CREATE INDEX "idx_documents_tenant_client" ON "documents"("tenant_id", "client_id");
+
+-- CreateIndex
+CREATE INDEX "idx_documents_tenant_opp" ON "documents"("tenant_id", "opportunity_id");
+
+-- CreateIndex
+CREATE INDEX "idx_documents_tenant_date" ON "documents"("tenant_id", "created_at");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "refresh_tokens_token_key" ON "refresh_tokens"("token");
@@ -219,6 +326,24 @@ CREATE INDEX "idx_audit_tenant_entity" ON "audit_logs"("tenant_id", "entity", "e
 
 -- CreateIndex
 CREATE INDEX "idx_audit_tenant_user" ON "audit_logs"("tenant_id", "user_id");
+
+-- CreateIndex
+CREATE INDEX "idx_audit_tenant_date" ON "audit_logs"("tenant_id", "created_at");
+
+-- CreateIndex
+CREATE INDEX "idx_audit_global_date" ON "audit_logs"("created_at");
+
+-- CreateIndex
+CREATE INDEX "idx_automations_tenant" ON "automations"("tenant_id");
+
+-- CreateIndex
+CREATE INDEX "idx_triggers_automation" ON "triggers"("automation_id");
+
+-- CreateIndex
+CREATE INDEX "idx_conditions_trigger" ON "conditions"("trigger_id");
+
+-- CreateIndex
+CREATE INDEX "idx_actions_automation" ON "actions"("automation_id");
 
 -- AddForeignKey
 ALTER TABLE "users" ADD CONSTRAINT "users_tenant_id_fkey" FOREIGN KEY ("tenant_id") REFERENCES "tenants"("id") ON DELETE CASCADE ON UPDATE CASCADE;
@@ -245,19 +370,19 @@ ALTER TABLE "opportunities" ADD CONSTRAINT "opportunities_tenant_id_fkey" FOREIG
 ALTER TABLE "tasks" ADD CONSTRAINT "tasks_client_id_fkey" FOREIGN KEY ("client_id") REFERENCES "clients"("id") ON DELETE SET NULL ON UPDATE NO ACTION;
 
 -- AddForeignKey
-ALTER TABLE "tasks" ADD CONSTRAINT "tasks_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE NO ACTION;
+ALTER TABLE "tasks" ADD CONSTRAINT "tasks_tenant_id_fkey" FOREIGN KEY ("tenant_id") REFERENCES "tenants"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "tasks" ADD CONSTRAINT "tasks_tenant_id_fkey" FOREIGN KEY ("tenant_id") REFERENCES "tenants"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "tasks" ADD CONSTRAINT "tasks_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE NO ACTION;
 
 -- AddForeignKey
 ALTER TABLE "events" ADD CONSTRAINT "events_client_id_fkey" FOREIGN KEY ("client_id") REFERENCES "clients"("id") ON DELETE SET NULL ON UPDATE NO ACTION;
 
 -- AddForeignKey
-ALTER TABLE "events" ADD CONSTRAINT "events_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE NO ACTION;
+ALTER TABLE "events" ADD CONSTRAINT "events_tenant_id_fkey" FOREIGN KEY ("tenant_id") REFERENCES "tenants"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "events" ADD CONSTRAINT "events_tenant_id_fkey" FOREIGN KEY ("tenant_id") REFERENCES "tenants"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "events" ADD CONSTRAINT "events_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE NO ACTION;
 
 -- AddForeignKey
 ALTER TABLE "products" ADD CONSTRAINT "products_tenant_id_fkey" FOREIGN KEY ("tenant_id") REFERENCES "tenants"("id") ON DELETE CASCADE ON UPDATE CASCADE;
@@ -278,7 +403,20 @@ ALTER TABLE "refresh_tokens" ADD CONSTRAINT "refresh_tokens_user_id_fkey" FOREIG
 ALTER TABLE "password_resets" ADD CONSTRAINT "password_resets_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE NO ACTION;
 
 -- AddForeignKey
+ALTER TABLE "audit_logs" ADD CONSTRAINT "audit_logs_tenant_id_fkey" FOREIGN KEY ("tenant_id") REFERENCES "tenants"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
 ALTER TABLE "audit_logs" ADD CONSTRAINT "audit_logs_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "users"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "audit_logs" ADD CONSTRAINT "audit_logs_tenant_id_fkey" FOREIGN KEY ("tenant_id") REFERENCES "tenants"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "automations" ADD CONSTRAINT "automations_tenant_id_fkey" FOREIGN KEY ("tenant_id") REFERENCES "tenants"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "triggers" ADD CONSTRAINT "triggers_automation_id_fkey" FOREIGN KEY ("automation_id") REFERENCES "automations"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "conditions" ADD CONSTRAINT "conditions_trigger_id_fkey" FOREIGN KEY ("trigger_id") REFERENCES "triggers"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "actions" ADD CONSTRAINT "actions_automation_id_fkey" FOREIGN KEY ("automation_id") REFERENCES "automations"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
