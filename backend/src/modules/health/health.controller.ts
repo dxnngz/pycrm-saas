@@ -35,12 +35,13 @@ router.get('/', async (req, res) => {
         const duration = Date.now() - startTime;
 
         res.json({
-            status: 'ok',
+            status: redisStatus === 'connected' && dbStatus === 'connected' ? 'ok' : 'degraded',
             database: dbStatus,
             redis: redisStatus,
             latency_ms: duration,
             uptime: Math.round(process.uptime()),
-            timestamp: new Date().toISOString()
+            timestamp: new Date().toISOString(),
+            version: process.env.npm_package_version || '1.0.0'
         });
     } catch (err: any) {
         logger.error({ msg: 'Health Check Failed', error: err.message });

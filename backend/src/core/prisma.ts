@@ -60,6 +60,19 @@ export const prisma = basePrisma.$extends({
                 return result;
             },
 
+            async createMany({ model, args, query }) {
+                if (AUDITABLE_MODELS.includes(model)) {
+                    const store = contextStore.getStore();
+                    const tenantId = safeTenant(store?.tenantId);
+                    if (!store?.isSystem && store?.tenantId) {
+                        if (Array.isArray(args.data)) {
+                            args.data = args.data.map((item: any) => ({ ...item, tenant_id: tenantId }));
+                        }
+                    }
+                }
+                return query(args);
+            },
+
             // MULTI-TENANT: UPDATE INTERCEPTOR
             async update({ model, args, query }) {
                 if (AUDITABLE_MODELS.includes(model)) {
@@ -104,6 +117,16 @@ export const prisma = basePrisma.$extends({
                 return result;
             },
 
+            async updateMany({ model, args, query }) {
+                if (AUDITABLE_MODELS.includes(model)) {
+                    const store = contextStore.getStore();
+                    if (!store?.isSystem && store?.tenantId) {
+                        args.where = { ...(args.where || {}), tenant_id: safeTenant(store.tenantId) };
+                    }
+                }
+                return query(args);
+            },
+
             // MULTI-TENANT: DELETE INTERCEPTOR
             async delete({ model, args, query }) {
                 if (AUDITABLE_MODELS.includes(model)) {
@@ -145,12 +168,22 @@ export const prisma = basePrisma.$extends({
                 return result;
             },
 
+            async deleteMany({ model, args, query }) {
+                if (AUDITABLE_MODELS.includes(model)) {
+                    const store = contextStore.getStore();
+                    if (!store?.isSystem && store?.tenantId) {
+                        args.where = { ...(args.where || {}), tenant_id: safeTenant(store.tenantId) };
+                    }
+                }
+                return query(args);
+            },
+
             // MULTI-TENANT: READ ISOLATION (findMany, findFirst, count)
             async findMany({ model, args, query }) {
                 if (AUDITABLE_MODELS.includes(model)) {
                     const store = contextStore.getStore();
                     if (!store?.isSystem && store?.tenantId) {
-                        args.where = { ...(args.where || {}), tenant_id: Number(store.tenantId) } as any;
+                        args.where = { ...(args.where || {}), tenant_id: safeTenant(store.tenantId) } as any;
                     }
                 }
                 return query(args);
@@ -159,16 +192,48 @@ export const prisma = basePrisma.$extends({
                 if (AUDITABLE_MODELS.includes(model)) {
                     const store = contextStore.getStore();
                     if (!store?.isSystem && store?.tenantId) {
-                        args.where = { ...(args.where || {}), tenant_id: Number(store.tenantId) } as any;
+                        args.where = { ...(args.where || {}), tenant_id: safeTenant(store.tenantId) } as any;
                     }
                 }
                 return query(args);
             },
+
+            async findUnique({ model, args, query }) {
+                if (AUDITABLE_MODELS.includes(model)) {
+                    const store = contextStore.getStore();
+                    if (!store?.isSystem && store?.tenantId) {
+                        // Transform findUnique(id) into findUnique(id_tenant_id)
+                        const tenantId = safeTenant(store.tenantId);
+                        if (args.where.id) {
+                            args.where = { id: args.where.id, tenant_id: tenantId } as any;
+                        } else {
+                            args.where = { ...args.where, tenant_id: tenantId } as any;
+                        }
+                    }
+                }
+                return query(args);
+            },
+
+            async findUniqueOrThrow({ model, args, query }) {
+                if (AUDITABLE_MODELS.includes(model)) {
+                    const store = contextStore.getStore();
+                    if (!store?.isSystem && store?.tenantId) {
+                        const tenantId = safeTenant(store.tenantId);
+                        if (args.where.id) {
+                            args.where = { id: args.where.id, tenant_id: tenantId } as any;
+                        } else {
+                            args.where = { ...args.where, tenant_id: tenantId } as any;
+                        }
+                    }
+                }
+                return query(args);
+            },
+
             async count({ model, args, query }) {
                 if (AUDITABLE_MODELS.includes(model)) {
                     const store = contextStore.getStore();
                     if (!store?.isSystem && store?.tenantId) {
-                        args.where = { ...(args.where || {}), tenant_id: Number(store.tenantId) } as any;
+                        args.where = { ...(args.where || {}), tenant_id: safeTenant(store.tenantId) } as any;
                     }
                 }
                 return query(args);
@@ -177,7 +242,7 @@ export const prisma = basePrisma.$extends({
                 if (AUDITABLE_MODELS.includes(model)) {
                     const store = contextStore.getStore();
                     if (!store?.isSystem && store?.tenantId) {
-                        args.where = { ...(args.where || {}), tenant_id: Number(store.tenantId) } as any;
+                        args.where = { ...(args.where || {}), tenant_id: safeTenant(store.tenantId) } as any;
                     }
                 }
                 return query(args);
@@ -186,15 +251,9 @@ export const prisma = basePrisma.$extends({
                 if (AUDITABLE_MODELS.includes(model)) {
                     const store = contextStore.getStore();
                     if (!store?.isSystem && store?.tenantId) {
-                        args.where = { ...(args.where || {}), tenant_id: Number(store.tenantId) } as any;
+                        args.where = { ...(args.where || {}), tenant_id: safeTenant(store.tenantId) } as any;
                     }
                 }
-                return query(args);
-            },
-            async findUnique({ args, query }) {
-                return query(args);
-            },
-            async findUniqueOrThrow({ args, query }) {
                 return query(args);
             }
         }
