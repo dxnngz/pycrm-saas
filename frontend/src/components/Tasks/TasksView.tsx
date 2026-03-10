@@ -101,8 +101,8 @@ const TasksView = () => {
     const safeTasks = Array.isArray(tasks) ? tasks : [];
 
     const filteredTasks = safeTasks.filter((task: Task) => {
-        const matchesSearch = task.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            (task.client_name && task.client_name.toLowerCase().includes(searchQuery.toLowerCase()));
+        const matchesSearch = (task.title ?? '').toLowerCase().includes(searchQuery.toLowerCase()) ||
+            (task.client_name && (task.client_name ?? '').toLowerCase().includes(searchQuery.toLowerCase()));
 
         const priorityMap: Record<string, string> = {
             'All': 'All',

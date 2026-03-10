@@ -12,7 +12,7 @@ export type FrontendRoleType = typeof FrontendRole[keyof typeof FrontendRole];
 export const usePermissions = () => {
     const { user } = useAuth();
 
-    const role = (user?.role?.toLowerCase() as FrontendRoleType) || FrontendRole.USER;
+    const role = ((user?.role ?? '').toLowerCase() as FrontendRoleType) || FrontendRole.USER;
 
     const isAdmin = role === FrontendRole.ADMIN;
     const isManagerOrAbove = isAdmin || role === FrontendRole.MANAGER;

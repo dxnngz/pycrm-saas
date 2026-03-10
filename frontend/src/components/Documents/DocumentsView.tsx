@@ -57,9 +57,9 @@ const DocumentsView = () => {
     }
   };
 
-  const pendingDocs = documents.filter(d => d.status.toLowerCase() === 'pending' || d.status.toLowerCase() === 'pendiente').length;
-  const paidMothAmount = documents.filter(d => d.status.toLowerCase() === 'paid' || d.status.toLowerCase() === 'pagado').reduce((acc, d) => acc + (Number(d.amount) || 0), 0);
-  const quotesCount = documents.filter(d => d.type.toLowerCase() === 'quote' || d.type.toLowerCase() === 'presupuesto').length;
+  const pendingDocs = documents.filter(d => (d.status ?? '').toLowerCase() === 'pending' || (d.status ?? '').toLowerCase() === 'pendiente').length;
+  const paidMothAmount = documents.filter(d => (d.status ?? '').toLowerCase() === 'paid' || (d.status ?? '').toLowerCase() === 'pagado').reduce((acc, d) => acc + (Number(d.amount) || 0), 0);
+  const quotesCount = documents.filter(d => (d.type ?? '').toLowerCase() === 'quote' || (d.type ?? '').toLowerCase() === 'presupuesto').length;
 
   const columns: Column<Document>[] = [
     {
@@ -87,7 +87,7 @@ const DocumentsView = () => {
     {
       header: 'Status',
       accessor: (doc: Document) => {
-        const s = doc.status.toLowerCase();
+        const s = (doc.status ?? '').toLowerCase();
         const variant = (s === 'paid' || s === 'pagado' || s === 'signed' || s === 'firmado') ? 'success' :
           (s === 'pending' || s === 'pendiente') ? 'warning' : 'secondary';
         return <Badge variant={variant}>{doc.status}</Badge>;
