@@ -5,7 +5,7 @@ services:
     env: node
     plan: pro
     rootDir: backend
-    buildCommand: npm install --include=dev && npx prisma generate && (npx prisma migrate resolve --rolled-back "20260309190148_enterprise_features" || true) && (npx prisma migrate resolve --rolled-back "20260309231938_hardening_indexes" || true) && (npx prisma migrate resolve --rolled-back "20260310000934_auth_mfa_update" || true) && (npx prisma migrate resolve --rolled-back "20260309232603_elite_hardening_soft_delete" || true) && npx prisma migrate deploy && npm run build
+    buildCommand: npm install --include=dev && npx prisma generate && npx ts-node scripts/reset-migrations.ts && npx prisma migrate deploy && npm run build
     startCommand: npm run start
     healthCheckPath: /api/health
     envVars:
