@@ -8,6 +8,10 @@ const basePrisma = new PrismaClient({
 
 // Entidades que queremos auditar
 const AUDITABLE_MODELS = ['Client', 'Opportunity', 'Contact', 'Task', 'Event', 'Document', 'Product', 'User'];
+const safeTenant = (id: any): number => {
+    const n = Number(id);
+    return isNaN(n) ? 1 : n;
+};
 
 export const prisma = basePrisma.$extends({
     query: {
@@ -16,7 +20,7 @@ export const prisma = basePrisma.$extends({
             async create({ model, args, query }) {
                 if (AUDITABLE_MODELS.includes(model) && model !== 'User') {
                     const store = contextStore.getStore();
-                    const tenantId = Number(store?.tenantId) || 1;
+                    const tenantId = safeTenant(store?.tenantId);
                     if (!store?.isSystem && store?.tenantId) {
                         if (args.data) {
                             (args.data as Record<string, unknown>).tenant_id = tenantId;
@@ -61,7 +65,7 @@ export const prisma = basePrisma.$extends({
                 if (AUDITABLE_MODELS.includes(model)) {
                     const store = contextStore.getStore();
                     if (!store?.isSystem && store?.tenantId) {
-                        args.where = { ...(args.where || {}), tenant_id: Number(store.tenantId) };
+                        args.where = { ...(args.where || {}), tenant_id: safeTenant(store.tenantId) };
                     }
                 }
 
@@ -105,7 +109,7 @@ export const prisma = basePrisma.$extends({
                 if (AUDITABLE_MODELS.includes(model)) {
                     const store = contextStore.getStore();
                     if (!store?.isSystem && store?.tenantId) {
-                        args.where = { ...(args.where || {}), tenant_id: Number(store.tenantId) };
+                        args.where = { ...(args.where || {}), tenant_id: safeTenant(store.tenantId) };
                     }
                 }
 
