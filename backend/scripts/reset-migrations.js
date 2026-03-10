@@ -1,9 +1,9 @@
-import { PrismaClient } from '@prisma/client';
+const { PrismaClient } = require('@prisma/client');
 
 const prisma = new PrismaClient();
 
 async function main() {
-    console.log('🚀 Starting surgical migration reset...');
+    console.log('🚀 Starting surgical migration reset (JS)...');
 
     const migrationsToReset = [
         '20260309190148_enterprise_features',
@@ -15,10 +15,15 @@ async function main() {
     try {
         for (const migration of migrationsToReset) {
             console.log(`🧹 Removing record for: ${migration}`);
-            await prisma.$executeRawUnsafe(
-                `DELETE FROM "_prisma_migrations" WHERE "migration_name" = $1`,
-                migration
-            );
+            // Using executeRawUnsafe to ignore errors if table doesn't exist yet
+            try {
+                await prisma.$executeRawUnsafe(
+                    `DELETE FROM "_prisma_migrations" WHERE "migration_name" = $1`,
+                    migration
+                );
+            } catch (e) {
+                console.log(`⚠️ Could not remove ${migration}, it might not exist in _prisma_migrations.`);
+            }
         }
         console.log('✅ Migration history cleaned. Ready for redeploy.');
     } catch (error) {
