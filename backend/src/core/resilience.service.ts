@@ -10,13 +10,15 @@ import { TENANT_SCOPED_MODELS, TABLE_MAP } from './schema.constants.js';
 export class ResilienceService {
     private static healingEvents = 0;
     private static totalRetries = 0;
-    private static columnCache: Record<string, Set<string>> = {};
+    private static columnCache: Record<string, Record<string, boolean>> = {};
 
     /**
      * Checks if a column exists in a specific table.
      */
     static async checkColumnExists(table: string, column: string): Promise<boolean> {
-        if (this.columnCache[table]?.has(column)) return true;
+        if (this.columnCache[table] && this.columnCache[table][column] !== undefined) {
+            return this.columnCache[table][column];
+        }
 
         try {
             const result = await basePrisma.$queryRawUnsafe<{ column_name: string }[]>(`
@@ -25,15 +27,13 @@ export class ResilienceService {
                 WHERE table_name = '${table.replace(/"/g, '')}' AND column_name = '${column}'
             `);
 
-            if (result.length > 0) {
-                if (!this.columnCache[table]) this.columnCache[table] = new Set();
-                this.columnCache[table].add(column);
-                return true;
-            }
+            const exists = result.length > 0;
+            if (!this.columnCache[table]) this.columnCache[table] = {};
+            this.columnCache[table][column] = exists;
+            return exists;
         } catch (e) {
             return false;
         }
-        return false;
     }
 
     /**
@@ -78,10 +78,16 @@ export class ResilienceService {
             for (const model of TENANT_SCOPED_MODELS) {
                 const table = TABLE_MAP[model] || `${model.toLowerCase()}s`;
 
+                // Reset cache for this table to ensure fresh state after healing
+                this.columnCache[table] = {};
+
                 // Enterprise Soft-Delete Support
                 await basePrisma.$executeRawUnsafe(`ALTER TABLE "${table}" ADD COLUMN IF NOT EXISTS "deleted_at" TIMESTAMP(6)`).catch(() => { });
+                this.columnCache[table]['deleted_at'] = true;
+
                 // Versioning for Optimistic Locks
                 await basePrisma.$executeRawUnsafe(`ALTER TABLE "${table}" ADD COLUMN IF NOT EXISTS "version" INTEGER NOT NULL DEFAULT 1`).catch(() => { });
+                this.columnCache[table]['version'] = true;
 
                 // Ensure tenant_id unique constraint for the "Strict Isolation" armor
                 // Only for models that are definitely tenant-scoped
@@ -126,8 +132,6 @@ export class ResilienceService {
             }
 
             this.healingEvents++;
-            // Refresh cache after healing
-            this.columnCache = {};
             logger.info('🔍 [Resilience] Self-healing event detected: Elite Schema synchronization complete.');
         } catch (err: any) {
             logger.error({ msg: '❌ [Resilience] Fatal healing failure', err: err.message });

@@ -134,7 +134,7 @@ const DashboardView = () => {
                             <Badge variant="success" className="animate-pulse">Optimized</Badge>
                         )}
                     </div>
-                    <div className="h-[320px] w-full">
+                    <div className="h-[350px] w-full flex items-center justify-center overflow-hidden">
                         <Suspense fallback={<Skeleton className="w-full h-full rounded-lg" />}>
                             {isMounted && <SalesChart data={stats.chartData} />}
                         </Suspense>

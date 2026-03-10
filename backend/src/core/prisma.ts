@@ -71,23 +71,27 @@ export const prisma = basePrisma.$extends({
                 }
 
                 // --- AUDIT LOGS ---
-                if (AUDITABLE_MODELS.includes(model) && ['create', 'update', 'delete'].includes(operation) && store?.userId) {
-                    const changes = operation === 'update' ? {
-                        updatedData: JSON.parse(JSON.stringify((args as any).data)),
-                        finalState: JSON.parse(JSON.stringify(result))
-                    } : JSON.parse(JSON.stringify(result));
+                try {
+                    if (AUDITABLE_MODELS.includes(model) && ['create', 'update', 'delete'].includes(operation) && store?.userId) {
+                        const changes = operation === 'update' ? {
+                            updatedData: (args as any).data,
+                            finalState: result
+                        } : result;
 
-                    basePrisma.auditLog.create({
-                        data: {
-                            entity: model,
-                            entity_id: (result as any)?.id ? Number((result as any).id) : 0,
-                            action: operation.toUpperCase(),
-                            user_id: Number(store.userId),
-                            request_id: store.requestId || null,
-                            tenant_id: tenantId,
-                            changes: changes as any,
-                        }
-                    }).catch(e => logger.error({ err: e.message }, 'Failed to write audit log'));
+                        basePrisma.auditLog.create({
+                            data: {
+                                entity: model,
+                                entity_id: (result as any)?.id ? Number((result as any).id) : 0,
+                                action: operation.toUpperCase(),
+                                user_id: Number(store.userId),
+                                request_id: store.requestId || null,
+                                tenant_id: tenantId,
+                                changes: JSON.parse(JSON.stringify(changes)),
+                            }
+                        }).catch(e => logger.error({ err: e.message }, 'Failed to write audit log'));
+                    }
+                } catch (auditErr) {
+                    logger.error({ msg: 'Audit log extraction failed', err: (auditErr as any).message });
                 }
 
                 // --- CACHE INVALIDATION ---
