@@ -15,7 +15,7 @@ import { api } from '../../services/api';
 import type { Document } from '../../types';
 import { usePermissions } from '../../hooks/usePermissions';
 import { toast } from 'sonner';
-import { Table, type Column } from '../UI/Table';
+import { VirtualTable, type Column } from '../UI/VirtualTable';
 import { Badge } from '../UI/Badge';
 import { Button } from '../UI/Button';
 
@@ -30,7 +30,7 @@ const DocumentsView = () => {
     try {
       setLoading(true);
       const res = await api.documents.getAll(1, 100, search);
-      setDocuments(res.documents || []);
+      setDocuments(res?.documents || []);
     } catch {
       console.error('Error loading documents');
       toast.error('Failed to load documents');
@@ -57,52 +57,58 @@ const DocumentsView = () => {
     }
   };
 
-  const pendingDocs = documents.filter(d => (d.status ?? '').toLowerCase() === 'pending' || (d.status ?? '').toLowerCase() === 'pendiente').length;
-  const paidMothAmount = documents.filter(d => (d.status ?? '').toLowerCase() === 'paid' || (d.status ?? '').toLowerCase() === 'pagado').reduce((acc, d) => acc + (Number(d.amount) || 0), 0);
-  const quotesCount = documents.filter(d => (d.type ?? '').toLowerCase() === 'quote' || (d.type ?? '').toLowerCase() === 'presupuesto').length;
+  const safeDocs = Array.isArray(documents) ? documents : [];
+  const pendingDocs = safeDocs.filter(d => (d?.status ?? '').toLowerCase() === 'pending' || (d?.status ?? '').toLowerCase() === 'pendiente').length;
+  const paidMothAmount = safeDocs.filter(d => (d?.status ?? '').toLowerCase() === 'paid' || (d?.status ?? '').toLowerCase() === 'pagado').reduce((acc, d) => acc + (Number(d?.amount) || 0), 0);
+  const quotesCount = safeDocs.filter(d => (d?.type ?? '').toLowerCase() === 'quote' || (d?.type ?? '').toLowerCase() === 'presupuesto').length;
 
   const columns: Column<Document>[] = [
     {
       header: 'Document Name',
+      width: '40%',
       accessor: (doc: Document) => (
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 py-1">
           <div className="p-2 bg-slate-100 dark:bg-slate-800 rounded-md text-slate-400 border border-slate-200 dark:border-slate-700">
             <FileText size={16} />
           </div>
-          <div>
-            <div className="font-medium text-slate-900 dark:text-white leading-tight">{doc.name}</div>
-            <div className="text-[10px] font-bold text-slate-500 uppercase tracking-tight">{doc.type}</div>
+          <div className="min-w-0">
+            <div className="font-medium text-slate-900 dark:text-white leading-tight truncate">{doc?.name ?? 'Unnamed Document'}</div>
+            <div className="text-[10px] font-bold text-slate-500 uppercase tracking-tight">{doc?.type ?? 'Unknown'}</div>
           </div>
         </div>
       ),
     },
     {
       header: 'Client',
+      width: '20%',
       accessor: (doc: Document) => (
-        <span className="text-slate-600 dark:text-slate-400">
-          {doc.client_name || `ID: #${doc.client_id}`}
+        <span className="text-slate-600 dark:text-slate-400 truncate">
+          {doc?.client_name || (doc?.client_id ? `ID: #${doc.client_id}` : 'No Client')}
         </span>
       ),
     },
     {
       header: 'Status',
+      width: '15%',
       accessor: (doc: Document) => {
-        const s = (doc.status ?? '').toLowerCase();
+        const s = (doc?.status ?? '').toLowerCase();
         const variant = (s === 'paid' || s === 'pagado' || s === 'signed' || s === 'firmado') ? 'success' :
           (s === 'pending' || s === 'pendiente') ? 'warning' : 'secondary';
-        return <Badge variant={variant}>{doc.status}</Badge>;
+        return <Badge variant={variant}>{doc?.status ?? 'Unknown'}</Badge>;
       },
     },
     {
       header: 'Amount',
+      width: '15%',
       accessor: (doc: Document) => (
         <span className="font-medium text-slate-900 dark:text-white tabular-nums">
-          {new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(doc.amount || 0)}
+          {new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(Number(doc?.amount) || 0)}
         </span>
       ),
     },
     {
       header: 'Actions',
+      width: '10%',
       align: 'right',
       accessor: (doc: Document) => (
         <div className="flex items-center justify-end gap-1">
@@ -151,7 +157,7 @@ const DocumentsView = () => {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div className="bg-white dark:bg-slate-900 p-4 rounded-lg border border-slate-200 dark:border-slate-800 flex items-center gap-4">
+        <div className="bg-white dark:bg-slate-900 p-4 rounded-lg border border-slate-200 dark:border-slate-800 flex items-center gap-4 shadow-sm">
           <div className="w-10 h-10 bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400 rounded-md flex items-center justify-center">
             <Clock size={20} />
           </div>
@@ -161,7 +167,7 @@ const DocumentsView = () => {
           </div>
         </div>
 
-        <div className="bg-white dark:bg-slate-900 p-4 rounded-lg border border-slate-200 dark:border-slate-800 flex items-center gap-4">
+        <div className="bg-white dark:bg-slate-900 p-4 rounded-lg border border-slate-200 dark:border-slate-800 flex items-center gap-4 shadow-sm">
           <div className="w-10 h-10 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400 rounded-md flex items-center justify-center">
             <CheckCircle size={20} />
           </div>
@@ -173,7 +179,7 @@ const DocumentsView = () => {
           </div>
         </div>
 
-        <div className="bg-white dark:bg-slate-900 p-4 rounded-lg border border-slate-200 dark:border-slate-800 flex items-center gap-4">
+        <div className="bg-white dark:bg-slate-900 p-4 rounded-lg border border-slate-200 dark:border-slate-800 flex items-center gap-4 shadow-sm">
           <div className="w-10 h-10 bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400 rounded-md flex items-center justify-center">
             <FileCode size={20} />
           </div>
@@ -184,11 +190,12 @@ const DocumentsView = () => {
         </div>
       </div>
 
-      <Table
-        data={documents}
+      <VirtualTable
+        data={safeDocs}
         columns={columns}
         isLoading={loading}
         emptyMessage="No documents found in registry."
+        height="calc(100vh - 350px)"
       />
     </div>
   );

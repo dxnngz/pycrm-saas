@@ -20,6 +20,30 @@ class RedisClient {
         }
     }
 
+    async get<T>(key: string): Promise<T | null> {
+        if (!this.client.isOpen) return null;
+        try {
+            const value = await this.client.get(key);
+            return value ? JSON.parse(value) as T : null;
+        } catch (error) {
+            return null;
+        }
+    }
+
+    async set<T>(key: string, value: T, ttlSeconds?: number): Promise<void> {
+        if (!this.client.isOpen) return;
+        try {
+            const data = JSON.stringify(value);
+            if (ttlSeconds) {
+                await this.client.setEx(key, ttlSeconds, data);
+            } else {
+                await this.client.set(key, data);
+            }
+        } catch (error) {
+            logger.error({ error, key }, 'Error seteando en Redis');
+        }
+    }
+
     async getOrSet<T>(key: string, ttlSeconds: number, fetcher: () => Promise<T>): Promise<T> {
         if (!this.client.isOpen) {
             return await fetcher();
@@ -90,16 +114,16 @@ class RedisClient {
     }
 
     async getTelemetry() {
-        if (!this.client.isOpen) return null;
+        if (!this.client.isOpen) return { status: 'disconnected', hits: 0, misses: 0, total: 0, hitRatio: '0%' };
         try {
             const hits = parseInt(await this.client.get('system:cache:hits') || '0', 10);
             const misses = parseInt(await this.client.get('system:cache:misses') || '0', 10);
             const total = hits + misses;
             const hitRatio = total > 0 ? ((hits / total) * 100).toFixed(2) + '%' : '0%';
 
-            return { hits, misses, total, hitRatio };
+            return { status: 'healthy', hits, misses, total, hitRatio };
         } catch (e) {
-            return null;
+            return { status: 'error', hits: 0, misses: 0, total: 0, hitRatio: '0%' };
         }
     }
 }

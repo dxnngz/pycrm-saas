@@ -37,10 +37,16 @@ const SmartAlerts: React.FC = () => {
         <Card className="h-full space-y-3">
             <div className="flex items-center justify-between mb-4">
                 <div>
-                    <h3 className="text-[11px] font-bold text-slate-900 dark:text-white uppercase tracking-wider">Smart Intelligence</h3>
-                    <p className="text-[9px] text-slate-500 font-bold mt-0.5 uppercase tracking-tight">AI-driven risk & opportunity mapping</p>
+                    <h3 className="text-[11px] font-bold text-slate-900 dark:text-white uppercase tracking-wider flex items-center gap-1.5">
+                        <ShieldAlert size={12} className="text-primary-500" />
+                        Armor Status
+                    </h3>
+                    <div className="flex items-center gap-1.5 mt-0.5">
+                        <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                        <p className="text-[9px] text-slate-500 font-bold uppercase tracking-tight">Self-Healing Active</p>
+                    </div>
                 </div>
-                <Badge variant="secondary">{alerts.length}</Badge>
+                <Badge variant="success">Optimal</Badge>
             </div>
 
             <div className="space-y-3 overflow-y-auto max-h-[400px] pr-1">

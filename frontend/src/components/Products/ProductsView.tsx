@@ -12,7 +12,7 @@ import {
 import { api } from '../../services/api';
 import type { Product } from '../../types';
 import { toast } from 'sonner';
-import { Table, type Column } from '../UI/Table';
+import { VirtualTable, type Column as VirtualColumn } from '../UI/VirtualTable';
 import { Badge } from '../UI/Badge';
 import { Button } from '../UI/Button';
 
@@ -25,7 +25,7 @@ const ProductsView = () => {
   const loadProducts = useCallback(async () => {
     try {
       setLoading(true);
-      const res = await api.products.getAll(1, 100, search);
+      const res = await api.products.getAll(1, 1000, search); // Increase limit for virtualization demo
       setProducts(res.products || []);
       setTotalItems(res.total || 0);
     } catch {
@@ -60,23 +60,25 @@ const ProductsView = () => {
 
   const uniqueCategories = new Set(products.map(p => p.category).filter(Boolean)).size;
 
-  const columns: Column<Product>[] = [
+  const columns: VirtualColumn<Product>[] = [
     {
       header: 'Product / Service',
+      width: '40%',
       accessor: (product: Product) => (
         <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-md bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-600 dark:text-slate-400 font-bold border border-slate-200 dark:border-slate-700">
-            {product.name.charAt(0).toUpperCase()}
+          <div className="w-8 h-8 rounded-md bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-600 dark:text-slate-400 font-bold border border-slate-200 dark:border-slate-700 uppercase">
+            {product.name.charAt(0)}
           </div>
-          <div>
-            <div className="font-medium text-slate-900 dark:text-white leading-tight">{product.name}</div>
-            {product.description && <div className="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5">{product.description}</div>}
+          <div className="truncate">
+            <div className="font-medium text-slate-900 dark:text-white leading-tight truncate">{product.name}</div>
+            {product.description && <div className="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5 truncate">{product.description}</div>}
           </div>
         </div>
       ),
     },
     {
       header: 'Category',
+      width: '25%',
       accessor: (product: Product) => (
         <Badge variant="secondary">
           {product.category || 'General'}
@@ -85,6 +87,7 @@ const ProductsView = () => {
     },
     {
       header: 'Unit Price',
+      width: '25%',
       accessor: (product: Product) => (
         <span className="font-medium text-slate-900 dark:text-white tabular-nums">
           {new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(product.price)}
@@ -93,6 +96,7 @@ const ProductsView = () => {
     },
     {
       header: 'Actions',
+      width: '10%',
       align: 'right',
       accessor: (product: Product) => (
         <div className="flex items-center justify-end gap-1">
@@ -109,6 +113,7 @@ const ProductsView = () => {
 
   return (
     <div className="space-y-6">
+      {/* ... (Header remains the same) */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <h1 className="text-xl font-bold text-slate-900 dark:text-white">Product Catalog</h1>
@@ -136,6 +141,7 @@ const ProductsView = () => {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        {/* ... (Stats remain the same) */}
         <div className="bg-white dark:bg-slate-900 p-4 rounded-lg border border-slate-200 dark:border-slate-800 flex items-center gap-4">
           <div className="w-10 h-10 bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 rounded-md flex items-center justify-center">
             <Tag size={20} />
@@ -169,11 +175,12 @@ const ProductsView = () => {
         </div>
       </div>
 
-      <Table
+      <VirtualTable
         data={products}
         columns={columns}
         isLoading={loading}
         emptyMessage="No products found in catalog."
+        height="500px"
       />
     </div>
   );

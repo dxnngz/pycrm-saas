@@ -9,8 +9,10 @@ import { initCacheSubscriber } from './core/subscribers/cache.subscriber.js';
 import { addReminderJob } from './jobs/queue.js';
 import { workflowEngine } from './modules/workflows/workflow.engine.js';
 
-const port = env.PORT || 3001;
+import { ResilienceService } from './core/resilience.service.js';
 
+const port = env.PORT || 3001;
+// ... (lines 14-44)
 const ensureAdmin = async () => {
     try {
         const adminEmail = 'admin@saas.com';
@@ -46,23 +48,13 @@ const startServer = async () => {
         await prisma.$connect();
         logger.info('✅ Conexión a la base de datos PostgreSQL exitosa');
 
-        // Self-healing Schema Fix (Safety net for P2022/P3009)
-        if (process.env.NODE_ENV === 'production') {
-            try {
-                logger.info('🔍 Checking for schema drift...');
-                const tables = ['users', 'clients', 'contacts', 'opportunities', 'tasks', 'events', 'products', 'documents'];
-                for (const table of tables) {
-                    await prisma.$executeRawUnsafe(`ALTER TABLE "${table}" ADD COLUMN IF NOT EXISTS "deleted_at" TIMESTAMP(6)`);
-                }
-                // Also ensure MFA columns exist for Users
-                await prisma.$executeRawUnsafe(`ALTER TABLE "users" ADD COLUMN IF NOT EXISTS "mfa_enabled" BOOLEAN NOT NULL DEFAULT false`);
-                await prisma.$executeRawUnsafe(`ALTER TABLE "users" ADD COLUMN IF NOT EXISTS "mfa_secret" VARCHAR(255)`);
-                await prisma.$executeRawUnsafe(`ALTER TABLE "users" ADD COLUMN IF NOT EXISTS "mfa_recovery_codes" TEXT[] DEFAULT ARRAY[]::TEXT[]`);
-                logger.info('✅ Schema synchronization completed');
-            } catch (err) {
-                logger.warn({ msg: '⚠️ Self-healing schema skip/failed (might already be fixed)', err });
-            }
-        }
+        // Elite Hardening: MigrationGuard (Pre-flight Sync Check)
+        await ResilienceService.performMigrationGuard();
+
+        // Self-healing Schema Armor (Triple Shield)
+        await ResilienceService.performSchemaHealing();
+
+        // Initialize Cache Invalidation Listeners
 
         // Initialize Cache Invalidation Listeners
         initCacheSubscriber();

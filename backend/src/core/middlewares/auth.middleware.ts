@@ -32,6 +32,7 @@ export const protect = (req: Request, res: Response, next: NextFunction) => {
         }
 
         const payload = decoded as JWTPayload;
+        const currentContext = contextStore.getStore();
 
         // REDIS REVOCATION CHECK: Elite security
         if (payload.jti) {
@@ -49,12 +50,20 @@ export const protect = (req: Request, res: Response, next: NextFunction) => {
             name: payload.name
         } as any;
 
-        req.id = payload.jti || `req-${Math.random().toString(36).substr(2, 9)}`;
+        // Ensure req.id is set for consistency, even if not used directly in contextStore.run
+        // It might be used by other middlewares or logging outside the contextStore.run scope.
+        req.id = req.id || payload.jti || `req-${Math.random().toString(36).substr(2, 9)}`;
+        const requestId = (currentContext?.requestId || req.id || payload.jti) as string;
 
-        contextStore.run({ userId: payload.userId, tenantId: payload.tenantId, requestId: req.id as string }, () => {
+        contextStore.run({
+            ...currentContext,
+            userId: payload.userId,
+            tenantId: payload.tenantId,
+            requestId
+        }, () => {
             logger.info({
                 msg: 'Authenticated Request',
-                requestId: req.id,
+                requestId,
                 userId: payload.userId,
                 tenantId: payload.tenantId,
                 path: req.path

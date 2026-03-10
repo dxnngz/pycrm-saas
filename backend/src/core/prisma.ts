@@ -1,261 +1,99 @@
 import { PrismaClient } from '@prisma/client';
 import { contextStore } from './context.js';
 import { redisCache } from './redis.js';
+import { ResilienceService } from './resilience.service.js';
+import { AppError } from '../utils/AppError.js';
+import { logger } from '../utils/logger.js';
 
 const basePrisma = new PrismaClient({
     log: process.env.NODE_ENV === 'development' ? ['query', 'error', 'warn'] : ['error'],
 });
 
-// Entidades que queremos auditar
 const AUDITABLE_MODELS = ['Client', 'Opportunity', 'Contact', 'Task', 'Event', 'Document', 'Product', 'User'];
-const safeTenant = (id: any): number => {
-    const n = Number(id);
-    return isNaN(n) ? 1 : n;
-};
+const safeTenant = (id: any): number => Number(id) || 1;
 
 export const prisma = basePrisma.$extends({
     query: {
         $allModels: {
-            // MULTI-TENANT: CREATE INTERCEPTOR
-            async create({ model, args, query }) {
-                if (AUDITABLE_MODELS.includes(model) && model !== 'User') {
-                    const store = contextStore.getStore();
-                    const tenantId = safeTenant(store?.tenantId);
-                    if (!store?.isSystem && store?.tenantId) {
-                        if (args.data) {
-                            (args.data as Record<string, unknown>).tenant_id = tenantId;
+            async $allOperations({ model, operation, args, query }) {
+                const store = contextStore.getStore();
+                const tenantId = safeTenant(store?.tenantId);
+
+                // --- MULTI-TENANT ISOLATION ARMOR ---
+                // We enforce tenant_id FILTERING on all standard operations
+                if (AUDITABLE_MODELS.includes(model) && !store?.isSystem && store?.tenantId) {
+                    const anyArgs = args as any;
+                    if (['findMany', 'findFirst', 'count', 'aggregate', 'groupBy', 'updateMany', 'deleteMany'].includes(operation)) {
+                        anyArgs.where = { ...(anyArgs.where || {}), tenant_id: tenantId };
+                    }
+
+                    if (['findUnique', 'findUniqueOrThrow', 'update', 'delete'].includes(operation)) {
+                        // For unique operations, we MUST include tenant_id in the where clause
+                        // to ensure a user from Tenant B cannot guess an ID from Tenant A.
+                        if (anyArgs.where?.id) {
+                            anyArgs.where = { id: anyArgs.where.id, tenant_id: tenantId };
+                        } else if (anyArgs.where) {
+                            anyArgs.where = { ...anyArgs.where, tenant_id: tenantId };
+                        }
+                    }
+
+                    if (operation === 'update' || operation === 'updateMany') {
+                        const anyData = (anyArgs.data || {}) as any;
+                        if (typeof anyData === 'object' && !anyData.version) {
+                            anyArgs.data = { ...anyData, version: { increment: 1 } };
+                        }
+                    }
+
+                    if (operation === 'create') {
+                        if (model !== 'User' && model !== 'Tenant') {
+                            anyArgs.data = { ...(anyArgs.data || {}), tenant_id: tenantId, version: 1 };
+                        } else if (model === 'User') {
+                            anyArgs.data = { ...(anyArgs.data || {}), version: 1 };
                         }
                     }
                 }
 
-                const result = await query(args);
+                // --- RETRY & SELF-HEALING EXECUTION ---
+                const result = await ResilienceService.withRetry(() => query(args));
 
-                // AUDIT LOGS
-                if (AUDITABLE_MODELS.includes(model)) {
-                    const store = contextStore.getStore();
-                    if (store?.userId) {
-                        await basePrisma.auditLog.create({
-                            data: {
-                                entity: model,
-                                entity_id: result.id,
-                                action: 'CREATE',
-                                user_id: Number(store.userId),
-                                request_id: store.requestId || null,
-                                tenant_id: safeTenant(store.tenantId) || (result as any).tenant_id || 1,
-                                changes: JSON.parse(JSON.stringify(result)),
-                            } as any,
-                        });
-                    }
+                // --- STRICT ISOLATION ENFORCEMENT (404) ---
+                // If a unique/throw operation returns null even if the ID exists (but in another tenant),
+                // we throw 404 to prevent data discovery.
+                if (['findUniqueOrThrow', 'update', 'delete'].includes(operation) && !result) {
+                    throw new AppError(`Recurso no encontrado en su organización.`, 404);
                 }
 
-                // REDIS CACHE INVALIDATION
-                if (model === 'Opportunity') {
-                    const currentStore = contextStore.getStore();
-                    const tenantId = (result as any).tenant_id || safeTenant(currentStore?.tenantId);
-                    if (tenantId) {
+                // --- AUDIT LOGS ---
+                if (AUDITABLE_MODELS.includes(model) && ['create', 'update', 'delete'].includes(operation) && store?.userId) {
+                    const changes = operation === 'update' ? {
+                        updatedData: JSON.parse(JSON.stringify((args as any).data)),
+                        finalState: JSON.parse(JSON.stringify(result))
+                    } : JSON.parse(JSON.stringify(result));
+
+                    basePrisma.auditLog.create({
+                        data: {
+                            entity: model,
+                            entity_id: (result as any)?.id ? Number((result as any).id) : 0,
+                            action: operation.toUpperCase(),
+                            user_id: Number(store.userId),
+                            request_id: store.requestId || null,
+                            tenant_id: tenantId,
+                            changes: changes as any,
+                        }
+                    }).catch(e => logger.error({ err: e.message }, 'Failed to write audit log'));
+                }
+
+                // --- CACHE INVALIDATION ---
+                if (['create', 'update', 'delete', 'updateMany', 'deleteMany'].includes(operation)) {
+                    const namespace = model.toLowerCase();
+                    redisCache.invalidateTenantCache(tenantId, namespace);
+                    if (model === 'Opportunity') {
                         redisCache.invalidate(`dashboard:metrics:${tenantId}:*`);
                     }
                 }
 
                 return result;
             },
-
-            async createMany({ model, args, query }) {
-                if (AUDITABLE_MODELS.includes(model)) {
-                    const store = contextStore.getStore();
-                    const tenantId = safeTenant(store?.tenantId);
-                    if (!store?.isSystem && store?.tenantId) {
-                        if (Array.isArray(args.data)) {
-                            args.data = args.data.map((item: any) => ({ ...item, tenant_id: tenantId }));
-                        }
-                    }
-                }
-                return query(args);
-            },
-
-            // MULTI-TENANT: UPDATE INTERCEPTOR
-            async update({ model, args, query }) {
-                if (AUDITABLE_MODELS.includes(model)) {
-                    const store = contextStore.getStore();
-                    if (!store?.isSystem && store?.tenantId) {
-                        args.where = { ...(args.where || {}), tenant_id: safeTenant(store.tenantId) };
-                    }
-                }
-
-                const result = await query(args);
-
-                // AUDIT LOGS
-                if (AUDITABLE_MODELS.includes(model)) {
-                    const store = contextStore.getStore();
-                    if (store?.userId) {
-                        await basePrisma.auditLog.create({
-                            data: {
-                                entity: model,
-                                entity_id: result.id,
-                                action: 'UPDATE',
-                                user_id: Number(store.userId),
-                                request_id: store.requestId || null,
-                                tenant_id: safeTenant(store.tenantId) || (result as any).tenant_id || 1,
-                                changes: {
-                                    updatedData: JSON.parse(JSON.stringify(args.data)),
-                                    finalState: JSON.parse(JSON.stringify(result))
-                                }
-                            } as any,
-                        });
-                    }
-                }
-
-                // REDIS CACHE INVALIDATION
-                if (model === 'Opportunity') {
-                    const currentStore = contextStore.getStore();
-                    const tenantId = (result as any).tenant_id || safeTenant(currentStore?.tenantId);
-                    if (tenantId) {
-                        redisCache.invalidate(`dashboard:metrics:${tenantId}:*`);
-                    }
-                }
-
-                return result;
-            },
-
-            async updateMany({ model, args, query }) {
-                if (AUDITABLE_MODELS.includes(model)) {
-                    const store = contextStore.getStore();
-                    if (!store?.isSystem && store?.tenantId) {
-                        args.where = { ...(args.where || {}), tenant_id: safeTenant(store.tenantId) };
-                    }
-                }
-                return query(args);
-            },
-
-            // MULTI-TENANT: DELETE INTERCEPTOR
-            async delete({ model, args, query }) {
-                if (AUDITABLE_MODELS.includes(model)) {
-                    const store = contextStore.getStore();
-                    if (!store?.isSystem && store?.tenantId) {
-                        args.where = { ...(args.where || {}), tenant_id: safeTenant(store.tenantId) };
-                    }
-                }
-
-                const result = await query(args);
-
-                // AUDIT LOGS
-                if (AUDITABLE_MODELS.includes(model)) {
-                    const store = contextStore.getStore();
-                    if (store?.userId) {
-                        await basePrisma.auditLog.create({
-                            data: {
-                                entity: model,
-                                entity_id: result.id,
-                                action: 'DELETE',
-                                user_id: Number(store.userId),
-                                request_id: store.requestId || null,
-                                tenant_id: safeTenant(store.tenantId) || (result as any).tenant_id || 1,
-                                changes: JSON.parse(JSON.stringify(result)),
-                            } as any,
-                        });
-                    }
-                }
-
-                // REDIS CACHE INVALIDATION
-                if (model === 'Opportunity') {
-                    const currentStore = contextStore.getStore();
-                    const tenantId = (result as any).tenant_id || safeTenant(currentStore?.tenantId);
-                    if (tenantId) {
-                        redisCache.invalidate(`dashboard:metrics:${tenantId}:*`);
-                    }
-                }
-
-                return result;
-            },
-
-            async deleteMany({ model, args, query }) {
-                if (AUDITABLE_MODELS.includes(model)) {
-                    const store = contextStore.getStore();
-                    if (!store?.isSystem && store?.tenantId) {
-                        args.where = { ...(args.where || {}), tenant_id: safeTenant(store.tenantId) };
-                    }
-                }
-                return query(args);
-            },
-
-            // MULTI-TENANT: READ ISOLATION (findMany, findFirst, count)
-            async findMany({ model, args, query }) {
-                if (AUDITABLE_MODELS.includes(model)) {
-                    const store = contextStore.getStore();
-                    if (!store?.isSystem && store?.tenantId) {
-                        args.where = { ...(args.where || {}), tenant_id: safeTenant(store.tenantId) } as any;
-                    }
-                }
-                return query(args);
-            },
-            async findFirst({ model, args, query }) {
-                if (AUDITABLE_MODELS.includes(model)) {
-                    const store = contextStore.getStore();
-                    if (!store?.isSystem && store?.tenantId) {
-                        args.where = { ...(args.where || {}), tenant_id: safeTenant(store.tenantId) } as any;
-                    }
-                }
-                return query(args);
-            },
-
-            async findUnique({ model, args, query }) {
-                if (AUDITABLE_MODELS.includes(model)) {
-                    const store = contextStore.getStore();
-                    if (!store?.isSystem && store?.tenantId) {
-                        // Transform findUnique(id) into findUnique(id_tenant_id)
-                        const tenantId = safeTenant(store.tenantId);
-                        if (args.where.id) {
-                            args.where = { id: args.where.id, tenant_id: tenantId } as any;
-                        } else {
-                            args.where = { ...args.where, tenant_id: tenantId } as any;
-                        }
-                    }
-                }
-                return query(args);
-            },
-
-            async findUniqueOrThrow({ model, args, query }) {
-                if (AUDITABLE_MODELS.includes(model)) {
-                    const store = contextStore.getStore();
-                    if (!store?.isSystem && store?.tenantId) {
-                        const tenantId = safeTenant(store.tenantId);
-                        if (args.where.id) {
-                            args.where = { id: args.where.id, tenant_id: tenantId } as any;
-                        } else {
-                            args.where = { ...args.where, tenant_id: tenantId } as any;
-                        }
-                    }
-                }
-                return query(args);
-            },
-
-            async count({ model, args, query }) {
-                if (AUDITABLE_MODELS.includes(model)) {
-                    const store = contextStore.getStore();
-                    if (!store?.isSystem && store?.tenantId) {
-                        args.where = { ...(args.where || {}), tenant_id: safeTenant(store.tenantId) } as any;
-                    }
-                }
-                return query(args);
-            },
-            async aggregate({ model, args, query }) {
-                if (AUDITABLE_MODELS.includes(model)) {
-                    const store = contextStore.getStore();
-                    if (!store?.isSystem && store?.tenantId) {
-                        args.where = { ...(args.where || {}), tenant_id: safeTenant(store.tenantId) } as any;
-                    }
-                }
-                return query(args);
-            },
-            async groupBy({ model, args, query }) {
-                if (AUDITABLE_MODELS.includes(model)) {
-                    const store = contextStore.getStore();
-                    if (!store?.isSystem && store?.tenantId) {
-                        args.where = { ...(args.where || {}), tenant_id: safeTenant(store.tenantId) } as any;
-                    }
-                }
-                return query(args);
-            }
         }
     }
 });

@@ -2,6 +2,7 @@ import { Router } from 'express';
 import { prisma } from '../../core/prisma.js';
 import { redisCache } from '../../core/redis.js';
 import { logger } from '../../utils/logger.js';
+import { ResilienceService } from '../../core/resilience.service.js';
 
 const router = Router();
 
@@ -9,11 +10,8 @@ const router = Router();
  * @swagger
  * /api/health:
  *   get:
- *     summary: System health check
- *     description: Returns the health status of the API and its core dependencies.
- *     responses:
- *       200:
- *         description: System is healthy
+ *     summary: System health check with Resilience Metrics
+ *     description: Returns the health status and the status of the Triple Self-Healing Armor.
  */
 router.get('/', async (req, res) => {
     try {
@@ -33,11 +31,15 @@ router.get('/', async (req, res) => {
         }
 
         const duration = Date.now() - startTime;
+        const resilience = ResilienceService.getMetrics();
+        const cache = await redisCache.getTelemetry();
 
         res.json({
             status: redisStatus === 'connected' && dbStatus === 'connected' ? 'ok' : 'degraded',
             database: dbStatus,
             redis: redisStatus,
+            cache,
+            resilience,
             latency_ms: duration,
             uptime: Math.round(process.uptime()),
             timestamp: new Date().toISOString(),
