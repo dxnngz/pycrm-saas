@@ -30,25 +30,34 @@ export class ClientService {
     }
 
     async createClient(data: Omit<Partial<Client>, 'id' | 'created_at' | 'updated_at' | 'tenant_id'> & { name: string }, tenantId: number): Promise<Client> {
-        return await clientRepository.create({
+        const result = await clientRepository.create({
             ...data,
             tenant_id: tenantId,
             status: data.status || 'activo'
         });
+        await redisCache.invalidateTenantCache(tenantId, 'clients');
+        await redisCache.invalidateTenantCache(tenantId, 'dashboard');
+        return result;
     }
 
     async updateClientById(tenantId: number, id: number, data: { name?: string; company?: string; email?: string; phone?: string; status?: string }) {
         const client = await clientRepository.findUnique(tenantId, id);
         if (!client) throw { code: 'P2025' };
 
-        return await clientRepository.update(tenantId, id, data);
+        const result = await clientRepository.update(tenantId, id, data);
+        await redisCache.invalidateTenantCache(tenantId, 'clients');
+        await redisCache.invalidateTenantCache(tenantId, 'dashboard');
+        return result;
     }
 
     async deleteClientById(tenantId: number, id: number) {
         const client = await clientRepository.findUnique(tenantId, id);
         if (!client) throw { code: 'P2025' };
 
-        return await clientRepository.delete(tenantId, id);
+        const result = await clientRepository.delete(tenantId, id);
+        await redisCache.invalidateTenantCache(tenantId, 'clients');
+        await redisCache.invalidateTenantCache(tenantId, 'dashboard');
+        return result;
     }
 
     async getClientOpportunitiesById(tenantId: number, id: number) {

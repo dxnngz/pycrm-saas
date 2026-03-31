@@ -36,7 +36,7 @@ export class OpportunityService {
     }
 
     async createOpportunity(data: { client_id: number; product: string; amount: number; status?: string; estimated_close_date?: string }, tenantId: number) {
-        return await opportunityRepository.create({
+        const result = await opportunityRepository.create({
             client_id: data.client_id,
             tenant_id: tenantId,
             product: data.product,
@@ -44,20 +44,27 @@ export class OpportunityService {
             status: data.status || 'pendiente',
             estimated_close_date: data.estimated_close_date ? new Date(data.estimated_close_date) : new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
         });
+        await redisCache.invalidateTenantCache(tenantId, 'opportunities');
+        await redisCache.invalidateTenantCache(tenantId, 'dashboard');
+        return result;
     }
 
     async updateOpportunityStatusById(tenantId: number, id: number, status: string, version?: number) {
         const opp = await opportunityRepository.findUnique(tenantId, id);
         if (!opp) throw new Error('Opportunity not found or access denied');
 
+        let result;
         if (version !== undefined) {
-            return await opportunityRepository.update(tenantId, id, {
+            result = await opportunityRepository.update(tenantId, id, {
                 status,
                 version: { increment: 1 }
             } as any);
         } else {
-            return await opportunityRepository.update(tenantId, id, { status });
+            result = await opportunityRepository.update(tenantId, id, { status });
         }
+        await redisCache.invalidateTenantCache(tenantId, 'opportunities');
+        await redisCache.invalidateTenantCache(tenantId, 'dashboard');
+        return result;
     }
 }
 
