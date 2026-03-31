@@ -236,10 +236,11 @@ const PipelineView = () => {
             const newScores: Record<number, { score: number; classification: string }> = { ...scores };
             let hasChanges = false;
 
-            for (const opp of safeOpportunities) {
-                if (opp.status === 'pendiente' && !newScores[opp.id]) {
-                    try {
-                        const data = await getOpportunityScore(opp.id);
+            const pendingOpps = safeOpportunities.filter(opp => opp.status === 'pendiente' && !newScores[opp.id]).slice(0, 3);
+
+            for (const opp of pendingOpps) {
+                try {
+                    const data = await getOpportunityScore(opp.id);
                         newScores[opp.id] = data;
                         hasChanges = true;
                     } catch (e) {
