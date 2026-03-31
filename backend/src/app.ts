@@ -165,7 +165,7 @@ const swaggerOptions = {
             },
         },
     },
-    apis: ['./src/routes/*.ts', './src/routes/*.js'],
+    apis: ['./src/modules/**/*.ts', './dist/modules/**/*.js'],
 };
 const swaggerSpec = swaggerJsdoc(swaggerOptions);
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
