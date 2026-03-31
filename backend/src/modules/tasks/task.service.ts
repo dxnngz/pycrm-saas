@@ -37,8 +37,8 @@ export class TaskService {
             user_id: data.userId,
             client_id: data.client_id ? parseInt(data.client_id) : null,
             title: data.title,
-            deadline: data.due_date ? new Date(data.due_date) : new Date(),
-            priority: data.priority || 'media',
+            deadline: data.deadline ? new Date(data.deadline) : (data.due_date ? new Date(data.due_date) : new Date()),
+            priority: data.priority || 'Media',
             completed: false
         });
     }
