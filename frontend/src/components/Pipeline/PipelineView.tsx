@@ -241,11 +241,10 @@ const PipelineView = () => {
             for (const opp of pendingOpps) {
                 try {
                     const data = await getOpportunityScore(opp.id);
-                        newScores[opp.id] = data;
-                        hasChanges = true;
-                    } catch (e) {
-                        console.error('Failed to get score for', opp.id, e);
-                    }
+                    newScores[opp.id] = data;
+                    hasChanges = true;
+                } catch (e) {
+                    console.error('Failed to get score for', opp.id, e);
                 }
             }
             if (hasChanges) {
