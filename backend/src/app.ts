@@ -170,6 +170,17 @@ const swaggerOptions = {
     },
     apis: ['./src/modules/**/*.ts', './dist/modules/**/*.js'],
 };
+
+// Temp endpoint to fix neon DB
+app.get('/api/fix-db', async (req, res) => {
+    try {
+        await prisma.$executeRawUnsafe(`ALTER TABLE tenants ADD COLUMN IF NOT EXISTS plan VARCHAR(20) DEFAULT 'free'`);
+        res.json({ success: true, message: "Columna plan añadida con éxito a Neon" });
+    } catch (e: any) {
+        res.json({ success: false, error: e.message });
+    }
+});
+
 const swaggerSpec = swaggerJsdoc(swaggerOptions);
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
