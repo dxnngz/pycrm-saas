@@ -158,7 +158,10 @@ const swaggerOptions = {
             version: '1.0.0',
             description: 'Interactive documentation for the PyCRM backend services. Developed for TFG Excellence.',
         },
-        servers: [{ url: `http://localhost:${port}`, description: 'Development Server' }],
+        servers: [
+            { url: 'https://pycrm-backend-m22i.onrender.com', description: 'Production Server' },
+            { url: `http://localhost:${port}`, description: 'Development Server' }
+        ],
         components: {
             securitySchemes: {
                 bearerAuth: { type: 'http', scheme: 'bearer', bearerFormat: 'JWT' },
