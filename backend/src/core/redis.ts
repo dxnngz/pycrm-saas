@@ -77,18 +77,14 @@ class RedisClient {
     async invalidate(pattern: string) {
         if (!this.isClientReady()) return;
         try {
-            let cursor = 0;
-            do {
-                const result = await (this.client as any).scan(cursor, {
-                    MATCH: pattern,
-                    COUNT: 500
-                });
-                cursor = result.cursor;
-                if (result.keys.length > 0) {
-                    await this.client.unlink(result.keys);
-                    logger.info({ keysCount: result.keys.length, pattern }, '[Redis] Unlinked keys matching pattern');
-                }
-            } while (cursor !== 0);
+            const keys: string[] = [];
+            for await (const key of this.client.scanIterator({ MATCH: pattern, COUNT: 500 })) {
+                keys.push(key);
+            }
+            if (keys.length > 0) {
+                await this.client.unlink(keys);
+                logger.info({ keysCount: keys.length, pattern }, '[Redis] Unlinked keys matching pattern');
+            }
         } catch (error) {
             logger.error({ error, pattern }, 'Error invalidando caché Redis');
         }
