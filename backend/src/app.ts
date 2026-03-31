@@ -171,13 +171,17 @@ const swaggerOptions = {
     apis: ['./src/modules/**/*.ts', './dist/modules/**/*.js'],
 };
 
-// Temp endpoint to fix neon DB
+import { exec } from 'child_process';
+import { promisify } from 'util';
+const execAsync = promisify(exec);
+
+// Temp endpoint to fix neon DB completely
 app.get('/api/fix-db', async (req, res) => {
     try {
-        await prisma.$executeRawUnsafe(`ALTER TABLE tenants ADD COLUMN IF NOT EXISTS plan VARCHAR(20) DEFAULT 'free'`);
-        res.json({ success: true, message: "Columna plan añadida con éxito a Neon" });
+        const { stdout, stderr } = await execAsync('npx prisma db push --accept-data-loss');
+        res.json({ success: true, message: "Base de datos sincronizada completamente en Render", stdout, stderr });
     } catch (e: any) {
-        res.json({ success: false, error: e.message });
+        res.json({ success: false, error: e.message, stdout: e.stdout, stderr: e.stderr });
     }
 });
 
