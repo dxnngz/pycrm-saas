@@ -59,6 +59,5 @@ export const useDashboardData = (period: 'monthly' | 'yearly') => {
                 isCached: !!backendMetrics?._cached
             };
         },
-        staleTime: 1000 * 60 * 5,
     });
 };

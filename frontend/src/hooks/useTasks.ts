@@ -8,7 +8,6 @@ export const useTasks = () => {
     const { data: qData, isLoading: loading, refetch } = useQuery({
         queryKey: ['tasks'],
         queryFn: () => taskService.getAll(),
-        staleTime: 1000 * 60 * 5,
     });
 
     const createMutation = useMutation({

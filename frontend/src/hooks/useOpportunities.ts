@@ -28,7 +28,6 @@ export const useOpportunities = (page: number = 1, limit: number = 10, search: s
             }
             return { opportunities: [], pagination: { total: 0, page: 1, limit: 10, totalPages: 0 } };
         },
-        staleTime: 1000 * 60 * 5,
         placeholderData: (previousData) => previousData
     });
 

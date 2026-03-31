@@ -28,7 +28,6 @@ export const useClients = (page: number = 1, limit: number = 10, search: string 
             }
             return { clients: [], pagination: { total: 0, page: 1, limit: 10, totalPages: 0 } };
         },
-        staleTime: 1000 * 60 * 5,
         placeholderData: (previousData) => previousData // replacing deprecated keepPreviousData in v5
     });
 
