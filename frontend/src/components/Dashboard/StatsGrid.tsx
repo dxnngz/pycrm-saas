@@ -32,7 +32,7 @@ export const StatsGrid: React.FC<StatsGridProps> = ({ stats }) => {
             />
             <StatCard
                 title="Pipeline Win Rate"
-                value={`${stats.winRate}%`}
+                value={`${Number(stats.winRate).toFixed(1)}%`}
                 icon={<TrendingUp size={20} />}
                 trend="-2.4%"
                 trendUp={false}

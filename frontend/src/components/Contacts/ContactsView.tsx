@@ -439,13 +439,37 @@ const ContactsView = () => {
                             onChange={(e) => setNewEmail(e.target.value)}
                             placeholder="john@example.com"
                         />
-                        <Input
-                            label="Phone Number"
-                            type="tel"
-                            value={newPhone}
-                            onChange={(e) => setNewPhone(e.target.value)}
-                            placeholder="+1 (555) 000-0000"
-                        />
+                        <div className="space-y-1.5">
+                            <label className="block text-[11px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">Phone Number</label>
+                            <div className="flex gap-2">
+                                <select 
+                                    className="w-28 h-10 px-2 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 rounded-lg text-sm text-slate-700 dark:text-slate-300 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all cursor-pointer font-medium"
+                                    value={newPhone.match(/^\+\d+/)?.[0] || '+34'}
+                                    onChange={(e) => {
+                                        const currentNumber = newPhone.replace(/^\+\d+/, '').trim();
+                                        setNewPhone(`${e.target.value} ${currentNumber}`.trim());
+                                    }}
+                                >
+                                    <option value="+34">🇪🇸 +34</option>
+                                    <option value="+1">🇺🇸 +1</option>
+                                    <option value="+44">🇬🇧 +44</option>
+                                    <option value="+52">🇲🇽 +52</option>
+                                    <option value="+54">🇦🇷 +54</option>
+                                    <option value="+57">🇨🇴 +57</option>
+                                    <option value="+56">🇨🇱 +56</option>
+                                </select>
+                                <input
+                                    type="tel"
+                                    className="flex-1 w-full h-10 px-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg text-sm text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all placeholder:text-slate-400"
+                                    value={newPhone.replace(/^\+\d+/, '').trim()}
+                                    onChange={(e) => {
+                                        const prefix = newPhone.match(/^\+\d+/)?.[0] || '+34';
+                                        setNewPhone(`${prefix} ${e.target.value}`);
+                                    }}
+                                    placeholder="600 000 000"
+                                />
+                            </div>
+                        </div>
                     </div>
                     <div className="pt-4 flex justify-end gap-3">
                         <Button

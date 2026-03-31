@@ -15,7 +15,7 @@ const SmartAlerts: React.FC = () => {
 
     if (isLoading) {
         return (
-            <Card className="h-full flex items-center justify-center p-8 bg-slate-50/50 dark:bg-slate-900/50">
+            <Card className="flex items-center justify-center p-8 bg-slate-50/50 dark:bg-slate-900/50 shrink-0">
                 <Loader2 className="w-5 h-5 text-primary-500 animate-spin mr-2" />
                 <span className="text-xs text-slate-500 font-medium italic">IA analizando pipeline...</span>
             </Card>
@@ -26,7 +26,7 @@ const SmartAlerts: React.FC = () => {
 
     if (alerts.length === 0) {
         return (
-            <Card className="h-full flex flex-col items-center justify-center text-center p-8 opacity-60 border-dashed">
+            <Card className="flex flex-col items-center justify-center text-center p-8 opacity-60 border-dashed shrink-0">
                 <ShieldAlert className="w-6 h-6 text-slate-300 dark:text-slate-700 mx-auto mb-2" />
                 <p className="text-[11px] text-slate-500 font-medium">No se detectaron riesgos críticos.</p>
             </Card>
@@ -34,7 +34,7 @@ const SmartAlerts: React.FC = () => {
     }
 
     return (
-        <Card className="h-full space-y-3">
+        <Card className="space-y-3 shrink-0">
             <div className="flex items-center justify-between mb-4">
                 <div>
                     <h3 className="text-[11px] font-bold text-slate-900 dark:text-white uppercase tracking-wider flex items-center gap-1.5">

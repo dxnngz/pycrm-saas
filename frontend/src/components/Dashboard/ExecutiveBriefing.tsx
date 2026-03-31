@@ -55,7 +55,7 @@ const ExecutiveBriefing: React.FC = () => {
     ];
 
     return (
-        <div className="bg-white dark:bg-slate-900 rounded-[3rem] p-8 border border-slate-100 dark:border-slate-800 shadow-sm premium-shadow h-full">
+        <div className="bg-white dark:bg-slate-900 rounded-[3rem] p-8 border border-slate-100 dark:border-slate-800 shadow-sm premium-shadow shrink-0">
             <div className="flex items-center justify-between mb-8">
                 <div>
                     <h3 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight flex items-center gap-3">

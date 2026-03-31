@@ -124,7 +124,7 @@ const DashboardView = () => {
 
             {/* Analysis Row */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <div className="lg:col-span-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg p-5 shadow-sm">
+                <div className="lg:col-span-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg p-5 shadow-sm flex flex-col min-h-[400px]">
                     <div className="flex items-center justify-between mb-6">
                         <div>
                             <h3 className="text-[11px] font-bold text-slate-900 dark:text-white uppercase tracking-wider">Revenue Analysis</h3>
@@ -134,7 +134,7 @@ const DashboardView = () => {
                             <Badge variant="success" className="animate-pulse">Optimized</Badge>
                         )}
                     </div>
-                    <div className="h-[350px] w-full flex items-center justify-center overflow-hidden">
+                    <div className="flex-1 w-full flex items-center justify-center overflow-hidden">
                         <Suspense fallback={<Skeleton className="w-full h-full rounded-lg" />}>
                             {isMounted && <SalesChart data={stats.chartData} />}
                         </Suspense>
