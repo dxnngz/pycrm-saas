@@ -33,6 +33,8 @@ services:
       - DB_PASSWORD=password
       - DB_NAME=pycrm
       - JWT_SECRET=supersecretkey123
+      - JWT_REFRESH_SECRET=default_refresh
+      - DATABASE_URL=postgres://postgres:password@db:5432/pycrm
       - REDIS_URL=redis://redis:6379
     depends_on:
       - db
