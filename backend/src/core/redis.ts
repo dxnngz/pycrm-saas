@@ -79,7 +79,11 @@ class RedisClient {
         try {
             const keys: string[] = [];
             for await (const key of this.client.scanIterator({ MATCH: pattern, COUNT: 500 })) {
-                keys.push(key);
+                if (Array.isArray(key)) {
+                    keys.push(...key);
+                } else {
+                    keys.push(key as any);
+                }
             }
             if (keys.length > 0) {
                 await this.client.unlink(keys);
