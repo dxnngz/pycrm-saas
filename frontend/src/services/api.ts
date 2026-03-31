@@ -25,11 +25,63 @@ export const api = {
     },
     ai: {
         askCopilot: (query: string) => customFetch('/ai/copilot', { method: 'POST', headers: getHeaders(), body: JSON.stringify({ query }) }).then(handleResponse),
-        askCopilotStream: (query: string, onChunk: (chunk: string) => void, onDone: () => void, onError: (error: string) => void) => {
-            const eventSource = new EventSource(`/ai/copilot/stream?query=${encodeURIComponent(query)}`);
-            eventSource.onmessage = (e) => onChunk(e.data);
-            eventSource.onerror = () => { onError('Stream error'); eventSource.close(); };
-            eventSource.addEventListener('end', () => { onDone(); eventSource.close(); });
+        askCopilotStream: async (query: string, onChunk: (chunk: string) => void, onDone: () => void, onError: (error: string) => void) => {
+            try {
+                const response = await customFetch('/ai/copilot', {
+                    method: 'POST',
+                    headers: getHeaders(),
+                    body: JSON.stringify({ query })
+                });
+
+                if (!response.ok) {
+                    throw new Error('Stream failed or Unauthorized');
+                }
+
+                const reader = response.body?.getReader();
+                const decoder = new TextDecoder();
+
+                if (!reader) throw new Error('No reader available');
+
+                let buffer = '';
+                while (true) {
+                    const { done, value } = await reader.read();
+                    if (done) break;
+                    
+                    buffer += decoder.decode(value, { stream: true });
+                    const lines = buffer.split('\n');
+                    buffer = lines.pop() || '';
+
+                    for (const line of lines) {
+                        if (line.trim().startsWith('data: ')) {
+                            const dataStr = line.substring(6).trim();
+                            if (!dataStr || dataStr === '[DONE]') continue;
+                            
+                            try {
+                                const data = JSON.parse(dataStr);
+                                if (data.text) {
+                                    onChunk(data.text);
+                                } else if (data.done) {
+                                    onDone();
+                                } else if (data.error) {
+                                    onError(data.error);
+                                }
+                            } catch (e) {
+                                console.warn('Pares invalid chunk', dataStr);
+                            }
+                        }
+                    }
+                }
+                
+                if (buffer.trim().startsWith('data: ')) {
+                    try {
+                        const data = JSON.parse(buffer.substring(6).trim());
+                        if (data.text) onChunk(data.text);
+                        if (data.done) onDone();
+                    } catch (e) {}
+                }
+            } catch (error: any) {
+                onError(error.message || 'Stream error');
+            }
         },
         // ... streamline other AI methods similarly
     },
