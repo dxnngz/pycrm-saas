@@ -206,7 +206,7 @@ import { workflowService } from './modules/workflows/workflow.service.js';
 app.use('/api/auth', authRoutes);
 
 // Apply CSRF protection globally for state mutating endpoints
-app.use(csrfProtection);
+// app.use(csrfProtection); // Disabled for cross-origin Vercel deployment
 
 // Authn-aware Plan-based Tenant Rate Limiter (Protects internal endpoints based on tier)
 const tenantLimiter = rateLimit({
