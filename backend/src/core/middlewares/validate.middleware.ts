@@ -11,10 +11,10 @@ export const validate = (schema: z.ZodObject<any, any>) => {
                 params: req.params,
             });
 
-            // Replace req with validated data
-            req.body = (validated as any).body;
-            req.query = (validated as any).query;
-            req.params = (validated as any).params;
+            // Replace req with validated data using defineProperty to bypass getter-only TypeErrors in production Node.js
+            Object.defineProperty(req, 'body', { value: (validated as any).body, writable: true, enumerable: true, configurable: true });
+            Object.defineProperty(req, 'query', { value: (validated as any).query, writable: true, enumerable: true, configurable: true });
+            Object.defineProperty(req, 'params', { value: (validated as any).params, writable: true, enumerable: true, configurable: true });
 
             next();
         } catch (error) {
