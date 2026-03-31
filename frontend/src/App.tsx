@@ -26,15 +26,7 @@ import { AICopilot } from './components/Common/AICopilot';
 // View Components
 import LoginView from './components/Auth/LoginView';
 
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      staleTime: 1000 * 60 * 5,
-      refetchOnWindowFocus: false,
-      retry: 1
-    },
-  },
-});
+const queryClient = new QueryClient();
 
 // Lazy Views
 const DashboardView = React.lazy(() => import('./components/Dashboard/DashboardView'));

@@ -87,7 +87,7 @@ export const login = asyncHandler(async (req: Request, res: Response) => {
 });
 
 export const setupMFA = asyncHandler(async (req: Request, res: Response) => {
-    const userId = req.user?.userId;
+    const userId = req.user?.id;
     const userEmail = req.user?.email;
 
     if (!userId || !userEmail) throw new AppError('No autenticado', 401);
@@ -97,7 +97,7 @@ export const setupMFA = asyncHandler(async (req: Request, res: Response) => {
 });
 
 export const verifyAndEnableMFA = asyncHandler(async (req: Request, res: Response) => {
-    const userId = req.user?.userId;
+    const userId = req.user?.id;
     const { secret, token } = req.body;
 
     if (!userId) throw new AppError('No autenticado', 401);
@@ -147,7 +147,7 @@ export const verifyMFALogin = asyncHandler(async (req: Request, res: Response) =
 });
 
 export const disableMFA = asyncHandler(async (req: Request, res: Response) => {
-    const userId = req.user?.userId;
+    const userId = req.user?.id;
     if (!userId) throw new AppError('No autenticado', 401);
 
     await mfaService.disableMFA(userId);
@@ -246,7 +246,7 @@ export const resetPassword = asyncHandler(async (req: Request, res: Response) =>
 });
 
 export const getProfile = asyncHandler(async (req: Request, res: Response) => {
-    const userId = req.user?.userId;
+    const userId = req.user?.id;
     if (!userId) {
         throw new AppError('No autenticado', 401);
     }

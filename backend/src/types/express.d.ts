@@ -3,6 +3,7 @@ export { };
 declare global {
     namespace Express {
         interface UserPayload {
+            id: number;
             userId: number;
             tenantId: number;
             email: string;
