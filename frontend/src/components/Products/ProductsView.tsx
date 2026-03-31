@@ -15,12 +15,44 @@ import { toast } from 'sonner';
 import { VirtualTable, type Column as VirtualColumn } from '../UI/VirtualTable';
 import { Badge } from '../UI/Badge';
 import { Button } from '../UI/Button';
+import Modal from '../Common/Modal';
+import { Input } from '../UI/Input';
+import { Select } from '../UI/Select';
+import { sanitizePayload } from '../../utils/sanitize';
 
 const ProductsView = () => {
   const [search, setSearch] = useState('');
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [totalItems, setTotalItems] = useState(0);
+  
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [newName, setNewName] = useState('');
+  const [newDesc, setNewDesc] = useState('');
+  const [newPrice, setNewPrice] = useState('');
+  const [newCategory, setNewCategory] = useState('General');
+
+  const handleCreate = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+    try {
+      await api.products.create(sanitizePayload({
+        name: newName,
+        description: newDesc,
+        price: newPrice,
+        category: newCategory
+      }));
+      toast.success('Product created successfully');
+      setIsModalOpen(false);
+      setNewName(''); setNewDesc(''); setNewPrice(''); setNewCategory('General');
+      loadProducts();
+    } catch {
+      toast.error('Failed to create product');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   const loadProducts = useCallback(async () => {
     try {
@@ -133,7 +165,7 @@ const ProductsView = () => {
               className="w-full h-10 pl-10 pr-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all shadow-sm"
             />
           </div>
-          <Button variant="primary" size="md">
+          <Button variant="primary" size="md" onClick={() => setIsModalOpen(true)}>
             <Plus size={18} className="mr-2" />
             New Product
           </Button>
@@ -182,6 +214,48 @@ const ProductsView = () => {
         emptyMessage="No products found in catalog."
         height="500px"
       />
+
+      <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title="Create New Product" maxWidth="max-w-xl">
+        <form onSubmit={handleCreate} className="space-y-4">
+          <Input 
+            label="Product Name" 
+            value={newName} 
+            onChange={e => setNewName(e.target.value)} 
+            required 
+            placeholder="e.g. Enterprise License" 
+          />
+          <Input 
+            label="Description" 
+            value={newDesc} 
+            onChange={e => setNewDesc(e.target.value)} 
+            placeholder="Features included..." 
+          />
+          <div className="grid grid-cols-2 gap-4">
+            <Input 
+              label="Unit Price ($)" 
+              type="number" 
+              step="0.01" 
+              value={newPrice} 
+              onChange={e => setNewPrice(e.target.value)} 
+              required 
+            />
+            <Select 
+              label="Category" 
+              value={newCategory} 
+              onChange={e => setNewCategory(e.target.value)}
+            >
+              <option value="General">General</option>
+              <option value="Software">Software</option>
+              <option value="Hardware">Hardware</option>
+              <option value="Service">Service</option>
+            </Select>
+          </div>
+          <div className="pt-4 flex justify-end gap-3">
+            <Button variant="outline" onClick={() => setIsModalOpen(false)}>Cancel</Button>
+            <Button variant="primary" type="submit" isLoading={isSubmitting}>Create Product</Button>
+          </div>
+        </form>
+      </Modal>
     </div>
   );
 };

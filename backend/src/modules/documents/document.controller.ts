@@ -15,12 +15,15 @@ export const getDocuments = asyncHandler(async (req: Request, res: Response) => 
 
 export const createDocument = asyncHandler(async (req: Request, res: Response) => {
     const tenantId = req.user!.tenantId;
-    // Basic casting mapping from JSON
+    const clientId = req.body.client_id ? parseInt(req.body.client_id) : null;
+    const oppId = req.body.opportunity_id ? parseInt(req.body.opportunity_id) : null;
+    const amount = req.body.amount ? parseFloat(req.body.amount) : null;
+
     const data = {
         ...req.body,
-        client_id: req.body.client_id ? parseInt(req.body.client_id) : null,
-        opportunity_id: req.body.opportunity_id ? parseInt(req.body.opportunity_id) : null,
-        amount: req.body.amount ? parseFloat(req.body.amount) : null
+        client_id: isNaN(clientId as number) ? null : clientId,
+        opportunity_id: isNaN(oppId as number) ? null : oppId,
+        amount: isNaN(amount as number) ? null : amount
     };
 
     const doc = await documentService.createDocument(data, tenantId);
@@ -29,11 +32,15 @@ export const createDocument = asyncHandler(async (req: Request, res: Response) =
 
 export const updateDocument = asyncHandler(async (req: Request, res: Response) => {
     const id = parseInt(req.params.id as string);
+    const clientId = req.body.client_id ? parseInt(req.body.client_id) : null;
+    const oppId = req.body.opportunity_id ? parseInt(req.body.opportunity_id) : null;
+    const amount = req.body.amount !== undefined ? parseFloat(req.body.amount) : null;
+
     const data = {
         ...req.body,
-        client_id: req.body.client_id ? parseInt(req.body.client_id) : null,
-        opportunity_id: req.body.opportunity_id ? parseInt(req.body.opportunity_id) : null,
-        amount: req.body.amount !== undefined ? parseFloat(req.body.amount) : null
+        client_id: isNaN(clientId as number) ? null : clientId,
+        opportunity_id: isNaN(oppId as number) ? null : oppId,
+        amount: isNaN(amount as number) ? null : amount
     };
 
     try {

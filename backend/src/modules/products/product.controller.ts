@@ -25,9 +25,10 @@ export const getProductById = asyncHandler(async (req: Request, res: Response) =
 
 export const createProduct = asyncHandler(async (req: Request, res: Response) => {
     const tenantId = req.user!.tenantId;
+    const price = parseFloat(req.body.price);
     const data = {
         ...req.body,
-        price: parseFloat(req.body.price)
+        price: isNaN(price) ? 0 : price
     };
     const doc = await productService.createProduct(tenantId, data);
     res.status(201).json(doc);
@@ -36,9 +37,10 @@ export const createProduct = asyncHandler(async (req: Request, res: Response) =>
 export const updateProduct = asyncHandler(async (req: Request, res: Response) => {
     const tenantId = req.user!.tenantId;
     const id = parseInt(req.params.id as string);
+    const price = req.body.price !== undefined ? parseFloat(req.body.price) : undefined;
     const data = {
         ...req.body,
-        price: req.body.price !== undefined ? parseFloat(req.body.price) : undefined
+        price: price !== undefined && isNaN(price) ? 0 : price
     };
 
     try {

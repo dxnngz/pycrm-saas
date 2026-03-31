@@ -14,6 +14,9 @@ import { api } from '../../services/api';
 import type { Event as CalendarEvent } from '../../types';
 import { toast } from 'sonner';
 import { Button } from '../UI/Button';
+import Modal from '../Common/Modal';
+import { Input } from '../UI/Input';
+import { sanitizePayload } from '../../utils/sanitize';
 
 const CalendarView = () => {
   const [currentDate, setCurrentDate] = useState(new Date());
@@ -27,6 +30,34 @@ const CalendarView = () => {
     "January", "February", "March", "April", "May", "June",
     "July", "August", "September", "October", "November", "December"
   ];
+
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [newTitle, setNewTitle] = useState('');
+  const [newDesc, setNewDesc] = useState('');
+  const [newStart, setNewStart] = useState('');
+  const [newEnd, setNewEnd] = useState('');
+
+  const handleCreate = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+    try {
+      await api.events.create(sanitizePayload({
+        title: newTitle,
+        description: newDesc,
+        start_date: new Date(newStart).toISOString(),
+        end_date: newEnd ? new Date(newEnd).toISOString() : undefined,
+      }));
+      toast.success('Event created successfully');
+      setIsModalOpen(false);
+      setNewTitle(''); setNewDesc(''); setNewStart(''); setNewEnd('');
+      loadEvents();
+    } catch {
+      toast.error('Failed to create event');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   const loadEvents = useCallback(async () => {
     try {
@@ -77,7 +108,7 @@ const CalendarView = () => {
             Manage meetings and strategic commercial events.
           </p>
         </div>
-        <Button variant="primary" size="md">
+        <Button variant="primary" size="md" onClick={() => setIsModalOpen(true)}>
           <Plus size={18} className="mr-2" />
           New Event
         </Button>
@@ -199,6 +230,43 @@ const CalendarView = () => {
           )}
         </div>
       </div>
+
+      <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title="Create New Event" maxWidth="max-w-xl">
+        <form onSubmit={handleCreate} className="space-y-4">
+          <Input 
+            label="Event Title" 
+            value={newTitle} 
+            onChange={e => setNewTitle(e.target.value)} 
+            required 
+            placeholder="e.g. Q3 Roadmap Review" 
+          />
+          <Input 
+            label="Description / Location" 
+            value={newDesc} 
+            onChange={e => setNewDesc(e.target.value)} 
+            placeholder="Zoom link or conference room..." 
+          />
+          <div className="grid grid-cols-2 gap-4">
+            <Input 
+              label="Start Date & Time" 
+              type="datetime-local" 
+              value={newStart} 
+              onChange={e => setNewStart(e.target.value)} 
+              required 
+            />
+            <Input 
+              label="End Date & Time (Optional)" 
+              type="datetime-local" 
+              value={newEnd} 
+              onChange={e => setNewEnd(e.target.value)} 
+            />
+          </div>
+          <div className="pt-4 flex justify-end gap-3">
+            <Button variant="outline" onClick={() => setIsModalOpen(false)}>Cancel</Button>
+            <Button variant="primary" type="submit" isLoading={isSubmitting}>Create Event</Button>
+          </div>
+        </form>
+      </Modal>
     </div>
   );
 };

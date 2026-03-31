@@ -12,4 +12,8 @@ export const productsService = {
     // Delete a product by ID
     delete: async (id: number) =>
         customFetch(`/products/${id}`, { method: 'DELETE', headers: getHeaders() }).then(handleResponse),
+
+    // Create a new product
+    create: async (data: any) =>
+        customFetch('/products', { method: 'POST', headers: getHeaders(), body: JSON.stringify(data) }).then(handleResponse),
 };

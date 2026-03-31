@@ -18,6 +18,10 @@ import { toast } from 'sonner';
 import { VirtualTable, type Column } from '../UI/VirtualTable';
 import { Badge } from '../UI/Badge';
 import { Button } from '../UI/Button';
+import Modal from '../Common/Modal';
+import { Input } from '../UI/Input';
+import { Select } from '../UI/Select';
+import { sanitizePayload } from '../../utils/sanitize';
 
 const DocumentsView = () => {
   const { role } = usePermissions();
@@ -25,6 +29,34 @@ const DocumentsView = () => {
   const [search, setSearch] = useState('');
   const [documents, setDocuments] = useState<Document[]>([]);
   const [loading, setLoading] = useState(true);
+
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [newName, setNewName] = useState('');
+  const [newType, setNewType] = useState('Quote');
+  const [newAmount, setNewAmount] = useState('');
+  const [newStatus, setNewStatus] = useState('Pending');
+
+  const handleCreate = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+    try {
+      await api.documents.create(sanitizePayload({
+        name: newName,
+        type: newType,
+        amount: newAmount,
+        status: newStatus
+      }));
+      toast.success('Document created successfully');
+      setIsModalOpen(false);
+      setNewName(''); setNewType('Quote'); setNewAmount(''); setNewStatus('Pending');
+      loadDocuments();
+    } catch {
+      toast.error('Failed to create document');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   const loadDocuments = useCallback(async () => {
     try {
@@ -149,7 +181,7 @@ const DocumentsView = () => {
               className="w-full h-10 pl-10 pr-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all shadow-sm"
             />
           </div>
-          <Button variant="primary" size="md">
+          <Button variant="primary" size="md" onClick={() => setIsModalOpen(true)}>
             <Plus size={18} className="mr-2" />
             Create Document
           </Button>
@@ -197,6 +229,49 @@ const DocumentsView = () => {
         emptyMessage="No documents found in registry."
         height="calc(100vh - 350px)"
       />
+
+      <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title="Create New Document" maxWidth="max-w-xl">
+        <form onSubmit={handleCreate} className="space-y-4">
+          <Input 
+            label="Document Name" 
+            value={newName} 
+            onChange={e => setNewName(e.target.value)} 
+            required 
+            placeholder="e.g. Q3 Sales Proposal" 
+          />
+          <div className="grid grid-cols-2 gap-4">
+            <Select 
+              label="Type" 
+              value={newType} 
+              onChange={e => setNewType(e.target.value)}
+            >
+              <option value="Quote">Quote</option>
+              <option value="Contract">Contract</option>
+              <option value="Invoice">Invoice</option>
+            </Select>
+            <Select 
+              label="Status" 
+              value={newStatus} 
+              onChange={e => setNewStatus(e.target.value)}
+            >
+              <option value="Pending">Pending</option>
+              <option value="Paid">Paid/Signed</option>
+            </Select>
+          </div>
+          <Input 
+            label="Amount ($)" 
+            type="number" 
+            step="0.01" 
+            value={newAmount} 
+            onChange={e => setNewAmount(e.target.value)} 
+            placeholder="Optional value..."
+          />
+          <div className="pt-4 flex justify-end gap-3">
+            <Button variant="outline" onClick={() => setIsModalOpen(false)}>Cancel</Button>
+            <Button variant="primary" type="submit" isLoading={isSubmitting}>Create Document</Button>
+          </div>
+        </form>
+      </Modal>
     </div>
   );
 };

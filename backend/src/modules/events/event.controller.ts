@@ -15,8 +15,8 @@ export const getEvents = asyncHandler(async (req: Request, res: Response) => {
 export const createEvent = asyncHandler(async (req: Request, res: Response) => {
     const userId = req.user!.userId;
     const tenantId = req.user!.tenantId;
-    let clientId = req.body.client_id;
-    if (clientId) clientId = parseInt(clientId);
+    let clientId = req.body.client_id ? parseInt(req.body.client_id) : null;
+    if (isNaN(clientId as number)) clientId = null;
 
     const eventData = { ...req.body, user_id: userId, client_id: clientId };
     const event = await eventService.createEvent(eventData, tenantId);
@@ -26,7 +26,10 @@ export const createEvent = asyncHandler(async (req: Request, res: Response) => {
 export const updateEvent = asyncHandler(async (req: Request, res: Response) => {
     const userId = req.user!.userId;
     const eventId = parseInt(req.params.id as string);
-    if (req.body.client_id) req.body.client_id = parseInt(req.body.client_id);
+    
+    let clientId: any = req.body.client_id ? parseInt(req.body.client_id) : undefined;
+    if (clientId !== undefined && isNaN(clientId)) clientId = null;
+    if (clientId !== undefined) req.body.client_id = clientId;
 
     const event = await eventService.updateEventById(eventId, userId, req.body);
     if (!event) {

@@ -12,4 +12,8 @@ export const documentsService = {
     // Delete a document by ID
     delete: async (id: number) =>
         customFetch(`/documents/${id}`, { method: 'DELETE', headers: getHeaders() }).then(handleResponse),
+
+    // Create a new document
+    create: async (data: any) =>
+        customFetch('/documents', { method: 'POST', headers: getHeaders(), body: JSON.stringify(data) }).then(handleResponse),
 };

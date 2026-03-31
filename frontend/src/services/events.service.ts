@@ -14,4 +14,12 @@ export const eventsService = {
             method: 'DELETE',
             headers: getHeaders(),
         }).then(handleResponse),
+
+    // Create a new event
+    create: async (data: any) =>
+        customFetch('/events', {
+            method: 'POST',
+            headers: getHeaders(),
+            body: JSON.stringify(data)
+        }).then(handleResponse),
 };
