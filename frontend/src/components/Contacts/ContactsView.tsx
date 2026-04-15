@@ -33,7 +33,7 @@ import { Input } from '../UI/Input';
 const ContactsView = () => {
     const [search, setSearch] = useState('');
     const [debouncedSearch, setDebouncedSearch] = useState('');
-    const [page] = useState(1);
+    const [page, setPage] = useState(1);
 
     useEffect(() => {
         const timer = setTimeout(() => {
@@ -41,6 +41,10 @@ const ContactsView = () => {
         }, 300);
         return () => clearTimeout(timer);
     }, [search]);
+
+    useEffect(() => {
+        setPage(1);
+    }, [debouncedSearch]);
 
     const { clients, loading, pagination, loadClients, createClient, updateClient, deleteClient } = useClients(page, 10, debouncedSearch);
     const { canCreateClient, canDeleteClient } = usePermissions();
@@ -140,7 +144,7 @@ const ContactsView = () => {
             }
             setIsModalOpen(false);
             setEditingClient(null);
-            loadClients(pagination.page, pagination.limit, debouncedSearch);
+            loadClients();
         } catch (error: unknown) {
             console.error(error);
             toast.error('Failed to save customer. Please try again.');
@@ -162,9 +166,9 @@ const ContactsView = () => {
             setIsDeleteModalOpen(false);
             setClientToDelete(null);
             if (clients && clients.length === 1 && pagination.page > 1) {
-                loadClients(pagination.page - 1, pagination.limit, debouncedSearch);
+                setPage(pagination.page - 1);
             } else {
-                loadClients(pagination.page, pagination.limit, debouncedSearch);
+                loadClients();
             }
         } catch (error: unknown) {
             console.error(error);
@@ -371,7 +375,7 @@ const ContactsView = () => {
                             variant="outline"
                             size="sm"
                             disabled={pagination.page === 1}
-                            onClick={() => loadClients(pagination.page - 1, pagination.limit, debouncedSearch)}
+                            onClick={() => setPage(pagination.page - 1)}
                         >
                             <ChevronLeft size={14} className="mr-1" />
                             Previous
@@ -380,7 +384,7 @@ const ContactsView = () => {
                             {Array.from({ length: Math.min(pagination.totalPages, 5) }, (_, i) => i + 1).map((p) => (
                                 <button
                                     key={p}
-                                    onClick={() => loadClients(p, pagination.limit, debouncedSearch)}
+                                    onClick={() => setPage(p)}
                                     className={`w-8 h-8 rounded text-xs font-medium transition-colors ${pagination.page === p
                                         ? 'bg-slate-900 dark:bg-white text-white dark:text-slate-900'
                                         : 'text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800'
@@ -394,7 +398,7 @@ const ContactsView = () => {
                             variant="outline"
                             size="sm"
                             disabled={pagination.page === pagination.totalPages}
-                            onClick={() => loadClients(pagination.page + 1, pagination.limit, debouncedSearch)}
+                            onClick={() => setPage(pagination.page + 1)}
                         >
                             <span className="flex items-center gap-1">
                                 Next <ChevronRight size={14} />

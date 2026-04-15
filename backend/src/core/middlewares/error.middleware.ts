@@ -33,9 +33,7 @@ export const globalErrorHandler = (err: any, req: Request, res: Response, next: 
 
             res.status(500).json({
                 status: 'error',
-                message: 'Error interno del sistema. El incidente ha sido reportado.',
-                debug_error: err.message,
-                debug_stack: err.stack
+                message: 'Error interno del sistema. El incidente ha sido reportado.'
             });
         }
     }

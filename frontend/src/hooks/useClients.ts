@@ -50,8 +50,7 @@ export const useClients = (page: number = 1, limit: number = 10, search: string 
         clients: qData?.clients || [],
         loading,
         pagination: qData?.pagination || { total: 0, page: 1, limit: 10, totalPages: 0 },
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        loadClients: (_page?: number, _limit?: number, _search?: string) => refetch(), // Fallback for backwards compatibility in older components
+        loadClients: () => refetch(),
         createClient: createMutation.mutateAsync,
         updateClient: (id: number, data: Partial<Client>) => updateMutation.mutateAsync({ id, data }),
         deleteClient: deleteMutation.mutateAsync,

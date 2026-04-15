@@ -10,7 +10,9 @@ export default defineConfig({
     react(),
     tailwindcss(),
     VitePWA({
+      minify: false,
       workbox: {
+        mode: 'development',
         globPatterns: ['**/*.{js,css,html,ico,png,svg}'],
         runtimeCaching: [
           {

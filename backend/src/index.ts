@@ -15,6 +15,12 @@ const port = env.PORT || 3000;
 // ... (lines 14-44)
 const ensureAdmin = async () => {
     try {
+        // Never bootstrap a default admin account in production.
+        if (env.NODE_ENV === 'production') {
+            logger.info('Skipping default admin bootstrap in production');
+            return;
+        }
+
         const adminEmail = 'admin@saas.com';
         const adminExists = await prisma.user.findUnique({ where: { email: adminEmail } });
 

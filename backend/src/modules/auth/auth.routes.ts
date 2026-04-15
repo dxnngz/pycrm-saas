@@ -10,7 +10,7 @@ router.post('/register', authController.register);
 router.post('/refresh', authController.refreshToken);
 router.post('/verify-mfa-login', authController.verifyMFALogin);
 router.post('/forgot-password', authController.forgotPassword);
-router.post('/reset-password', authController.resetPassword);
+router.post('/reset-password/:token', authController.resetPassword);
 
 // Endpoints protegidos
 router.post('/mfa/setup', protect, authController.setupMFA);
