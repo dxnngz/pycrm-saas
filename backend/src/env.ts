@@ -46,4 +46,17 @@ if (!_env.success) {
     process.exit(1);
 }
 
-export const env = _env.data;
+// Sanitización automática de REDIS_URL para Upstash
+const rawRedisUrl = _env.data.REDIS_URL;
+let sanitizedRedisUrl = rawRedisUrl;
+
+if (rawRedisUrl && rawRedisUrl.includes('direct-')) {
+    // Si el usuario puso la URL 'direct-', la limpiamos para evitar ENOTFOUND en Render
+    sanitizedRedisUrl = rawRedisUrl.replace('direct-', '');
+    console.log('ℹ️ REDIS_URL detectada como "direct-". Aplicando limpieza automática para compatibilidad con Render.');
+}
+
+export const env = {
+    ..._env.data,
+    REDIS_URL: sanitizedRedisUrl
+};
