@@ -33,9 +33,9 @@ const DashboardView = React.lazy(() => import('./components/Dashboard/DashboardV
 const ContactsView = React.lazy(() => import('./components/Contacts/ContactsView'));
 const PipelineView = React.lazy(() => import('./components/Pipeline/PipelineView'));
 const TasksView = React.lazy(() => import('./components/Tasks/TasksView'));
-const CalendarView = React.lazy(() => import('./components/Calendar/CalendarView.js'));
-const ProductsView = React.lazy(() => import('./components/Products/ProductsView.js'));
-const DocumentsView = React.lazy(() => import('./components/Documents/DocumentsView.js'));
+const CalendarView = React.lazy(() => import('./components/Calendar/CalendarView'));
+const ProductsView = React.lazy(() => import('./components/Products/ProductsView'));
+const DocumentsView = React.lazy(() => import('./components/Documents/DocumentsView'));
 const SettingsView = React.lazy(() => import('./components/Settings/SettingsView'));
 const UsersView = React.lazy(() => import('./components/Users/UsersView'));
 
@@ -114,9 +114,9 @@ const App: FC = () => {
       contacts: () => import('./components/Contacts/ContactsView'),
       pipeline: () => import('./components/Pipeline/PipelineView'),
       tasks: () => import('./components/Tasks/TasksView'),
-      calendar: () => import('./components/Calendar/CalendarView.js'),
-      products: () => import('./components/Products/ProductsView.js'),
-      documents: () => import('./components/Documents/DocumentsView.js'),
+      calendar: () => import('./components/Calendar/CalendarView'),
+      products: () => import('./components/Products/ProductsView'),
+      documents: () => import('./components/Documents/DocumentsView'),
       settings: () => import('./components/Settings/SettingsView'),
       users: () => import('./components/Users/UsersView'),
     };
@@ -204,7 +204,11 @@ const App: FC = () => {
         </main>
 
         <NotificationSystem isOpen={isNotificationsOpen} onClose={() => setIsNotificationsOpen(false)} />
-        <CommandBar isOpen={isCommandBarOpen} onClose={() => setIsCommandBarOpen(false)} />
+        <CommandBar
+          isOpen={isCommandBarOpen}
+          onClose={() => setIsCommandBarOpen(false)}
+          onNavigate={(view) => setActiveView(view)}
+        />
         <AICopilot />
         <Toaster position="bottom-right" richColors closeButton theme={isDarkMode ? 'dark' : 'light'} />
       </div>

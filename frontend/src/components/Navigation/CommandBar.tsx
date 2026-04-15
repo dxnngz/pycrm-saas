@@ -1,24 +1,25 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
 import {
     Search, Command, Users, Briefcase, CheckSquare,
     Zap, Plus, Target, FileText, Settings, ArrowRight, Sparkles
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
-const QUICK_ACTIONS = [
-    { id: 'new-client', label: 'Crear Nuevo Cliente', icon: Plus, path: '/clients', color: 'text-emerald-400' },
-    { id: 'new-opp', label: 'Nueva Oportunidad', icon: Target, path: '/opportunities', color: 'text-indigo-400' },
-    { id: 'new-task', label: 'Nueva Tarea', icon: CheckSquare, path: '/tasks', color: 'text-amber-400' },
+type ViewId = 'dashboard' | 'contacts' | 'pipeline' | 'tasks' | 'documents' | 'settings' | 'users' | 'calendar' | 'products';
+
+const QUICK_ACTIONS: SearchResult[] = [
+    { id: 'new-client', label: 'Crear Nuevo Cliente', icon: Plus, viewId: 'contacts', color: 'text-emerald-400' },
+    { id: 'new-opp', label: 'Nueva Oportunidad', icon: Target, viewId: 'pipeline', color: 'text-indigo-400' },
+    { id: 'new-task', label: 'Nueva Tarea', icon: CheckSquare, viewId: 'tasks', color: 'text-amber-400' },
 ];
 
-const NAVIGATION = [
-    { id: 'dashboard', label: 'Panel de Control', icon: Command, path: '/dashboard' },
-    { id: 'contacts', label: 'Clientes y Contactos', icon: Users, path: '/contacts' },
-    { id: 'pipeline', label: 'Pipeline de Ventas', icon: Briefcase, path: '/opportunities' },
-    { id: 'tasks', label: 'Gestión de Tareas', icon: CheckSquare, path: '/tasks' },
-    { id: 'documents', label: 'Bóveda de Documentos', icon: FileText, path: '/documents' },
-    { id: 'settings', label: 'Configuración', icon: Settings, path: '/settings' },
+const NAVIGATION: SearchResult[] = [
+    { id: 'dashboard', label: 'Panel de Control', icon: Command, viewId: 'dashboard' },
+    { id: 'contacts', label: 'Clientes y Contactos', icon: Users, viewId: 'contacts' },
+    { id: 'pipeline', label: 'Pipeline de Ventas', icon: Briefcase, viewId: 'pipeline' },
+    { id: 'tasks', label: 'Gestión de Tareas', icon: CheckSquare, viewId: 'tasks' },
+    { id: 'documents', label: 'Bóveda de Documentos', icon: FileText, viewId: 'documents' },
+    { id: 'settings', label: 'Configuración', icon: Settings, viewId: 'settings' },
 ];
 
 import type { LucideIcon } from 'lucide-react';
@@ -27,16 +28,15 @@ interface SearchResult {
     id: string;
     label: string;
     icon: LucideIcon;
-    path?: string;
+    viewId?: ViewId;
     color?: string;
     type?: 'ai' | 'action' | 'nav';
 }
 
-export const CommandBar = ({ isOpen, onClose }: { isOpen: boolean, onClose: () => void }) => {
+export const CommandBar = ({ isOpen, onClose, onNavigate }: { isOpen: boolean, onClose: () => void, onNavigate: (viewId: ViewId) => void }) => {
     const [query, setQuery] = useState('');
     const [selectedIndex, setSelectedIndex] = useState(0);
     const [results, setResults] = useState<SearchResult[]>([]);
-    const navigate = useNavigate();
     const inputRef = useRef<HTMLInputElement>(null);
 
     useEffect(() => {
@@ -53,11 +53,11 @@ export const CommandBar = ({ isOpen, onClose }: { isOpen: boolean, onClose: () =
     }, [isOpen]);
 
     const handleSelect = useCallback((item: SearchResult) => {
-        if (item.path) {
-            navigate(item.path);
+        if (item.viewId) {
+            onNavigate(item.viewId);
         }
         onClose();
-    }, [navigate, onClose]);
+    }, [onNavigate, onClose]);
 
     const handleSearch = (val: string) => {
         setQuery(val);

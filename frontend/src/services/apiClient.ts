@@ -139,9 +139,9 @@ export const handleResponse = async (response: Response) => {
     const requestId = (response as Response & { __requestId?: string }).__requestId || 'local-fallback';
 
     if (!response.ok) {
-        if (response.status === 401 && !window.location.pathname.includes('/login')) {
+        if (response.status === 401) {
             localStorage.clear();
-            window.location.href = '/login';
+            window.location.reload();
         }
 
         let errorMessage = 'Error desconocido en el servidor';

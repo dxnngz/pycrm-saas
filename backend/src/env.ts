@@ -9,13 +9,13 @@ const envSchema = z.object({
     DB_HOST: z.string().default('localhost'),
     DB_PORT: z.string().default('5432'),
     DB_USER: z.string().default('postgres'),
-    DB_PASSWORD: z.any().optional().default(''),
+    DB_PASSWORD: z.string().optional().default(''),
     DB_NAME: z.string().default('pycrm'),
     DATABASE_URL: z.string().optional(),
     REDIS_URL: z.string().optional(),
     JWT_SECRET: z.string().min(1, 'Obligatorio'),
-    JWT_REFRESH_SECRET: z.any().optional().default('default_refresh'),
-    FRONTEND_URL: z.any().optional(),
+    JWT_REFRESH_SECRET: z.string().optional(),
+    FRONTEND_URL: z.string().optional(),
     ALLOW_OPEN_REGISTRATION: z.string().optional().default('true'),
 
     // Email Config
@@ -46,17 +46,6 @@ if (!_env.success) {
     process.exit(1);
 }
 
-// Sanitización automática de REDIS_URL para Upstash
-const rawRedisUrl = _env.data.REDIS_URL;
-let sanitizedRedisUrl = rawRedisUrl;
-
-if (rawRedisUrl && rawRedisUrl.includes('direct-')) {
-    // Si el usuario puso la URL 'direct-', la limpiamos para evitar ENOTFOUND en Render
-    sanitizedRedisUrl = rawRedisUrl.replace('direct-', '');
-    console.log('ℹ️ REDIS_URL detectada como "direct-". Aplicando limpieza automática para compatibilidad con Render.');
-}
-
 export const env = {
-    ..._env.data,
-    REDIS_URL: sanitizedRedisUrl
+    ..._env.data
 };

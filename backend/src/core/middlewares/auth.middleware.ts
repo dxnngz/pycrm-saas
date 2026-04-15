@@ -4,8 +4,9 @@ import { AppError } from '../../utils/AppError.js';
 import { contextStore } from '../context.js';
 import { logger } from '../../utils/logger.js';
 import { redisCache } from '../redis.js';
+import { env } from '../../env.js';
 
-const JWT_KEY = process.env.JWT_SECRET || 'fallback_secret_key_123';
+const JWT_KEY = env.JWT_SECRET;
 
 interface JWTPayload extends jwt.JwtPayload {
     userId: number;

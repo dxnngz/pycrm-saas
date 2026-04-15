@@ -16,7 +16,7 @@ export class OpportunityService {
             const hasMore = opportunities.length > limit;
             const items = hasMore ? opportunities.slice(0, limit) : opportunities;
 
-            const mappedData = opportunities.map((opp: any) => ({
+            const mappedData = items.map((opp: any) => ({
                 ...opp,
                 client_name: (opp as any).client?.name || 'Cliente Desconocido',
                 client_company: (opp as any).client?.company || 'Empresa Desconocida'

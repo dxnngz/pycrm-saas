@@ -1,8 +1,8 @@
 import crypto from 'crypto';
+import { env } from '../env.js';
 
 const ALGORITHM = 'aes-256-gcm';
-// In production, this would be a long, secure key from environment variables
-const KEY = crypto.scryptSync(process.env.JWT_SECRET || 'fallback_secret_key_123', 'salt', 32);
+const KEY = crypto.scryptSync(env.JWT_SECRET, 'salt', 32);
 
 /**
  * Encrypts sensitive information (Reversible - "Ida")

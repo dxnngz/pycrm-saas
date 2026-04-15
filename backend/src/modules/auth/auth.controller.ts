@@ -232,8 +232,12 @@ export const forgotPassword = asyncHandler(async (req: Request, res: Response) =
 });
 
 export const resetPassword = asyncHandler(async (req: Request, res: Response) => {
-    const token = String(req.params.token);
+    const token = String(req.params.token || req.body.token || '');
     const { password } = req.body;
+
+    if (!token || !password) {
+        throw new AppError('Token y contraseña son obligatorios', 400);
+    }
 
     const resetRecord = await authService.findPasswordResetToken(token);
     if (!resetRecord || resetRecord.expires_at < new Date()) {

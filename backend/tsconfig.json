@@ -8,7 +8,7 @@
     "strict": true,
     "skipLibCheck": true,
     "esModuleInterop": true,
-    "isolatedModules": false,
+    "isolatedModules": true,
     "verbatimModuleSyntax": false
   },
   "include": [

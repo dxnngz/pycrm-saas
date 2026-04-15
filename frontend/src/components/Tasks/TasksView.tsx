@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import {
     CheckCircle2,
     Circle,
@@ -27,7 +27,7 @@ import { useVirtualizer } from '@tanstack/react-virtual';
 import { toast } from 'sonner';
 
 const TasksView = () => {
-    const { tasks, loading, loadTasks, createTask, toggleTask, deleteTask } = useTasks();
+    const { tasks, loading, createTask, toggleTask, deleteTask } = useTasks();
     const { canDeleteTask } = usePermissions();
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
@@ -42,10 +42,6 @@ const TasksView = () => {
     const [newDeadline, setNewDeadline] = useState('');
     const [newPriority, setNewPriority] = useState<'Alta' | 'Media' | 'Baja'>('Media');
     const [isSubmitting, setIsSubmitting] = useState(false);
-
-    useEffect(() => {
-        loadTasks();
-    }, [loadTasks]);
 
     const handleCreateTask = async (e: React.FormEvent) => {
         e.preventDefault();
