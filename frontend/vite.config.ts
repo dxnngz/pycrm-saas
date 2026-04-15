@@ -70,6 +70,18 @@ export default defineConfig({
       useCredentials: true
     })
   ],
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          reactVendor: ['react', 'react-dom', 'react-router-dom'],
+          queryVendor: ['@tanstack/react-query'],
+          chartsVendor: ['recharts'],
+          pdfVendor: ['jspdf', 'jspdf-autotable', 'html2canvas'],
+        }
+      }
+    }
+  },
   server: {
     proxy: {
       '/api': {

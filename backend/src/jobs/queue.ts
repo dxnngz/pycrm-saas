@@ -7,8 +7,8 @@ import { Redis } from 'ioredis';
 const connection = new Redis(env.REDIS_URL || 'redis://localhost:6379', {
     maxRetriesPerRequest: null,
     retryStrategy(times) {
-        if (times > 10) return null; // stop retrying
-        return Math.min(times * 100, 3000);
+        if (times > 3) return null; // stop retrying quickly in web runtime
+        return Math.min(times * 250, 2000);
     },
     reconnectOnError(err) {
         const targetError = 'READONLY';
@@ -21,7 +21,7 @@ const connection = new Redis(env.REDIS_URL || 'redis://localhost:6379', {
 
 connection.on('error', (err: any) => {
     if (err.code === 'ENOTFOUND') {
-        logger.error({ err }, '❌ BullMQ: No se pudo resolver la dirección de Redis. Revisa la URL en Render.');
+        logger.error({ err }, '❌ BullMQ: No se pudo resolver Redis. Cola en modo degradado.');
     } else {
         logger.error({ err }, 'BullMQ ioredis Connection Error');
     }
@@ -87,6 +87,10 @@ export const addEmailJob = async (to: string, subject: string, html: string) => 
 };
 
 export const addReminderJob = async () => {
+    if (!env.REDIS_URL) {
+        logger.warn('Skipping reminder scheduling: REDIS_URL not configured');
+        return;
+    }
     try {
         await systemQueue.add('task-reminders', {}, {
             repeat: { pattern: '0 9 * * *' }, // Daily at 9 AM
