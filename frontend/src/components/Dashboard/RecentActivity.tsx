@@ -48,7 +48,7 @@ const RecentActivity = ({ activities }: RecentActivityProps) => {
                             {activity.amount && (
                                 <div className="mt-1.5 leading-none">
                                     <span className="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 tabular-nums">
-                                        +{new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(activity.amount)}
+                                        +{new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(Number(activity.amount))}
                                     </span>
                                 </div>
                             )}

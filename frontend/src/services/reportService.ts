@@ -34,10 +34,10 @@ export const generatePipelineReport = (opportunities: Opportunity[]) => {
 
     // Table
     const tableData = opportunities.map(o => [
-        o.client_company || '',
-        o.client_name || '',
+        o.client_name || 'N/A', // Using client_name consistently
+        o.client_name || 'Individual',
         o.product || '',
-        new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR' }).format(o.amount),
+        new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR' }).format(Number(o.amount) || 0),
         o.status.toUpperCase()
     ]);
 
@@ -73,9 +73,9 @@ export const generateClientReport = (clients: Client[]) => {
     doc.text('PyCRM: Directorio de Socios', 14, 22);
 
     const tableData = clients.map(c => [
-        c.name,
-        c.company,
-        c.email,
+        c.name || '',
+        c.company || 'N/A',
+        c.email || 'N/A',
         c.phone || 'N/A'
     ]);
 

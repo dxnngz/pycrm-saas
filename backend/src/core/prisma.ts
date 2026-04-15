@@ -11,7 +11,11 @@ export const basePrisma = new PrismaClient({
 
 import { AUDITABLE_MODELS, VERSIONED_MODELS, TABLE_MAP } from './schema.constants.js';
 
-const safeTenant = (id: any): number => Number(id) || 1;
+const safeTenant = (id: any): number => {
+    const tid = Number(id);
+    if (!tid || isNaN(tid)) return 0; // 0 is an invalid tenant ID
+    return tid;
+};
 
 export const prisma = basePrisma.$extends({
     query: {
@@ -19,23 +23,30 @@ export const prisma = basePrisma.$extends({
             async $allOperations({ model, operation, args, query }) {
                 const store = contextStore.getStore();
                 const tenantId = safeTenant(store?.tenantId);
+                const isAuditable = model && AUDITABLE_MODELS.includes(model);
 
                 // --- MULTI-TENANT ISOLATION ARMOR ---
-                if (AUDITABLE_MODELS.includes(model) && !store?.isSystem && store?.tenantId) {
+                // If the model is multi-tenant and we're not in a system context, enforce tenant_id
+                if (isAuditable && !store?.isSystem) {
+                    if (!tenantId) {
+                        logger.error({ model, operation, requestId: store?.requestId }, 'CRITICAL: Attempted database operation without tenant context');
+                        throw new AppError('Acceso denegado: falta el contexto de organización.', 403);
+                    }
+
                     const anyArgs = args as any;
+                    
+                    // Inject tenant_id into filter operations
                     if (['findMany', 'findFirst', 'count', 'aggregate', 'groupBy', 'updateMany', 'deleteMany'].includes(operation)) {
                         anyArgs.where = { ...(anyArgs.where || {}), tenant_id: tenantId };
                     }
 
+                    // Inject tenant_id into unique operations
                     if (['findUnique', 'findUniqueOrThrow', 'update', 'delete'].includes(operation)) {
-                        if (anyArgs.where?.id) {
-                            anyArgs.where = { id: anyArgs.where.id, tenant_id: tenantId };
-                        } else if (anyArgs.where) {
-                            anyArgs.where = { ...anyArgs.where, tenant_id: tenantId };
-                        }
+                        anyArgs.where = { ...(anyArgs.where || {}), tenant_id: tenantId };
                     }
 
-                    if (operation === 'create' && model !== 'User') {
+                    // Inject tenant_id into creation (except for special system-level models if any)
+                    if (operation === 'create') {
                         anyArgs.data = { ...(anyArgs.data || {}), tenant_id: tenantId };
                     }
                 }
@@ -72,26 +83,35 @@ export const prisma = basePrisma.$extends({
 
                 // --- AUDIT LOGS ---
                 try {
-                    if (AUDITABLE_MODELS.includes(model) && ['create', 'update', 'delete'].includes(operation) && store?.userId) {
+                    const storeData = contextStore.getStore();
+                    if (isAuditable && ['create', 'update', 'delete'].includes(operation) && storeData?.userId) {
+                        const anyArgs = args as any;
+                        const resultAny = result as any;
+                        
                         const changes = operation === 'update' ? {
-                            updatedData: (args as any).data,
+                            updatedData: anyArgs.data,
                             finalState: result
                         } : result;
 
+                        // Safely extract ID as number
+                        const rawId = resultAny?.id;
+                        const entityId = rawId ? Number(rawId) : 0;
+
                         basePrisma.auditLog.create({
                             data: {
-                                entity: model,
-                                entity_id: (result as any)?.id ? Number((result as any).id) : 0,
+                                entity: model!,
+                                entity_id: entityId,
                                 action: operation.toUpperCase(),
-                                user_id: Number(store.userId),
-                                request_id: store.requestId || null,
+                                user_id: Number(storeData.userId),
+                                request_id: storeData.requestId || null,
                                 tenant_id: tenantId,
-                                changes: JSON.parse(JSON.stringify(changes)),
+                                changes: changes ? JSON.parse(JSON.stringify(changes)) : null,
                             }
-                        }).catch(e => logger.error({ err: e.message }, 'Failed to write audit log'));
+                        }).catch(e => logger.error({ err: e.message, model, operation }, 'Failed to write audit log'));
                     }
-                } catch (auditErr) {
-                    logger.error({ msg: 'Audit log extraction failed', err: (auditErr as any).message });
+                } catch (auditErr: unknown) {
+                    const errMsg = auditErr instanceof Error ? auditErr.message : 'Unknown audit error';
+                    logger.error({ msg: 'Audit log extraction failed', err: errMsg, model, operation });
                 }
 
                 // --- CACHE INVALIDATION ---

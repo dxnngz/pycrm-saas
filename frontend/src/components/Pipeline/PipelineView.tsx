@@ -61,7 +61,7 @@ const OpportunityCard = memo(({
 
             <div className="flex items-center justify-between pt-3 border-t border-slate-100 dark:border-slate-800/50">
                 <div className="text-sm font-bold text-slate-900 dark:text-white tabular-nums">
-                    {new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(opp.amount)}
+                    {new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(Number(opp.amount))}
                 </div>
 
                 <div className="flex items-center gap-1">
@@ -216,7 +216,7 @@ const PipelineView = () => {
 
     const filteredOpportunities = allOpportunities.filter(opp => {
         if (activeFilter === 'all') return true;
-        if (activeFilter === 'high-value') return opp.amount >= 10000;
+        if (activeFilter === 'high-value') return Number(opp.amount) >= 10000;
         if (activeFilter === 'high-score') {
             const score = scores[opp.id];
             return score && (score.score >= 70 || score.classification === 'HIGH');

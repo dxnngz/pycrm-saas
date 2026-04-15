@@ -166,9 +166,10 @@ export const refreshToken = asyncHandler(async (req: Request, res: Response) => 
     // SECURITY: Detect Refresh Token Reuse (Stolen tokens)
     if (!storedToken) {
         try {
-            const payload = verifyToken(rfToken) as Express.UserPayload;
-            logger.warn({ userId: payload.userId }, 'Refresh token reuse detected. Revoking all tokens.');
-            await authService.revokeAllUserTokens(payload.userId);
+            const payload = verifyToken(rfToken) as any;
+            const uid = payload.userId ?? payload.id;
+            logger.warn({ userId: uid }, 'Refresh token reuse detected. Revoking all tokens.');
+            await authService.revokeAllUserTokens(uid);
         } catch (err) {
             // Token invalid or expired anyway
         }
@@ -178,8 +179,9 @@ export const refreshToken = asyncHandler(async (req: Request, res: Response) => 
     // ROTATION: Delete the used token immediately
     await authService.deleteRefreshToken(rfToken);
 
-    const payload = verifyToken(rfToken) as Express.UserPayload;
-    const user = await authService.getUserProfileById(payload.userId);
+    const payload = verifyToken(rfToken) as any;
+    const uid = payload.userId ?? payload.id;
+    const user = await authService.getUserProfileById(uid);
 
     if (!user) {
         throw new AppError('Usuario no encontrado', 404);

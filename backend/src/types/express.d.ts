@@ -8,6 +8,7 @@ declare global {
             tenantId: number;
             email: string;
             role: string;
+            name: string;
             jti?: string;
         }
 

@@ -1,4 +1,4 @@
-// Service for Products API
+import type { Product } from '../types';
 import { customFetch, getHeaders, handleResponse } from './apiClient';
 
 export const productsService = {
@@ -14,6 +14,6 @@ export const productsService = {
         customFetch(`/products/${id}`, { method: 'DELETE', headers: getHeaders() }).then(handleResponse),
 
     // Create a new product
-    create: async (data: any) =>
+    create: async (data: Partial<Product>) =>
         customFetch('/products', { method: 'POST', headers: getHeaders(), body: JSON.stringify(data) }).then(handleResponse),
 };

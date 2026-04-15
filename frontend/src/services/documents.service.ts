@@ -1,4 +1,4 @@
-// Service for Documents API
+import type { Document } from '../types';
 import { customFetch, getHeaders, handleResponse } from './apiClient';
 
 export const documentsService = {
@@ -14,6 +14,6 @@ export const documentsService = {
         customFetch(`/documents/${id}`, { method: 'DELETE', headers: getHeaders() }).then(handleResponse),
 
     // Create a new document
-    create: async (data: any) =>
+    create: async (data: Partial<Document>) =>
         customFetch('/documents', { method: 'POST', headers: getHeaders(), body: JSON.stringify(data) }).then(handleResponse),
 };

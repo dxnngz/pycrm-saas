@@ -23,10 +23,10 @@ export const useDashboardData = (period: 'monthly' | 'yearly') => {
                 ...opps.slice(0, 3).map(o => ({
                     id: `opp-${o.id}`,
                     type: 'sale' as const,
-                    title: o.status === 'ganado' ? 'Sale Closed' : 'New Opportunity',
+                    title: (o.status === 'ganado' || o.status === 'ganada') ? 'Sale Closed' : 'New Opportunity',
                     description: `${o.client_name || 'Prospect'} - ${o.product}`,
                     time: 'Recent',
-                    amount: o.amount
+                    amount: Number(o.amount)
                 })),
                 ...tasksList.slice(0, 2).map(t => ({
                     id: `task-${t.id}`,
@@ -38,7 +38,7 @@ export const useDashboardData = (period: 'monthly' | 'yearly') => {
             ].sort(() => Math.random() - 0.5);
 
             const prediction = await predictFutureSales(opps.map(o => ({
-                amount: o.amount,
+                amount: Number(o.amount),
                 date: o.created_at || new Date().toISOString()
             })));
 

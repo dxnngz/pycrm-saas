@@ -65,8 +65,8 @@ export const api = {
                                 } else if (data.error) {
                                     onError(data.error);
                                 }
-                            } catch (e) {
-                                console.warn('Pares invalid chunk', dataStr);
+                            } catch (err) {
+                                console.warn('Parse invalid chunk', dataStr, err);
                             }
                         }
                     }
@@ -74,13 +74,19 @@ export const api = {
                 
                 if (buffer.trim().startsWith('data: ')) {
                     try {
-                        const data = JSON.parse(buffer.substring(6).trim());
-                        if (data.text) onChunk(data.text);
-                        if (data.done) onDone();
-                    } catch (e) {}
+                        const content = buffer.substring(6).trim();
+                        if (content && content !== '[DONE]') {
+                            const data = JSON.parse(content);
+                            if (data.text) onChunk(data.text);
+                            if (data.done) onDone();
+                        }
+                    } catch (err) {
+                        console.warn('Final buffer parse error', err);
+                    }
                 }
-            } catch (error: any) {
-                onError(error.message || 'Stream error');
+            } catch (error: unknown) {
+                const message = error instanceof Error ? error.message : 'Stream error';
+                onError(message);
             }
         },
         // ... streamline other AI methods similarly

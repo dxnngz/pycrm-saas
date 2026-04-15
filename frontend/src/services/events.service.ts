@@ -1,4 +1,4 @@
-// Service for Calendar events API
+import type { Event } from '../types';
 import { customFetch, getHeaders, handleResponse } from './apiClient';
 
 export const eventsService = {
@@ -16,7 +16,7 @@ export const eventsService = {
         }).then(handleResponse),
 
     // Create a new event
-    create: async (data: any) =>
+    create: async (data: Partial<Event>) =>
         customFetch('/events', {
             method: 'POST',
             headers: getHeaders(),

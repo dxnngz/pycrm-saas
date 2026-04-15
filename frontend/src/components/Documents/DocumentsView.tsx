@@ -44,7 +44,7 @@ const DocumentsView = () => {
       await api.documents.create(sanitizePayload({
         name: newName,
         type: newType,
-        amount: newAmount,
+        amount: Number(newAmount),
         status: newStatus
       }));
       toast.success('Document created successfully');

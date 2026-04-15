@@ -68,8 +68,8 @@ const ContactsView = () => {
         if (client) {
             setEditingClient(client);
             setNewName(client.name);
-            setNewCompany(client.company);
-            setNewEmail(client.email);
+            setNewCompany(client.company || '');
+            setNewEmail(client.email || '');
             setNewPhone(client.phone || '');
         } else {
             setEditingClient(null);

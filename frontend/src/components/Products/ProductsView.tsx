@@ -122,7 +122,7 @@ const ProductsView = () => {
       width: '25%',
       accessor: (product: Product) => (
         <span className="font-medium text-slate-900 dark:text-white tabular-nums">
-          {new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(product.price)}
+          {new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(Number(product.price))}
         </span>
       ),
     },

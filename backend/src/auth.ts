@@ -43,10 +43,21 @@ export const authenticateToken = (req: Request, res: Response, next: NextFunctio
 
     if (!token) return res.status(401).json({ message: 'Token missing' });
 
-    jwt.verify(token, JWT_KEY, (err, user) => {
+    jwt.verify(token, JWT_KEY, (err, decoded) => {
         if (err) return res.status(403).json({ message: 'Invalid token' });
 
-        req.user = user as Express.UserPayload;
+        const payload = decoded as any;
+        // JWT is signed with { userId, tenantId, role, jti }
+        // Normalize both `id` and `userId` so all controllers work regardless of which they access
+        req.user = {
+            id: payload.userId ?? payload.id,
+            userId: payload.userId ?? payload.id,
+            tenantId: payload.tenantId,
+            email: payload.email ?? '',
+            role: payload.role ?? 'empleado',
+            name: payload.name ?? '',
+            jti: payload.jti,
+        } as Express.UserPayload;
         next();
     });
 };

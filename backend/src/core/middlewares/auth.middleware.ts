@@ -44,11 +44,13 @@ export const protect = (req: Request, res: Response, next: NextFunction) => {
 
         req.user = {
             id: payload.userId,
+            userId: payload.userId,
             tenantId: payload.tenantId,
             role: payload.role,
             email: payload.email,
-            name: payload.name
-        } as any;
+            name: payload.name,
+            jti: payload.jti
+        };
 
         // Ensure req.id is set for consistency, even if not used directly in contextStore.run
         // It might be used by other middlewares or logging outside the contextStore.run scope.
