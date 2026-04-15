@@ -8,14 +8,28 @@ class RedisClient {
     private client;
 
     constructor() {
-        this.client = createClient({ url: REDIS_URL });
+        this.client = createClient({ 
+            url: REDIS_URL,
+            socket: {
+                reconnectStrategy: (retries) => {
+                    if (retries > 10) return new Error('Retry attempt exhausted');
+                    return Math.min(retries * 100, 3000);
+                },
+                connectTimeout: 10000,
+            }
+        });
 
-        this.client.on('error', (err) => logger.error({ err }, 'Redis Client Error'));
+        this.client.on('error', (err) => {
+            if (err.code === 'ENOTFOUND') {
+                logger.error({ err }, '❌ Error Crítico: No se pudo resolver la dirección de Redis. Revisa la URL en Render.');
+            } else {
+                logger.error({ err }, 'Redis Client Error');
+            }
+        });
 
-        // No bloqueamos el hilo principal si Redis no está levantado, ni en tests
         if (process.env.NODE_ENV !== 'test') {
             this.client.connect().catch((e: any) => {
-                logger.warn({ error: e.message }, '⚠️ No se pudo conectar a Redis. Pasando a fallback in-memory (bypass de caché).');
+                logger.warn({ error: e.message }, '⚠️ No se pudo conectar a Redis al inicio. Usando bypass de caché.');
             });
         }
     }

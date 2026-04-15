@@ -6,9 +6,26 @@ import { sendEmail } from '../core/mailer.js';
 
 const connection = new Redis(env.REDIS_URL || 'redis://localhost:6379', {
     maxRetriesPerRequest: null,
+    retryStrategy(times) {
+        if (times > 10) return null; // stop retrying
+        return Math.min(times * 100, 3000);
+    },
+    reconnectOnError(err) {
+        const targetError = 'READONLY';
+        if (err.message.slice(0, targetError.length) === targetError) {
+            return true;
+        }
+        return false;
+    }
 });
 
-connection.on('error', (err) => logger.error({ err }, 'BullMQ Worker ioredis Connection Error'));
+connection.on('error', (err: any) => {
+    if (err.code === 'ENOTFOUND') {
+        logger.error({ err }, '❌ BullMQ Worker: No se pudo resolver la dirección de Redis. Revisa la URL en Render.');
+    } else {
+        logger.error({ err }, 'BullMQ Worker ioredis Connection Error');
+    }
+});
 
 import { processTaskReminders } from './taskReminders.js';
 
