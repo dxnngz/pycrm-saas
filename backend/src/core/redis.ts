@@ -1,8 +1,9 @@
 import { createClient } from 'redis';
+import { env } from '../env.js';
 import { logger } from '../utils/logger.js';
 import { redisCacheHits, redisCacheMisses } from './metrics.js';
 
-const REDIS_URL = process.env.REDIS_URL || 'redis://localhost:6379';
+const REDIS_URL = env.REDIS_URL || 'redis://localhost:6379';
 
 class RedisClient {
     private client;
