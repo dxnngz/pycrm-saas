@@ -1,7 +1,10 @@
 import { prisma, basePrisma } from './prisma.js';
 import { logger } from '../utils/logger.js';
-import { execSync } from 'child_process';
+import { promisify } from 'util';
+import { exec } from 'child_process';
 import { TENANT_SCOPED_MODELS, TABLE_MAP } from './schema.constants.js';
+
+const execAsync = promisify(exec);
 
 /**
  * ResilienceService: The core of the "Triple Self-Healing Armor".
@@ -44,11 +47,9 @@ export class ResilienceService {
 
         logger.info('🛡️ [MigrationGuard] Verifying database synchronization...');
         try {
-            // Check for pending migrations using Prisma CLI in a safe check mode with a timeout
-            const status = execSync('npx prisma migrate status', { 
-                encoding: 'utf-8',
-                timeout: 15000, // 15 seconds max for status check
-                stdio: ['ignore', 'pipe', 'ignore'] 
+            // Check for pending migrations using Prisma CLI with a timeout (ASYNC, non-blocking)
+            const { stdout: status } = await execAsync('npx prisma migrate status', { 
+                timeout: 20000,
             });
 
             if (status.includes('Database is up to date') || status.includes('Already in sync')) {
@@ -58,7 +59,7 @@ export class ResilienceService {
 
             if (status.includes('Following migration(s) have not yet been applied')) {
                 logger.warn('⚠️ [MigrationGuard] Pending migrations detected. Attempting safe deployment...');
-                execSync('npx prisma migrate deploy', { timeout: 30000 });
+                await execAsync('npx prisma migrate deploy', { timeout: 45000 });
                 logger.info('✅ [MigrationGuard] Migrations applied successfully.');
                 return true;
             }
