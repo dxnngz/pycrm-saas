@@ -11,7 +11,7 @@ import { workflowEngine } from './modules/workflows/workflow.engine.js';
 
 import { ResilienceService } from './core/resilience.service.js';
 
-const port = env.PORT || 3000;
+const port = env.PORT || 3001;
 // ... (lines 14-44)
 const ensureAdmin = async () => {
     try {
