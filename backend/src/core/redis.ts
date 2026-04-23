@@ -25,9 +25,10 @@ class RedisClient {
 
         this.client.on('error', (err) => {
             if (err.code === 'ENOTFOUND') {
-                logger.error({ err }, '❌ Error Crítico: No se pudo resolver la dirección de Redis. Revisa la URL en Render.');
+                // Low noise for DNS issues as we handle them gracefully
+                logger.warn({ hostname: err.hostname }, '⚠️ Redis Host unreachable (DNS). Running in degraded mode.');
             } else {
-                logger.error({ err }, 'Redis Client Error');
+                logger.error({ err }, 'Redis Connection Error');
             }
         });
 

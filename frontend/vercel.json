@@ -1,6 +1,10 @@
 {
     "rewrites": [
         {
+            "source": "/api/:path*",
+            "destination": "https://pycrm-backend-m22i.onrender.com/api/:path*"
+        },
+        {
             "source": "/((?!api|manifest.webmanifest|static|.*\\..*).*)",
             "destination": "/index.html"
         }
