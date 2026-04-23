@@ -48,57 +48,19 @@ const port = env.PORT || 3001;
 // --- SECURITY & CORE MIDDLEWARES ---
 app.use(helmet({
     crossOriginResourcePolicy: { policy: "cross-origin" },
-    contentSecurityPolicy: {
-        directives: {
-            defaultSrc: ["'self'"],
-            scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'"],
-            styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
-            fontSrc: ["'self'", "https://fonts.gstatic.com"],
-            imgSrc: ["'self'", "data:", "https:"],
-            connectSrc: ["'self'", "http://localhost:3001", "http://127.0.0.1:3001", "ws://localhost:5173", "https://pycrm-backend-m22i.onrender.com", "https://pycrm-saas.vercel.app"]
-        }
-    }
+    contentSecurityPolicy: false // Temporarily disable CSP to rule out blocked requests
 }));
 
 app.use(compression());
 app.use(cookieParser());
 app.use(express.json());
 
-// CORS configuration
-const allowedOrigins = [
-    'http://localhost:5173',
-    'http://127.0.0.1:5173',
-    'http://localhost:5174',
-    'http://127.0.0.1:5174',
-    'http://localhost:5175',
-    'http://127.0.0.1:5175',
-    'https://pycrm-saas.vercel.app',
-    env.FRONTEND_URL
-].filter(Boolean) as string[];
-
+// Permissive CORS for troubleshooting deployment
 app.use(cors({
-    origin: (origin, callback) => {
-        // Debug log to see what the browser is actually sending
-        if (origin) logger.info(`[CORS Check] Origin: ${origin}`);
-
-        // Allow requests with no origin (like mobile apps or curl)
-        if (!origin) return callback(null, true);
-        
-        const isVercel = origin.endsWith('.vercel.app');
-        const isDev = origin.includes('localhost') || origin.includes('127.0.0.1');
-        const isAllowed = isDev || allowedOrigins.includes(origin) || isVercel;
-
-        if (isAllowed) {
-            callback(null, true);
-        } else {
-            logger.warn(`[CORS Blocked] Origin: ${origin}`);
-            callback(null, false);
-        }
-    },
+    origin: true,
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept', 'x-csrf-token', 'x-request-id'],
-    preflightContinue: false,
     optionsSuccessStatus: 204
 }));
 
