@@ -1,3 +1,4 @@
+// PyCRM Backend - Deployment Version: 1.2.1
 import express from 'express';
 import cors from 'cors';
 import { logger } from './utils/logger.js';
