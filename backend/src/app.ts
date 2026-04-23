@@ -71,25 +71,31 @@ const allowedOrigins = [
     'http://127.0.0.1:5174',
     'http://localhost:5175',
     'http://127.0.0.1:5175',
+    'https://pycrm-saas.vercel.app',
     env.FRONTEND_URL
 ].filter(Boolean) as string[];
 
 app.use(cors({
     origin: (origin, callback) => {
-        const isVercel = origin && origin.endsWith('.vercel.app');
-        const isDev = !origin || origin.includes('localhost') || origin.includes('127.0.0.1');
+        // Allow requests with no origin (like mobile apps or curl)
+        if (!origin) return callback(null, true);
+        
+        const isVercel = origin.endsWith('.vercel.app');
+        const isDev = origin.includes('localhost') || origin.includes('127.0.0.1');
         const isAllowed = isDev || allowedOrigins.includes(origin) || isVercel;
 
         if (isAllowed) {
             callback(null, true);
         } else {
             logger.warn(`[CORS Blocked] Origin: ${origin}`);
-            callback(null, false);
+            callback(null, new Error('Not allowed by CORS'));
         }
     },
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept', 'x-csrf-token', 'x-request-id']
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept', 'x-csrf-token', 'x-request-id'],
+    preflightContinue: false,
+    optionsSuccessStatus: 204
 }));
 
 app.use(requestIdMiddleware);
