@@ -34,6 +34,7 @@ export function VirtualTable<T>({
 
     const actualRowHeight = rowHeight || (isDense ? 40 : 52);
 
+    // eslint-disable-next-line react-hooks/incompatible-library
     const rowVirtualizer = useVirtualizer({
         count: data.length,
         getScrollElement: () => parentRef.current,

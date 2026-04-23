@@ -9,41 +9,42 @@ import rateLimit, { ipKeyGenerator } from 'express-rate-limit';
 import swaggerJsdoc from 'swagger-jsdoc';
 import swaggerUi from 'swagger-ui-express';
 import cookieParser from 'cookie-parser';
-import authRoutes from './modules/auth/auth.routes.js';
-import clientRoutes from './modules/clients/client.routes.js';
-import opportunityRoutes from './modules/opportunities/opportunity.routes.js';
-import taskRoutes from './modules/tasks/task.routes.js';
-import webhookRoutes from './modules/webhooks/webhook.routes.js';
-import userRoutes from './modules/users/user.routes.js';
-// Cleaned up unused legacy routes below these line
-import contactRoutes from './modules/contacts/contact.routes.js';
-import dashboardRoutes from './modules/dashboard/dashboard.routes.js';
-import tenantRoutes from './modules/tenants/tenant.routes.js';
-import { tenantService } from './modules/tenants/tenant.service.js';
-import telemetryRoutes from './modules/telemetry/telemetry.routes.js';
-import integrationRoutes from './modules/integrations/integrations.routes.js';
-import healthRoutes from './modules/health/health.controller.js';
-import { globalErrorHandler } from './core/middlewares/error.middleware.js';
-import { csrfProtection } from './core/middlewares/csrf.middleware.js';
-import { startWorkers } from './jobs/worker.js';
-import { requestIdMiddleware } from './core/middlewares/requestId.middleware.js';
-import { prisma } from './core/prisma.js';
-import { redisCache } from './core/redis.js';
-import { getMetrics, getContentType, httpRequestDurationMicroseconds } from './core/metrics.js';
-import { env } from './env.js';
-import { hashPassword } from './auth.js';
-import { commercialIntelligenceJob } from './jobs/commercialIntelligence.js';
-import { protect } from './core/middlewares/auth.middleware.js';
-import { requirePermission, Permission, SystemRole, requireRole } from './core/middlewares/rbac.middleware.js';
-import { emailQueue, reportQueue, systemQueue } from './jobs/queue.js';
 import { createBullBoard } from '@bull-board/api';
 import { BullMQAdapter } from '@bull-board/api/dist/queueAdapters/bullMQ.js';
 import { ExpressAdapter } from '@bull-board/express';
+import authRoutes from './modules/auth/auth.routes.js';
+import clientRoutes from './modules/clients/client.routes.js';
+import contactRoutes from './modules/contacts/contact.routes.js';
+import opportunityRoutes from './modules/opportunities/opportunity.routes.js';
+import taskRoutes from './modules/tasks/task.routes.js';
+import userRoutes from './modules/users/user.routes.js';
+import dashboardRoutes from './modules/dashboard/dashboard.routes.js';
+import tenantRoutes from './modules/tenants/tenant.routes.js';
+import telemetryRoutes from './modules/telemetry/telemetry.routes.js';
+import integrationRoutes from './modules/integrations/integrations.routes.js';
+import healthRoutes from './modules/health/health.controller.js';
+import productRoutes from './modules/products/product.routes.js';
+import eventRoutes from './modules/events/event.routes.js';
+import documentRoutes from './modules/documents/document.routes.js';
+import aiRoutes from './modules/ai/ai.routes.js';
+import auditRoutes from './modules/audit/audit.routes.js';
+import automationRoutes from './modules/automations/automation.routes.js';
+import webhookRoutes from './modules/webhooks/webhook.routes.js';
+
+import { globalErrorHandler } from './core/middlewares/error.middleware.js';
+import { requestIdMiddleware } from './core/middlewares/requestId.middleware.js';
+import { protect } from './core/middlewares/auth.middleware.js';
+import { requireRole, SystemRole } from './core/middlewares/rbac.middleware.js';
+
+import { tenantService } from './modules/tenants/tenant.service.js';
+import { emailQueue, reportQueue, systemQueue } from './jobs/queue.js';
+import { getMetrics, getContentType, httpRequestDurationMicroseconds } from './core/metrics.js';
+import { env } from './env.js';
 
 const app = express();
 const port = env.PORT || 3001;
 
-// --- CONFIGURACIÓN DE SEGURIDAD PROFESIONAL (Arquitectura Senior) ---
+// --- SECURITY & CORE MIDDLEWARES ---
 app.use(helmet({
     crossOriginResourcePolicy: { policy: "cross-origin" },
     contentSecurityPolicy: {
@@ -60,8 +61,9 @@ app.use(helmet({
 
 app.use(compression());
 app.use(cookieParser());
+app.use(express.json());
 
-// Configuración de CORS estricta y segura
+// CORS configuration
 const allowedOrigins = [
     'http://localhost:5173',
     'http://127.0.0.1:5173',
@@ -90,30 +92,21 @@ app.use(cors({
     allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept', 'x-csrf-token', 'x-request-id']
 }));
 
-// ---------------------------------------------------------------------
-
-// Request ID Injection
 app.use(requestIdMiddleware);
 
-// Logging estructurado con Pino
+// Logging with Pino
 app.use(pinoHttp({
     level: process.env.NODE_ENV === 'development' ? 'info' : 'warn',
     autoLogging: false,
-    genReqId: (req: any) => {
-        return req.id || req.headers['x-request-id'];
-    },
-    customProps: (req: any) => {
-        return {
-            tenantId: req.user?.tenantId || 'anonymous',
-            userId: req.user?.userId || 'anonymous',
-            trace_id: req.id
-        };
-    }
+    genReqId: (req: any) => req.id || req.headers['x-request-id'],
+    customProps: (req: any) => ({
+        tenantId: req.user?.tenantId || 'anonymous',
+        userId: req.user?.userId || 'anonymous',
+        trace_id: req.id
+    })
 }));
-// ---------------------------------------------------------------------
 
-
-// Global IP Rate Limiter (For public endpoints like Auth/Registration)
+// Global IP Rate Limiter
 const globalLimiter = rateLimit({
     windowMs: 15 * 60 * 1000,
     max: 100,
@@ -126,18 +119,11 @@ const globalLimiter = rateLimit({
 });
 app.use(globalLimiter);
 
-app.use(express.json());
-
 // Metrics Middleware
 app.use((req, res, next) => {
-    // Only track latency for /api routes to avoid noise
-    if (!req.path.startsWith('/api') || req.path === '/api/health') {
-        return next();
-    }
-
+    if (!req.path.startsWith('/api') || req.path === '/api/health') return next();
     const end = httpRequestDurationMicroseconds.startTimer();
     res.on('finish', () => {
-        // Tenant ID is injected later in auth, so we fetch it safely if it exists
         const tenantId = (req as any).user?.tenantId ? String((req as any).user.tenantId) : 'anonymous';
         end({
             method: req.method,
@@ -149,14 +135,14 @@ app.use((req, res, next) => {
     next();
 });
 
-// Swagger definition (Re-agregado por arquitectura senior)
+// --- API DOCUMENTATION ---
 const swaggerOptions = {
     definition: {
         openapi: '3.0.0',
         info: {
             title: 'PyCRM API Documentation',
             version: '1.0.0',
-            description: 'Interactive documentation for the PyCRM backend services. Developed for TFG Excellence.',
+            description: 'Interactive documentation for the PyCRM backend services.',
         },
         servers: [
             { url: 'https://pycrm-backend-m22i.onrender.com', description: 'Production Server' },
@@ -170,14 +156,12 @@ const swaggerOptions = {
     },
     apis: ['./src/modules/**/*.ts', './dist/modules/**/*.js'],
 };
-
 const swaggerSpec = swaggerJsdoc(swaggerOptions);
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
-// --- BullBoard Dashboard (Queue Monitoring) ---
+// --- ADMIN DASHBOARDS ---
 const serverAdapter = new ExpressAdapter();
 serverAdapter.setBasePath('/admin/queues');
-
 createBullBoard({
     queues: [
         new BullMQAdapter(emailQueue),
@@ -186,66 +170,44 @@ createBullBoard({
     ],
     serverAdapter: serverAdapter,
 });
-
-// Protected route for BullBoard
 app.use('/admin/queues', protect, requireRole([SystemRole.ADMIN]), serverAdapter.getRouter());
-// ----------------------------------------------
 
-// Prometheus Metrics Endpoint
+// Prometheus Metrics
 app.get('/metrics', async (req, res) => {
     res.set('Content-Type', getContentType());
     res.end(await getMetrics());
 });
 
-
-import productRoutes from './modules/products/product.routes.js';
-import eventRoutes from './modules/events/event.routes.js';
-import documentRoutes from './modules/documents/document.routes.js';
-import aiRoutes from './modules/ai/ai.routes.js';
-import auditRoutes from './modules/audit/audit.routes.js';
-import automationRoutes from './modules/automations/automation.routes.js';
-import { workflowService } from './modules/workflows/workflow.service.js';
-
-// Routes
+// --- API ROUTES ---
 app.use('/api/auth', authRoutes);
 
-// Apply CSRF protection globally for state mutating endpoints
-// app.use(csrfProtection); // Disabled for cross-origin Vercel deployment
-
-// Authn-aware Plan-based Tenant Rate Limiter (Protects internal endpoints based on tier)
+// Tenant Rate Limiter
 const tenantLimiter = rateLimit({
-    windowMs: 5 * 60 * 1000, // 5 minutes window
-    max: async (req, res) => {
+    windowMs: 5 * 60 * 1000,
+    max: async (req) => {
         const tenantId = req.user?.tenantId;
-        if (!tenantId) return 100; // Default for unauthenticated/anonymous in /api if any
-
+        if (!tenantId) return 100;
         try {
             const { plan } = await tenantService.getTenantPlan(tenantId);
             switch (plan) {
                 case 'enterprise': return 2000;
                 case 'pro': return 500;
-                case 'free':
                 default: return 100;
             }
         } catch (error) {
-            logger.error({ error, tenantId }, 'Error fetching tenant plan for rate limiting');
-            return 100; // Fallback to safest limit
+            return 100;
         }
     },
-    keyGenerator: (req, res) => {
-        if ((req as any).user?.tenantId) {
-            return `tenant_${(req as any).user.tenantId}`;
-        }
-        return ipKeyGenerator(req.ip || 'unknown');
-    },
+    keyGenerator: (req) => (req as any).user?.tenantId ? `tenant_${(req as any).user.tenantId}` : ipKeyGenerator(req.ip || 'unknown'),
     message: {
         status: 429,
-        error: 'Too many requests from your Organization (Tenant).',
-        message: 'You have reached the limit for your current plan. Please upgrade for higher throughput.'
+        error: 'Too many requests from your Organization.',
+        message: 'Rate limit exceeded for your plan.'
     }
 });
 app.use('/api', tenantLimiter);
 
+// Module Routes
 app.use('/api/clients', clientRoutes);
 app.use('/api/opportunities', opportunityRoutes);
 app.use('/api/tasks', taskRoutes);
@@ -264,7 +226,7 @@ app.use('/api/integrations', integrationRoutes);
 app.use('/api/telemetry', telemetryRoutes);
 app.use('/api/health', healthRoutes);
 
-// Global Error Handler
+// Error Handling
 app.use(globalErrorHandler);
 
 export default app;

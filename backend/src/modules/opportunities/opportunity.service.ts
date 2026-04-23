@@ -53,15 +53,11 @@ export class OpportunityService {
         const opp = await opportunityRepository.findUnique(tenantId, id);
         if (!opp) throw new Error('Opportunity not found or access denied');
 
-        let result;
-        if (version !== undefined) {
-            result = await opportunityRepository.update(tenantId, id, {
-                status,
-                version: { increment: 1 }
-            } as any);
-        } else {
-            result = await opportunityRepository.update(tenantId, id, { status });
-        }
+        const result = await opportunityRepository.update(tenantId, id, {
+            status,
+            ...(version !== undefined && { version })
+        });
+
         await redisCache.invalidateTenantCache(tenantId, 'opportunities');
         await redisCache.invalidateTenantCache(tenantId, 'dashboard');
         return result;

@@ -61,8 +61,6 @@ const startServer = async () => {
         await ResilienceService.performSchemaHealing();
 
         // Initialize Cache Invalidation Listeners
-
-        // Initialize Cache Invalidation Listeners
         initCacheSubscriber();
 
         // Initialize Daily Commercial Intelligence CRON

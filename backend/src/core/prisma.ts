@@ -9,7 +9,7 @@ export const basePrisma = new PrismaClient({
     log: process.env.NODE_ENV === 'development' ? ['query', 'error', 'warn'] : ['error'],
 });
 
-import { AUDITABLE_MODELS, VERSIONED_MODELS, TABLE_MAP } from './schema.constants.js';
+import { AUDITABLE_MODELS, VERSIONED_MODELS, TABLE_MAP, TENANT_SCOPED_MODELS, getTableName } from './schema.constants.js';
 
 const safeTenant = (id: any): number => {
     const tid = Number(id);
@@ -26,8 +26,10 @@ export const prisma = basePrisma.$extends({
                 const isAuditable = model && AUDITABLE_MODELS.includes(model);
 
                 // --- MULTI-TENANT ISOLATION ARMOR ---
+                const isTenantScoped = model && TENANT_SCOPED_MODELS.includes(model);
+                
                 // If the model is multi-tenant and we're not in a system context, enforce tenant_id
-                if (isAuditable && !store?.isSystem) {
+                if (isTenantScoped && !store?.isSystem) {
                     if (!tenantId) {
                         logger.error({ model, operation, requestId: store?.requestId }, 'CRITICAL: Attempted database operation without tenant context');
                         throw new AppError('Acceso denegado: falta el contexto de organización.', 403);
@@ -45,16 +47,16 @@ export const prisma = basePrisma.$extends({
                         anyArgs.where = { ...(anyArgs.where || {}), tenant_id: tenantId };
                     }
 
-                    // Inject tenant_id into creation (except for special system-level models if any)
+                    // Inject tenant_id into creation
                     if (operation === 'create') {
                         anyArgs.data = { ...(anyArgs.data || {}), tenant_id: tenantId };
                     }
                 }
 
                 // --- OPTIMISTIC LOCKING AUTOMATION ---
-                if (VERSIONED_MODELS.includes(model)) {
+                if (model && VERSIONED_MODELS.includes(model)) {
                     const anyArgs = args as any;
-                    const tableName = TABLE_MAP[model] || `${model.toLowerCase()}s`;
+                    const tableName = getTableName(model);
                     const hasVersion = await ResilienceService.checkColumnExists(tableName, 'version');
 
                     if (hasVersion) {
@@ -75,8 +77,6 @@ export const prisma = basePrisma.$extends({
                 const result = await ResilienceService.withRetry(() => query(args));
 
                 // --- STRICT ISOLATION ENFORCEMENT (404) ---
-                // If a unique/throw operation returns null even if the ID exists (but in another tenant),
-                // we throw 404 to prevent data discovery.
                 if (['findUniqueOrThrow', 'update', 'delete'].includes(operation) && !result) {
                     throw new AppError(`Recurso no encontrado en su organización.`, 404);
                 }
@@ -84,7 +84,7 @@ export const prisma = basePrisma.$extends({
                 // --- AUDIT LOGS ---
                 try {
                     const storeData = contextStore.getStore();
-                    if (isAuditable && ['create', 'update', 'delete'].includes(operation) && storeData?.userId) {
+                    if (model && isAuditable && ['create', 'update', 'delete'].includes(operation) && storeData?.userId) {
                         const anyArgs = args as any;
                         const resultAny = result as any;
                         
@@ -93,13 +93,11 @@ export const prisma = basePrisma.$extends({
                             finalState: result
                         } : result;
 
-                        // Safely extract ID as number
-                        const rawId = resultAny?.id;
-                        const entityId = rawId ? Number(rawId) : 0;
+                        const entityId = resultAny?.id ? Number(resultAny.id) : 0;
 
                         basePrisma.auditLog.create({
                             data: {
-                                entity: model!,
+                                entity: model,
                                 entity_id: entityId,
                                 action: operation.toUpperCase(),
                                 user_id: Number(storeData.userId),
@@ -115,7 +113,7 @@ export const prisma = basePrisma.$extends({
                 }
 
                 // --- CACHE INVALIDATION ---
-                if (['create', 'update', 'delete', 'updateMany', 'deleteMany'].includes(operation)) {
+                if (model && ['create', 'update', 'delete', 'updateMany', 'deleteMany'].includes(operation)) {
                     const namespace = model.toLowerCase();
                     redisCache.invalidateTenantCache(tenantId, namespace);
                     if (model === 'Opportunity') {

@@ -1,6 +1,5 @@
 import { prisma } from '../core/prisma.js';
 import { events } from '../core/events.js';
-import { auditService } from '../modules/audit/audit.service.js';
 import { contextStore } from '../core/context.js';
 import { ResilienceService } from '../core/resilience.service.js';
 import { getTableName } from '../core/schema.constants.js';
@@ -37,9 +36,9 @@ export abstract class BaseRepository<T extends BaseModel> {
 
         const softDeleteModels = ['user', 'client', 'contact', 'opportunity', 'task', 'product', 'event', 'document', 'automation'];
         const modelName = this.modelName.toLowerCase();
-        const tableName = getTableName(this.modelName);
-
+        
         if (!includeDeleted && softDeleteModels.includes(modelName)) {
+            const tableName = getTableName(this.modelName);
             const hasDeletedAt = await ResilienceService.checkColumnExists(tableName, 'deleted_at');
             if (hasDeletedAt) {
                 finalWhere.deleted_at = null;
@@ -61,9 +60,9 @@ export abstract class BaseRepository<T extends BaseModel> {
 
         const softDeleteModels = ['user', 'client', 'contact', 'opportunity', 'task', 'product', 'event', 'document', 'automation'];
         const modelName = this.modelName.toLowerCase();
-        const tableName = getTableName(this.modelName);
 
         if (!includeDeleted && softDeleteModels.includes(modelName)) {
+            const tableName = getTableName(this.modelName);
             const hasDeletedAt = await ResilienceService.checkColumnExists(tableName, 'deleted_at');
             if (hasDeletedAt) {
                 where.deleted_at = null;
@@ -76,31 +75,30 @@ export abstract class BaseRepository<T extends BaseModel> {
         const result = await this.model.create({ data });
         const ctx = contextStore.getStore();
 
-        // Emit for Workflows
+        // Emit for Workflows (Audit Log is handled globally by Prisma Extension)
         events.emit(`workflow:${this.modelName.toLowerCase()}_created`, {
             tenantId: result.tenant_id,
             userId: ctx?.userId,
             data: result
         });
 
-        // Audit Log
-        await auditService.log({
-            entity: this.modelName,
-            entityId: result.id,
-            tenantId: result.tenant_id,
-            action: 'CREATE',
-            userId: ctx?.userId,
-            changes: data
-        });
-
         return result;
     }
 
     async update(tenantId: number, id: number, data: any) {
+        const { version, ...updateData } = data;
+        const where: any = { id, tenant_id: tenantId };
+        
+        // Optimistic Locking Enforcement
+        if (version !== undefined && typeof version === 'number') {
+            where.version = version;
+        }
+
         const result = await this.model.update({
-            where: { id, tenant_id: tenantId },
-            data
+            where,
+            data: updateData
         });
+        
         const ctx = contextStore.getStore();
 
         // Emit for Workflows
@@ -108,16 +106,6 @@ export abstract class BaseRepository<T extends BaseModel> {
             tenantId,
             userId: ctx?.userId,
             data: result
-        });
-
-        // Audit Log
-        await auditService.log({
-            entity: this.modelName,
-            entityId: id,
-            tenantId,
-            action: 'UPDATE',
-            userId: ctx?.userId,
-            changes: data
         });
 
         return result;
@@ -145,15 +133,6 @@ export abstract class BaseRepository<T extends BaseModel> {
             tenantId,
             userId: ctx?.userId,
             data: { id }
-        });
-
-        // Audit Log
-        await auditService.log({
-            entity: this.modelName,
-            entityId: id,
-            tenantId,
-            action: 'DELETE',
-            userId: ctx?.userId
         });
 
         return result;
