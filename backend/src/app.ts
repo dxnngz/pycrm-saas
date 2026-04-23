@@ -77,6 +77,9 @@ const allowedOrigins = [
 
 app.use(cors({
     origin: (origin, callback) => {
+        // Debug log to see what the browser is actually sending
+        if (origin) logger.info(`[CORS Check] Origin: ${origin}`);
+
         // Allow requests with no origin (like mobile apps or curl)
         if (!origin) return callback(null, true);
         
@@ -88,7 +91,7 @@ app.use(cors({
             callback(null, true);
         } else {
             logger.warn(`[CORS Blocked] Origin: ${origin}`);
-            callback(null, new Error('Not allowed by CORS'));
+            callback(null, false);
         }
     },
     credentials: true,
