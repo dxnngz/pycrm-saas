@@ -13,10 +13,13 @@ class RedisClient {
             url: REDIS_URL,
             socket: {
                 reconnectStrategy: (retries) => {
-                    if (retries > 10) return new Error('Retry attempt exhausted');
-                    return Math.min(retries * 100, 3000);
+                    // Maximum 5 retries to avoid blocking the event loop or flooding logs
+                    if (retries > 5) {
+                        return false; // stop retrying
+                    }
+                    return Math.min(retries * 500, 5000);
                 },
-                connectTimeout: 10000,
+                connectTimeout: 5000,
             }
         });
 
@@ -30,7 +33,7 @@ class RedisClient {
 
         if (process.env.NODE_ENV !== 'test') {
             this.client.connect().catch((e: any) => {
-                logger.warn({ error: e.message }, '⚠️ No se pudo conectar a Redis al inicio. Usando bypass de caché.');
+                logger.warn({ error: e.message }, '⚠️ Redis connection bypassed. Running in degraded mode (No cache/queues).');
             });
         }
     }

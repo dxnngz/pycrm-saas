@@ -44,8 +44,12 @@ export class ResilienceService {
 
         logger.info('🛡️ [MigrationGuard] Verifying database synchronization...');
         try {
-            // Check for pending migrations using Prisma CLI in a safe check mode
-            const status = execSync('npx prisma migrate status', { encoding: 'utf-8' });
+            // Check for pending migrations using Prisma CLI in a safe check mode with a timeout
+            const status = execSync('npx prisma migrate status', { 
+                encoding: 'utf-8',
+                timeout: 15000, // 15 seconds max for status check
+                stdio: ['ignore', 'pipe', 'ignore'] 
+            });
 
             if (status.includes('Database is up to date') || status.includes('Already in sync')) {
                 logger.info('✅ [MigrationGuard] Database is fully synchronized.');
@@ -54,12 +58,16 @@ export class ResilienceService {
 
             if (status.includes('Following migration(s) have not yet been applied')) {
                 logger.warn('⚠️ [MigrationGuard] Pending migrations detected. Attempting safe deployment...');
-                execSync('npx prisma migrate deploy');
+                execSync('npx prisma migrate deploy', { timeout: 30000 });
                 logger.info('✅ [MigrationGuard] Migrations applied successfully.');
                 return true;
             }
         } catch (err: any) {
-            logger.error({ msg: '❌ [MigrationGuard] Synchronization check failed', err: err.message });
+            const isTimeout = err.code === 'ETIMEDOUT';
+            logger.error({ 
+                msg: isTimeout ? '❌ [MigrationGuard] Timeout checking migrations' : '❌ [MigrationGuard] Synchronization check failed', 
+                err: err.message 
+            });
             // We return false if fatal, but we might still allow the server to start if ResilienceService can heal the rest
             return false;
         }

@@ -54,32 +54,36 @@ const startServer = async () => {
         await prisma.$connect();
         logger.info('✅ Conexión a la base de datos PostgreSQL exitosa');
 
-        // Elite Hardening: MigrationGuard (Pre-flight Sync Check)
-        await ResilienceService.performMigrationGuard();
-
-        // Self-healing Schema Armor (Triple Shield)
-        await ResilienceService.performSchemaHealing();
-
-        // Initialize Cache Invalidation Listeners
-        initCacheSubscriber();
-
-        // Initialize Daily Commercial Intelligence CRON
-        commercialIntelligenceJob.init();
-
-        // Initialize background tasks scheduling
-        addReminderJob().catch(e => logger.warn({ err: e.message }, 'Failed to schedule daily reminders (Redis likely offline)'));
-
-        // Initialize Workflow Engine
-        logger.info('🚀 Workflow Engine Initialized');
-
-        await ensureAdmin();
-
-        app.listen(Number(port), '0.0.0.0', () => {
+        app.listen(Number(port), '0.0.0.0', async () => {
             logger.info(`🚀 Server is running on port ${port} at 0.0.0.0`);
 
-            if (process.env.NODE_ENV !== 'test') {
-                // Initialize background workers
-                startWorkers();
+            try {
+                // Elite Hardening: MigrationGuard (Pre-flight Sync Check)
+                await ResilienceService.performMigrationGuard();
+
+                // Self-healing Schema Armor (Triple Shield)
+                await ResilienceService.performSchemaHealing();
+
+                // Initialize Cache Invalidation Listeners
+                initCacheSubscriber();
+
+                // Initialize Daily Commercial Intelligence CRON
+                commercialIntelligenceJob.init();
+
+                // Initialize background tasks scheduling
+                addReminderJob().catch(e => logger.warn({ err: e.message }, 'Failed to schedule daily reminders (Redis likely offline)'));
+
+                // Initialize Workflow Engine
+                logger.info('🚀 Workflow Engine Initialized');
+
+                await ensureAdmin();
+
+                if (process.env.NODE_ENV !== 'test') {
+                    // Initialize background workers
+                    startWorkers();
+                }
+            } catch (initErr) {
+                logger.error({ msg: '⚠️ Post-startup initialization warning', err: initErr });
             }
         });
     } catch (err) {

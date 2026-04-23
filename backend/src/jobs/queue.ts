@@ -7,8 +7,8 @@ import { Redis } from 'ioredis';
 const connection = new Redis(env.REDIS_URL || 'redis://localhost:6379', {
     maxRetriesPerRequest: null,
     retryStrategy(times) {
-        if (times > 3) return null; // stop retrying quickly in web runtime
-        return Math.min(times * 250, 2000);
+        if (times > 2) return null; // stop retrying very quickly in web runtime
+        return Math.min(times * 500, 2000);
     },
     reconnectOnError(err) {
         const targetError = 'READONLY';
