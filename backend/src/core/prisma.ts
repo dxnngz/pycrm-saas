@@ -30,17 +30,19 @@ export const prisma = basePrisma.$extends({
                 
                 // If the model is multi-tenant and we're not in a system context, enforce tenant_id
                 if (isTenantScoped && !store?.isSystem) {
-                    // EXCEPTION: Allow login/auth-related lookups without tenant context
-                    const isAuthLookup = (model === 'User' && (operation === 'findUnique' || operation === 'findFirst')) || 
-                                       (model === 'RefreshToken' && operation === 'findUnique') ||
-                                       (model === 'PasswordReset' && operation === 'findUnique');
+                    const anyArgs = args as any;
+
+                    // EXCEPTION: Allow auth bootstrap operations without tenant context.
+                    // Registration creates a tenant first, then creates user with explicit tenant_id.
+                    const isAuthLookup = (model === 'User' && (operation === 'findUnique' || operation === 'findFirst')) ||
+                        (model === 'User' && operation === 'create' && Boolean(anyArgs?.data?.tenant_id)) ||
+                        (model === 'RefreshToken' && operation === 'findUnique') ||
+                        (model === 'PasswordReset' && operation === 'findUnique');
 
                     if (!tenantId && !isAuthLookup) {
                         logger.error({ model, operation, requestId: store?.requestId }, 'CRITICAL: Attempted database operation without tenant context');
                         throw new AppError('Acceso denegado: falta el contexto de organización.', 403);
                     }
-
-                    const anyArgs = args as any;
                     
                     // Inject tenant_id into filter operations
                     if (['findMany', 'findFirst', 'count', 'aggregate', 'groupBy', 'updateMany', 'deleteMany'].includes(operation)) {
@@ -54,7 +56,10 @@ export const prisma = basePrisma.$extends({
 
                     // Inject tenant_id into creation
                     if (operation === 'create') {
-                        anyArgs.data = { ...(anyArgs.data || {}), tenant_id: tenantId };
+                        const hasExplicitTenant = Boolean(anyArgs?.data?.tenant_id);
+                        if (!hasExplicitTenant && tenantId) {
+                            anyArgs.data = { ...(anyArgs.data || {}), tenant_id: tenantId };
+                        }
                     }
                 }
 
