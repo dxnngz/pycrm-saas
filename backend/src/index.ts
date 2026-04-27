@@ -6,13 +6,22 @@ import { commercialIntelligenceJob } from './jobs/commercialIntelligence.js';
 import { hashPassword } from './auth.js';
 import { env } from './env.js';
 import { initCacheSubscriber } from './core/subscribers/cache.subscriber.js';
-import { addReminderJob } from './jobs/queue.js';
-import { workflowEngine } from './modules/workflows/workflow.engine.js';
+import { addReminderJob, initQueueConnection } from './jobs/queue.js';
+import { redisCache } from './core/redis.js';
 
 import { ResilienceService } from './core/resilience.service.js';
 
+// --- Process-level error handlers ---
+// Prevent unhandled errors (e.g., from ioredis DNS failures) from crashing the process
+process.on('uncaughtException', (err) => {
+    logger.error({ err: err.message, stack: err.stack }, '🔥 Uncaught Exception (process kept alive)');
+});
+process.on('unhandledRejection', (reason: any) => {
+    logger.error({ err: reason?.message || reason }, '🔥 Unhandled Rejection (process kept alive)');
+});
+
 const port = env.PORT || 3001;
-// ... (lines 14-44)
+
 const ensureAdmin = async () => {
     try {
         // Never bootstrap a default admin account in production.
@@ -51,39 +60,53 @@ const ensureAdmin = async () => {
 
 const startServer = async () => {
     try {
+        // 1. Database connection (critical — fail if unreachable)
         await prisma.$connect();
         logger.info('✅ Conexión a la base de datos PostgreSQL exitosa');
 
-        app.listen(Number(port), '0.0.0.0', async () => {
+        // 2. Start HTTP server FIRST — this makes Render's health check pass immediately
+        app.listen(Number(port), '0.0.0.0', () => {
             logger.info(`🚀 Server is running on port ${port} at 0.0.0.0`);
+        });
 
+        // 3. All remaining initialization is non-blocking background work
+        //    The server is already accepting requests at this point.
+        setImmediate(async () => {
             try {
-                // Elite Hardening: MigrationGuard (Pre-flight Sync Check)
+                // Redis connection (with DNS pre-validation — won't flood if hostname is bad)
+                await redisCache.connect();
+
+                // BullMQ queue connection (with DNS pre-validation)
+                await initQueueConnection();
+
+                // MigrationGuard
                 await ResilienceService.performMigrationGuard();
 
-                // Self-healing Schema Armor (Triple Shield)
+                // Schema healing
                 await ResilienceService.performSchemaHealing();
 
-                // Initialize Cache Invalidation Listeners
+                // Cache invalidation listeners
                 initCacheSubscriber();
 
-                // Initialize Daily Commercial Intelligence CRON
+                // CRON jobs
                 commercialIntelligenceJob.init();
 
-                // Initialize background tasks scheduling
-                addReminderJob().catch(e => logger.warn({ err: e.message }, 'Failed to schedule daily reminders (Redis likely offline)'));
+                // Background task scheduling
+                addReminderJob().catch(e => logger.warn({ err: e.message }, 'Failed to schedule daily reminders'));
 
-                // Initialize Workflow Engine
+                // Workflow Engine
                 logger.info('🚀 Workflow Engine Initialized');
 
                 await ensureAdmin();
 
+                // Background workers (async — uses DNS pre-validation internally)
                 if (process.env.NODE_ENV !== 'test') {
-                    // Initialize background workers
-                    startWorkers();
+                    await startWorkers();
                 }
-            } catch (initErr) {
-                logger.error({ msg: '⚠️ Post-startup initialization warning', err: initErr });
+
+                logger.info('✅ All background services initialized.');
+            } catch (initErr: any) {
+                logger.error({ msg: '⚠️ Post-startup initialization warning', err: initErr?.message || initErr });
             }
         });
     } catch (err) {

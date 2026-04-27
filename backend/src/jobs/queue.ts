@@ -2,66 +2,133 @@ import { Queue } from 'bullmq';
 import { env } from '../env.js';
 import { logger } from '../utils/logger.js';
 import { Redis } from 'ioredis';
+import dns from 'dns/promises';
 
-// Reuse the native ioredis connection
-const connection = new Redis(env.REDIS_URL || 'redis://localhost:6379', {
-    maxRetriesPerRequest: null,
-    enableOfflineQueue: false, // Don't queue commands if Redis is down (prevent memory leaks)
-    connectTimeout: 10000, // 10s timeout
-    retryStrategy(times) {
-        if (times > 3) return null; // stop retrying quickly in web runtime
-        return Math.min(times * 500, 2000);
-    },
-    reconnectOnError(err) {
-        const targetError = 'READONLY';
-        if (err.message.slice(0, targetError.length) === targetError) {
-            return true;
-        }
+// --- DNS Pre-validation ---
+// Resolve hostname BEFORE creating a connection to prevent event loop flooding
+async function validateRedisHost(url: string): Promise<boolean> {
+    try {
+        const parsed = new URL(url);
+        await dns.lookup(parsed.hostname);
+        return true;
+    } catch {
         return false;
     }
-});
+}
 
-connection.on('error', (err: any) => {
-    if (err.code === 'ENOTFOUND') {
-        logger.error({ 
-            hostname: err.hostname,
-            advice: 'BullMQ no pudo resolver Redis. Verifica el hostname en REDIS_URL.' 
-        }, '❌ BullMQ: DNS Error. Cola en modo degradado.');
-    } else if (err.code === 'ECONNREFUSED') {
-        logger.warn({ port: err.port }, '⚠️ BullMQ: Redis connection refused. Verify port.');
-    } else {
-        logger.error({ err }, 'BullMQ ioredis Connection Error');
+// --- Lazy Connection Factory ---
+// ioredis is created with lazyConnect: true so it does NOT auto-connect at import time.
+// Error handler is attached BEFORE .connect() is called to avoid the race condition.
+let _connection: Redis | null = null;
+let _connectionReady = false;
+let _connectionFailed = false;
+
+function createQueueConnection(): Redis {
+    const conn = new Redis(env.REDIS_URL || 'redis://localhost:6379', {
+        maxRetriesPerRequest: null,
+        lazyConnect: true, // CRITICAL: prevents auto-connect at import time
+        enableOfflineQueue: false,
+        connectTimeout: 5000,
+        retryStrategy(times) {
+            if (times > 2) return null;
+            return Math.min(times * 500, 2000);
+        },
+        reconnectOnError(err) {
+            if (err.message.startsWith('READONLY')) return true;
+            return false;
+        }
+    });
+
+    // Attach error handler BEFORE connecting
+    conn.on('error', (err: any) => {
+        if (err.code === 'ENOTFOUND') {
+            _connectionFailed = true;
+            logger.warn({ hostname: err.hostname }, '⚠️ BullMQ: Redis DNS unreachable. Queues inactive.');
+        } else if (err.code === 'ECONNREFUSED') {
+            logger.warn({ port: err.port }, '⚠️ BullMQ: Redis connection refused.');
+        } else {
+            logger.error({ err: err.message }, 'BullMQ ioredis Connection Error');
+        }
+    });
+
+    conn.on('ready', () => {
+        _connectionReady = true;
+        logger.info('✅ BullMQ: Redis connection established.');
+    });
+
+    return conn;
+}
+
+function getConnection(): Redis {
+    if (!_connection) {
+        _connection = createQueueConnection();
     }
-});
+    return _connection;
+}
+
+// Initialize connection in the background (non-blocking)
+export async function initQueueConnection(): Promise<void> {
+    if (!env.REDIS_URL) {
+        logger.warn('⚠️ BullMQ: REDIS_URL not configured. Queues will not be available.');
+        _connectionFailed = true;
+        return;
+    }
+
+    // Pre-validate DNS before attempting connection
+    const hostValid = await validateRedisHost(env.REDIS_URL);
+    if (!hostValid) {
+        const parsed = new URL(env.REDIS_URL);
+        logger.error({ hostname: parsed.hostname }, '❌ BullMQ: Redis hostname does not resolve. Fix REDIS_URL in environment.');
+        _connectionFailed = true;
+        return;
+    }
+
+    try {
+        const conn = getConnection();
+        await conn.connect();
+    } catch (e: any) {
+        _connectionFailed = true;
+        logger.warn({ error: e.message }, '⚠️ BullMQ: Failed to connect to Redis. Queues inactive.');
+    }
+}
 
 const defaultJobOptions = {
     attempts: 5,
     backoff: {
         type: 'exponential',
-        delay: 5000, // 5s, 10s, 20s...
+        delay: 5000,
     },
     removeOnComplete: { count: 100 },
     removeOnFail: { count: 500 },
 };
 
+// Queues use the lazy connection — they won't attempt DNS until initQueueConnection() is called
+const conn = getConnection();
+
 export const reportQueue = new Queue('reports', {
-    connection: connection as any,
+    connection: conn as any,
     defaultJobOptions
 });
 export const emailQueue = new Queue('emails', {
-    connection: connection as any,
+    connection: conn as any,
     defaultJobOptions
 });
 export const systemQueue = new Queue('system', {
-    connection: connection as any,
+    connection: conn as any,
     defaultJobOptions
 });
 export const automationQueue = new Queue('automations', {
-    connection: connection as any,
+    connection: conn as any,
     defaultJobOptions
 });
 
+export const isQueueReady = () => _connectionReady && !_connectionFailed;
+
 export const addReportJob = async (userId: number, reportType: string) => {
+    if (!isQueueReady()) {
+        logger.warn('Skipping report job: Redis not available');
+        return null;
+    }
     try {
         const job = await reportQueue.add('generate-report', { userId, reportType }, {
             attempts: 3,
@@ -78,6 +145,10 @@ export const addReportJob = async (userId: number, reportType: string) => {
 };
 
 export const addEmailJob = async (to: string, subject: string, html: string) => {
+    if (!isQueueReady()) {
+        logger.warn('Skipping email job: Redis not available');
+        return null;
+    }
     try {
         const job = await emailQueue.add('send-email', { to, subject, html }, {
             attempts: 5,
@@ -94,14 +165,14 @@ export const addEmailJob = async (to: string, subject: string, html: string) => 
 };
 
 export const addReminderJob = async () => {
-    if (!env.REDIS_URL) {
-        logger.warn('Skipping reminder scheduling: REDIS_URL not configured');
+    if (!isQueueReady()) {
+        logger.warn('Skipping reminder scheduling: Redis not available');
         return;
     }
     try {
         await systemQueue.add('task-reminders', {}, {
-            repeat: { pattern: '0 9 * * *' }, // Daily at 9 AM
-            jobId: 'daily-reminders', // Ensure unique
+            repeat: { pattern: '0 9 * * *' },
+            jobId: 'daily-reminders',
             removeOnComplete: true,
             removeOnFail: false
         });

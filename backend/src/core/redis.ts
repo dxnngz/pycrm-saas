@@ -2,23 +2,45 @@ import { createClient } from 'redis';
 import { env } from '../env.js';
 import { logger } from '../utils/logger.js';
 import { redisCacheHits, redisCacheMisses } from './metrics.js';
+import dns from 'dns/promises';
 
-const REDIS_URL = env.REDIS_URL || 'redis://localhost:6379';
+const REDIS_URL = env.REDIS_URL;
+
+// DNS pre-validation: resolve hostname before attempting connection
+async function isRedisHostReachable(url: string): Promise<boolean> {
+    try {
+        const parsed = new URL(url);
+        await dns.lookup(parsed.hostname);
+        return true;
+    } catch {
+        return false;
+    }
+}
 
 class RedisClient {
     private client;
-    private circuitOpen = false;
+    private disabled = false; // true = don't even try
 
     constructor() {
+        // If no REDIS_URL is configured, don't create a real client
+        if (!REDIS_URL) {
+            logger.info('ℹ️ Redis: REDIS_URL not set. Cache disabled (PostgreSQL-only mode).');
+            this.disabled = true;
+            // Create a dummy client that won't connect
+            this.client = createClient({ url: 'redis://localhost:6379', socket: { reconnectStrategy: false } });
+            return;
+        }
+
         this.client = createClient({ 
             url: REDIS_URL,
             socket: {
                 reconnectStrategy: (retries) => {
-                    // Maximum 5 retries to avoid blocking the event loop or flooding logs
-                    if (retries > 5) {
-                        return false; // stop retrying
+                    if (retries > 2) {
+                        this.disabled = true;
+                        logger.warn('⚠️ Redis: Max reconnect attempts reached. Cache disabled.');
+                        return false;
                     }
-                    return Math.min(retries * 500, 5000);
+                    return Math.min(retries * 500, 3000);
                 },
                 connectTimeout: 5000,
             }
@@ -26,27 +48,46 @@ class RedisClient {
 
         this.client.on('error', (err) => {
             if (err.code === 'ENOTFOUND') {
-                this.circuitOpen = true;
-                logger.warn({ 
-                    hostname: err.hostname,
-                    advice: 'Verifica tu REDIS_URL en Render. Si usas Upstash, asegúrate de que el hostname sea el correcto y considera usar rediss:// para SSL.'
-                }, '⚠️ Redis Host unreachable (DNS). Circuit breaker OPEN. Running in degraded mode.');
+                this.disabled = true;
+                logger.warn({ hostname: err.hostname }, '⚠️ Redis: DNS unreachable. Cache disabled.');
             } else if (err.code === 'ECONNREFUSED') {
-                logger.warn({ port: err.port, address: err.address }, '⚠️ Redis connection refused. Verify port and firewall.');
+                logger.warn({ port: err.port }, '⚠️ Redis: Connection refused.');
             } else {
-                logger.error({ err }, 'Redis Connection Error');
+                logger.error({ err: err.message }, 'Redis Connection Error');
             }
         });
 
-        if (process.env.NODE_ENV !== 'test') {
-            this.client.connect().catch((e: any) => {
-                logger.warn({ error: e.message }, '⚠️ Redis connection bypassed. Running in degraded mode (No cache/queues).');
-            });
+        this.client.on('ready', () => {
+            this.disabled = false;
+            logger.info('✅ Redis: Connection established and ready.');
+        });
+    }
+
+    /**
+     * Connect to Redis. Must be called explicitly after construction.
+     * Performs DNS pre-validation to avoid flooding the event loop.
+     */
+    async connect(): Promise<void> {
+        if (this.disabled || !REDIS_URL) return;
+
+        const reachable = await isRedisHostReachable(REDIS_URL);
+        if (!reachable) {
+            const parsed = new URL(REDIS_URL);
+            logger.error({ hostname: parsed.hostname }, '❌ Redis: Hostname does not resolve. Fix REDIS_URL in environment. Cache disabled.');
+            this.disabled = true;
+            return;
+        }
+
+        try {
+            await this.client.connect();
+        } catch (e: any) {
+            this.disabled = true;
+            logger.warn({ error: e.message }, '⚠️ Redis: Connection failed. Cache disabled.');
         }
     }
 
     private isClientReady(): boolean {
-        if (this.circuitOpen) return false;
+        if (this.disabled) return false;
         return this.client.isOpen && this.client.isReady;
     }
 
@@ -96,7 +137,7 @@ class RedisClient {
             return freshData;
         } catch (error) {
             logger.error({ error, key }, 'Error en caché Redis');
-            return await fetcher(); // Fallback a la base de datos si Redis falla
+            return await fetcher(); // Fallback to database
         }
     }
 
@@ -129,8 +170,6 @@ class RedisClient {
         if (!this.isClientReady()) {
             throw new Error('Redis client is not ready');
         }
-
-        // Safety timeout for ping
         return Promise.race([
             this.client.ping(),
             new Promise<string>((_, reject) => setTimeout(() => reject(new Error('Redis ping timeout')), 1000))
@@ -149,7 +188,7 @@ class RedisClient {
     }
 
     async getTelemetry() {
-        if (this.circuitOpen) return { status: 'circuit_open', hits: 0, misses: 0, total: 0, hitRatio: '0%' };
+        if (this.disabled) return { status: 'disabled', hits: 0, misses: 0, total: 0, hitRatio: '0%' };
         if (!this.isClientReady()) return { status: 'disconnected', hits: 0, misses: 0, total: 0, hitRatio: '0%' };
         try {
             const hits = parseInt(await this.client.get('system:cache:hits') || '0', 10);

@@ -15,11 +15,9 @@ services:
         fromDatabase:
           name: pycrm-db
           property: connectionString
-      - key: REDIS_URL
-        fromService:
-          name: pycrm-redis
-          type: redis
-          property: connectionString
+      # REDIS_URL: Set manually in Render dashboard if you have an Upstash/Redis instance.
+      # Example: rediss://default:PASSWORD@your-host.upstash.io:6379
+      # The app works fully without Redis (PostgreSQL-only mode).
       - key: JWT_SECRET
         generateValue: true
       - key: FRONTEND_URL
@@ -41,12 +39,6 @@ services:
           name: pycrm-backend
           type: web
           property: url
-
-  # 3. Redis (Cache & Queues)
-  - type: redis
-    name: pycrm-redis
-    plan: free
-    ipAllowList: [] # Only allow internal access
 
 databases:
   - name: pycrm-db
