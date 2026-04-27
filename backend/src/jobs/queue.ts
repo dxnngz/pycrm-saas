@@ -92,8 +92,20 @@ export async function initQueueConnection(): Promise<void> {
 
     try {
         const conn = getConnection();
+        if (conn.status === 'ready' || conn.status === 'connect' || conn.status === 'connecting') {
+            _connectionFailed = false;
+            if (conn.status === 'ready') {
+                _connectionReady = true;
+            }
+            return;
+        }
         await conn.connect();
+        _connectionFailed = false;
     } catch (e: any) {
+        if (typeof e?.message === 'string' && e.message.includes('already connecting/connected')) {
+            _connectionFailed = false;
+            return;
+        }
         _connectionFailed = true;
         logger.warn({ error: e.message }, '⚠️ BullMQ: Failed to connect to Redis. Queues inactive.');
     }
