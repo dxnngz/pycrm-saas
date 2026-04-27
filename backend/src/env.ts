@@ -12,7 +12,9 @@ const envSchema = z.object({
     DB_PASSWORD: z.string().optional().default(''),
     DB_NAME: z.string().default('pycrm'),
     DATABASE_URL: z.string().optional(),
-    REDIS_URL: z.string().optional(),
+    REDIS_URL: z.string().optional().refine(val => !val || val.startsWith('redis://') || val.startsWith('rediss://'), {
+        message: "REDIS_URL must start with redis:// or rediss://"
+    }),
     JWT_SECRET: z.string().min(1, 'Obligatorio'),
     JWT_REFRESH_SECRET: z.string().optional(),
     FRONTEND_URL: z.string().optional(),

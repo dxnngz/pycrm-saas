@@ -6,7 +6,9 @@ export const globalErrorHandler = (err: any, req: Request, res: Response, next: 
     err.statusCode = err.statusCode || 500;
     err.status = err.status || 'error';
 
-    if (process.env.NODE_ENV === 'development') {
+    const isProduction = process.env.NODE_ENV?.toLowerCase() === 'production' || process.env.NODE_ENV === 'prod';
+
+    if (!isProduction) {
         res.status(err.statusCode).json({
             status: err.status,
             error: err,
