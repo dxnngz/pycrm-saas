@@ -1,4 +1,10 @@
-const API_URL = import.meta.env.VITE_API_URL || '/api';
+const normalizeApiBase = (url?: string): string => {
+    if (!url) return '';
+    const trimmed = url.replace(/\/+$/, '');
+    return trimmed.endsWith('/api') ? trimmed : `${trimmed}/api`;
+};
+
+const API_URL = normalizeApiBase(import.meta.env.VITE_API_URL) || '/api';
 
 const getHeaders = (): Record<string, string> => {
     const headers: Record<string, string> = {

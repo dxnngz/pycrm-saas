@@ -2,10 +2,14 @@ import { toast } from 'sonner';
 import { captureRUMMetrics, getMemoryUsage } from '../utils/metrics';
 import { sanitizePayload } from '../utils/security';
 
-// In production (Vercel), we MUST use relative paths to leverage the Vercel Proxy (vercel.json)
-// and avoid CORS issues with Render.
-const isProd = import.meta.env.PROD;
-const API_URL = isProd ? '/api' : (import.meta.env.VITE_API_URL || 'http://localhost:3001/api');
+const normalizeApiBase = (url?: string): string => {
+    if (!url) return '';
+    const trimmed = url.replace(/\/+$/, '');
+    return trimmed.endsWith('/api') ? trimmed : `${trimmed}/api`;
+};
+
+const explicitApiBase = normalizeApiBase(import.meta.env.VITE_API_URL);
+const API_URL = explicitApiBase || (import.meta.env.PROD ? '/api' : 'http://localhost:3001/api');
 
 let isRefreshing = false;
 let refreshSubscribers: ((token: string) => void)[] = [];
