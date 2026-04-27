@@ -30,7 +30,12 @@ export const prisma = basePrisma.$extends({
                 
                 // If the model is multi-tenant and we're not in a system context, enforce tenant_id
                 if (isTenantScoped && !store?.isSystem) {
-                    if (!tenantId) {
+                    // EXCEPTION: Allow login/auth-related lookups without tenant context
+                    const isAuthLookup = (model === 'User' && (operation === 'findUnique' || operation === 'findFirst')) || 
+                                       (model === 'RefreshToken' && operation === 'findUnique') ||
+                                       (model === 'PasswordReset' && operation === 'findUnique');
+
+                    if (!tenantId && !isAuthLookup) {
                         logger.error({ model, operation, requestId: store?.requestId }, 'CRITICAL: Attempted database operation without tenant context');
                         throw new AppError('Acceso denegado: falta el contexto de organización.', 403);
                     }

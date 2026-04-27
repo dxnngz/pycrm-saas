@@ -149,6 +149,7 @@ class RedisClient {
     }
 
     async getTelemetry() {
+        if (this.circuitOpen) return { status: 'circuit_open', hits: 0, misses: 0, total: 0, hitRatio: '0%' };
         if (!this.isClientReady()) return { status: 'disconnected', hits: 0, misses: 0, total: 0, hitRatio: '0%' };
         try {
             const hits = parseInt(await this.client.get('system:cache:hits') || '0', 10);

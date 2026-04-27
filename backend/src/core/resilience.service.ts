@@ -24,18 +24,29 @@ export class ResilienceService {
         }
 
         try {
-            const result = await basePrisma.$queryRawUnsafe<{ column_name: string }[]>(`
-                SELECT column_name 
-                FROM information_schema.columns 
-                WHERE table_name = '${table.replace(/"/g, '')}' AND column_name = '${column}'
-            `);
+            // Safety timeout: Never block a query for more than 500ms for a schema check
+            const timeoutPromise = new Promise<boolean>((_, reject) => 
+                setTimeout(() => reject(new Error('Schema check timeout')), 500)
+            );
 
-            const exists = result.length > 0;
+            const checkPromise = (async () => {
+                const result = await basePrisma.$queryRawUnsafe<{ column_name: string }[]>(`
+                    SELECT column_name 
+                    FROM information_schema.columns 
+                    WHERE table_name = '${table.replace(/"/g, '')}' AND column_name = '${column}'
+                    LIMIT 1
+                `);
+                return result.length > 0;
+            })();
+
+            const exists = await Promise.race([checkPromise, timeoutPromise]);
+            
             if (!this.columnCache[table]) this.columnCache[table] = {};
             this.columnCache[table][column] = exists;
             return exists;
         } catch (e) {
-            return false;
+            // Fallback to true to avoid breaking logic if check fails (usually column exists in healthy state)
+            return true;
         }
     }
 
