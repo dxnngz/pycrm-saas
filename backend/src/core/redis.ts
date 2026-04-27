@@ -18,20 +18,18 @@ async function isRedisHostReachable(url: string): Promise<boolean> {
 }
 
 class RedisClient {
-    private client;
+    private client: ReturnType<typeof createClient> | null = null;
     private disabled = false; // true = don't even try
 
     constructor() {
-        // If no REDIS_URL is configured, don't create a real client
+        // If no REDIS_URL is configured, don't create ANY client
         if (!REDIS_URL) {
             logger.info('ℹ️ Redis: REDIS_URL not set. Cache disabled (PostgreSQL-only mode).');
             this.disabled = true;
-            // Create a dummy client that won't connect
-            this.client = createClient({ url: 'redis://localhost:6379', socket: { reconnectStrategy: false } });
             return;
         }
 
-        this.client = createClient({ 
+        this.client = createClient({
             url: REDIS_URL,
             socket: {
                 reconnectStrategy: (retries) => {
@@ -79,7 +77,7 @@ class RedisClient {
         }
 
         try {
-            await this.client.connect();
+            await this.client!.connect();
         } catch (e: any) {
             this.disabled = true;
             logger.warn({ error: e.message }, '⚠️ Redis: Connection failed. Cache disabled.');
@@ -87,14 +85,14 @@ class RedisClient {
     }
 
     private isClientReady(): boolean {
-        if (this.disabled) return false;
+        if (this.disabled || !this.client) return false;
         return this.client.isOpen && this.client.isReady;
     }
 
     async get<T>(key: string): Promise<T | null> {
         if (!this.isClientReady()) return null;
         try {
-            const value = await this.client.get(key);
+            const value = await this.client!.get(key);
             return value ? JSON.parse(value) as T : null;
         } catch (error) {
             return null;
@@ -106,9 +104,9 @@ class RedisClient {
         try {
             const data = JSON.stringify(value);
             if (ttlSeconds) {
-                await this.client.setEx(key, ttlSeconds, data);
+                await this.client!.setEx(key, ttlSeconds, data);
             } else {
-                await this.client.set(key, data);
+                await this.client!.set(key, data);
             }
         } catch (error) {
             logger.error({ error, key }, 'Error seteando en Redis');
@@ -121,19 +119,19 @@ class RedisClient {
         }
 
         try {
-            const cachedValue = await this.client.get(key);
+            const cachedValue = await this.client!.get(key);
             if (cachedValue) {
-                this.client.incr('system:cache:hits').catch(() => { });
+                this.client!.incr('system:cache:hits').catch(() => { });
                 const entityName = key.split(':')[1] || 'unknown';
                 redisCacheHits.inc({ entity: entityName });
                 return JSON.parse(cachedValue) as T;
             }
 
             const freshData = await fetcher();
-            this.client.incr('system:cache:misses').catch(() => { });
+            this.client!.incr('system:cache:misses').catch(() => { });
             const entityName = key.split(':')[1] || 'unknown';
             redisCacheMisses.inc({ entity: entityName });
-            await this.client.setEx(key, ttlSeconds, JSON.stringify(freshData));
+            await this.client!.setEx(key, ttlSeconds, JSON.stringify(freshData));
             return freshData;
         } catch (error) {
             logger.error({ error, key }, 'Error en caché Redis');
@@ -145,7 +143,7 @@ class RedisClient {
         if (!this.isClientReady()) return;
         try {
             const keys: string[] = [];
-            for await (const key of this.client.scanIterator({ MATCH: pattern, COUNT: 500 })) {
+            for await (const key of this.client!.scanIterator({ MATCH: pattern, COUNT: 500 })) {
                 if (Array.isArray(key)) {
                     keys.push(...key);
                 } else {
@@ -153,7 +151,7 @@ class RedisClient {
                 }
             }
             if (keys.length > 0) {
-                await this.client.unlink(keys);
+                await this.client!.unlink(keys);
                 logger.info({ keysCount: keys.length, pattern }, '[Redis] Unlinked keys matching pattern');
             }
         } catch (error) {
@@ -171,19 +169,19 @@ class RedisClient {
             throw new Error('Redis client is not ready');
         }
         return Promise.race([
-            this.client.ping(),
+            this.client!.ping(),
             new Promise<string>((_, reject) => setTimeout(() => reject(new Error('Redis ping timeout')), 1000))
         ]);
     }
 
     async blacklistToken(jti: string, ttlSeconds: number) {
         if (!this.isClientReady()) return;
-        await this.client.setEx(`revoked:token:${jti}`, ttlSeconds, '1');
+        await this.client!.setEx(`revoked:token:${jti}`, ttlSeconds, '1');
     }
 
     async isTokenBlacklisted(jti: string): Promise<boolean> {
         if (!this.isClientReady()) return false;
-        const exists = await this.client.exists(`revoked:token:${jti}`);
+        const exists = await this.client!.exists(`revoked:token:${jti}`);
         return exists === 1;
     }
 
@@ -191,8 +189,8 @@ class RedisClient {
         if (this.disabled) return { status: 'disabled', hits: 0, misses: 0, total: 0, hitRatio: '0%' };
         if (!this.isClientReady()) return { status: 'disconnected', hits: 0, misses: 0, total: 0, hitRatio: '0%' };
         try {
-            const hits = parseInt(await this.client.get('system:cache:hits') || '0', 10);
-            const misses = parseInt(await this.client.get('system:cache:misses') || '0', 10);
+            const hits = parseInt(await this.client!.get('system:cache:hits') || '0', 10);
+            const misses = parseInt(await this.client!.get('system:cache:misses') || '0', 10);
             const total = hits + misses;
             const hitRatio = total > 0 ? ((hits / total) * 100).toFixed(2) + '%' : '0%';
 

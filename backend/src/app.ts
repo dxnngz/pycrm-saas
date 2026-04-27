@@ -132,17 +132,21 @@ const swaggerSpec = swaggerJsdoc(swaggerOptions);
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 // --- ADMIN DASHBOARDS ---
-const serverAdapter = new ExpressAdapter();
-serverAdapter.setBasePath('/admin/queues');
-createBullBoard({
-    queues: [
-        new BullMQAdapter(emailQueue),
-        new BullMQAdapter(reportQueue),
-        new BullMQAdapter(systemQueue),
-    ],
-    serverAdapter: serverAdapter,
-});
-app.use('/admin/queues', protect, requireRole([SystemRole.ADMIN]), serverAdapter.getRouter());
+// BullBoard is only available when Redis is configured
+if (env.REDIS_URL) {
+    const serverAdapter = new ExpressAdapter();
+    serverAdapter.setBasePath('/admin/queues');
+    const bullQueues = [emailQueue, reportQueue, systemQueue].filter(Boolean) as any[];
+    createBullBoard({
+        queues: bullQueues.map((queue) => new BullMQAdapter(queue)),
+        serverAdapter: serverAdapter,
+    });
+    app.use('/admin/queues', protect, requireRole([SystemRole.ADMIN]), serverAdapter.getRouter());
+} else {
+    app.use('/admin/queues', (req, res) => {
+        res.status(503).json({ status: 'unavailable', message: 'Queue dashboard requires Redis configuration.' });
+    });
+}
 
 // Prometheus Metrics
 app.get('/metrics', async (req, res) => {

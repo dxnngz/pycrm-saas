@@ -24,7 +24,11 @@ let _connectionReady = false;
 let _connectionFailed = false;
 
 function createQueueConnection(): Redis {
-    const conn = new Redis(env.REDIS_URL || 'redis://localhost:6379', {
+    if (!env.REDIS_URL) {
+        throw new Error('REDIS_URL is required to create BullMQ connection');
+    }
+
+    const conn = new Redis(env.REDIS_URL, {
         maxRetriesPerRequest: null,
         lazyConnect: true, // CRITICAL: prevents auto-connect at import time
         enableOfflineQueue: false,
@@ -60,6 +64,9 @@ function createQueueConnection(): Redis {
 }
 
 function getConnection(): Redis {
+    if (!env.REDIS_URL) {
+        throw new Error('REDIS_URL is required to initialize BullMQ');
+    }
     if (!_connection) {
         _connection = createQueueConnection();
     }
@@ -103,29 +110,29 @@ const defaultJobOptions = {
 };
 
 // Queues use the lazy connection — they won't attempt DNS until initQueueConnection() is called
-const conn = getConnection();
+const queueConnection = env.REDIS_URL ? getConnection() : null;
 
-export const reportQueue = new Queue('reports', {
-    connection: conn as any,
+export const reportQueue: Queue | null = queueConnection ? new Queue('reports', {
+    connection: queueConnection as any,
     defaultJobOptions
-});
-export const emailQueue = new Queue('emails', {
-    connection: conn as any,
+}) : null;
+export const emailQueue: Queue | null = queueConnection ? new Queue('emails', {
+    connection: queueConnection as any,
     defaultJobOptions
-});
-export const systemQueue = new Queue('system', {
-    connection: conn as any,
+}) : null;
+export const systemQueue: Queue | null = queueConnection ? new Queue('system', {
+    connection: queueConnection as any,
     defaultJobOptions
-});
-export const automationQueue = new Queue('automations', {
-    connection: conn as any,
+}) : null;
+export const automationQueue: Queue | null = queueConnection ? new Queue('automations', {
+    connection: queueConnection as any,
     defaultJobOptions
-});
+}) : null;
 
 export const isQueueReady = () => _connectionReady && !_connectionFailed;
 
 export const addReportJob = async (userId: number, reportType: string) => {
-    if (!isQueueReady()) {
+    if (!isQueueReady() || !reportQueue) {
         logger.warn('Skipping report job: Redis not available');
         return null;
     }
@@ -145,7 +152,7 @@ export const addReportJob = async (userId: number, reportType: string) => {
 };
 
 export const addEmailJob = async (to: string, subject: string, html: string) => {
-    if (!isQueueReady()) {
+    if (!isQueueReady() || !emailQueue) {
         logger.warn('Skipping email job: Redis not available');
         return null;
     }
@@ -165,12 +172,13 @@ export const addEmailJob = async (to: string, subject: string, html: string) => 
 };
 
 export const addReminderJob = async () => {
-    if (!isQueueReady()) {
+    const queue = systemQueue;
+    if (!isQueueReady() || !queue) {
         logger.warn('Skipping reminder scheduling: Redis not available');
         return;
     }
     try {
-        await systemQueue.add('task-reminders', {}, {
+        await queue.add('task-reminders', {}, {
             repeat: { pattern: '0 9 * * *' },
             jobId: 'daily-reminders',
             removeOnComplete: true,

@@ -1,5 +1,5 @@
 import { prisma } from '../core/prisma.js';
-import { emailQueue } from './queue.js';
+import { addEmailJob } from './queue.js';
 import { logger } from '../utils/logger.js';
 
 export const processTaskReminders = async () => {
@@ -32,20 +32,17 @@ export const processTaskReminders = async () => {
 
         for (const task of upcomingTasks) {
             if (task.user?.email) {
-                await emailQueue.add('send-email', {
-                    to: task.user.email,
-                    subject: `Recordatorio: Tarea "${task.title}" vence mañana`,
-                    html: `
+                await addEmailJob(
+                    task.user.email,
+                    `Recordatorio: Tarea "${task.title}" vence mañana`,
+                    `
                         <h2>Hola, ${task.user.name}</h2>
                         <p>Te recordamos que la tarea <strong>"${task.title}"</strong> tiene como fecha límite mañana.</p>
                         <p>Por favor, asegúrate de completarla a tiempo.</p>
                         <hr />
                         <p>PyCRM Automation Engine</p>
                     `
-                }, {
-                    attempts: 3,
-                    backoff: { type: 'exponential', delay: 2000 }
-                });
+                );
             }
         }
 
