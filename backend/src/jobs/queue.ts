@@ -21,7 +21,12 @@ const connection = new Redis(env.REDIS_URL || 'redis://localhost:6379', {
 
 connection.on('error', (err: any) => {
     if (err.code === 'ENOTFOUND') {
-        logger.error({ err }, '❌ BullMQ: No se pudo resolver Redis. Cola en modo degradado.');
+        logger.error({ 
+            hostname: err.hostname,
+            advice: 'BullMQ no pudo resolver Redis. Verifica el hostname en REDIS_URL.' 
+        }, '❌ BullMQ: DNS Error. Cola en modo degradado.');
+    } else if (err.code === 'ECONNREFUSED') {
+        logger.warn({ port: err.port }, '⚠️ BullMQ: Redis connection refused. Verify port.');
     } else {
         logger.error({ err }, 'BullMQ ioredis Connection Error');
     }

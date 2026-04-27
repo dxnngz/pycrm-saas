@@ -27,7 +27,12 @@ const createWorkerConnection = () => {
 
     connection.on('error', (err: any) => {
         if (err.code === 'ENOTFOUND') {
-            logger.error({ err }, '❌ BullMQ Worker: No se pudo resolver Redis. Workers en modo degradado.');
+            logger.error({ 
+                hostname: err.hostname,
+                context: 'BullMQ Worker' 
+            }, '❌ BullMQ Worker: DNS Resolution Failed. Workers inactive.');
+        } else if (err.code === 'ECONNREFUSED') {
+            logger.warn({ port: err.port }, '⚠️ BullMQ Worker: Connection refused.');
         } else {
             logger.error({ err }, 'BullMQ Worker ioredis Connection Error');
         }

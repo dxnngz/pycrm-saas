@@ -25,8 +25,12 @@ class RedisClient {
 
         this.client.on('error', (err) => {
             if (err.code === 'ENOTFOUND') {
-                // Low noise for DNS issues as we handle them gracefully
-                logger.warn({ hostname: err.hostname }, '⚠️ Redis Host unreachable (DNS). Running in degraded mode.');
+                logger.warn({ 
+                    hostname: err.hostname,
+                    advice: 'Verifica tu REDIS_URL en Render. Si usas Upstash, asegúrate de que el hostname sea el correcto y considera usar rediss:// para SSL.'
+                }, '⚠️ Redis Host unreachable (DNS). Running in degraded mode.');
+            } else if (err.code === 'ECONNREFUSED') {
+                logger.warn({ port: err.port, address: err.address }, '⚠️ Redis connection refused. Verify port and firewall.');
             } else {
                 logger.error({ err }, 'Redis Connection Error');
             }
