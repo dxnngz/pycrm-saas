@@ -1,4 +1,4 @@
-import { prisma } from '../../core/prisma.js';
+import { basePrisma } from '../../core/prisma.js';
 
 export class AuditService {
     async log(data: {
@@ -10,7 +10,7 @@ export class AuditService {
         requestId?: string;
         changes?: any;
     }) {
-        return await prisma.auditLog.create({
+        return await basePrisma.auditLog.create({
             data: {
                 entity: data.entity,
                 entity_id: data.entityId,

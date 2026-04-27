@@ -37,7 +37,9 @@ const sendTokenResponse = async (user: { id: number; name: string; email: string
         user: { id: user.id, name: user.name, email: user.email, role: user.role || 'empleado', tenant_id: user.tenant_id }
     });
 
-    await auditService.logAuth(user.id, user.tenant_id, 'LOGIN', { ip: req.ip, userAgent: req.get('user-agent') });
+    auditService
+        .logAuth(user.id, user.tenant_id, 'LOGIN', { ip: req.ip, userAgent: req.get('user-agent') })
+        .catch((err) => logger.warn({ err: err?.message || err, userId: user.id }, 'Auth audit log failed'));
 };
 
 export const register = asyncHandler(async (req: Request, res: Response) => {
@@ -57,7 +59,9 @@ export const register = asyncHandler(async (req: Request, res: Response) => {
         companyName
     });
 
-    await auditService.logAuth(user.id, user.tenant_id, 'PASSWORD_RESET', { action: 'REGISTER' });
+    auditService
+        .logAuth(user.id, user.tenant_id, 'PASSWORD_RESET', { action: 'REGISTER' })
+        .catch((err) => logger.warn({ err: err?.message || err, userId: user.id }, 'Register audit log failed'));
     await sendTokenResponse(user, 201, res, req);
 });
 
