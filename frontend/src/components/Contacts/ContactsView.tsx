@@ -66,6 +66,7 @@ const ContactsView = () => {
     const [newCompany, setNewCompany] = useState('');
     const [newEmail, setNewEmail] = useState('');
     const [newPhone, setNewPhone] = useState('');
+    const [newStatus, setNewStatus] = useState<'activo' | 'inactivo'>('activo');
     const [isSubmitting, setIsSubmitting] = useState(false);
 
     const handleOpenModal = useCallback((client: Client | null = null) => {
@@ -75,12 +76,14 @@ const ContactsView = () => {
             setNewCompany(client.company || '');
             setNewEmail(client.email || '');
             setNewPhone(client.phone || '');
+            setNewStatus(client.status || 'activo');
         } else {
             setEditingClient(null);
             setNewName('');
             setNewCompany('');
             setNewEmail('');
             setNewPhone('');
+            setNewStatus('activo');
         }
         setIsModalOpen(true);
     }, []);
@@ -134,7 +137,8 @@ const ContactsView = () => {
                 name: newName,
                 company: newCompany,
                 email: newEmail,
-                phone: newPhone
+                phone: newPhone,
+                status: newStatus
             };
             const cleanPayload = sanitizePayload(clientData);
             if (editingClient) {
@@ -224,7 +228,11 @@ const ContactsView = () => {
         {
             header: 'Status',
             width: '10%',
-            accessor: () => <Badge variant="success">Active</Badge>,
+            accessor: (client: Client) => (
+                <Badge variant={client.status === 'activo' ? 'success' : 'secondary'}>
+                    {client.status === 'activo' ? 'Active' : 'Inactive'}
+                </Badge>
+            ),
             align: 'center',
             className: 'flex items-center justify-center',
         },
@@ -444,35 +452,58 @@ const ContactsView = () => {
                             placeholder="john@example.com"
                         />
                         <div className="space-y-1.5">
-                            <label className="block text-[11px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">Phone Number</label>
-                            <div className="flex gap-2">
-                                <select 
-                                    className="w-28 h-10 px-2 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 rounded-lg text-sm text-slate-700 dark:text-slate-300 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all cursor-pointer font-medium"
-                                    value={newPhone.match(/^\+\d+/)?.[0] || '+34'}
-                                    onChange={(e) => {
-                                        const currentNumber = newPhone.replace(/^\+\d+/, '').trim();
-                                        setNewPhone(`${e.target.value} ${currentNumber}`.trim());
-                                    }}
+                            <label className="block text-[11px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">Account Status</label>
+                            <div className="flex p-1 bg-slate-100 dark:bg-slate-800 rounded-xl">
+                                <button
+                                    type="button"
+                                    onClick={() => setNewStatus('activo')}
+                                    className={`flex-1 py-2 text-xs font-bold rounded-lg transition-all ${newStatus === 'activo' 
+                                        ? 'bg-white dark:bg-slate-700 text-emerald-600 dark:text-emerald-400 shadow-sm' 
+                                        : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'}`}
                                 >
-                                    <option value="+34">🇪🇸 +34</option>
-                                    <option value="+1">🇺🇸 +1</option>
-                                    <option value="+44">🇬🇧 +44</option>
-                                    <option value="+52">🇲🇽 +52</option>
-                                    <option value="+54">🇦🇷 +54</option>
-                                    <option value="+57">🇨🇴 +57</option>
-                                    <option value="+56">🇨🇱 +56</option>
-                                </select>
-                                <input
-                                    type="tel"
-                                    className="flex-1 w-full h-10 px-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg text-sm text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all placeholder:text-slate-400"
-                                    value={newPhone.replace(/^\+\d+/, '').trim()}
-                                    onChange={(e) => {
-                                        const prefix = newPhone.match(/^\+\d+/)?.[0] || '+34';
-                                        setNewPhone(`${prefix} ${e.target.value}`);
-                                    }}
-                                    placeholder="600 000 000"
-                                />
+                                    Active
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={() => setNewStatus('inactivo')}
+                                    className={`flex-1 py-2 text-xs font-bold rounded-lg transition-all ${newStatus === 'inactivo' 
+                                        ? 'bg-white dark:bg-slate-700 text-slate-600 dark:text-slate-400 shadow-sm' 
+                                        : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'}`}
+                                >
+                                    Inactive
+                                </button>
                             </div>
+                        </div>
+                    </div>
+                    <div className="space-y-1.5">
+                        <label className="block text-[11px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">Phone Number</label>
+                        <div className="flex gap-2">
+                            <select 
+                                className="w-28 h-10 px-2 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 rounded-lg text-sm text-slate-700 dark:text-slate-300 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all cursor-pointer font-medium"
+                                value={newPhone.match(/^\+\d+/)?.[0] || '+34'}
+                                onChange={(e) => {
+                                    const currentNumber = newPhone.replace(/^\+\d+/, '').trim();
+                                    setNewPhone(`${e.target.value} ${currentNumber}`.trim());
+                                }}
+                            >
+                                <option value="+34">🇪🇸 +34</option>
+                                <option value="+1">🇺🇸 +1</option>
+                                <option value="+44">🇬🇧 +44</option>
+                                <option value="+52">🇲🇽 +52</option>
+                                <option value="+54">🇦🇷 +54</option>
+                                <option value="+57">🇨🇴 +57</option>
+                                <option value="+56">🇨🇱 +56</option>
+                            </select>
+                            <input
+                                type="tel"
+                                className="flex-1 w-full h-10 px-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg text-sm text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all placeholder:text-slate-400"
+                                value={newPhone.replace(/^\+\d+/, '').trim()}
+                                onChange={(e) => {
+                                    const prefix = newPhone.match(/^\+\d+/)?.[0] || '+34';
+                                    setNewPhone(`${prefix} ${e.target.value}`);
+                                }}
+                                placeholder="600 000 000"
+                            />
                         </div>
                     </div>
                     <div className="pt-4 flex justify-end gap-3">
