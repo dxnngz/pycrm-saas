@@ -104,13 +104,14 @@ export const prisma = basePrisma.$extends({
                         } : result;
 
                         const entityId = resultAny?.id ? Number(resultAny.id) : 0;
+                        const auditUserId = storeData.userId ? Number(storeData.userId) : null;
 
                         basePrisma.auditLog.create({
                             data: {
                                 entity: model,
                                 entity_id: entityId,
                                 action: operation.toUpperCase(),
-                                user_id: Number(storeData.userId),
+                                user_id: auditUserId,
                                 request_id: storeData.requestId || null,
                                 tenant_id: tenantId,
                                 changes: changes ? JSON.parse(JSON.stringify(changes)) : null,

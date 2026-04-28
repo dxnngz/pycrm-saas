@@ -25,12 +25,21 @@ export const globalErrorHandler = (err: any, req: Request, res: Response, next: 
                 details: err.details
             });
         } else {
+            // LOG DEL ERROR REAL PARA DEPURACIÓN EN RENDER
+            console.error('💥 CRITICAL ERROR:', {
+                message: err.message,
+                stack: err.stack,
+                path: req.path,
+                method: req.method,
+                requestId: (req as any).id
+            });
+
             logger.error({
                 msg: 'CRITICAL_ERROR 💥',
-                requestId: req.id,
+                requestId: (req as any).id,
                 error: err.message,
                 stack: err.stack,
-                tenant: req.user?.tenantId
+                tenant: (req as any).user?.tenantId
             });
 
             res.status(500).json({

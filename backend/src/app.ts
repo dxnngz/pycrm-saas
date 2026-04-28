@@ -45,6 +45,9 @@ import { env } from './env.js';
 const app = express();
 const port = env.PORT || 3001;
 
+// Trust proxy for Render/Vercel (needed for secure cookies)
+app.set('trust proxy', 1);
+
 // --- SECURITY & CORE MIDDLEWARES ---
 app.use(helmet({
     crossOriginResourcePolicy: { policy: "cross-origin" },

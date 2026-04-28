@@ -45,6 +45,10 @@ const sendTokenResponse = async (user: { id: number; name: string; email: string
 export const register = asyncHandler(async (req: Request, res: Response) => {
     const { name, email, password, companyName } = req.body;
 
+    if (!name || !email || !password || !companyName) {
+        throw new AppError('Todos los campos son obligatorios', 400);
+    }
+
     const existingUser = await authService.getUserByEmail(email);
     if (existingUser) {
         throw new AppError('El usuario ya existe', 400);
