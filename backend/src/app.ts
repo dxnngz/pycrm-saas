@@ -69,6 +69,12 @@ app.use(cors({
 
 app.use(requestIdMiddleware);
 
+// --- DEBUG MIDDLEWARE ---
+app.use((req, res, next) => {
+    console.log(`[INCOMING] ${req.method} ${req.url} - IP: ${req.ip}`);
+    next();
+});
+
 // Logging with Pino
 app.use(pinoHttp({
     level: process.env.NODE_ENV === 'development' ? 'info' : 'warn',
@@ -204,6 +210,15 @@ app.use('/api/tenants', tenantRoutes);
 app.use('/api/integrations', integrationRoutes);
 app.use('/api/telemetry', telemetryRoutes);
 app.use('/api/health', healthRoutes);
+
+// Catch-all 404 for API routes
+app.use('/api/*', (req, res) => {
+    logger.warn({ path: req.originalUrl, method: req.method }, '404 - API Route Not Found');
+    res.status(404).json({
+        success: false,
+        message: `La ruta ${req.method} ${req.originalUrl} no existe en este servidor.`
+    });
+});
 
 // Error Handling
 app.use(globalErrorHandler);

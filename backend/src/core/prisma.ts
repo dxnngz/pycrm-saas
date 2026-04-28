@@ -51,7 +51,10 @@ export const prisma = basePrisma.$extends({
 
                     // Inject tenant_id into unique operations
                     if (['findUnique', 'findUniqueOrThrow', 'update', 'delete'].includes(operation)) {
-                        anyArgs.where = { ...(anyArgs.where || {}), tenant_id: tenantId };
+                        // EXCEPTION: Don't inject tenant_id if it's an auth lookup and we don't have a tenantId yet
+                        if (!(isAuthLookup && !tenantId)) {
+                            anyArgs.where = { ...(anyArgs.where || {}), tenant_id: tenantId };
+                        }
                     }
 
                     // Inject tenant_id into creation
@@ -106,17 +109,19 @@ export const prisma = basePrisma.$extends({
                         const entityId = resultAny?.id ? Number(resultAny.id) : 0;
                         const auditUserId = storeData.userId ? Number(storeData.userId) : null;
 
-                        basePrisma.auditLog.create({
-                            data: {
-                                entity: model,
-                                entity_id: entityId,
-                                action: operation.toUpperCase(),
-                                user_id: auditUserId,
-                                request_id: storeData.requestId || null,
-                                tenant_id: tenantId,
-                                changes: changes ? JSON.parse(JSON.stringify(changes)) : null,
-                            }
-                        }).catch(e => logger.error({ err: e.message, model, operation }, 'Failed to write audit log'));
+                        if (tenantId > 0) {
+                            basePrisma.auditLog.create({
+                                data: {
+                                    entity: model,
+                                    entity_id: entityId,
+                                    action: operation.toUpperCase(),
+                                    user_id: auditUserId,
+                                    request_id: storeData.requestId || null,
+                                    tenant_id: tenantId,
+                                    changes: changes ? JSON.parse(JSON.stringify(changes)) : null,
+                                }
+                            }).catch(e => logger.error({ err: e.message, model, operation }, 'Failed to write audit log'));
+                        }
                     }
                 } catch (auditErr: unknown) {
                     const errMsg = auditErr instanceof Error ? auditErr.message : 'Unknown audit error';

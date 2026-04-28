@@ -7,6 +7,12 @@ const router = Router();
 // Endpoints públicos
 router.post('/login', authController.login);
 router.post('/register', authController.register);
+router.get('/register', (req, res) => {
+    res.status(405).json({
+        success: false,
+        message: 'El método GET no está permitido para registro. Use POST.'
+    });
+});
 router.post('/refresh', authController.refreshToken);
 router.post('/verify-mfa-login', authController.verifyMFALogin);
 router.post('/forgot-password', authController.forgotPassword);
