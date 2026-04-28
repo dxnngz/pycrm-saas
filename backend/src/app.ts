@@ -212,7 +212,7 @@ app.use('/api/telemetry', telemetryRoutes);
 app.use('/api/health', healthRoutes);
 
 // Catch-all 404 for API routes
-app.use('/api/(.*)', (req, res) => {
+app.use('/api/:any*', (req, res) => {
     logger.warn({ path: req.originalUrl, method: req.method }, '404 - API Route Not Found');
     res.status(404).json({
         success: false,
