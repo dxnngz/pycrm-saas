@@ -1,7 +1,6 @@
 @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap');
 @import "tailwindcss";
 
-/* Tailwind 4 Theme Configuration */
 @theme {
   --font-sans: "Outfit", sans-serif;
   --color-primary-50: #f0f9ff;

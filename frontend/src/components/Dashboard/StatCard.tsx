@@ -11,7 +11,16 @@ interface StatCardProps {
     color?: string;
 }
 
-const StatCard: React.FC<StatCardProps> = ({ title, value, icon, trend, trendUp, color }) => {
+const StatCard: React.FC<StatCardProps> = ({ title, value, icon, trend, trendUp, color = 'primary' }) => {
+    const colorClasses: Record<string, string> = {
+        primary: 'bg-primary-500/10 dark:bg-primary-500/20 text-primary-600 dark:text-primary-400',
+        indigo: 'bg-indigo-500/10 dark:bg-indigo-500/20 text-indigo-600 dark:text-indigo-400',
+        emerald: 'bg-emerald-500/10 dark:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400',
+        amber: 'bg-amber-500/10 dark:bg-amber-500/20 text-amber-600 dark:text-amber-400',
+    };
+
+    const currentColors = colorClasses[color] || colorClasses.primary;
+
     return (
         <motion.div
             whileHover={{ y: -4 }}
@@ -20,7 +29,7 @@ const StatCard: React.FC<StatCardProps> = ({ title, value, icon, trend, trendUp,
             <div className={`absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-primary-500/10 to-transparent -mr-16 -mt-16 rounded-full blur-2xl group-hover:scale-150 transition-transform duration-500`} />
 
             <div className="flex items-center justify-between mb-4 relative z-10">
-                <div className={`p-3 rounded-2xl bg-${color || 'primary'}-500/10 dark:bg-${color || 'primary'}-500/20 text-${color || 'primary'}-600 dark:text-${color || 'primary'}-400`}>
+                <div className={`p-3 rounded-2xl ${currentColors}`}>
                     {icon}
                 </div>
                 {trend && (

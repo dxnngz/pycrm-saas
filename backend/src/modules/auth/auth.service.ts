@@ -5,7 +5,12 @@ import { Prisma } from '@prisma/client';
 export class AuthService {
 
     async getUserByEmail(email: string) {
-        return await prisma.user.findUnique({ where: { email } });
+        // En Express 5 / Prisma 6, findUnique sobre un campo @unique (email) es la forma recomendada.
+        // Si el middleware de aislamiento inyectara tenant_id, aquí fallaría el login global,
+        // pero hemos configurado una excepción en prisma.ts para búsquedas de Auth.
+        return await prisma.user.findUnique({ 
+            where: { email } 
+        });
     }
 
     async getUserProfileById(id: number) {

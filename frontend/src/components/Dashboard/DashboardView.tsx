@@ -10,6 +10,7 @@ import { Button } from '../UI/Button';
 import { Tabs } from '../UI/Tabs';
 import { Skeleton } from '../UI/Skeleton';
 import { Badge } from '../UI/Badge';
+import { Card } from '../UI/Card';
 
 // Dashboard Components (Lazy Loaded)
 const SalesChart = lazy(() => import('./SalesChart'));
@@ -119,7 +120,7 @@ const DashboardView = () => {
 
             {/* Analysis Row */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <div className="lg:col-span-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg p-5 shadow-sm flex flex-col min-h-[400px]">
+                <Card className="lg:col-span-2 flex flex-col min-h-[400px]">
                     <div className="flex items-center justify-between mb-6">
                         <div>
                             <h3 className="text-[11px] font-bold text-slate-900 dark:text-white uppercase tracking-wider">Revenue Analysis</h3>
@@ -134,7 +135,7 @@ const DashboardView = () => {
                             <SalesChart data={stats.chartData} />
                         </Suspense>
                     </div>
-                </div>
+                </Card>
                 <div className="lg:col-span-1 space-y-6">
                     <SmartAlerts />
                     <ExecutiveBriefing />

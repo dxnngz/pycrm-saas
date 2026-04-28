@@ -12,6 +12,7 @@ import {
     ShieldAlert,
     type LucideIcon
 } from 'lucide-react';
+import { Card } from '../UI/Card';
 
 interface BriefingItem {
     id: string;
@@ -36,23 +37,23 @@ const ExecutiveBriefing: React.FC = () => {
 
     if (isLoading) {
         return (
-            <div className="bg-white dark:bg-slate-900 rounded-[3rem] p-8 border border-slate-100 dark:border-slate-800 shadow-sm min-h-[400px] flex items-center justify-center">
+            <Card className="min-h-[400px] flex items-center justify-center">
                 <div className="text-center space-y-3">
                     <Loader2 className="w-8 h-8 text-primary-500 animate-spin mx-auto" />
                     <p className="text-xs font-bold text-slate-500 uppercase tracking-widest">IA Generando Estrategia...</p>
                 </div>
-            </div>
+            </Card>
         );
     }
 
     const items: BriefingItem[] = data?.items || [];
 
     return (
-        <div className="bg-white dark:bg-slate-900 rounded-[3rem] p-8 border border-slate-100 dark:border-slate-800 shadow-sm premium-shadow shrink-0">
+        <Card className="premium-shadow shrink-0">
             <div className="flex items-center justify-between mb-8">
                 <div>
-                    <h3 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight flex items-center gap-3">
-                        <Zap size={28} className="text-primary-500 fill-primary-500/20" />
+                    <h3 className="text-lg font-bold text-slate-900 dark:text-white tracking-tight flex items-center gap-3 uppercase tracking-wider">
+                        <Zap size={20} className="text-primary-500 fill-primary-500/20" />
                         Briefing Ejecutivo
                     </h3>
                     <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mt-1">Sugerencias de IA en tiempo real</p>
@@ -70,11 +71,11 @@ const ExecutiveBriefing: React.FC = () => {
                             initial={{ opacity: 0, x: -20 }}
                             animate={{ opacity: 1, x: 0 }}
                             transition={{ delay: idx * 0.1 }}
-                            className="group relative p-5 rounded-3xl border border-slate-50 dark:border-slate-800/50 hover:bg-slate-50 dark:hover:bg-slate-800 transition-all cursor-pointer"
+                            className="group relative p-5 rounded-2xl border border-slate-50 dark:border-slate-800/50 hover:bg-slate-50 dark:hover:bg-slate-800 transition-all cursor-pointer"
                         >
                             <div className="flex gap-4">
-                                <div className={`w-12 h-12 rounded-2xl ${config.bg} ${config.color} flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform`}>
-                                    <Icon size={22} />
+                                <div className={`w-10 h-10 rounded-xl ${config.bg} ${config.color} flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform`}>
+                                    <Icon size={20} />
                                 </div>
                                 <div className="flex-1">
                                     <div className="flex items-center justify-between mb-1">
@@ -100,10 +101,10 @@ const ExecutiveBriefing: React.FC = () => {
                 )}
             </div>
 
-            <button className="w-full mt-6 py-4 rounded-2xl bg-slate-50 dark:bg-slate-800 text-slate-400 text-[10px] font-black uppercase tracking-widest hover:text-primary-500 hover:bg-primary-500/10 transition-all border border-transparent hover:border-primary-500/20">
+            <button className="w-full mt-6 py-4 rounded-xl bg-slate-50 dark:bg-slate-800 text-slate-400 text-[10px] font-black uppercase tracking-widest hover:text-primary-500 hover:bg-primary-500/10 transition-all border border-transparent hover:border-primary-500/20">
                 Ver Análisis Completo
             </button>
-        </div>
+        </Card>
     );
 };
 

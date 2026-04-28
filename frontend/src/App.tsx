@@ -144,7 +144,7 @@ const App: FC = () => {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <div className={`min-h-screen ${isDarkMode ? 'dark bg-slate-950' : 'bg-white'} font-sans selection:bg-primary-500/30 overflow-x-hidden`}>
+      <div className={`min-h-screen bg-slate-50 dark:bg-slate-950 font-sans selection:bg-primary-500/30 overflow-x-hidden transition-colors duration-200`}>
         <AnimatePresence>
           {isMobileMenuOpen && (
             <motion.div
