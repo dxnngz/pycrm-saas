@@ -63,7 +63,7 @@ export function VirtualTable<T>({
 
     return (
         <div
-            className="w-full border border-slate-200 dark:border-slate-800 rounded-lg overflow-hidden bg-white dark:bg-slate-900 shadow-sm flex flex-col focus-within:ring-1 focus-within:ring-primary-500/20"
+            className="w-full border border-slate-200 dark:border-slate-800 rounded-lg overflow-hidden bg-white dark:bg-slate-950 shadow-sm flex flex-col focus-within:ring-1 focus-within:ring-primary-500/20"
             role="grid"
             aria-label="Data Grid"
             aria-rowcount={data.length + 1}
@@ -71,7 +71,7 @@ export function VirtualTable<T>({
         >
             {/* Header - Sticky */}
             <div
-                className="flex items-center bg-slate-50 dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 flex-shrink-0 z-10"
+                className="sticky top-0 flex items-center bg-slate-50 dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 flex-shrink-0 z-20"
                 role="rowgroup"
             >
                 <div className="flex w-full" role="row">
@@ -93,7 +93,7 @@ export function VirtualTable<T>({
             {/* Virtualized Body */}
             <div
                 ref={parentRef}
-                className="overflow-auto custom-scrollbar focus:outline-none"
+                className="overflow-auto custom-scrollbar focus:outline-none bg-white dark:bg-slate-950"
                 style={{ height }}
                 role="rowgroup"
             >
@@ -120,7 +120,7 @@ export function VirtualTable<T>({
                                 role="row"
                                 aria-rowindex={virtualItem.index + 2}
                                 className={`absolute top-0 left-0 w-full flex items-center border-b border-slate-100 dark:border-slate-800 transition-colors hover:bg-slate-50 dark:hover:bg-slate-800 focus:bg-slate-50/50 dark:focus:bg-slate-800/50 focus:outline-none ${onRowClick ? 'cursor-pointer' : ''
-                                    } ${virtualItem.index % 2 === 0 ? 'bg-white dark:bg-slate-900' : 'bg-slate-50/50 dark:bg-slate-800/20'}`}
+                                    } ${virtualItem.index % 2 === 0 ? 'bg-slate-50/30 dark:bg-slate-900/50' : 'bg-white dark:bg-slate-950'}`}
                                 style={{
                                     height: `${virtualItem.size}px`,
                                     transform: `translateY(${virtualItem.start}px)`,

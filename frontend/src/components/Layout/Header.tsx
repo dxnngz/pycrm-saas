@@ -84,22 +84,25 @@ export const Header: React.FC<HeaderProps> = ({
                 </div>
 
                 {/* Preference Switchers */}
-                <div className="flex items-center gap-1 bg-slate-100 dark:bg-slate-900/50 p-1 rounded-lg border border-slate-200 dark:border-slate-800">
-                    <button
-                        onClick={() => setIsDenseMode()}
-                        className={`p-1.5 rounded-md transition-all ${isDenseMode ? 'bg-white dark:bg-slate-800 shadow-sm text-primary-600' : 'text-slate-400 hover:text-slate-600'}`}
-                        title="Toggle high density mode"
-                    >
-                        <AlignJustify size={14} />
-                    </button>
-                    <div className="w-px h-3 bg-slate-200 dark:bg-slate-800 mx-0.5" />
-                    <button
-                        onClick={() => setIsDarkMode(!isDarkMode)}
-                        className="p-1.5 text-slate-400 hover:text-slate-600 transition-colors"
-                        title="Toggle dark mode"
-                    >
-                        {isDarkMode ? <Sun size={14} /> : <Moon size={14} />}
-                    </button>
+                <div className="flex items-center gap-3">
+                    <span className="hidden md:block text-[10px] font-bold text-slate-400 uppercase tracking-widest bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded">v1.2.5-elite</span>
+                    <div className="flex items-center gap-1 bg-slate-100 dark:bg-slate-900/50 p-1 rounded-lg border border-slate-200 dark:border-slate-800">
+                        <button
+                            onClick={() => setIsDenseMode()}
+                            className={`p-1.5 rounded-md transition-all ${isDenseMode ? 'bg-white dark:bg-slate-800 shadow-sm text-primary-600' : 'text-slate-400 hover:text-slate-600'}`}
+                            title="Toggle high density mode"
+                        >
+                            <AlignJustify size={14} />
+                        </button>
+                        <div className="w-px h-3 bg-slate-200 dark:bg-slate-800 mx-0.5" />
+                        <button
+                            onClick={() => setIsDarkMode(!isDarkMode)}
+                            className="p-1.5 text-slate-400 hover:text-slate-600 transition-colors"
+                            title="Toggle dark mode"
+                        >
+                            {isDarkMode ? <Sun size={14} /> : <Moon size={14} />}
+                        </button>
+                    </div>
                 </div>
 
                 {/* Notifications */}
