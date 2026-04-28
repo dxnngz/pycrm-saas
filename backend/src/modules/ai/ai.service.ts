@@ -251,6 +251,50 @@ export class AIService {
         }
     }
 
+    async getExecutiveBriefing(tenantId: number) {
+        // Fetch critical CRM data for context
+        const [recentOpps, overdueTasks] = await Promise.all([
+            prisma.opportunity.findMany({
+                where: { tenant_id: tenantId, status: { notIn: ['ganado', 'perdido'] } },
+                orderBy: { amount: 'desc' },
+                take: 3,
+                include: { client: true }
+            }),
+            prisma.task.findMany({
+                where: { tenant_id: tenantId, completed: false, deadline: { lt: new Date() } },
+                take: 3
+            })
+        ]);
+
+        const prompt = `
+        Genera 3 sugerencias estratégicas (Briefing Ejecutivo) para el equipo de ventas.
+        Enfócate en maximizar ingresos y reactivar cuentas paradas.
+        
+        Datos:
+        Oportunidades: ${JSON.stringify(recentOpps.map(o => ({ p: o.product, a: o.amount, c: o.client?.name })))}
+        Tareas Vencidas: ${JSON.stringify(overdueTasks.map(t => ({ t: t.title, d: t.deadline })))}
+        
+        Devuelve estrictamente un JSON con este formato:
+        {
+            "items": [
+                { "id": "string", "type": "critical" | "opportunity" | "warning", "title": "string", "description": "string", "action": "string" }
+            ]
+        }`;
+
+        try {
+            const modelName = process.env.GROQ_API_KEY ? "llama-3.1-8b-instant" : "gpt-4o-mini";
+            const response = await this.openai.chat.completions.create({
+                model: modelName,
+                response_format: { type: "json_object" },
+                messages: [{ role: "system", content: "Eres un CRM Strategist Agent." }, { role: "user", content: prompt }]
+            });
+
+            return JSON.parse(response.choices[0].message.content || '{"items": []}');
+        } catch (error) {
+            return { items: [] };
+        }
+    }
+
     private mockLeadScore(opportunity: any) {
         let baseScore = 50;
         if (opportunity.status === 'ganado') baseScore += 40;

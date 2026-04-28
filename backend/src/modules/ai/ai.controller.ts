@@ -63,3 +63,9 @@ export const getSmartAlerts = asyncHandler(async (req: Request, res: Response) =
     const alerts = await aiService.getSmartAlerts(tenantId);
     res.json(alerts);
 });
+
+export const getExecutiveBriefing = asyncHandler(async (req: Request, res: Response) => {
+    const tenantId = req.user!.tenantId;
+    const briefing = await aiService.getExecutiveBriefing(tenantId);
+    res.json(briefing);
+});

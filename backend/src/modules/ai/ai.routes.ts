@@ -10,5 +10,6 @@ router.post('/copilot', aiController.askCopilot);
 router.get('/opportunity-score/:id', aiController.scoreOpportunity);
 router.get('/client-brief/:id', aiController.getClientBrief);
 router.get('/alerts', aiController.getSmartAlerts);
+router.get('/executive-briefing', aiController.getExecutiveBriefing);
 
 export default router;

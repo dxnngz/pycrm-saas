@@ -2,6 +2,7 @@ import { events } from '../../core/events.js';
 import { logger } from '../../utils/logger.js';
 import { prisma } from '../../core/prisma.js';
 import { taskService } from '../tasks/task.service.js';
+import { sendEmail } from '../../core/mailer.js';
 // Add more imports for actions (emails, webhooks, etc.) as the system grows
 
 export class AutomationEngine {
@@ -108,6 +109,14 @@ export class AutomationEngine {
                             due_date: new Date(Date.now() + 24 * 60 * 60 * 1000), // Tomorrow
                             priority: action.payload.priority || 'high',
                         }, payload.tenantId);
+                        break;
+
+                    case 'send_email':
+                        await sendEmail({
+                            to: this.parseTemplate(action.payload.to, payload.data),
+                            subject: this.parseTemplate(action.payload.subject, payload.data),
+                            html: this.parseTemplate(action.payload.body || '', payload.data)
+                        });
                         break;
 
                     case 'log':

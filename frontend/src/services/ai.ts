@@ -72,3 +72,12 @@ export const getOpportunityScore = async (opportunityId: number) => {
 
     return response.json();
 };
+
+export const getExecutiveBriefing = async () => {
+    const response = await fetch(`${API_URL}/ai/executive-briefing`, {
+        headers: getHeaders(),
+    });
+
+    if (!response.ok) throw new Error('Failed to fetch executive briefing');
+    return response.json();
+};

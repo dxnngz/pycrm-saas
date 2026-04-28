@@ -89,12 +89,45 @@ export class DashboardService {
         const { won = 0, closed = 0, avg_ticket = 0 } = metricsResult[0] || {};
         const conversionRate = Number(closed) > 0 ? (Number(won) / Number(closed)) * 100 : 0;
 
+        // 3. Rep Performance
+        const repPerformanceResult: any = await prisma.$queryRaw`
+            SELECT u.id, u.name, COALESCE(SUM(o.amount), 0) as total_sales
+            FROM users u
+            LEFT JOIN opportunities o ON u.id = o.assigned_to AND o.status = 'ganado' AND o.tenant_id = ${tenantId}
+            WHERE u.tenant_id = ${tenantId}
+            GROUP BY u.id, u.name
+            ORDER BY total_sales DESC
+            LIMIT 5
+        `;
+        const repPerformance = repPerformanceResult.map((r: any) => ({
+            id: r.id,
+            name: r.name,
+            total_sales: parseFloat(r.total_sales)
+        }));
+
+        // 4. Chart Data (Monthly trend for the last 6 months)
+        const chartDataResult: any = await prisma.$queryRaw`
+            SELECT 
+                TO_CHAR(created_at, 'Mon') as name,
+                SUM(amount) as sales,
+                TO_CHAR(created_at, 'YYYY-MM') as sort_key
+            FROM opportunities
+            WHERE tenant_id = ${tenantId} AND status = 'ganado'
+            AND created_at >= ${new Date(now.getFullYear(), now.getMonth() - 5, 1)}
+            GROUP BY TO_CHAR(created_at, 'Mon'), TO_CHAR(created_at, 'YYYY-MM')
+            ORDER BY sort_key ASC
+        `;
+        const chartData = chartDataResult.map((c: any) => ({
+            name: c.name,
+            sales: parseFloat(c.sales)
+        }));
+
         return {
             totalSales,
             conversionRate,
             averageTicket: Number(avg_ticket),
-            repPerformance: [], // Simplified for this snippet, but should include full logic
-            chartData: []
+            repPerformance,
+            chartData
         };
     }
 }
