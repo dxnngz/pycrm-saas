@@ -43,10 +43,6 @@ const sendTokenResponse = async (user: { id: number; name: string; email: string
 };
 
 export const register = asyncHandler(async (req: Request, res: Response) => {
-    console.log('[AUTH] Register request received:', { 
-        body: { ...req.body, password: '***' },
-        headers: req.headers 
-    });
     const { name, email, password, companyName } = req.body;
 
     if (!name || !email || !password || !companyName) {

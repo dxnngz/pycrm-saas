@@ -69,12 +69,6 @@ app.use(cors({
 
 app.use(requestIdMiddleware);
 
-// --- DEBUG MIDDLEWARE ---
-app.use((req, res, next) => {
-    console.log(`[INCOMING] ${req.method} ${req.url} - IP: ${req.ip}`);
-    next();
-});
-
 // Logging with Pino
 app.use(pinoHttp({
     level: process.env.NODE_ENV === 'development' ? 'info' : 'warn',
