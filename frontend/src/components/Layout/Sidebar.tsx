@@ -57,7 +57,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                         </div>
                         <button
                             onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
-                            className="hidden lg:flex text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors"
+                            className="hidden lg:flex text-surface-muted hover:text-surface-text transition-colors"
                         >
                             {sidebarCollapsed ? <PanelLeftOpen size={18} /> : <PanelLeftClose size={18} />}
                         </button>
@@ -94,7 +94,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                     <button
                         onClick={toggleDense}
                         title={isDense ? "Switch to Default UI" : "Switch to High Density UI"}
-                        className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all text-slate-500 hover:text-primary-600 dark:hover:text-primary-400 hover:bg-primary-50 dark:hover:bg-primary-500/10 mb-1"
+                        className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all text-surface-muted hover:text-primary-600 hover:bg-primary-50 dark:hover:bg-primary-500/10 mb-1"
                     >
                         {isDense ? <ZapOff size={18} /> : <Zap size={18} />}
                         {!sidebarCollapsed && <span className="text-xs font-medium">{isDense ? 'Standard View' : 'Dense View'}</span>}
@@ -106,8 +106,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
                             setIsMobileMenuOpen(false);
                         }}
                         className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all text-xs font-medium ${activeView === 'settings'
-                            ? 'bg-white dark:bg-slate-900 text-slate-900 dark:text-white font-bold ring-1 ring-slate-200 dark:ring-slate-800 shadow-sm'
-                            : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100'
+                            ? 'bg-surface-card text-surface-text font-bold ring-1 ring-surface-border shadow-sm border border-surface-border'
+                            : 'text-surface-muted hover:text-surface-text hover:bg-surface-hover'
                             }`}
                     >
                         <Settings size={18} className="flex-shrink-0" />
@@ -115,7 +115,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                     </button>
                     <button
                         onClick={onLogout}
-                        className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-500 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 transition-all text-xs font-medium"
+                        className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-surface-muted hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 transition-all text-xs font-medium"
                     >
                         <LogOut size={18} className="flex-shrink-0" />
                         {!sidebarCollapsed && <span>Log out</span>}

@@ -192,12 +192,12 @@ const ContactsView = () => {
             width: '35%',
             accessor: (client: Client) => (
                 <div className="flex items-center gap-3 py-1">
-                    <div className="w-8 h-8 rounded-md bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-[10px] font-bold text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-700">
+                    <div className="w-8 h-8 rounded-md bg-surface-muted-bg flex items-center justify-center text-[10px] font-bold text-surface-muted border border-surface-border">
                         {client.name.split(' ').map((n: string) => n[0]).join('')}
                     </div>
                     <div className="truncate">
-                        <div className="font-medium text-slate-900 dark:text-white truncate">{client.name}</div>
-                        <div className="text-[10px] text-slate-400">ID: #{client.id.toString().padStart(4, '0')}</div>
+                        <div className="font-medium text-surface-text truncate">{client.name}</div>
+                        <div className="text-[10px] text-surface-muted">ID: #{client.id.toString().padStart(4, '0')}</div>
                     </div>
                 </div>
             ),
@@ -213,11 +213,11 @@ const ContactsView = () => {
             width: '25%',
             accessor: (client: Client) => (
                 <div className="space-y-0.5 py-1 truncate">
-                    <div className="flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400 truncate">
+                    <div className="flex items-center gap-1.5 text-xs text-surface-muted truncate">
                         <Mail size={12} className="flex-shrink-0" /> {client.email}
                     </div>
                     {client.phone && (
-                        <div className="flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400 truncate">
+                        <div className="flex items-center gap-1.5 text-xs text-surface-muted truncate">
                             <Phone size={12} className="flex-shrink-0" /> {client.phone}
                         </div>
                     )}
@@ -248,7 +248,7 @@ const ContactsView = () => {
                             e.stopPropagation();
                             handleOpenTimeline(client);
                         }}
-                        className="p-1.5 text-slate-400 hover:text-slate-900 dark:hover:text-white rounded-md transition-colors"
+                        className="p-1.5 text-surface-muted hover:text-surface-text rounded-md transition-colors"
                         title="Timeline"
                     >
                         <History size={16} />
@@ -258,7 +258,7 @@ const ContactsView = () => {
                             e.stopPropagation();
                             handleViewBrief(client);
                         }}
-                        className="p-1.5 text-slate-400 hover:text-amber-500 dark:hover:text-amber-400 rounded-md transition-colors"
+                        className="p-1.5 text-surface-muted hover:text-amber-500 dark:hover:text-amber-400 rounded-md transition-colors"
                         title="AI Executive Brief"
                     >
                         <Sparkles size={16} />
@@ -268,7 +268,7 @@ const ContactsView = () => {
                             e.stopPropagation();
                             handleOpenModal(client);
                         }}
-                        className="p-1.5 text-slate-400 hover:text-primary-600 rounded-md transition-colors"
+                        className="p-1.5 text-surface-muted hover:text-primary-600 rounded-md transition-colors"
                         title="Edit"
                     >
                         <Edit2 size={16} />
@@ -279,7 +279,7 @@ const ContactsView = () => {
                                 e.stopPropagation();
                                 handleDeleteClient(client.id);
                             }}
-                            className="p-1.5 text-slate-400 hover:text-red-600 rounded-md transition-colors"
+                            className="p-1.5 text-surface-muted hover:text-red-600 rounded-md transition-colors"
                             title="Delete"
                         >
                             <Trash2 size={16} />
@@ -326,14 +326,14 @@ const ContactsView = () => {
         <div className="space-y-6">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
-                    <h1 className="text-xl font-bold text-slate-900 dark:text-white">Customers</h1>
-                    <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
+                    <h1 className="text-xl font-bold text-surface-text">Customers</h1>
+                    <p className="text-sm text-surface-muted mt-1">
                         Manage your client database and communication history.
                     </p>
                 </div>
                 <div className="flex flex-wrap items-center gap-3">
                     <div className="relative group w-full md:w-64">
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary-500 transition-colors" size={16} />
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-surface-muted group-focus-within:text-primary-500 transition-colors" size={16} />
                         <input
                             type="text"
                             placeholder="Search (Cmd+K)..."
@@ -544,18 +544,18 @@ const ContactsView = () => {
                 {isBriefLoading ? (
                     <div className="flex flex-col items-center justify-center py-12 gap-4">
                         <Loader2 className="w-8 h-8 text-primary-500 animate-spin" />
-                        <p className="text-sm text-slate-500 animate-pulse font-medium">Analyzing history and drafting brief...</p>
+                        <p className="text-sm text-surface-muted animate-pulse font-medium">Analyzing history and drafting brief...</p>
                     </div>
                 ) : (
                     <div className="prose prose-slate dark:prose-invert max-w-none text-sm">
-                        <div className="bg-amber-50/50 dark:bg-amber-900/10 border border-amber-200/50 dark:border-amber-800/30 rounded-xl p-6 text-slate-700 dark:text-slate-300 shadow-sm leading-relaxed">
+                        <div className="bg-amber-50/50 dark:bg-amber-900/10 border border-amber-200/50 dark:border-amber-800/30 rounded-xl p-6 text-surface-text shadow-sm leading-relaxed">
                             <ReactMarkdown
                                 components={{
-                                    h1: ({ ...props }) => <h1 className="text-lg font-bold text-slate-900 dark:text-white mb-4 flex items-center gap-2" {...props} />,
-                                    h2: ({ ...props }) => <h2 className="text-md font-bold text-slate-900 dark:text-white mt-4 mb-2 border-b border-slate-200 dark:border-slate-800 pb-1" {...props} />,
+                                    h1: ({ ...props }) => <h1 className="text-lg font-bold text-surface-text mb-4 flex items-center gap-2" {...props} />,
+                                    h2: ({ ...props }) => <h2 className="text-md font-bold text-surface-text mt-4 mb-2 border-b border-surface-border pb-1" {...props} />,
                                     ul: ({ ...props }) => <ul className="list-disc ml-4 space-y-1 my-2" {...props} />,
-                                    li: ({ ...props }) => <li className="text-slate-600 dark:text-slate-400" {...props} />,
-                                    strong: ({ ...props }) => <strong className="font-semibold text-slate-900 dark:text-white" {...props} />,
+                                    li: ({ ...props }) => <li className="text-surface-muted" {...props} />,
+                                    strong: ({ ...props }) => <strong className="font-semibold text-surface-text" {...props} />,
                                 }}
                             >
                                 {briefContent}

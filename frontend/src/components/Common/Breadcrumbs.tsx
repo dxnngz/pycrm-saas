@@ -11,7 +11,7 @@ interface BreadcrumbsProps {
 
 export const Breadcrumbs = ({ items }: BreadcrumbsProps) => {
     return (
-        <nav className="flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 dark:text-slate-500">
+        <nav className="flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] text-surface-muted">
             <div className="flex items-center gap-2 hover:text-primary-500 cursor-pointer transition-colors group">
                 <Home size={12} className="group-hover:scale-110 transition-transform" />
                 <span className="hidden sm:inline">Portal</span>
@@ -25,8 +25,8 @@ export const Breadcrumbs = ({ items }: BreadcrumbsProps) => {
                         disabled={!item.onClick}
                         className={`transition-colors ${item.onClick
                                 ? 'hover:text-primary-500 cursor-pointer'
-                                : 'cursor-default text-slate-900 dark:text-white'
-                            } ${index === items.length - 1 ? 'text-slate-900 dark:text-white' : ''}`}
+                                : 'cursor-default text-surface-text'
+                            } ${index === items.length - 1 ? 'text-surface-text' : ''}`}
                     >
                         {item.label}
                     </button>

@@ -60,7 +60,7 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({ onSubmit, isLoading,
                 variant="ghost"
                 fullWidth
                 onClick={onBack}
-                className="text-[10px] font-bold uppercase tracking-widest text-slate-500"
+                className="text-[10px] font-bold uppercase tracking-widest text-surface-muted"
             >
                 Already have an account? Sign in
             </Button>

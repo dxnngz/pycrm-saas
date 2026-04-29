@@ -107,7 +107,7 @@ export const CommandBar = ({ isOpen, onClose, onNavigate }: { isOpen: boolean, o
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
-                        className="fixed inset-0 bg-slate-950/60 backdrop-blur-md pointer-events-auto"
+                        className="fixed inset-0 bg-surface-text/60 backdrop-blur-md pointer-events-auto"
                         onClick={onClose}
                     />
 
@@ -115,19 +115,19 @@ export const CommandBar = ({ isOpen, onClose, onNavigate }: { isOpen: boolean, o
                         initial={{ opacity: 0, scale: 0.95, y: -20 }}
                         animate={{ opacity: 1, scale: 1, y: 0 }}
                         exit={{ opacity: 0, scale: 0.95, y: -20 }}
-                        className="w-full max-w-2xl overflow-hidden glass-card rounded-2xl shadow-2xl pointer-events-auto border border-white/10 flex flex-col"
+                        className="w-full max-w-2xl overflow-hidden glass-card rounded-2xl shadow-2xl pointer-events-auto flex flex-col"
                     >
-                        <div className="p-4 flex items-center gap-3 border-b border-white/10 shrink-0">
-                            <Search className="w-5 h-5 text-slate-400" />
+                        <div className="p-4 flex items-center gap-3 border-b border-surface-border shrink-0">
+                            <Search className="w-5 h-5 text-surface-muted" />
                             <input
                                 ref={inputRef}
                                 type="text"
                                 placeholder="Busca comandos, clientes o deja que la IA te ayude..."
-                                className="w-full bg-transparent border-none outline-none text-slate-100 placeholder:text-slate-500 text-lg"
+                                className="w-full bg-transparent border-none outline-none text-surface-text placeholder:text-surface-muted text-lg"
                                 value={query}
                                 onChange={(e) => handleSearch(e.target.value)}
                             />
-                            <div className="flex items-center gap-1 bg-white/5 px-2 py-1 rounded text-[10px] text-slate-400 font-mono">
+                            <div className="flex items-center gap-1 bg-surface-muted-bg/50 px-2 py-1 rounded text-[10px] text-surface-muted font-mono border border-surface-border">
                                 ESC
                             </div>
                         </div>
@@ -140,14 +140,14 @@ export const CommandBar = ({ isOpen, onClose, onNavigate }: { isOpen: boolean, o
                                             key={item.id}
                                             onClick={() => handleSelect(item)}
                                             onMouseEnter={() => setSelectedIndex(idx)}
-                                            className={`w-full flex items-center gap-3 p-3 rounded-xl transition-all text-left group ${selectedIndex === idx ? 'bg-white/10' : 'hover:bg-white/5'}`}
+                                            className={`w-full flex items-center gap-3 p-3 rounded-xl transition-all text-left group ${selectedIndex === idx ? 'bg-surface-hover' : 'hover:bg-surface-hover/50'}`}
                                         >
-                                            <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${selectedIndex === idx ? 'bg-indigo-500/20' : 'bg-white/5'}`}>
-                                                <item.icon className={`w-5 h-5 ${item.color || 'text-slate-400'}`} />
+                                            <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${selectedIndex === idx ? 'bg-indigo-500/20' : 'bg-surface-muted-bg/50'}`}>
+                                                <item.icon className={`w-5 h-5 ${item.color || 'text-surface-muted'}`} />
                                             </div>
                                             <div className="flex-1 min-w-0">
-                                                <div className="text-sm font-medium text-slate-100 truncate">{item.label}</div>
-                                                <div className="text-[10px] text-slate-500 uppercase tracking-widest">
+                                                <div className="text-sm font-medium text-surface-text truncate">{item.label}</div>
+                                                <div className="text-[10px] text-surface-muted uppercase tracking-widest">
                                                     {item.type === 'ai' ? 'Asistente IA' : item.id.includes('new') ? 'Acción Rápida' : 'Navegación'}
                                                 </div>
                                             </div>
@@ -162,22 +162,22 @@ export const CommandBar = ({ isOpen, onClose, onNavigate }: { isOpen: boolean, o
                             ) : query.length === 0 ? (
                                 <div className="p-4 space-y-6">
                                     <div className="space-y-3">
-                                        <div className="text-[10px] font-bold text-slate-500 uppercase tracking-widest px-2">Acciones Populares</div>
+                                        <div className="text-[10px] font-bold text-surface-muted uppercase tracking-widest px-2">Acciones Populares</div>
                                         <div className="grid grid-cols-2 gap-2">
                                             {QUICK_ACTIONS.map(action => (
-                                                <button key={action.id} onClick={() => handleSelect(action)} className="flex items-center gap-3 p-3 rounded-xl bg-white/5 hover:bg-white/10 transition-colors border border-white/5">
+                                                <button key={action.id} onClick={() => handleSelect(action)} className="flex items-center gap-3 p-3 rounded-xl bg-surface-muted-bg/50 hover:bg-surface-hover transition-colors border border-surface-border">
                                                     <action.icon className={`w-4 h-4 ${action.color}`} />
-                                                    <span className="text-xs text-slate-300">{action.label}</span>
+                                                    <span className="text-xs text-surface-text">{action.label}</span>
                                                 </button>
                                             ))}
                                         </div>
                                     </div>
 
                                     <div className="space-y-3">
-                                        <div className="text-[10px] font-bold text-slate-500 uppercase tracking-widest px-2">Navegación Recomendada</div>
+                                        <div className="text-[10px] font-bold text-surface-muted uppercase tracking-widest px-2">Navegación Recomendada</div>
                                         <div className="flex flex-wrap gap-2">
                                             {NAVIGATION.slice(0, 4).map(nav => (
-                                                <button key={nav.id} onClick={() => handleSelect(nav)} className="px-3 py-1.5 rounded-full bg-white/5 hover:bg-white/10 text-[11px] text-slate-400 transition-colors border border-white/5">
+                                                <button key={nav.id} onClick={() => handleSelect(nav)} className="px-3 py-1.5 rounded-full bg-surface-muted-bg/50 hover:bg-surface-hover text-[11px] text-surface-muted transition-colors border border-surface-border">
                                                     {nav.label}
                                                 </button>
                                             ))}
@@ -186,16 +186,16 @@ export const CommandBar = ({ isOpen, onClose, onNavigate }: { isOpen: boolean, o
                                 </div>
                             ) : (
                                 <div className="p-10 text-center space-y-2">
-                                    <div className="text-slate-300 font-medium">No se encontraron resultados</div>
-                                    <div className="text-slate-500 text-xs">Intenta con "leads", "facturas" o el nombre de un cliente</div>
+                                    <div className="text-surface-text font-medium">No se encontraron resultados</div>
+                                    <div className="text-surface-muted text-xs">Intenta con "leads", "facturas" o el nombre de un cliente</div>
                                 </div>
                             )}
                         </div>
 
-                        <div className="p-3 bg-slate-900/50 border-t border-white/5 flex items-center justify-between text-[10px] text-slate-500 shrink-0">
+                        <div className="p-3 bg-surface-muted-bg/30 border-t border-surface-border flex items-center justify-between text-[10px] text-surface-muted shrink-0">
                             <div className="flex gap-4">
-                                <span><span className="bg-white/10 px-1 rounded text-slate-400 mr-1">↑↓</span> Navegar</span>
-                                <span><span className="bg-white/10 px-1 rounded text-slate-400 mr-1">Enter</span> Seleccionar</span>
+                                <span><span className="bg-surface-card/30 px-1 rounded text-surface-muted mr-1 border border-surface-border">↑↓</span> Navegar</span>
+                                <span><span className="bg-surface-card/30 px-1 rounded text-surface-muted mr-1 border border-surface-border">Enter</span> Seleccionar</span>
                             </div>
                             <div className="flex items-center gap-1 text-indigo-400/80">
                                 <Zap className="w-3 h-3 fill-current" />

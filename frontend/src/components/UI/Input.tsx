@@ -34,7 +34,7 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
                 {label && (
                     <label
                         htmlFor={inputId}
-                        className={`block mb-1 ${isDense ? 'text-[10px]' : 'text-[11px]'} font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider`}
+                        className={`block mb-1 ${isDense ? 'text-[10px]' : 'text-[11px]'} font-bold text-surface-muted uppercase tracking-wider`}
                     >
                         {label}
                         {props.required && <span className="text-red-500 ml-1">*</span>}
@@ -42,7 +42,7 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
                 )}
                 <div className="relative">
                     {icon && iconPosition === 'left' && (
-                        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
+                        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-surface-muted">
                             {React.isValidElement(icon) ? React.cloneElement(icon as React.ReactElement<{ size?: number }>, { size: isDense ? 14 : 16 }) : icon}
                         </div>
                     )}
@@ -53,7 +53,7 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
                         className={`
                             w-full rounded-xl text-sm transition-all
                             bg-surface-input border border-surface-border text-surface-text
-                            placeholder:text-slate-400 dark:placeholder:text-slate-500
+                            placeholder:text-surface-muted
                             disabled:opacity-50 disabled:cursor-not-allowed
                             ${error ? 'border-red-500 focus:border-red-500 focus:ring-red-500/10' : 'focus:border-primary-500 focus:ring-primary-500/20'}
                             ${icon && iconPosition === 'left' ? 'pl-10' : 'pl-4'}
@@ -66,7 +66,7 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
                         {...props}
                     />
                     {icon && iconPosition === 'right' && (
-                        <div className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400">
+                        <div className="absolute inset-y-0 right-0 pr-3 flex items-center text-surface-muted">
                             {icon}
                         </div>
                     )}
@@ -77,7 +77,7 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
                     </p>
                 )}
                 {helperText && !error && (
-                    <p id={`${inputId}-helper`} className="mt-1.5 text-sm text-slate-500 dark:text-slate-400">
+                    <p id={`${inputId}-helper`} className="mt-1.5 text-sm text-surface-muted">
                         {helperText}
                     </p>
                 )}

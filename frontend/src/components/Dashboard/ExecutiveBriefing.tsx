@@ -40,7 +40,7 @@ const ExecutiveBriefing: React.FC = () => {
             <Card className="min-h-[400px] flex items-center justify-center">
                 <div className="text-center space-y-3">
                     <Loader2 className="w-8 h-8 text-primary-500 animate-spin mx-auto" />
-                    <p className="text-xs font-bold text-slate-500 uppercase tracking-widest">IA Generando Estrategia...</p>
+                    <p className="text-xs font-bold text-surface-muted uppercase tracking-widest">IA Generando Estrategia...</p>
                 </div>
             </Card>
         );
@@ -52,11 +52,11 @@ const ExecutiveBriefing: React.FC = () => {
         <Card className="premium-shadow shrink-0">
             <div className="flex items-center justify-between mb-8">
                 <div>
-                    <h3 className="text-lg font-bold text-slate-900 dark:text-white tracking-tight flex items-center gap-3 uppercase tracking-wider">
+                    <h3 className="text-lg font-bold text-surface-text tracking-tight flex items-center gap-3 uppercase tracking-wider">
                         <Zap size={20} className="text-primary-500 fill-primary-500/20" />
                         Briefing Ejecutivo
                     </h3>
-                    <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mt-1">Sugerencias de IA en tiempo real</p>
+                    <p className="text-[10px] font-black text-surface-muted uppercase tracking-widest mt-1">Sugerencias de IA en tiempo real</p>
                 </div>
             </div>
 
@@ -79,10 +79,10 @@ const ExecutiveBriefing: React.FC = () => {
                                 </div>
                                 <div className="flex-1">
                                     <div className="flex items-center justify-between mb-1">
-                                        <h4 className="font-bold text-slate-900 dark:text-white text-sm tracking-tight">{item.title}</h4>
+                                        <h4 className="font-bold text-surface-text text-sm tracking-tight">{item.title}</h4>
                                         <span className={`text-[9px] font-black uppercase tracking-widest ${config.color}`}>{item.type}</span>
                                     </div>
-                                    <p className="text-xs text-slate-500 dark:text-slate-400 font-medium leading-relaxed mb-3">
+                                    <p className="text-xs text-surface-muted font-medium leading-relaxed mb-3">
                                         {item.description}
                                     </p>
                                     <button className="flex items-center gap-2 text-[10px] font-black text-primary-600 dark:text-primary-400 uppercase tracking-widest group-hover:gap-3 transition-all">
@@ -95,8 +95,8 @@ const ExecutiveBriefing: React.FC = () => {
                     );
                 }) : (
                     <div className="py-12 text-center opacity-50">
-                        <ShieldAlert className="w-10 h-10 mx-auto mb-3 text-slate-300" />
-                        <p className="text-xs font-bold text-slate-500 uppercase tracking-widest">Sin sugerencias estratégicas actuales</p>
+                        <ShieldAlert className="w-10 h-10 mx-auto mb-3 text-surface-muted/50" />
+                        <p className="text-xs font-bold text-surface-muted uppercase tracking-widest">Sin sugerencias estratégicas actuales</p>
                     </div>
                 )}
             </div>

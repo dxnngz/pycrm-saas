@@ -32,7 +32,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onSubmit, isLoading, onFor
             />
             <div className="space-y-1">
                 <div className="flex items-center justify-between mb-1">
-                    <label className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                    <label className="text-[11px] font-bold text-surface-muted uppercase tracking-wider">
                         Password
                     </label>
                     <button
@@ -54,7 +54,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onSubmit, isLoading, onFor
                     <button
                         type="button"
                         onClick={() => setShowPassword(!showPassword)}
-                        className="absolute right-3 top-2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
+                        className="absolute right-3 top-2 text-surface-muted hover:text-surface-text"
                     >
                         {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                     </button>

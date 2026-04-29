@@ -98,12 +98,12 @@ const ProductsView = () => {
       width: '40%',
       accessor: (product: Product) => (
         <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-md bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-600 dark:text-slate-400 font-bold border border-slate-200 dark:border-slate-700 uppercase">
+          <div className="w-8 h-8 rounded-md bg-surface-muted-bg flex items-center justify-center text-surface-muted font-bold border border-surface-border uppercase">
             {product.name.charAt(0)}
           </div>
           <div className="truncate">
-            <div className="font-medium text-slate-900 dark:text-white leading-tight truncate">{product.name}</div>
-            {product.description && <div className="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5 truncate">{product.description}</div>}
+            <div className="font-medium text-surface-text leading-tight truncate">{product.name}</div>
+            {product.description && <div className="text-[10px] text-surface-muted mt-0.5 truncate">{product.description}</div>}
           </div>
         </div>
       ),
@@ -121,7 +121,7 @@ const ProductsView = () => {
       header: 'Unit Price',
       width: '25%',
       accessor: (product: Product) => (
-        <span className="font-medium text-slate-900 dark:text-white tabular-nums">
+        <span className="font-medium text-surface-text tabular-nums">
           {new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(Number(product.price))}
         </span>
       ),
@@ -132,10 +132,10 @@ const ProductsView = () => {
       align: 'right',
       accessor: (product: Product) => (
         <div className="flex items-center justify-end gap-1">
-          <button className="p-1.5 text-slate-400 hover:text-primary-600 rounded-md transition-colors">
+          <button className="p-1.5 text-surface-muted hover:text-primary-600 rounded-md transition-colors">
             <Edit2 size={16} />
           </button>
-          <button onClick={() => handleDelete(product.id)} className="p-1.5 text-slate-400 hover:text-red-600 rounded-md transition-colors">
+          <button onClick={() => handleDelete(product.id)} className="p-1.5 text-surface-muted hover:text-red-600 rounded-md transition-colors">
             <Trash2 size={16} />
           </button>
         </div>
@@ -148,21 +148,21 @@ const ProductsView = () => {
       {/* ... (Header remains the same) */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-xl font-bold text-slate-900 dark:text-white">Product Catalog</h1>
-          <p className="text-sm text-slate-500 dark:text-slate-400 mt-1 flex items-center gap-1.5">
+          <h1 className="text-xl font-bold text-surface-text">Product Catalog</h1>
+          <p className="text-sm text-surface-muted mt-1 flex items-center gap-1.5">
             <Package size={14} className="text-primary-500" />
             Manage your inventory and commercial services.
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-3">
           <div className="relative group w-full md:w-64">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary-500 transition-colors" size={16} />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-surface-muted group-focus-within:text-primary-500 transition-colors" size={16} />
             <input
               type="text"
               placeholder="Search products..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="w-full h-10 pl-10 pr-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all shadow-sm"
+              className="w-full h-10 pl-10 pr-4 bg-surface-input border border-surface-border rounded-lg text-sm text-surface-text placeholder:text-surface-muted focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all shadow-sm"
             />
           </div>
           <Button variant="primary" size="md" onClick={() => setIsModalOpen(true)}>
@@ -174,35 +174,35 @@ const ProductsView = () => {
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {/* ... (Stats remain the same) */}
-        <div className="bg-white dark:bg-slate-900 p-4 rounded-lg border border-slate-200 dark:border-slate-800 flex items-center gap-4">
+        <div className="bg-surface-card p-4 rounded-lg border border-surface-border flex items-center gap-4">
           <div className="w-10 h-10 bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 rounded-md flex items-center justify-center">
             <Tag size={20} />
           </div>
           <div>
-            <p className="text-[10px] text-slate-500 dark:text-slate-400 font-bold uppercase tracking-wider">Total Items</p>
-            <p className="text-xl font-bold text-slate-900 dark:text-white tabular-nums">{totalItems}</p>
+            <p className="text-[10px] text-surface-muted font-bold uppercase tracking-wider">Total Items</p>
+            <p className="text-xl font-bold text-surface-text tabular-nums">{totalItems}</p>
           </div>
         </div>
 
-        <div className="bg-white dark:bg-slate-900 p-4 rounded-lg border border-slate-200 dark:border-slate-800 flex items-center gap-4">
+        <div className="bg-surface-card p-4 rounded-lg border border-surface-border flex items-center gap-4">
           <div className="w-10 h-10 bg-primary-50 dark:bg-primary-500/10 text-primary-600 dark:text-primary-400 rounded-md flex items-center justify-center">
             <BarChart2 size={20} />
           </div>
           <div>
-            <p className="text-[10px] text-slate-500 dark:text-slate-400 font-bold uppercase tracking-wider">Avg. Price</p>
-            <p className="text-xl font-bold text-slate-900 dark:text-white tabular-nums">
+            <p className="text-[10px] text-surface-muted font-bold uppercase tracking-wider">Avg. Price</p>
+            <p className="text-xl font-bold text-surface-text tabular-nums">
               {new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(avgPrice)}
             </p>
           </div>
         </div>
 
-        <div className="bg-white dark:bg-slate-900 p-4 rounded-lg border border-slate-200 dark:border-slate-800 flex items-center gap-4">
+        <div className="bg-surface-card p-4 rounded-lg border border-surface-border flex items-center gap-4">
           <div className="w-10 h-10 bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 rounded-md flex items-center justify-center">
             <Filter size={20} />
           </div>
           <div>
-            <p className="text-[10px] text-slate-500 dark:text-slate-400 font-bold uppercase tracking-wider">Categories</p>
-            <p className="text-xl font-bold text-slate-900 dark:text-white tabular-nums">{uniqueCategories}</p>
+            <p className="text-[10px] text-surface-muted font-bold uppercase tracking-wider">Categories</p>
+            <p className="text-xl font-bold text-surface-text tabular-nums">{uniqueCategories}</p>
           </div>
         </div>
       </div>

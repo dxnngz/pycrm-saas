@@ -39,7 +39,7 @@ export const ConfirmModal = ({
                         <AlertTriangle size={24} />
                     </div>
                     <div>
-                        <p className="text-slate-600 dark:text-slate-400 font-medium leading-relaxed">
+                        <p className="text-surface-muted font-medium leading-relaxed">
                             {message}
                         </p>
                     </div>
@@ -48,14 +48,14 @@ export const ConfirmModal = ({
                 <div className="flex gap-3">
                     <button
                         onClick={onClose}
-                        className="flex-1 py-4 bg-slate-100 dark:bg-slate-900 text-slate-600 dark:text-slate-400 rounded-2-xl font-black text-xs uppercase tracking-widest hover:bg-slate-200 dark:hover:bg-slate-800 transition-all"
+                        className="flex-1 py-4 bg-surface-muted-bg text-surface-muted rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-surface-hover transition-all border border-surface-border"
                     >
                         Cancelar
                     </button>
                     <button
                         onClick={onConfirm}
                         disabled={isLoading}
-                        className={`flex-1 py-4 rounded-2-xl font-black text-xs uppercase tracking-widest transition-all shadow-xl ${variant === 'danger' ? 'bg-rose-600 text-white shadow-rose-600/20 hover:bg-rose-700' :
+                        className={`flex-1 py-4 rounded-2xl font-black text-xs uppercase tracking-widest transition-all shadow-xl ${variant === 'danger' ? 'bg-rose-600 text-white shadow-rose-600/20 hover:bg-rose-700' :
                                 variant === 'warning' ? 'bg-amber-500 text-white shadow-amber-500/20 hover:bg-amber-600' :
                                     'bg-primary-600 text-white shadow-primary-600/20 hover:bg-primary-700'
                             }`}

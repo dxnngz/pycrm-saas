@@ -38,11 +38,11 @@ const OpportunityCard = memo(({
 }) => {
     return (
         <div
-            className="bg-white dark:bg-slate-900 p-4 rounded-lg border border-slate-200 dark:border-slate-800 shadow-sm hover:border-primary-500/50 transition-all cursor-grab active:cursor-grabbing group"
+            className="bg-surface-card p-4 rounded-lg border border-surface-border shadow-sm hover:border-primary-500/50 transition-all cursor-grab active:cursor-grabbing group"
         >
             <div className="flex flex-col gap-2 mb-3">
                 <div className="flex items-center justify-between">
-                    <span className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">{opp.client_company}</span>
+                    <span className="text-[10px] font-bold text-surface-muted uppercase tracking-wider">{opp.client_company}</span>
                     {opp.status === 'pendiente' && scores[opp.id] && (
                         <div className="flex items-center gap-1 text-[10px] font-semibold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-500/10 px-1.5 py-0.5 rounded border border-emerald-500/20">
                             <TrendingUp size={10} />
@@ -50,17 +50,17 @@ const OpportunityCard = memo(({
                         </div>
                     )}
                 </div>
-                <h4 className="font-semibold text-slate-900 dark:text-white text-sm leading-snug group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors uppercase tracking-tight">{opp.product}</h4>
+                <h4 className="font-semibold text-surface-text text-sm leading-snug group-hover:text-primary-600 transition-colors uppercase tracking-tight">{opp.product}</h4>
                 <div className="flex items-center gap-2">
-                    <div className="w-5 h-5 bg-slate-100 dark:bg-slate-800 rounded flex items-center justify-center text-[10px] font-bold text-slate-500 border border-slate-200 dark:border-slate-700">
+                    <div className="w-5 h-5 bg-surface-muted-bg rounded flex items-center justify-center text-[10px] font-bold text-surface-muted border border-surface-border">
                         {opp.client_name?.charAt(0)}
                     </div>
-                    <p className="text-[11px] text-slate-500 dark:text-slate-400">{opp.client_name}</p>
+                    <p className="text-[11px] text-surface-muted">{opp.client_name}</p>
                 </div>
             </div>
 
-            <div className="flex items-center justify-between pt-3 border-t border-slate-100 dark:border-slate-800/50">
-                <div className="text-sm font-bold text-slate-900 dark:text-white tabular-nums">
+            <div className="flex items-center justify-between pt-3 border-t border-surface-border">
+                <div className="text-sm font-bold text-surface-text tabular-nums">
                     {new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(Number(opp.amount))}
                 </div>
 
@@ -69,14 +69,14 @@ const OpportunityCard = memo(({
                         <>
                             <button
                                 onClick={() => onUpdateStatus(opp.id, 'ganado')}
-                                className="p-1.5 text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-500/10 rounded transition-colors"
+                                className="p-1.5 text-surface-muted hover:text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-500/10 rounded transition-colors"
                                 title="Mark as Won"
                             >
                                 <Check size={14} />
                             </button>
                             <button
                                 onClick={() => onUpdateStatus(opp.id, 'perdido')}
-                                className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-500/10 rounded transition-colors"
+                                className="p-1.5 text-surface-muted hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-500/10 rounded transition-colors"
                                 title="Mark as Lost"
                             >
                                 <X size={14} />
@@ -86,7 +86,7 @@ const OpportunityCard = memo(({
                     {canEditOpportunity && opp.status !== 'pendiente' && (
                         <button
                             onClick={() => onUpdateStatus(opp.id, 'pendiente')}
-                            className="text-[10px] font-bold text-slate-400 hover:text-primary-600 transition-colors uppercase"
+                            className="text-[10px] font-bold text-surface-muted hover:text-primary-600 transition-colors uppercase"
                         >
                             Reopen
                         </button>
@@ -135,7 +135,7 @@ const VirtualColumnBody = ({
                 (parentRef as React.MutableRefObject<HTMLDivElement | null>).current = el;
             }}
             {...(p.droppableProps as Record<string, unknown>)}
-            className={`flex-1 overflow-y-auto custom-scrollbar p-3 rounded-lg border transition-colors min-h-[400px] ${(s.isDraggingOver as boolean) ? 'bg-slate-50 dark:bg-slate-800/50 border-primary-500/30' : 'bg-slate-50/30 dark:bg-slate-900/10 border-slate-200 dark:border-slate-800'}`}
+            className={`flex-1 overflow-y-auto custom-scrollbar p-3 rounded-lg border transition-colors min-h-[400px] ${(s.isDraggingOver as boolean) ? 'bg-surface-hover border-primary-500/30' : 'bg-surface-muted-bg/30 border-surface-border'}`}
         >
             <div
                 style={{
@@ -310,21 +310,21 @@ const PipelineView = () => {
     const columnConfig = [
         { id: 'pendiente' as const, title: 'Pipeline', color: 'bg-primary-500' },
         { id: 'ganado' as const, title: 'Won', color: 'bg-emerald-500' },
-        { id: 'perdido' as const, title: 'Lost', color: 'bg-slate-500' }
+        { id: 'perdido' as const, title: 'Lost', color: 'bg-surface-muted' }
     ];
 
     return (
         <div className="flex flex-col gap-6 h-[calc(100vh-140px)]">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
-                    <h1 className="text-xl font-bold text-slate-900 dark:text-white">Sales Pipeline</h1>
-                    <p className="text-sm text-slate-500 dark:text-slate-400 mt-1 flex items-center gap-1.5">
+                    <h1 className="text-xl font-bold text-surface-text">Sales Pipeline</h1>
+                    <p className="text-sm text-surface-muted mt-1 flex items-center gap-1.5">
                         <ShieldCheck size={14} className="text-emerald-500" />
                         AI-powered opportunity tracking and forecasting.
                     </p>
                 </div>
                 <div className="flex flex-wrap items-center gap-3">
-                    <div className="flex items-center bg-slate-100 dark:bg-slate-800 p-1 rounded-lg border border-slate-200 dark:border-slate-700">
+                    <div className="flex items-center bg-surface-muted-bg p-1 rounded-lg border border-surface-border">
                         {[
                             { id: 'all', label: 'All', icon: Briefcase },
                             { id: 'high-value', label: 'High Value', icon: TrendingUp },
@@ -335,7 +335,7 @@ const PipelineView = () => {
                                 key={f.id}
                                 onClick={() => setActiveFilter(f.id as typeof activeFilter)}
                                 className={`px-3 py-1.5 rounded-md text-[11px] font-bold transition-all flex items-center gap-1.5 ${activeFilter === f.id
-                                    ? 'bg-white dark:bg-slate-900 text-slate-900 dark:text-white shadow-sm border border-slate-200 dark:border-slate-700' : 'text-slate-400 hover:text-slate-600 dark:hover:text-slate-300'}`}
+                                    ? 'bg-surface-card text-surface-text shadow-sm border border-surface-border' : 'text-surface-muted hover:text-surface-text'}`}
                             >
                                 <f.icon size={12} />
                                 {f.label}
@@ -344,13 +344,13 @@ const PipelineView = () => {
                     </div>
 
                     <div className="relative group w-full md:w-64">
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary-500 transition-colors" size={16} />
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-surface-muted group-focus-within:text-primary-500 transition-colors" size={16} />
                         <input
                             type="text"
                             placeholder="Search opportunities..."
                             value={search}
                             onChange={(e) => setSearch(e.target.value)}
-                            className="w-full h-10 pl-10 pr-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all shadow-sm"
+                            className="w-full h-10 pl-10 pr-4 bg-surface-input border border-surface-border rounded-lg text-sm text-surface-text placeholder:text-surface-muted focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all shadow-sm"
                         />
                     </div>
                     {canCreateOpportunity && (
@@ -373,12 +373,12 @@ const PipelineView = () => {
                             <div className="flex items-center justify-between px-2">
                                 <div className="flex items-center gap-2">
                                     <div className={`w-2 h-2 rounded-full ${column.color}`}></div>
-                                    <h3 className="font-bold text-slate-500 dark:text-slate-400 uppercase text-[10px] tracking-wider">{column.title}</h3>
+                                    <h3 className="font-bold text-surface-muted uppercase text-[10px] tracking-wider">{column.title}</h3>
                                     <Badge variant="secondary">
                                         {safeOpportunities.filter(o => o.status === column.id).length}
                                     </Badge>
                                 </div>
-                                <button className="text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors">
+                                <button className="text-surface-muted hover:text-surface-text transition-colors">
                                     <MoreVertical size={16} />
                                 </button>
                             </div>
@@ -389,9 +389,9 @@ const PipelineView = () => {
 
                                     if (loading) {
                                         return (
-                                            <div className="space-y-3 p-3 bg-slate-50/30 dark:bg-slate-900/10 border border-slate-200 dark:border-slate-800 rounded-lg flex-1">
+                                            <div className="space-y-3 p-3 bg-surface-muted-bg/30 border border-surface-border rounded-lg flex-1">
                                                 {[1, 2, 3].map(i => (
-                                                    <div key={i} className="h-24 bg-white dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-800 animate-pulse"></div>
+                                                    <div key={i} className="h-24 bg-surface-card rounded-lg border border-surface-border animate-pulse"></div>
                                                 ))}
                                             </div>
                                         );
@@ -402,7 +402,7 @@ const PipelineView = () => {
                                             <div
                                                 ref={provided.innerRef}
                                                 {...provided.droppableProps}
-                                                className={`flex-1 flex flex-col items-center justify-center text-slate-400 dark:text-slate-600 border border-dashed border-slate-200 dark:border-slate-800 rounded-lg bg-white/50 dark:bg-slate-900/50 h-32 ${snapshot.isDraggingOver ? 'bg-slate-50 dark:bg-slate-800/50' : ''}`}
+                                                className={`flex-1 flex flex-col items-center justify-center text-surface-muted border border-dashed border-surface-border rounded-lg bg-surface-card/50 h-32 ${snapshot.isDraggingOver ? 'bg-surface-hover' : ''}`}
                                             >
                                                 <Target size={24} className="mb-2 opacity-20" />
                                                 <p className="text-[10px] font-bold uppercase tracking-wider opacity-60">No deals</p>

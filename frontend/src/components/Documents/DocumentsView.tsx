@@ -194,30 +194,30 @@ const DocumentsView = () => {
             <Clock size={20} />
           </div>
           <div>
-            <p className="text-[10px] text-slate-500 dark:text-slate-400 font-bold uppercase tracking-wider">Pending</p>
-            <p className="text-xl font-bold text-slate-900 dark:text-white tabular-nums">{pendingDocs}</p>
+            <p className="text-[10px] text-surface-muted font-bold uppercase tracking-wider">Pending</p>
+            <p className="text-xl font-bold text-surface-text tabular-nums">{pendingDocs}</p>
           </div>
         </div>
 
-        <div className="bg-white dark:bg-slate-900 p-4 rounded-lg border border-slate-200 dark:border-slate-800 flex items-center gap-4 shadow-sm">
+        <div className="bg-surface-card p-4 rounded-lg border border-surface-border flex items-center gap-4 shadow-sm">
           <div className="w-10 h-10 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400 rounded-md flex items-center justify-center">
             <CheckCircle size={20} />
           </div>
           <div>
-            <p className="text-[10px] text-slate-500 dark:text-slate-400 font-bold uppercase tracking-wider">Paid / Signed</p>
-            <p className="text-xl font-bold text-slate-900 dark:text-white tabular-nums">
+            <p className="text-[10px] text-surface-muted font-bold uppercase tracking-wider">Paid / Signed</p>
+            <p className="text-xl font-bold text-surface-text tabular-nums">
               {new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(paidMothAmount)}
             </p>
           </div>
         </div>
 
-        <div className="bg-white dark:bg-slate-900 p-4 rounded-lg border border-slate-200 dark:border-slate-800 flex items-center gap-4 shadow-sm">
+        <div className="bg-surface-card p-4 rounded-lg border border-surface-border flex items-center gap-4 shadow-sm">
           <div className="w-10 h-10 bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400 rounded-md flex items-center justify-center">
             <FileCode size={20} />
           </div>
           <div>
-            <p className="text-[10px] text-slate-500 dark:text-slate-400 font-bold uppercase tracking-wider">Quotes Issued</p>
-            <p className="text-xl font-bold text-slate-900 dark:text-white tabular-nums">{quotesCount}</p>
+            <p className="text-[10px] text-surface-muted font-bold uppercase tracking-wider">Quotes Issued</p>
+            <p className="text-xl font-bold text-surface-text tabular-nums">{quotesCount}</p>
           </div>
         </div>
       </div>

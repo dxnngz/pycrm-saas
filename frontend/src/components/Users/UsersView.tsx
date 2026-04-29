@@ -59,17 +59,17 @@ const UsersView = () => {
             header: 'Identity',
             accessor: (user: User) => (
                 <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-md bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-[10px] font-bold text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-700">
+                    <div className="w-8 h-8 rounded-md bg-surface-muted-bg flex items-center justify-center text-[10px] font-bold text-surface-muted border border-surface-border">
                         {user.name.charAt(0)}
                     </div>
-                    <div className="font-medium text-slate-900 dark:text-white">{user.name}</div>
+                    <div className="font-medium text-surface-text">{user.name}</div>
                 </div>
             ),
         },
         {
             header: 'Corporate Email',
             accessor: 'email',
-            className: 'text-slate-500 dark:text-slate-400',
+            className: 'text-surface-muted',
         },
         {
             header: 'Access Level',
@@ -91,7 +91,7 @@ const UsersView = () => {
             accessor: (user: User) => (
                 <button
                     onClick={() => handleDeleteUser(user.id)}
-                    className="p-1.5 text-slate-400 hover:text-red-600 rounded-md transition-colors"
+                    className="p-1.5 text-surface-muted hover:text-red-600 rounded-md transition-colors"
                 >
                     <Trash2 size={16} />
                 </button>
@@ -103,8 +103,8 @@ const UsersView = () => {
         <div className="space-y-6">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
-                    <h1 className="text-xl font-bold text-slate-900 dark:text-white">User Management</h1>
-                    <p className="text-sm text-slate-500 dark:text-slate-400 mt-1 flex items-center gap-1.5">
+                    <h1 className="text-xl font-bold text-surface-text">User Management</h1>
+                    <p className="text-sm text-surface-muted mt-1 flex items-center gap-1.5">
                         <Shield size={14} className="text-primary-500" />
                         Role-Based Access Control (RBAC) - Administrator View
                     </p>

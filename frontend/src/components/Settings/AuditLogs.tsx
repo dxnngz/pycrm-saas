@@ -45,40 +45,40 @@ export const AuditLogs = () => {
         <div className="space-y-6 animate-in fade-in duration-500">
             <div className="flex items-center justify-between">
                 <div>
-                    <h3 className="text-sm font-bold text-slate-900 dark:text-white uppercase tracking-wider flex items-center gap-2">
+                    <h3 className="text-sm font-bold text-surface-text uppercase tracking-wider flex items-center gap-2">
                         <History size={16} className="text-primary-500" />
                         Enterprise Activity Log
                     </h3>
-                    <p className="text-[10px] text-slate-500 dark:text-slate-400 font-bold uppercase mt-1">Immutable record of system mutations</p>
+                    <p className="text-[10px] text-surface-muted font-bold uppercase mt-1">Immutable record of system mutations</p>
                 </div>
-                <Badge variant="info" className="text-[9px] px-2 py-0.5 border-slate-200 dark:border-slate-800">
+                <Badge variant="info" className="text-[9px] px-2 py-0.5 border-surface-border">
                     Retention: 90 Days
                 </Badge>
             </div>
 
-            <div className="bg-slate-50 dark:bg-slate-800/20 rounded-xl border border-slate-100 dark:border-slate-800 overflow-hidden">
+            <div className="bg-surface-muted-bg/40 rounded-xl border border-surface-border overflow-hidden">
                 <table className="w-full text-left border-collapse">
                     <thead>
-                        <tr className="border-b border-slate-100 dark:border-slate-800/50 bg-white/50 dark:bg-white/5">
-                            <th className="px-4 py-3 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Event</th>
-                            <th className="px-4 py-3 text-[10px] font-bold text-slate-400 uppercase tracking-widest text-center">Action</th>
-                            <th className="px-4 py-3 text-[10px] font-bold text-slate-400 uppercase tracking-widest">User</th>
-                            <th className="px-4 py-3 text-[10px] font-bold text-slate-400 uppercase tracking-widest text-right">Timestamp</th>
+                        <tr className="border-b border-surface-border bg-surface-card/50">
+                            <th className="px-4 py-3 text-[10px] font-bold text-surface-muted uppercase tracking-widest">Event</th>
+                            <th className="px-4 py-3 text-[10px] font-bold text-surface-muted uppercase tracking-widest text-center">Action</th>
+                            <th className="px-4 py-3 text-[10px] font-bold text-surface-muted uppercase tracking-widest">User</th>
+                            <th className="px-4 py-3 text-[10px] font-bold text-surface-muted uppercase tracking-widest text-right">Timestamp</th>
                         </tr>
                     </thead>
-                    <tbody className="divide-y divide-slate-100 dark:divide-slate-800/50">
+                    <tbody className="divide-y divide-surface-border/60">
                         {logs?.map((log) => (
-                            <tr key={log.id} className="hover:bg-white/40 dark:hover:bg-white/5 transition-colors group">
+                            <tr key={log.id} className="hover:bg-surface-hover/50 transition-colors group">
                                 <td className="px-4 py-4">
                                     <div className="flex items-center gap-3">
-                                        <div className="p-2 rounded-lg bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 text-slate-400 group-hover:text-primary-500 transition-colors">
+                                        <div className="p-2 rounded-lg bg-surface-card border border-surface-border text-surface-muted group-hover:text-primary-500 transition-colors">
                                             <Activity size={14} />
                                         </div>
                                         <div>
-                                            <p className="text-xs font-bold text-slate-900 dark:text-white leading-none">
-                                                {log.entity} <span className="text-[10px] text-slate-500 font-mono ml-1">#{log.entity_id}</span>
+                                            <p className="text-xs font-bold text-surface-text leading-none">
+                                                {log.entity} <span className="text-[10px] text-surface-muted font-mono ml-1">#{log.entity_id}</span>
                                             </p>
-                                            <p className="text-[10px] text-slate-400 mt-1 max-w-[200px] truncate">
+                                            <p className="text-[10px] text-surface-muted mt-1 max-w-[200px] truncate">
                                                 {log.changes ? JSON.stringify(log.changes) : 'No delta details'}
                                             </p>
                                         </div>
@@ -100,18 +100,18 @@ export const AuditLogs = () => {
                                         <div className="w-6 h-6 rounded bg-primary-100 dark:bg-primary-900/30 flex items-center justify-center text-[10px] font-bold text-primary-600">
                                             {log.user?.name?.charAt(0) || <User size={10} />}
                                         </div>
-                                        <span className="text-xs text-slate-600 dark:text-slate-400 font-medium">
+                                        <span className="text-xs text-surface-text font-medium">
                                             {log.user?.name || 'System'}
                                         </span>
                                     </div>
                                 </td>
                                 <td className="px-4 py-4 text-right">
                                     <div className="flex flex-col items-end opacity-60 group-hover:opacity-100 transition-opacity">
-                                        <span className="text-[11px] font-bold text-slate-900 dark:text-white flex items-center gap-1">
+                                        <span className="text-[11px] font-bold text-surface-text flex items-center gap-1">
                                             <Clock size={10} />
                                             {new Date(log.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                                         </span>
-                                        <span className="text-[9px] text-slate-400 font-bold uppercase tracking-tight">
+                                        <span className="text-[9px] text-surface-muted font-bold uppercase tracking-tight">
                                             {new Date(log.created_at).toLocaleDateString()}
                                         </span>
                                     </div>

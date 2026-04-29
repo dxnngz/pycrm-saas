@@ -102,7 +102,7 @@ const DashboardView = () => {
                     <button
                         onClick={() => refetch()}
                         disabled={isFetching}
-                        className="p-2 border border-slate-200 dark:border-slate-800 rounded-md hover:bg-slate-50 dark:hover:bg-slate-900 transition-all text-slate-400 disabled:opacity-50"
+                        className="p-2 border border-surface-border rounded-md hover:bg-surface-hover transition-all text-surface-muted disabled:opacity-50"
                         title="Force refresh"
                     >
                         <RefreshCw size={14} className={isFetching ? 'animate-spin' : ''} />

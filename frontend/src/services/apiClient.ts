@@ -9,7 +9,7 @@ const normalizeApiBase = (url?: string): string => {
 };
 
 const explicitApiBase = normalizeApiBase(import.meta.env.VITE_API_URL);
-const API_URL = explicitApiBase || (import.meta.env.PROD ? '/api' : 'http://localhost:3001/api');
+const API_URL = explicitApiBase || (import.meta.env.PROD ? '/api' : 'http://localhost:10000/api');
 
 let isRefreshing = false;
 let refreshSubscribers: ((token: string) => void)[] = [];

@@ -15,7 +15,7 @@ export const Skeleton: React.FC<SkeletonProps> = ({ className = '', variant = 'r
     return (
         <div
             className={`
-                animate-pulse bg-slate-200 dark:bg-slate-800
+                animate-pulse bg-surface-muted-bg
                 ${variantClasses[variant]}
                 ${className}
             `}

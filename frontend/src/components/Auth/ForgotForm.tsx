@@ -20,7 +20,7 @@ export const ForgotForm: React.FC<ForgotFormProps> = ({ onSubmit, isLoading, onB
     if (success) {
         return (
             <div className="text-center space-y-4 py-4">
-                <p className="text-sm text-slate-600 dark:text-slate-400">
+                <p className="text-sm text-surface-muted">
                     If an account exists for {email}, you will receive a password reset link shortly.
                 </p>
                 <Button
@@ -52,7 +52,7 @@ export const ForgotForm: React.FC<ForgotFormProps> = ({ onSubmit, isLoading, onB
                 variant="ghost"
                 fullWidth
                 onClick={onBack}
-                className="text-[10px] font-bold uppercase tracking-widest text-slate-500"
+                className="text-[10px] font-bold uppercase tracking-widest text-surface-muted"
             >
                 Back to sign in
             </Button>

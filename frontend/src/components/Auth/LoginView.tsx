@@ -70,7 +70,7 @@ const LoginView = () => {
     };
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-slate-950 p-6 overflow-hidden relative">
+        <div className="min-h-screen flex items-center justify-center bg-surface-bg p-6 overflow-hidden relative">
             {/* Background Decorative Elements */}
             <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-primary-500/10 blur-[120px] rounded-full" />
             <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-indigo-500/10 blur-[120px] rounded-full" />
@@ -81,15 +81,15 @@ const LoginView = () => {
                     <motion.div
                         initial={{ opacity: 0, y: -20 }}
                         animate={{ opacity: 1, y: 0 }}
-                        className="inline-flex items-center justify-center w-14 h-14 bg-slate-950 dark:bg-white rounded-2xl mb-4 shadow-2xl border border-slate-800 dark:border-slate-200"
+                        className="inline-flex items-center justify-center w-14 h-14 bg-surface-card rounded-2xl mb-4 shadow-2xl border border-surface-border"
                     >
-                        <ShieldCheck className="text-white dark:text-slate-950" size={32} strokeWidth={1.5} />
+                        <ShieldCheck className="text-primary-600" size={32} strokeWidth={1.5} />
                     </motion.div>
                     <motion.h1
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         transition={{ delay: 0.1 }}
-                        className="text-2xl font-bold tracking-tight text-slate-900 dark:text-white"
+                        className="text-2xl font-bold tracking-tight text-surface-text"
                     >
                         {mode === 'login' && 'Identity Portal'}
                         {mode === 'register' && 'Account Activation'}
@@ -99,7 +99,7 @@ const LoginView = () => {
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         transition={{ delay: 0.2 }}
-                        className="text-sm font-medium text-slate-500 dark:text-slate-400"
+                        className="text-sm font-medium text-surface-muted"
                     >
                         {mode === 'login' && 'Sign in to access your enterprise workspace'}
                         {mode === 'register' && 'Enter your organization details to begin'}
@@ -177,7 +177,7 @@ const LoginView = () => {
                 {/* Footer Switcher */}
                 <div className="text-center">
                     {mode === 'login' && (
-                        <p className="text-sm text-slate-500">
+                        <p className="text-sm text-surface-muted">
                             New organization?{' '}
                             <button
                                 onClick={() => setAuthMode('register')}
@@ -190,14 +190,14 @@ const LoginView = () => {
                     {mode !== 'login' && mode !== 'forgot' && (
                         <button
                             onClick={() => setAuthMode('login')}
-                            className="text-sm font-semibold text-slate-500 hover:text-slate-900 dark:hover:text-white transition-all underline underline-offset-4"
+                            className="text-sm font-semibold text-surface-muted hover:text-surface-text transition-all underline underline-offset-4"
                         >
                             Return to Portal
                         </button>
                     )}
                 </div>
 
-                <div className="pt-8 text-center text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] opacity-50">
+                <div className="pt-8 text-center text-[10px] font-bold text-surface-muted uppercase tracking-[0.2em] opacity-50">
                     PyCRM Enterprise Node &bull; SECURE ENVIRONMENT
                 </div>
             </div>

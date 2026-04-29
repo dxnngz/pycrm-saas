@@ -127,8 +127,8 @@ const TasksView = () => {
         <div className="space-y-6 h-[calc(100vh-140px)] flex flex-col">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 shrink-0">
                 <div>
-                    <h1 className="text-xl font-bold text-slate-900 dark:text-white">Task Management</h1>
-                    <p className="text-sm text-slate-500 dark:text-slate-400 mt-1 flex items-center gap-1.5">
+                    <h1 className="text-xl font-bold text-surface-text">Task Management</h1>
+                    <p className="text-sm text-surface-muted mt-1 flex items-center gap-1.5">
                         <ShieldCheck size={14} className="text-emerald-500" />
                         Track and prioritize your daily objectives.
                     </p>
@@ -207,11 +207,11 @@ const TasksView = () => {
                 {loading ? (
                     <div className="p-8 space-y-4 flex-1">
                         {[1, 2, 3, 4].map(i => (
-                            <div key={i} className="h-16 bg-slate-50 dark:bg-slate-800/50 rounded animate-pulse"></div>
+                            <div key={i} className="h-16 bg-surface-muted-bg/50 rounded animate-pulse"></div>
                         ))}
                     </div>
                 ) : filteredTasks.length === 0 ? (
-                    <div className="flex-1 flex flex-col items-center justify-center text-slate-400 py-20">
+                    <div className="flex-1 flex flex-col items-center justify-center text-surface-muted py-20">
                         <AlertCircle size={40} className="mb-4 opacity-20" />
                         <p className="text-xs font-bold uppercase tracking-widest opacity-60">No tasks found</p>
                     </div>
@@ -232,7 +232,7 @@ const TasksView = () => {
                                 return (
                                     <div
                                         key={virtualRow.key}
-                                        className="absolute top-0 left-0 w-full hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors flex items-center gap-6 border-b border-slate-100 dark:border-slate-800/50 last:border-0"
+                                        className="absolute top-0 left-0 w-full hover:bg-surface-hover transition-colors flex items-center gap-6 border-b border-surface-border/60 last:border-0"
                                         style={{
                                             height: `${virtualRow.size}px`,
                                             transform: `translateY(${virtualRow.start}px)`,
@@ -240,22 +240,22 @@ const TasksView = () => {
                                     >
                                         <button
                                             onClick={() => handleToggle(task.id)}
-                                            className={`shrink-0 transition-transform hover:scale-110 ${task.completed ? 'text-emerald-500' : 'text-slate-300 dark:text-slate-700 hover:text-primary-500'}`}
+                                            className={`shrink-0 transition-transform hover:scale-110 ${task.completed ? 'text-emerald-500' : 'text-surface-muted/50 hover:text-primary-500'}`}
                                         >
                                             {task.completed ? <CheckCircle2 size={24} /> : <Circle size={24} />}
                                         </button>
 
                                         <div className="flex-1 min-w-0">
-                                            <h4 className={`text-sm font-semibold truncate ${task.completed ? 'text-slate-400 line-through' : 'text-slate-900 dark:text-white'}`}>
+                                            <h4 className={`text-sm font-semibold truncate ${task.completed ? 'text-surface-muted line-through' : 'text-surface-text'}`}>
                                                 {task.title}
                                             </h4>
                                             <div className="flex items-center gap-4 mt-1">
-                                                <div className="flex items-center gap-1.5 text-[10px] text-slate-500 dark:text-slate-400">
+                                                <div className="flex items-center gap-1.5 text-[10px] text-surface-muted">
                                                     <Users size={12} />
                                                     <span className="truncate max-w-[120px]">{task.client_name || 'Individual'}</span>
                                                 </div>
                                                 {task.deadline && (
-                                                    <div className="flex items-center gap-1.5 text-[10px] text-slate-500 dark:text-slate-400">
+                                                    <div className="flex items-center gap-1.5 text-[10px] text-surface-muted">
                                                         <Calendar size={12} />
                                                         <span>{new Date(task.deadline).toLocaleDateString()}</span>
                                                     </div>
@@ -274,7 +274,7 @@ const TasksView = () => {
                                             {canDeleteTask && (
                                                 <button
                                                     onClick={() => handleDeleteClick(task.id)}
-                                                    className="p-2 text-slate-400 hover:text-red-600 rounded-md transition-colors"
+                                                    className="p-2 text-surface-muted hover:text-red-600 rounded-md transition-colors"
                                                 >
                                                     <Trash2 size={16} />
                                                 </button>
