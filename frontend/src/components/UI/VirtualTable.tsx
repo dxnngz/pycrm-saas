@@ -7,7 +7,7 @@ export interface Column<T> {
     accessor: keyof T | ((item: T) => ReactNode);
     className?: string;
     align?: 'left' | 'center' | 'right';
-    width?: string; // e.g. '200px' or '1fr'
+    width?: string;
 }
 
 export interface VirtualTableProps<T> {
@@ -16,7 +16,7 @@ export interface VirtualTableProps<T> {
     onRowClick?: (item: T) => void;
     isLoading?: boolean;
     emptyMessage?: string;
-    height?: string; // e.g. '600px' or 'calc(100vh - 300px)'
+    height?: string;
     rowHeight?: number;
 }
 
@@ -44,7 +44,7 @@ export function VirtualTable<T>({
 
     if (isLoading && data.length === 0) {
         return (
-            <div className="w-full h-64 flex items-center justify-center border border-slate-200 dark:border-slate-800 rounded-md bg-white dark:bg-slate-900 shadow-sm">
+            <div className="w-full h-64 flex items-center justify-center border border-slate-200 dark:border-slate-800 rounded-lg bg-surface-card shadow-sm">
                 <div className="flex flex-col items-center gap-2">
                     <div className="w-6 h-6 border-2 border-primary-500/30 border-t-primary-500 rounded-full animate-spin" />
                     <span className="text-sm text-slate-500 font-medium">Loading records...</span>
@@ -55,7 +55,7 @@ export function VirtualTable<T>({
 
     if (data.length === 0) {
         return (
-            <div className="w-full h-64 flex items-center justify-center border border-slate-200 dark:border-slate-800 rounded-md bg-white dark:bg-slate-900 text-slate-500 text-sm italic shadow-sm">
+            <div className="w-full h-64 flex items-center justify-center border border-slate-200 dark:border-slate-800 rounded-lg bg-surface-card text-slate-500 text-sm italic shadow-sm">
                 {emptyMessage}
             </div>
         );
@@ -63,15 +63,15 @@ export function VirtualTable<T>({
 
     return (
         <div
-            className="w-full border border-surface-border rounded-lg overflow-hidden bg-surface-main shadow-sm flex flex-col focus-within:ring-1 focus-within:ring-primary-500/20"
+            className="w-full border border-slate-200 dark:border-slate-800 rounded-lg overflow-hidden bg-surface-card shadow-sm flex flex-col focus-within:ring-1 focus-within:ring-primary-500/20"
             role="grid"
             aria-label="Data Grid"
             aria-rowcount={data.length + 1}
             aria-colcount={columns.length}
         >
-            {/* Header - Sticky */}
+            {/* Sticky Header */}
             <div
-                className="sticky top-0 flex items-center bg-surface-main border-b border-surface-border flex-shrink-0 z-20"
+                className="sticky top-0 flex items-center bg-surface-bg border-b border-slate-200 dark:border-slate-800 flex-shrink-0 z-20"
                 role="rowgroup"
             >
                 <div className="flex w-full" role="row">
@@ -80,8 +80,7 @@ export function VirtualTable<T>({
                             key={index}
                             role="columnheader"
                             aria-sort="none"
-                            className={`px-4 py-3 text-[11px] font-bold text-text-muted uppercase tracking-wider border-r border-surface-border last:border-r-0 ${column.align === 'right' ? 'text-right' : column.align === 'center' ? 'text-center' : 'text-left'
-                                } ${column.className || ''}`}
+                            className={`px-4 py-3 text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider border-r border-slate-200 dark:border-slate-800 last:border-r-0 ${column.align === 'right' ? 'text-right' : column.align === 'center' ? 'text-center' : 'text-left'} ${column.className || ''}`}
                             style={{ width: column.width || `${100 / columns.length}%`, flexShrink: 0 }}
                         >
                             {column.header}
@@ -119,8 +118,7 @@ export function VirtualTable<T>({
                                 tabIndex={onRowClick ? 0 : -1}
                                 role="row"
                                 aria-rowindex={virtualItem.index + 2}
-                                className={`absolute top-0 left-0 w-full flex items-center border-b border-surface-border transition-colors hover:bg-primary-500/5 focus:bg-primary-500/10 focus:outline-none ${onRowClick ? 'cursor-pointer' : ''
-                                    } ${virtualItem.index % 2 === 0 ? 'bg-surface-card' : 'bg-surface-main/30'}`}
+                                className={`absolute top-0 left-0 w-full flex items-center border-b border-slate-100 dark:border-slate-800 transition-colors hover:bg-primary-500/5 focus:bg-primary-500/10 focus:outline-none ${onRowClick ? 'cursor-pointer' : ''} ${virtualItem.index % 2 === 0 ? 'bg-surface-card' : 'bg-surface-bg/50'}`}
                                 style={{
                                     height: `${virtualItem.size}px`,
                                     transform: `translateY(${virtualItem.start}px)`,
@@ -136,8 +134,7 @@ export function VirtualTable<T>({
                                         <div
                                             key={colIndex}
                                             role="gridcell"
-                                            className={`px-4 text-[13px] text-text-base truncate ${column.align === 'right' ? 'text-right' : column.align === 'center' ? 'text-center' : 'text-left'
-                                                } ${column.className || ''}`}
+                                            className={`px-4 text-[13px] text-slate-600 dark:text-slate-400 truncate ${column.align === 'right' ? 'text-right' : column.align === 'center' ? 'text-center' : 'text-left'} ${column.className || ''}`}
                                             style={{ width: column.width || `${100 / columns.length}%`, flexShrink: 0 }}
                                         >
                                             {content}

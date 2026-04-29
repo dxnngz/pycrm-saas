@@ -1,8 +1,9 @@
-@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap');
 @import "tailwindcss";
 
 @theme {
   --font-sans: "Outfit", sans-serif;
+
+  /* Primary Palette */
   --color-primary-50: #f0f9ff;
   --color-primary-100: #e0f2fe;
   --color-primary-200: #bae6fd;
@@ -13,189 +14,61 @@
   --color-primary-700: #0369a1;
   --color-primary-800: #075985;
   --color-primary-900: #0c4a6e;
-  
-  /* Map CSS Variables to Tailwind Colors for automatic dark mode support */
-  --color-surface-main: var(--bg-main);
-  --color-surface-card: var(--bg-card);
-  --color-surface-border: var(--border-color);
-  --color-text-base: var(--text-main);
-  --color-text-muted: var(--text-muted);
+
+  /* Semantic Surface Tokens */
+  --color-surface-bg: #f8fafc;
+  --color-surface-card: #ffffff;
+  --color-surface-border: #e2e8f0;
+  --color-surface-text: #0f172a;
+  --color-surface-muted: #64748b;
+  --color-surface-input: #ffffff;
+
+  /* Slate Palette */
+  --color-slate-950: #020617;
+  --color-slate-900: #0f172a;
+  --color-slate-800: #1e293b;
+  --color-slate-700: #334155;
+  --color-slate-600: #475569;
+  --color-slate-400: #94a3b8;
+  --color-slate-300: #cbd5e1;
+  --color-slate-200: #e2e8f0;
+  --color-slate-100: #f1f5f9;
+  --color-slate-50: #f8fafc;
 }
 
-@variant dark (&:where(.dark, .dark *));
-
-:root {
-  font-family: 'Outfit', sans-serif;
-  line-height: 1.5;
-  font-weight: 400;
-
-  /* B2B Light Theme - Standard B2B */
-  --bg-main: #f8fafc;
-  --bg-card: #ffffff;
-  --border-color: #e2e8f0;
-  --text-main: #0f172a;
-  --text-muted: #64748b;
-
-  /* Inputs & Interactive */
-  --input-border: #cbd5e1;
-  --input-focus-ring: rgba(79, 70, 229, 0.2);
-}
-
+/* Dark Mode - Tailwind's class strategy */
 .dark {
-  /* B2B Dark Theme - Exact Specification */
-  --bg-main: #0f172a;
-  --bg-card: #111827;
-  --border-color: #1f2937;
-  --text-main: #f9fafb;
-  --text-muted: #9ca3af;
-
-  /* Inputs & Interactive */
-  --input-border: #334155;
-  --input-focus-ring: rgba(99, 102, 241, 0.3);
+  --color-surface-bg: #020617;
+  --color-surface-card: #0f172a;
+  --color-surface-border: #1e293b;
+  --color-surface-text: #f8fafc;
+  --color-surface-muted: #94a3b8;
+  --color-surface-input: #1e293b;
 }
 
 body {
-  background-color: var(--bg-main);
-  color: var(--text-main);
-  margin: 0;
-  min-height: 100vh;
-  transition: background-color 0.2s ease, color 0.2s ease;
+  font-family: 'Outfit', sans-serif;
+  background-color: var(--color-surface-bg);
+  color: var(--color-surface-text);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* Global Accessibility: High Visibility Focus */
-*:focus-visible {
-  outline: 2px solid var(--color-primary-500);
-  outline-offset: 1px;
-}
-
-/* B2B Flat Surface Primitives */
-.flat-card {
-  background: var(--bg-card);
-  border: 1px solid var(--border-color);
-  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-}
-
-/* Clean Scrollbar System */
-::-webkit-scrollbar {
+/* Custom Scrollbar */
+.custom-scrollbar::-webkit-scrollbar {
   width: 6px;
   height: 6px;
 }
 
-::-webkit-scrollbar-track {
+.custom-scrollbar::-webkit-scrollbar-track {
   background: transparent;
 }
 
-::-webkit-scrollbar-thumb {
-  background: var(--border-color);
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: var(--color-surface-border);
   border-radius: 10px;
 }
 
-::-webkit-scrollbar-thumb:hover {
-  background: var(--text-muted);
-}
-
-/* Zebra Table Utility */
-.zebra-table tbody tr:nth-child(even) {
-  background-color: rgba(0, 0, 0, 0.015);
-}
-
-.dark .zebra-table tbody tr:nth-child(even) {
-  background-color: rgba(255, 255, 255, 0.015);
-}
-
-/* Dense Mode Transitions */
-.dense-mode {
-  --dense-padding-x: 0.75rem;
-  --dense-padding-y: 0.4rem;
-  --dense-gap: 0.5rem;
-  --dense-font-size: 0.8rem;
-}
-
-.dense-mode .p-4,
-.dense-mode .p-6 {
-  padding: var(--dense-padding-x) !important;
-}
-
-.dense-mode .py-4 {
-  padding-top: var(--dense-padding-y) !important;
-  padding-bottom: var(--dense-padding-y) !important;
-}
-
-.dense-mode .gap-6,
-.dense-mode .gap-4,
-.dense-mode .space-y-4,
-.dense-mode .space-y-6 {
-  gap: var(--dense-gap) !important;
-}
-
-.dense-mode .text-sm {
-  font-size: var(--dense-font-size) !important;
-}
-
-.dense-mode .text-base {
-  font-size: 0.9rem !important;
-}
-
-.glass-mode .mb-6,
-.dense-mode .mb-10 {
-  margin-bottom: 0.75rem !important;
-}
-
-/* Force CSS Variable usage on common elements to prevent Tailwind 4 mapping issues */
-.bg-white {
-  background-color: var(--bg-card) !important;
-}
-
-.dark .bg-white {
-  background-color: var(--bg-card) !important;
-}
-
-.text-slate-900 {
-  color: var(--text-main) !important;
-}
-
-.dark .text-slate-900 {
-  color: var(--text-main) !important;
-}
-
-/* Glassmorphism System */
-.glass-card {
-  background: rgba(255, 255, 255, 0.7);
-  backdrop-filter: blur(12px) saturate(180%);
-  -webkit-backdrop-filter: blur(12px) saturate(180%);
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.07);
-}
-
-.dark .glass-card {
-  background: rgba(17, 24, 39, 0.7);
-  backdrop-filter: blur(16px) saturate(180%);
-  -webkit-backdrop-filter: blur(16px) saturate(180%);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
-}
-
-.glass-blur {
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-}
-
-.glass-input {
-  background: #ffffff;
-  border: 1px solid var(--border-color);
-  color: var(--text-main);
-  outline: none;
-}
-
-.dark .glass-input {
-  background: #1e293b;
-  border: 1px solid var(--border-color);
-  color: var(--text-main);
-}
-
-.glass-input:focus {
-  border-color: var(--color-primary-500);
-  box-shadow: 0 0 0 4px var(--input-focus-ring);
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: var(--color-surface-muted);
 }
