@@ -52,7 +52,7 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
                         type={type}
                         className={`
                             glass-input block w-full rounded-xl text-sm transition-all
-                            placeholder-slate-400 dark:placeholder-slate-500
+                            placeholder-text-muted/50
                             disabled:opacity-50 disabled:cursor-not-allowed
                             ${error ? 'border-red-500 focus:border-red-500 focus:ring-red-500/10' : ''}
                             ${icon && iconPosition === 'left' ? 'pl-10' : 'pl-4'}

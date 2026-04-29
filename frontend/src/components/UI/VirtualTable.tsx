@@ -63,7 +63,7 @@ export function VirtualTable<T>({
 
     return (
         <div
-            className="w-full border border-slate-200 dark:border-slate-800 rounded-lg overflow-hidden bg-white dark:bg-slate-950 shadow-sm flex flex-col focus-within:ring-1 focus-within:ring-primary-500/20"
+            className="w-full border border-surface-border rounded-lg overflow-hidden bg-surface-main shadow-sm flex flex-col focus-within:ring-1 focus-within:ring-primary-500/20"
             role="grid"
             aria-label="Data Grid"
             aria-rowcount={data.length + 1}
@@ -71,7 +71,7 @@ export function VirtualTable<T>({
         >
             {/* Header - Sticky */}
             <div
-                className="sticky top-0 flex items-center bg-slate-50 dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 flex-shrink-0 z-20"
+                className="sticky top-0 flex items-center bg-surface-main border-b border-surface-border flex-shrink-0 z-20"
                 role="rowgroup"
             >
                 <div className="flex w-full" role="row">
@@ -80,7 +80,7 @@ export function VirtualTable<T>({
                             key={index}
                             role="columnheader"
                             aria-sort="none"
-                            className={`px-4 py-3 text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider border-r border-slate-200 dark:border-slate-800/50 last:border-r-0 ${column.align === 'right' ? 'text-right' : column.align === 'center' ? 'text-center' : 'text-left'
+                            className={`px-4 py-3 text-[11px] font-bold text-text-muted uppercase tracking-wider border-r border-surface-border last:border-r-0 ${column.align === 'right' ? 'text-right' : column.align === 'center' ? 'text-center' : 'text-left'
                                 } ${column.className || ''}`}
                             style={{ width: column.width || `${100 / columns.length}%`, flexShrink: 0 }}
                         >
@@ -93,7 +93,7 @@ export function VirtualTable<T>({
             {/* Virtualized Body */}
             <div
                 ref={parentRef}
-                className="overflow-auto custom-scrollbar focus:outline-none bg-white dark:bg-slate-950"
+                className="overflow-auto custom-scrollbar focus:outline-none bg-surface-card"
                 style={{ height }}
                 role="rowgroup"
             >
@@ -119,8 +119,8 @@ export function VirtualTable<T>({
                                 tabIndex={onRowClick ? 0 : -1}
                                 role="row"
                                 aria-rowindex={virtualItem.index + 2}
-                                className={`absolute top-0 left-0 w-full flex items-center border-b border-slate-100 dark:border-slate-800 transition-colors hover:bg-slate-50 dark:hover:bg-slate-800 focus:bg-slate-50/50 dark:focus:bg-slate-800/50 focus:outline-none ${onRowClick ? 'cursor-pointer' : ''
-                                    } ${virtualItem.index % 2 === 0 ? 'bg-slate-50/30 dark:bg-slate-900/50' : 'bg-white dark:bg-slate-950'}`}
+                                className={`absolute top-0 left-0 w-full flex items-center border-b border-surface-border transition-colors hover:bg-primary-500/5 focus:bg-primary-500/10 focus:outline-none ${onRowClick ? 'cursor-pointer' : ''
+                                    } ${virtualItem.index % 2 === 0 ? 'bg-surface-card' : 'bg-surface-main/30'}`}
                                 style={{
                                     height: `${virtualItem.size}px`,
                                     transform: `translateY(${virtualItem.start}px)`,
@@ -136,7 +136,7 @@ export function VirtualTable<T>({
                                         <div
                                             key={colIndex}
                                             role="gridcell"
-                                            className={`px-4 text-[13px] text-slate-600 dark:text-slate-400 truncate ${column.align === 'right' ? 'text-right' : column.align === 'center' ? 'text-center' : 'text-left'
+                                            className={`px-4 text-[13px] text-text-base truncate ${column.align === 'right' ? 'text-right' : column.align === 'center' ? 'text-center' : 'text-left'
                                                 } ${column.className || ''}`}
                                             style={{ width: column.width || `${100 / columns.length}%`, flexShrink: 0 }}
                                         >
