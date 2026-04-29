@@ -21,7 +21,9 @@
   --color-surface-border: #e2e8f0;
   --color-surface-text: #0f172a;
   --color-surface-muted: #64748b;
+  --color-surface-muted-bg: #f1f5f9;
   --color-surface-input: #ffffff;
+  --color-surface-hover: #f8fafc;
 
   /* Slate Palette */
   --color-slate-950: #020617;
@@ -43,7 +45,9 @@
   --color-surface-border: #1e293b;
   --color-surface-text: #f8fafc;
   --color-surface-muted: #94a3b8;
+  --color-surface-muted-bg: #1e293b;
   --color-surface-input: #1e293b;
+  --color-surface-hover: #1e293b;
 }
 
 body {
@@ -71,4 +75,10 @@ body {
 
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
   background: var(--color-surface-muted);
+}
+
+@layer components {
+  .glass-card {
+    @apply bg-surface-card/80 backdrop-blur-md border border-surface-border shadow-sm;
+  }
 }

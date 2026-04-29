@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react';
 import {
     AreaChart,
     Area,
@@ -7,7 +8,6 @@ import {
     Tooltip,
     ResponsiveContainer
 } from 'recharts';
-import { TrendingUp, Activity } from 'lucide-react';
 
 interface SalesChartProps {
     data: { name: string; sales: number }[];
@@ -15,25 +15,26 @@ interface SalesChartProps {
 
 const SalesChart = ({ data }: SalesChartProps) => {
     const safeData = Array.isArray(data) ? data : [];
-    const isDark = document.documentElement.classList.contains('dark');
+    
+    // Check for dark mode reactively
+    const [isDark, setIsDark] = useState(() => document.documentElement.classList.contains('dark'));
+
+    useEffect(() => {
+        const observer = new MutationObserver((mutations) => {
+            mutations.forEach((mutation) => {
+                if (mutation.attributeName === 'class') {
+                    setIsDark(document.documentElement.classList.contains('dark'));
+                }
+            });
+        });
+
+        observer.observe(document.documentElement, { attributes: true });
+        return () => observer.disconnect();
+    }, []);
 
     return (
-        <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-sm relative w-full h-full flex flex-col overflow-hidden transition-colors">
-            <div className="flex items-center justify-between mb-4">
-                <div>
-                    <h3 className="text-sm font-bold text-slate-900 dark:text-white tracking-tight flex items-center gap-2">
-                        <Activity size={16} className="text-primary-500" />
-                        Commercial Traffic
-                    </h3>
-                    <p className="text-[10px] text-slate-500 dark:text-slate-400 uppercase tracking-wider">Revenue Analysis</p>
-                </div>
-                <div className="flex items-center gap-1.5 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 px-2.5 py-1 rounded-full border border-emerald-500/10">
-                    <TrendingUp size={12} />
-                    <span className="text-[9px] font-bold uppercase">+12.4%</span>
-                </div>
-            </div>
-
-            <div className="flex-1 w-full relative min-h-[350px] rounded-lg overflow-hidden">
+        <div className="w-full h-full flex flex-col min-h-[350px]">
+            <div className="flex-1 w-full relative rounded-lg overflow-hidden">
                 <ResponsiveContainer width="100%" height="100%" debounce={100}>
                     <AreaChart data={safeData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
                         <defs>

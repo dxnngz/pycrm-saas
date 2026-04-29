@@ -303,8 +303,8 @@ const ContactsView = () => {
                         <Skeleton className="h-10 w-32" />
                     </div>
                 </div>
-                <div className="border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden bg-white dark:bg-slate-900 shadow-sm">
-                    <div className="p-4 border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50 flex gap-4">
+                <div className="border border-surface-border rounded-xl overflow-hidden bg-surface-card shadow-sm">
+                    <div className="p-4 border-b border-surface-border bg-surface-muted-bg/50 flex gap-4">
                         {[1, 2, 3, 4, 5].map(i => <Skeleton key={i} className="h-4 flex-1" />)}
                     </div>
                     <div className="p-4 space-y-4">
@@ -339,7 +339,7 @@ const ContactsView = () => {
                             placeholder="Search (Cmd+K)..."
                             value={search}
                             onChange={(e) => setSearch(e.target.value)}
-                            className="w-full h-10 pl-10 pr-4 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all"
+                            className="w-full h-10 pl-10 pr-4 bg-surface-muted-bg border border-surface-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all"
                         />
                     </div>
 
@@ -374,9 +374,9 @@ const ContactsView = () => {
             />
 
             {clients && clients.length > 0 && (
-                <div className="flex flex-col md:flex-row items-center justify-between gap-4 py-4 border-t border-slate-200 dark:border-slate-800">
-                    <p className="text-xs text-slate-500 dark:text-slate-400">
-                        Showing <span className="font-medium text-slate-900 dark:text-white">{clients.length}</span> of <span className="font-medium text-slate-900 dark:text-white">{pagination.total}</span> records
+                <div className="flex flex-col md:flex-row items-center justify-between gap-4 py-4 border-t border-surface-border">
+                    <p className="text-xs text-surface-muted">
+                        Showing <span className="font-medium text-surface-text">{clients.length}</span> of <span className="font-medium text-surface-text">{pagination.total}</span> records
                     </p>
                     <div className="flex items-center gap-2">
                         <Button
@@ -394,8 +394,8 @@ const ContactsView = () => {
                                     key={p}
                                     onClick={() => setPage(p)}
                                     className={`w-8 h-8 rounded text-xs font-medium transition-colors ${pagination.page === p
-                                        ? 'bg-slate-900 dark:bg-white text-white dark:text-slate-900'
-                                        : 'text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800'
+                                        ? 'bg-surface-text text-surface-bg'
+                                        : 'text-surface-muted hover:bg-surface-hover'
                                         }`}
                                 >
                                     {p}
@@ -452,23 +452,23 @@ const ContactsView = () => {
                             placeholder="john@example.com"
                         />
                         <div className="space-y-1.5">
-                            <label className="block text-[11px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">Account Status</label>
-                            <div className="flex p-1 bg-slate-100 dark:bg-slate-800 rounded-xl">
+                            <label className="block text-[11px] font-bold text-surface-muted uppercase tracking-wider">Account Status</label>
+                            <div className="flex p-1 bg-surface-muted-bg rounded-xl">
                                 <button
                                     type="button"
                                     onClick={() => setNewStatus('activo')}
-                                    className={`flex-1 py-2 text-xs font-bold rounded-lg transition-all ${newStatus === 'activo' 
-                                        ? 'bg-white dark:bg-slate-700 text-emerald-600 dark:text-emerald-400 shadow-sm' 
-                                        : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'}`}
+                                    className={`flex-1 py-2 text-xs font-bold rounded-lg transition-all ${newStatus === 'activo'
+                                        ? 'bg-surface-card text-emerald-600 dark:text-emerald-400 shadow-sm'
+                                        : 'text-surface-muted hover:text-surface-text'}`}
                                 >
                                     Active
                                 </button>
                                 <button
                                     type="button"
                                     onClick={() => setNewStatus('inactivo')}
-                                    className={`flex-1 py-2 text-xs font-bold rounded-lg transition-all ${newStatus === 'inactivo' 
-                                        ? 'bg-white dark:bg-slate-700 text-slate-600 dark:text-slate-400 shadow-sm' 
-                                        : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'}`}
+                                    className={`flex-1 py-2 text-xs font-bold rounded-lg transition-all ${newStatus === 'inactivo'
+                                        ? 'bg-surface-card text-surface-muted shadow-sm'
+                                        : 'text-surface-muted hover:text-surface-text'}`}
                                 >
                                     Inactive
                                 </button>
@@ -476,10 +476,10 @@ const ContactsView = () => {
                         </div>
                     </div>
                     <div className="space-y-1.5">
-                        <label className="block text-[11px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">Phone Number</label>
+                        <label className="block text-[11px] font-bold text-surface-muted uppercase tracking-wider">Phone Number</label>
                         <div className="flex gap-2">
-                            <select 
-                                className="w-28 h-10 px-2 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 rounded-lg text-sm text-slate-700 dark:text-slate-300 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all cursor-pointer font-medium"
+                            <select
+                                className="w-28 h-10 px-2 bg-surface-muted-bg border border-surface-border rounded-lg text-sm text-surface-muted focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all cursor-pointer font-medium"
                                 value={newPhone.match(/^\+\d+/)?.[0] || '+34'}
                                 onChange={(e) => {
                                     const currentNumber = newPhone.replace(/^\+\d+/, '').trim();
@@ -496,7 +496,7 @@ const ContactsView = () => {
                             </select>
                             <input
                                 type="tel"
-                                className="flex-1 w-full h-10 px-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg text-sm text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all placeholder:text-slate-400"
+                                className="flex-1 w-full h-10 px-4 bg-surface-input border border-surface-border rounded-lg text-sm text-surface-text focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all placeholder:text-surface-muted"
                                 value={newPhone.replace(/^\+\d+/, '').trim()}
                                 onChange={(e) => {
                                     const prefix = newPhone.match(/^\+\d+/)?.[0] || '+34';

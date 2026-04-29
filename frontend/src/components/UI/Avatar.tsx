@@ -34,8 +34,8 @@ export const Avatar: React.FC<AvatarProps> = ({
     return (
         <div
             className={`
-                relative shrink-0 rounded-md bg-slate-100 dark:bg-slate-900 
-                border border-slate-200 dark:border-slate-800 
+                relative shrink-0 rounded-md bg-surface-muted-bg
+                border border-surface-border
                 flex items-center justify-center overflow-hidden
                 ${sizeClasses[size]}
                 ${className}
@@ -44,7 +44,7 @@ export const Avatar: React.FC<AvatarProps> = ({
             {src ? (
                 <img src={src} alt={alt || name} className="w-full h-full object-cover" />
             ) : (
-                <span className="font-bold text-slate-600 dark:text-slate-400 tracking-tighter">
+                <span className="font-bold text-surface-muted tracking-tighter">
                     {initials}
                 </span>
             )}

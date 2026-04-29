@@ -96,10 +96,10 @@ const App: FC = () => {
 
   if (loading) {
     return (
-      <div className="h-screen w-screen flex items-center justify-center bg-white dark:bg-slate-950">
+      <div className="h-screen w-screen flex items-center justify-center bg-surface-bg">
         <div className="animate-pulse space-y-4 text-center">
-          <div className="w-12 h-12 bg-slate-100 dark:bg-slate-800 rounded-xl mx-auto" />
-          <div className="h-2 w-24 bg-slate-50 dark:bg-slate-900 rounded mx-auto" />
+          <div className="w-12 h-12 bg-surface-muted-bg rounded-xl mx-auto" />
+          <div className="h-2 w-24 bg-surface-muted-bg rounded mx-auto" />
         </div>
       </div>
     );
@@ -144,7 +144,7 @@ const App: FC = () => {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <div className={`min-h-screen bg-slate-50 dark:bg-slate-950 font-sans selection:bg-primary-500/30 overflow-x-hidden transition-colors duration-200`}>
+      <div className={`min-h-screen bg-surface-bg font-sans selection:bg-primary-500/30 overflow-x-hidden transition-colors duration-200`}>
         <AnimatePresence>
           {isMobileMenuOpen && (
             <motion.div

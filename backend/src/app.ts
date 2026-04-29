@@ -51,7 +51,19 @@ app.set('trust proxy', 1);
 // --- SECURITY & CORE MIDDLEWARES ---
 app.use(helmet({
     crossOriginResourcePolicy: { policy: "cross-origin" },
-    contentSecurityPolicy: false // Temporarily disable CSP to rule out blocked requests
+    contentSecurityPolicy: {
+        directives: {
+            defaultSrc: ["'self'"],
+            scriptSrc: ["'self'", "'unsafe-inline'"],
+            styleSrc: ["'self'", "'unsafe-inline'"],
+            imgSrc: ["'self'", "data:", "https:"],
+            connectSrc: ["'self'"],
+            fontSrc: ["'self'"],
+            objectSrc: ["'none'"],
+            mediaSrc: ["'self'"],
+            frameSrc: ["'none'"],
+        },
+    },
 }));
 
 app.use(compression());
@@ -59,8 +71,12 @@ app.use(cookieParser());
 app.use(express.json());
 
 // Permissive CORS for troubleshooting deployment
+const corsOrigins = env.FRONTEND_URL
+    ? [env.FRONTEND_URL, /https:\/\/.*\.onrender\.com$/, /http:\/\/localhost:/]
+    : [/http:\/\/localhost:/];
+
 app.use(cors({
-    origin: true,
+    origin: corsOrigins,
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept', 'x-csrf-token', 'x-request-id'],

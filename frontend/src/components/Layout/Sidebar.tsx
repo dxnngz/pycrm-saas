@@ -39,8 +39,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
     return (
         <aside className={`
-            ${sidebarCollapsed ? 'w-16' : 'w-64'} bg-slate-50 dark:bg-slate-950 border-r border-slate-200 dark:border-slate-800 
-            flex flex-col fixed h-full z-40 transition-all duration-300 
+            ${sidebarCollapsed ? 'w-16' : 'w-64'} bg-surface-bg border-r border-surface-border
+            flex flex-col fixed h-full z-40 transition-all duration-300
             lg:translate-x-0 ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'}
         `}>
             <div className="flex flex-col h-full overflow-hidden">
@@ -52,7 +52,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                                 <img src="/logo.png" alt="PyCRM Logo" className="w-full h-full object-contain" />
                             </div>
                             {!sidebarCollapsed && (
-                                <span className="font-bold text-lg tracking-tight text-slate-900 dark:text-white uppercase tracking-[0.05em] truncate">PyCRM</span>
+                                <span className="font-bold text-lg tracking-tight text-surface-text uppercase tracking-[0.05em] truncate">PyCRM</span>
                             )}
                         </div>
                         <button
@@ -65,7 +65,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
                     <nav className="space-y-1.5" aria-label="Main Navigation">
                         {!sidebarCollapsed && (
-                            <p className="text-[10px] font-bold text-slate-300 dark:text-slate-600 uppercase tracking-widest mb-3 pl-3">Main</p>
+                            <p className="text-[10px] font-bold text-surface-muted uppercase tracking-widest mb-3 pl-3">Main</p>
                         )}
                         {navItems.map((item) => (
                             <button
@@ -78,8 +78,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
                                 }}
                                 onMouseEnter={() => prefetchView(item.id)}
                                 className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all group ${activeView === item.id
-                                    ? 'bg-white dark:bg-slate-900 text-slate-900 dark:text-white font-bold ring-1 ring-slate-200 dark:ring-slate-800 shadow-sm'
-                                    : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-900/50'
+                                    ? 'bg-surface-card text-surface-text font-bold ring-1 ring-surface-border shadow-sm'
+                                    : 'text-surface-muted hover:text-surface-text hover:bg-surface-hover'
                                     }`}
                             >
                                 <item.icon size={18} className={`${activeView === item.id ? 'text-primary-600 dark:text-primary-400' : 'opacity-70 group-hover:opacity-100'} transition-colors flex-shrink-0`} aria-hidden="true" />
@@ -90,7 +90,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 </div>
 
                 {/* Footer Actions */}
-                <div className="mt-auto p-4 border-t border-slate-200 dark:border-slate-800 space-y-1 bg-slate-50/50 dark:bg-slate-950/50 flex-shrink-0">
+                <div className="mt-auto p-4 border-t border-surface-border bg-surface-bg/50 flex-shrink-0">
                     <button
                         onClick={toggleDense}
                         title={isDense ? "Switch to Default UI" : "Switch to High Density UI"}

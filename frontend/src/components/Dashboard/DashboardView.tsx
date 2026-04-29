@@ -80,11 +80,11 @@ const DashboardView = () => {
             {/* Header */}
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div className="space-y-1">
-                    <h1 className="text-xl font-bold tracking-tight text-slate-900 dark:text-white flex items-center gap-2">
+                    <h1 className="text-xl font-bold tracking-tight text-surface-text flex items-center gap-2">
                         <LayoutDashboard size={20} className="text-primary-600 dark:text-primary-400" />
                         Executive Dashboard
                     </h1>
-                    <p className="text-xs text-slate-500 dark:text-slate-400">
+                    <p className="text-xs text-surface-muted">
                         Operational oversight and real-time commercial network analytics.
                     </p>
                 </div>
@@ -123,8 +123,8 @@ const DashboardView = () => {
                 <Card className="lg:col-span-2 flex flex-col min-h-[400px]">
                     <div className="flex items-center justify-between mb-6">
                         <div>
-                            <h3 className="text-[11px] font-bold text-slate-900 dark:text-white uppercase tracking-wider">Revenue Analysis</h3>
-                            <p className="text-[9px] text-slate-500 font-bold mt-0.5 uppercase tracking-tight">Time-series performance metrics</p>
+                            <h3 className="text-[11px] font-bold text-surface-text uppercase tracking-wider">Revenue Analysis</h3>
+                            <p className="text-[9px] text-surface-muted font-bold mt-0.5 uppercase tracking-tight">Time-series performance metrics</p>
                         </div>
                         {isCached && (
                             <Badge variant="success" className="animate-pulse">Optimized</Badge>

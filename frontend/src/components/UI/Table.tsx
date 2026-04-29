@@ -27,14 +27,14 @@ export function Table<T>({
 }: TableProps<T>) {
     const { isDense } = useUI();
     return (
-        <div className={`w-full overflow-x-auto border border-slate-200 dark:border-slate-800 rounded-md ${className}`}>
+        <div className={`w-full overflow-x-auto border border-surface-border rounded-md ${className}`}>
             <table className="w-full text-sm text-left border-collapse zebra-table">
-                <thead className="bg-slate-50 dark:bg-slate-900/50 border-b border-slate-200 dark:border-slate-800">
+                <thead className="bg-surface-muted-bg border-b border-surface-border">
                     <tr>
                         {columns.map((column, index) => (
                             <th
                                 key={index}
-                                className={`${isDense ? 'px-4 py-1.5' : 'px-4 py-2.5'} text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider border-r border-slate-100 dark:border-slate-800/50 last:border-r-0 ${column.align === 'right' ? 'text-right' : column.align === 'center' ? 'text-center' : 'text-left'
+                                className={`${isDense ? 'px-4 py-1.5' : 'px-4 py-2.5'} text-[11px] font-bold text-surface-muted uppercase tracking-wider border-r border-surface-border/50 last:border-r-0 ${column.align === 'right' ? 'text-right' : column.align === 'center' ? 'text-center' : 'text-left'
                                     } ${column.className || ''}`}
                             >
                                 {column.header}
@@ -42,10 +42,10 @@ export function Table<T>({
                         ))}
                     </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-100 dark:divide-slate-800/50">
+                <tbody className="divide-y divide-surface-border/50">
                     {isLoading ? (
                         <tr>
-                            <td colSpan={columns.length} className="px-4 py-10 text-center text-slate-500">
+                            <td colSpan={columns.length} className="px-4 py-10 text-center text-surface-muted">
                                 <div className="flex flex-col items-center gap-2">
                                     <div className="w-6 h-6 border-2 border-primary-500/30 border-t-primary-500 rounded-full animate-spin" />
                                     <span>Cargando datos...</span>
@@ -54,7 +54,7 @@ export function Table<T>({
                         </tr>
                     ) : data.length === 0 ? (
                         <tr>
-                            <td colSpan={columns.length} className="px-4 py-10 text-center text-slate-500">
+                            <td colSpan={columns.length} className="px-4 py-10 text-center text-surface-muted">
                                 {emptyMessage}
                             </td>
                         </tr>
@@ -64,7 +64,7 @@ export function Table<T>({
                                 key={rowIndex}
                                 onClick={() => onRowClick?.(item)}
                                 className={`
-                  transition-colors hover:bg-slate-50 dark:hover:bg-slate-900/50
+                  transition-colors hover:bg-surface-hover
                   ${onRowClick ? 'cursor-pointer' : ''}
                 `}
                             >
@@ -77,7 +77,7 @@ export function Table<T>({
                                     return (
                                         <td
                                             key={colIndex}
-                                            className={`${isDense ? 'px-4 py-1.5' : 'px-4 py-2'} text-[13px] text-slate-600 dark:text-slate-400 whitespace-nowrap border-r border-slate-100/50 dark:border-slate-800/30 last:border-r-0 ${column.align === 'right' ? 'text-right' : column.align === 'center' ? 'text-center' : 'text-left'
+                                            className={`${isDense ? 'px-4 py-1.5' : 'px-4 py-2'} text-[13px] text-surface-muted whitespace-nowrap border-r border-surface-border/30 last:border-r-0 ${column.align === 'right' ? 'text-right' : column.align === 'center' ? 'text-center' : 'text-left'
                                                 } ${column.className || ''}`}
                                         >
                                             {content}

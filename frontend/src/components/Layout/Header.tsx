@@ -46,11 +46,11 @@ export const Header: React.FC<HeaderProps> = ({
     }, []);
 
     return (
-        <header className="h-14 bg-white/80 dark:bg-slate-950/80 backdrop-blur-md flex items-center justify-between px-6 sticky top-0 z-30 border-b border-slate-200 dark:border-slate-800 transition-colors">
+        <header className="h-14 bg-surface-bg/80 backdrop-blur-md flex items-center justify-between px-6 sticky top-0 z-30 border-b border-surface-border transition-colors">
             <div className="flex items-center gap-4">
                 <button
                     onClick={() => setIsMobileMenuOpen(true)}
-                    className="lg:hidden p-2 text-slate-500 hover:text-slate-900 dark:hover:text-slate-100"
+                    className="lg:hidden p-2 text-surface-muted hover:text-surface-text"
                 >
                     <Menu size={20} />
                 </button>
@@ -72,11 +72,11 @@ export const Header: React.FC<HeaderProps> = ({
                     onClick={() => setIsCommandCenterOpen(true)}
                     className="relative w-64 hidden md:flex items-center group cursor-pointer"
                 >
-                    <Search className="absolute left-3 text-slate-400 group-hover:text-slate-500 transition-colors" size={14} />
-                    <div className="w-full pl-9 pr-3 py-1.5 bg-slate-50 dark:bg-slate-900/50 rounded-md border border-slate-200 dark:border-slate-800 hover:bg-slate-100 dark:hover:bg-slate-900 transition-all">
+                    <Search className="absolute left-3 text-surface-muted group-hover:text-surface-text transition-colors" size={14} />
+                    <div className="w-full pl-9 pr-3 py-1.5 bg-surface-muted-bg/50 rounded-md border border-surface-border hover:bg-surface-hover transition-all">
                         <div className="flex items-center justify-between">
-                            <span className="text-xs text-slate-500 font-medium">Quick Search...</span>
-                            <div className="flex items-center gap-1 px-1.5 py-0.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-[9px] font-bold text-slate-400">
+                            <span className="text-xs text-surface-muted font-medium">Quick Search...</span>
+                            <div className="flex items-center gap-1 px-1.5 py-0.5 bg-surface-card border border-surface-border rounded text-[9px] font-bold text-surface-muted">
                                 <Command size={9} /> K
                             </div>
                         </div>
@@ -85,19 +85,19 @@ export const Header: React.FC<HeaderProps> = ({
 
                 {/* Preference Switchers */}
                 <div className="flex items-center gap-3">
-                    <span className="hidden md:block text-[10px] font-bold text-slate-400 uppercase tracking-widest bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded">v1.2.5-elite</span>
-                    <div className="flex items-center gap-1 bg-slate-100 dark:bg-slate-900/50 p-1 rounded-lg border border-slate-200 dark:border-slate-800">
+                    <span className="hidden md:block text-[10px] font-bold text-surface-muted uppercase tracking-widest bg-surface-muted-bg px-2 py-0.5 rounded">v1.2.5-elite</span>
+                    <div className="flex items-center gap-1 bg-surface-muted-bg/50 p-1 rounded-lg border border-surface-border">
                         <button
                             onClick={() => setIsDenseMode()}
-                            className={`p-1.5 rounded-md transition-all ${isDenseMode ? 'bg-white dark:bg-slate-800 shadow-sm text-primary-600' : 'text-slate-400 hover:text-slate-600'}`}
+                            className={`p-1.5 rounded-md transition-all ${isDenseMode ? 'bg-surface-card shadow-sm text-primary-600' : 'text-surface-muted hover:text-surface-text'}`}
                             title="Toggle high density mode"
                         >
                             <AlignJustify size={14} />
                         </button>
-                        <div className="w-px h-3 bg-slate-200 dark:bg-slate-800 mx-0.5" />
+                        <div className="w-px h-3 bg-surface-border mx-0.5" />
                         <button
                             onClick={() => setIsDarkMode(!isDarkMode)}
-                            className="p-1.5 text-slate-400 hover:text-slate-600 transition-colors"
+                            className="p-1.5 text-surface-muted hover:text-surface-text transition-colors"
                             title="Toggle dark mode"
                         >
                             {isDarkMode ? <Sun size={14} /> : <Moon size={14} />}
@@ -108,14 +108,14 @@ export const Header: React.FC<HeaderProps> = ({
                 {/* Notifications */}
                 <button
                     onClick={() => setIsNotificationsOpen(true)}
-                    className="p-2 text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-900 rounded-lg relative transition-colors"
+                    className="p-2 text-surface-muted hover:bg-surface-hover rounded-lg relative transition-colors"
                 >
                     <Bell size={18} />
-                    <span className="absolute top-2.5 right-2.5 w-1.5 h-1.5 bg-primary-600 rounded-full border border-white dark:border-slate-950"></span>
+                    <span className="absolute top-2.5 right-2.5 w-1.5 h-1.5 bg-primary-600 rounded-full border border-surface-card"></span>
                 </button>
 
                 {/* User Profile */}
-                <div className="h-8 w-px bg-slate-200 dark:bg-slate-800 mx-1 hidden sm:block" />
+                <div className="h-8 w-px bg-surface-border mx-1 hidden sm:block" />
                 <button className="flex items-center gap-2 group">
                     <Avatar
                         name={userName}

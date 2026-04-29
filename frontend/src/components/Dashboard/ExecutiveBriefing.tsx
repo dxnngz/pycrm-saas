@@ -71,7 +71,7 @@ const ExecutiveBriefing: React.FC = () => {
                             initial={{ opacity: 0, x: -20 }}
                             animate={{ opacity: 1, x: 0 }}
                             transition={{ delay: idx * 0.1 }}
-                            className="group relative p-5 rounded-2xl border border-slate-50 dark:border-slate-800/50 hover:bg-slate-50 dark:hover:bg-slate-800 transition-all cursor-pointer"
+                            className="group relative p-5 rounded-2xl border border-surface-border hover:bg-surface-hover transition-all cursor-pointer"
                         >
                             <div className="flex gap-4">
                                 <div className={`w-10 h-10 rounded-xl ${config.bg} ${config.color} flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform`}>
@@ -101,7 +101,7 @@ const ExecutiveBriefing: React.FC = () => {
                 )}
             </div>
 
-            <button className="w-full mt-6 py-4 rounded-xl bg-slate-50 dark:bg-slate-800 text-slate-400 text-[10px] font-black uppercase tracking-widest hover:text-primary-500 hover:bg-primary-500/10 transition-all border border-transparent hover:border-primary-500/20">
+            <button className="w-full mt-6 py-4 rounded-xl bg-surface-muted-bg text-surface-muted text-[10px] font-black uppercase tracking-widest hover:text-primary-500 hover:bg-primary-500/10 transition-all border border-transparent hover:border-primary-500/20">
                 Ver Análisis Completo
             </button>
         </Card>

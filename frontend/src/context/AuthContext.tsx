@@ -21,6 +21,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             const token = localStorage.getItem('token');
             if (token) {
                 try {
+                    const parts = token.split('.');
+                    if (parts.length !== 3) {
+                        throw new Error('Invalid token format');
+                    }
                     const profile = await authService.getProfile();
                     setUser(profile);
                 } catch (error) {

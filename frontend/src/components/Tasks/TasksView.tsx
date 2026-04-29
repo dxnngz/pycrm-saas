@@ -145,31 +145,31 @@ const TasksView = () => {
 
             {/* Stats Header */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 shrink-0">
-                <div className="bg-white dark:bg-slate-900 p-4 rounded-lg border border-slate-200 dark:border-slate-800 flex items-center gap-4">
+                <div className="bg-surface-card p-4 rounded-lg border border-surface-border flex items-center gap-4">
                     <div className="w-10 h-10 bg-primary-50 dark:bg-primary-500/10 text-primary-600 dark:text-primary-400 rounded-md flex items-center justify-center">
                         <Clock size={20} />
                     </div>
                     <div>
-                        <p className="text-[10px] text-slate-500 dark:text-slate-400 font-bold uppercase tracking-wider">Pending</p>
-                        <p className="text-xl font-bold text-slate-900 dark:text-white tabular-nums">{stats.pendientes}</p>
+                        <p className="text-[10px] text-surface-muted font-bold uppercase tracking-wider">Pending</p>
+                        <p className="text-xl font-bold text-surface-text tabular-nums">{stats.pendientes}</p>
                     </div>
                 </div>
-                <div className="bg-white dark:bg-slate-900 p-4 rounded-lg border border-slate-200 dark:border-slate-800 flex items-center gap-4">
+                <div className="bg-surface-card p-4 rounded-lg border border-surface-border flex items-center gap-4">
                     <div className="w-10 h-10 bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 rounded-md flex items-center justify-center">
                         <CheckCircle2 size={20} />
                     </div>
                     <div>
-                        <p className="text-[10px] text-slate-500 dark:text-slate-400 font-bold uppercase tracking-wider">Completed</p>
-                        <p className="text-xl font-bold text-slate-900 dark:text-white tabular-nums">{stats.completadas}</p>
+                        <p className="text-[10px] text-surface-muted font-bold uppercase tracking-wider">Completed</p>
+                        <p className="text-xl font-bold text-surface-text tabular-nums">{stats.completadas}</p>
                     </div>
                 </div>
-                <div className="bg-white dark:bg-slate-900 p-4 rounded-lg border border-slate-200 dark:border-slate-800 flex items-center gap-4">
+                <div className="bg-surface-card p-4 rounded-lg border border-surface-border flex items-center gap-4">
                     <div className="w-10 h-10 bg-rose-50 dark:bg-rose-500/10 text-rose-600 dark:text-rose-400 rounded-md flex items-center justify-center">
                         <AlertCircle size={20} />
                     </div>
                     <div>
-                        <p className="text-[10px] text-slate-500 dark:text-slate-400 font-bold uppercase tracking-wider">Urgent</p>
-                        <p className="text-xl font-bold text-slate-900 dark:text-white tabular-nums">{stats.urgentes}</p>
+                        <p className="text-[10px] text-surface-muted font-bold uppercase tracking-wider">Urgent</p>
+                        <p className="text-xl font-bold text-surface-text tabular-nums">{stats.urgentes}</p>
                     </div>
                 </div>
             </div>
@@ -177,33 +177,33 @@ const TasksView = () => {
             {/* Toolbar */}
             <div className="flex flex-col md:flex-row items-center gap-3 shrink-0">
                 <div className="relative group flex-1 w-full">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary-500 transition-colors" size={16} />
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-surface-muted group-focus-within:text-primary-500 transition-colors" size={16} />
                     <input
                         type="text"
                         placeholder="Search tasks..."
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
-                        className="w-full h-10 pl-10 pr-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all shadow-sm"
+                        className="w-full h-10 pl-10 pr-4 bg-surface-input border border-surface-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all shadow-sm"
                     />
                 </div>
                 <div className="relative w-full md:w-64">
-                    <Filter className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={14} />
+                    <Filter className="absolute left-3 top-1/2 -translate-y-1/2 text-surface-muted" size={14} />
                     <select
                         value={filterPriority}
                         onChange={(e) => setFilterPriority(e.target.value)}
-                        className="w-full h-10 pl-9 pr-8 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg text-xs font-bold text-slate-700 dark:text-slate-200 uppercase tracking-wider appearance-none cursor-pointer focus:outline-none focus:ring-2 focus:ring-primary-500/20 shadow-sm"
+                        className="w-full h-10 pl-9 pr-8 bg-surface-input border border-surface-border rounded-lg text-xs font-bold text-surface-muted uppercase tracking-wider appearance-none cursor-pointer focus:outline-none focus:ring-2 focus:ring-primary-500/20 shadow-sm"
                     >
                         <option value="All">All Priorities</option>
                         <option value="Alta">High Priority</option>
                         <option value="Media">Medium Priority</option>
                         <option value="Baja">Low Priority</option>
                     </select>
-                    <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" size={14} />
+                    <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 text-surface-muted pointer-events-none" size={14} />
                 </div>
             </div>
 
             {/* Tasks List Container */}
-            <div className="flex-1 min-h-0 bg-white dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden flex flex-col">
+            <div className="flex-1 min-h-0 bg-surface-card rounded-lg border border-surface-border shadow-sm overflow-hidden flex flex-col">
                 {loading ? (
                     <div className="p-8 space-y-4 flex-1">
                         {[1, 2, 3, 4].map(i => (

@@ -100,12 +100,12 @@ const DocumentsView = () => {
       width: '40%',
       accessor: (doc: Document) => (
         <div className="flex items-center gap-3 py-1">
-          <div className="p-2 bg-slate-100 dark:bg-slate-800 rounded-md text-slate-400 border border-slate-200 dark:border-slate-700">
+          <div className="p-2 bg-surface-muted-bg rounded-md text-surface-muted border border-surface-border">
             <FileText size={16} />
           </div>
           <div className="min-w-0">
-            <div className="font-medium text-slate-900 dark:text-white leading-tight truncate">{doc?.name ?? 'Unnamed Document'}</div>
-            <div className="text-[10px] font-bold text-slate-500 uppercase tracking-tight">{doc?.type ?? 'Unknown'}</div>
+            <div className="font-medium text-surface-text leading-tight truncate">{doc?.name ?? 'Unnamed Document'}</div>
+            <div className="text-[10px] font-bold text-surface-muted uppercase tracking-tight">{doc?.type ?? 'Unknown'}</div>
           </div>
         </div>
       ),
@@ -114,7 +114,7 @@ const DocumentsView = () => {
       header: 'Client',
       width: '20%',
       accessor: (doc: Document) => (
-        <span className="text-slate-600 dark:text-slate-400 truncate">
+        <span className="text-surface-muted truncate">
           {doc?.client_name || (doc?.client_id ? `ID: #${doc.client_id}` : 'No Client')}
         </span>
       ),
@@ -133,7 +133,7 @@ const DocumentsView = () => {
       header: 'Amount',
       width: '15%',
       accessor: (doc: Document) => (
-        <span className="font-medium text-slate-900 dark:text-white tabular-nums">
+        <span className="font-medium text-surface-text tabular-nums">
           {new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(Number(doc?.amount) || 0)}
         </span>
       ),
@@ -144,14 +144,14 @@ const DocumentsView = () => {
       align: 'right',
       accessor: (doc: Document) => (
         <div className="flex items-center justify-end gap-1">
-          <button className="p-1.5 text-slate-400 hover:text-primary-600 rounded-md transition-colors" title="Preview">
+          <button className="p-1.5 text-surface-muted hover:text-primary-600 rounded-md transition-colors" title="Preview">
             <Eye size={16} />
           </button>
-          <button className="p-1.5 text-slate-400 hover:text-primary-600 rounded-md transition-colors" title="Download">
+          <button className="p-1.5 text-surface-muted hover:text-primary-600 rounded-md transition-colors" title="Download">
             <Download size={16} />
           </button>
           {canDeleteDocument && (
-            <button onClick={() => handleDelete(doc.id)} className="p-1.5 text-slate-400 hover:text-red-600 rounded-md transition-colors" title="Delete">
+            <button onClick={() => handleDelete(doc.id)} className="p-1.5 text-surface-muted hover:text-red-600 rounded-md transition-colors" title="Delete">
               <Trash2 size={16} />
             </button>
           )}
@@ -164,21 +164,21 @@ const DocumentsView = () => {
     <div className="space-y-6">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-xl font-bold text-slate-900 dark:text-white">Document Management</h1>
-          <p className="text-sm text-slate-500 dark:text-slate-400 mt-1 flex items-center gap-1.5">
+          <h1 className="text-xl font-bold text-surface-text">Document Management</h1>
+          <p className="text-sm text-surface-muted mt-1 flex items-center gap-1.5">
             <FileSearch size={14} className="text-primary-500" />
             Manage quotes, contracts, and commercial billing.
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-3">
           <div className="relative group w-full md:w-64">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary-500 transition-colors" size={16} />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-surface-muted group-focus-within:text-primary-500 transition-colors" size={16} />
             <input
               type="text"
               placeholder="Search documents..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="w-full h-10 pl-10 pr-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all shadow-sm"
+              className="w-full h-10 pl-10 pr-4 bg-surface-input border border-surface-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all shadow-sm"
             />
           </div>
           <Button variant="primary" size="md" onClick={() => setIsModalOpen(true)}>
@@ -189,7 +189,7 @@ const DocumentsView = () => {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div className="bg-white dark:bg-slate-900 p-4 rounded-lg border border-slate-200 dark:border-slate-800 flex items-center gap-4 shadow-sm">
+        <div className="bg-surface-card p-4 rounded-lg border border-surface-border flex items-center gap-4 shadow-sm">
           <div className="w-10 h-10 bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400 rounded-md flex items-center justify-center">
             <Clock size={20} />
           </div>
