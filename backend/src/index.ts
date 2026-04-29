@@ -20,7 +20,7 @@ process.on('unhandledRejection', (reason: any) => {
     logger.error({ err: reason?.message || reason }, '🔥 Unhandled Rejection (process kept alive)');
 });
 
-const port = env.PORT || 3001;
+const port = env.PORT || 10000;
 
 const ensureAdmin = async () => {
     try {

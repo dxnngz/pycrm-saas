@@ -6,7 +6,7 @@ import dotenv from 'dotenv';
 import helmet from 'helmet';
 import compression from 'compression';
 import { pinoHttp } from 'pino-http';
-import rateLimit, { ipKeyGenerator } from 'express-rate-limit';
+import { rateLimit } from 'express-rate-limit';
 import swaggerJsdoc from 'swagger-jsdoc';
 import swaggerUi from 'swagger-ui-express';
 import cookieParser from 'cookie-parser';
@@ -43,7 +43,7 @@ import { getMetrics, getContentType, httpRequestDurationMicroseconds } from './c
 import { env } from './env.js';
 
 const app = express();
-const port = env.PORT || 3001;
+const port = env.PORT || 10000;
 
 // Trust proxy for Render/Vercel (needed for secure cookies)
 app.set('trust proxy', 1);
@@ -100,8 +100,9 @@ app.use(pinoHttp({
 // Global IP Rate Limiter
 const globalLimiter = rateLimit({
     windowMs: 15 * 60 * 1000,
-    max: 100,
-    keyGenerator: (req) => ipKeyGenerator(req.ip || 'unknown'),
+    limit: 100,
+    keyGenerator: (req) => req.ip || req.socket.remoteAddress || 'unknown',
+    validate: false,
     skip: (req) => {
         const ip = req.ip || req.socket.remoteAddress;
         return ip === '127.0.0.1' || ip === '::1' || ip === '::ffff:127.0.0.1';
@@ -179,7 +180,7 @@ app.use('/api/auth', authRoutes);
 // Tenant Rate Limiter
 const tenantLimiter = rateLimit({
     windowMs: 5 * 60 * 1000,
-    max: async (req) => {
+    limit: async (req) => {
         const tenantId = req.user?.tenantId;
         if (!tenantId) return 100;
         try {
@@ -193,7 +194,8 @@ const tenantLimiter = rateLimit({
             return 100;
         }
     },
-    keyGenerator: (req) => (req as any).user?.tenantId ? `tenant_${(req as any).user.tenantId}` : ipKeyGenerator(req.ip || 'unknown'),
+    keyGenerator: (req) => (req as any).user?.tenantId ? `tenant_${(req as any).user.tenantId}` : (req.ip || req.socket.remoteAddress || 'unknown'),
+    validate: false,
     message: {
         status: 429,
         error: 'Too many requests from your Organization.',
