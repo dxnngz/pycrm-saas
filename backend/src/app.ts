@@ -71,12 +71,31 @@ app.use(cookieParser());
 app.use(express.json());
 
 // Permissive CORS for troubleshooting deployment
-const corsOrigins = env.FRONTEND_URL
-    ? [env.FRONTEND_URL, /https:\/\/.*\.onrender\.com$/, /http:\/\/localhost:/]
-    : [/http:\/\/localhost:/];
+const normalizedOrigin = (value: string) => value.replace(/\/$/, '');
+
+const configuredOrigins = (env.FRONTEND_URL || '')
+    .split(',')
+    .map((v) => v.trim())
+    .filter(Boolean)
+    .map(normalizedOrigin);
+
+const corsOrigins: Array<string | RegExp> = [
+    ...configuredOrigins,
+    /http:\/\/localhost(?::\d+)?$/,
+    /https:\/\/.*\.vercel\.app$/,
+    /https:\/\/.*\.onrender\.com$/,
+];
 
 app.use(cors({
-    origin: corsOrigins,
+    origin: (origin, callback) => {
+        if (!origin) return callback(null, true);
+        const candidate = normalizedOrigin(origin);
+        const allowed = corsOrigins.some((entry) => {
+            if (typeof entry === 'string') return entry === candidate;
+            return entry.test(candidate);
+        });
+        return callback(null, allowed);
+    },
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept', 'x-csrf-token', 'x-request-id'],
