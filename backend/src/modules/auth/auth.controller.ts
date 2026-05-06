@@ -10,6 +10,7 @@ import { sendEmail } from '../../core/mailer.js';
 import { env } from '../../env.js';
 import crypto from 'crypto';
 import { redisCache } from '../../core/redis.js';
+import { contextStore } from '../../core/context.js';
 
 // Utilidad para establecer las cookies JWT seguras
 const sendTokenResponse = async (user: { id: number; name: string; email: string; role: string | null; tenant_id: number }, statusCode: number, res: Response, req: Request) => {
@@ -260,7 +261,7 @@ export const forgotPassword = asyncHandler(async (req: Request, res: Response) =
 });
 
 export const resetPassword = asyncHandler(async (req: Request, res: Response) => {
-    const token = String(req.params.token || req.body.token || '');
+    const token = String(req.params.token || req.body.token || '').trim();
     const { password, newPassword } = req.body as { password?: string; newPassword?: string };
     const nextPassword = password || newPassword;
 
@@ -273,9 +274,26 @@ export const resetPassword = asyncHandler(async (req: Request, res: Response) =>
         throw new AppError('Token inválido o expirado', 400);
     }
 
+    const resetUserId = Number(resetRecord.user_id || 0);
+    if (!resetUserId) {
+        throw new AppError('Token inválido', 400);
+    }
+
+    const user = await authService.getUserAuthById(resetUserId);
+    if (!user) {
+        throw new AppError('Usuario no encontrado', 404);
+    }
+
     const hashed = await hashPassword(nextPassword);
-    await authService.updatePassword(resetRecord.user_id!, hashed);
-    await authService.deletePasswordResetToken(token);
+    const currentContext = contextStore.getStore() || {};
+    await contextStore.run(
+        { ...currentContext, tenantId: user.tenant_id, userId: user.id },
+        async () => {
+            await authService.updatePassword(user.id, hashed);
+            await authService.revokeAllUserTokens(user.id);
+            await authService.deletePasswordResetToken(token);
+        }
+    );
 
     res.status(200).json({ success: true, message: 'Contraseña actualizada correctamente' });
 });
