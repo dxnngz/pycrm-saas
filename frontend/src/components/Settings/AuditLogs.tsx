@@ -8,6 +8,7 @@ import {
 } from 'lucide-react';
 import { Skeleton } from '../UI/Skeleton';
 import { Badge } from '../UI/Badge';
+import { formatDate, formatTime } from '../../utils/format';
 
 interface LogEntry {
     id: string | number;
@@ -109,10 +110,10 @@ export const AuditLogs = () => {
                                     <div className="flex flex-col items-end opacity-60 group-hover:opacity-100 transition-opacity">
                                         <span className="text-[11px] font-bold text-surface-text flex items-center gap-1">
                                             <Clock size={10} />
-                                            {new Date(log.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                            {formatTime(log.created_at)}
                                         </span>
                                         <span className="text-[9px] text-surface-muted font-bold uppercase tracking-tight">
-                                            {new Date(log.created_at).toLocaleDateString()}
+                                            {formatDate(log.created_at)}
                                         </span>
                                     </div>
                                 </td>

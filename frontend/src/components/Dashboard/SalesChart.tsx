@@ -8,6 +8,7 @@ import {
     Tooltip,
     ResponsiveContainer
 } from 'recharts';
+import { formatMoney, formatMoneyCompact } from '../../utils/format';
 
 interface SalesChartProps {
     data: { name: string; sales: number }[];
@@ -78,11 +79,12 @@ const SalesChart = ({ data }: SalesChartProps) => {
                             axisLine={false}
                             tickLine={false}
                             tick={{ fill: theme.muted, fontSize: 10, fontWeight: 700 }}
-                            tickFormatter={(value) => `€${value >= 1000 ? (value / 1000) + 'k' : value}`}
+                            tickFormatter={(value) => formatMoneyCompact(Number(value))}
                             dx={-10}
                         />
                         <Tooltip
                             cursor={{ stroke: theme.primary, strokeWidth: 2, strokeDasharray: '5 5' }}
+                            formatter={(value: unknown) => formatMoney(Number(value))}
                             contentStyle={{
                                 borderRadius: '16px',
                                 border: `1px solid ${theme.border}`,

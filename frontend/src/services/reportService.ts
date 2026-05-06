@@ -7,7 +7,7 @@ import type { Client, Opportunity } from '../types';
  */
 export const generatePipelineReport = (opportunities: Opportunity[]) => {
     const doc = new jsPDF();
-    const date = new Date().toLocaleDateString();
+    const date = new Date().toLocaleDateString('es-ES');
 
     // Header
     doc.setFontSize(22);
@@ -66,7 +66,7 @@ export const generatePipelineReport = (opportunities: Opportunity[]) => {
 
 export const generateClientReport = (clients: Client[]) => {
     const doc = new jsPDF();
-    const date = new Date().toLocaleDateString();
+    const date = new Date().toLocaleDateString('es-ES');
 
     doc.setFontSize(22);
     doc.setTextColor(99, 102, 241);

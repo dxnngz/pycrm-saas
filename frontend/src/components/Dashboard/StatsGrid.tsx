@@ -1,6 +1,7 @@
 import React from 'react';
 import { TrendingUp, Target, DollarSign, Activity } from 'lucide-react';
 import StatCard from './StatCard';
+import { formatMoney } from '../../utils/format';
 
 interface StatsGridProps {
     stats: {
@@ -16,7 +17,7 @@ export const StatsGrid: React.FC<StatsGridProps> = ({ stats }) => {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             <StatCard
                 title="Ventas totales"
-                value={`$${stats.totalSales.toLocaleString()}`}
+                value={formatMoney(stats.totalSales, { maximumFractionDigits: 0 })}
                 icon={<DollarSign size={20} />}
                 trend="+12.5%"
                 trendUp={true}

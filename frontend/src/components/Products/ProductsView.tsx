@@ -22,6 +22,7 @@ import { sanitizePayload } from '../../utils/sanitize';
 import { EmptyState } from '../Common/EmptyState';
 import { demoService } from '../../services/demo.service';
 import { useAuth } from '../../context/AuthContext';
+import { formatMoney } from '../../utils/format';
 
 const ProductsView = () => {
   const { user } = useAuth();
@@ -141,7 +142,7 @@ const ProductsView = () => {
       width: '25%',
       accessor: (product: Product) => (
         <span className="font-medium text-surface-text tabular-nums">
-          {new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(Number(product.price))}
+          {formatMoney(Number(product.price))}
         </span>
       ),
     },
@@ -210,7 +211,7 @@ const ProductsView = () => {
           <div>
             <p className="text-[10px] text-surface-muted font-bold uppercase tracking-wider">Precio medio</p>
             <p className="text-xl font-bold text-surface-text tabular-nums">
-              {new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(avgPrice)}
+              {formatMoney(avgPrice)}
             </p>
           </div>
         </div>
@@ -262,7 +263,7 @@ const ProductsView = () => {
           />
           <div className="grid grid-cols-2 gap-4">
             <Input 
-              label="Precio (USD)" 
+              label="Precio (€)" 
               type="number" 
               step="0.01" 
               value={newPrice} 

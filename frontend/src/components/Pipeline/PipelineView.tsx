@@ -24,6 +24,7 @@ import { Button } from '../UI/Button';
 import { Badge } from '../UI/Badge';
 import { Select } from '../UI/Select';
 import { toast } from 'sonner';
+import { formatMoney } from '../../utils/format';
 
 const OpportunityCard = memo(({
     opp,
@@ -61,7 +62,7 @@ const OpportunityCard = memo(({
 
             <div className="flex items-center justify-between pt-3 border-t border-surface-border">
                 <div className="text-sm font-bold text-surface-text tabular-nums">
-                    {new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(Number(opp.amount))}
+                    {formatMoney(Number(opp.amount), { maximumFractionDigits: 0 })}
                 </div>
 
                 <div className="flex items-center gap-1">
@@ -70,14 +71,14 @@ const OpportunityCard = memo(({
                             <button
                                 onClick={() => onUpdateStatus(opp.id, 'ganado')}
                                 className="p-1.5 text-surface-muted hover:text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-500/10 rounded transition-colors"
-                                title="Mark as Won"
+                                title="Marcar como ganado"
                             >
                                 <Check size={14} />
                             </button>
                             <button
                                 onClick={() => onUpdateStatus(opp.id, 'perdido')}
                                 className="p-1.5 text-surface-muted hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-500/10 rounded transition-colors"
-                                title="Mark as Lost"
+                                title="Marcar como perdido"
                             >
                                 <X size={14} />
                             </button>
@@ -88,7 +89,7 @@ const OpportunityCard = memo(({
                             onClick={() => onUpdateStatus(opp.id, 'pendiente')}
                             className="text-[10px] font-bold text-surface-muted hover:text-primary-600 transition-colors uppercase"
                         >
-                            Reopen
+                            Reabrir
                         </button>
                     )}
                 </div>
@@ -460,7 +461,7 @@ const PipelineView = () => {
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <Input
-                            label="Importe (USD)"
+                            label="Importe (€)"
                             type="number"
                             required
                             value={amount}

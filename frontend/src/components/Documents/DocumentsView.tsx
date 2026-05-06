@@ -25,6 +25,7 @@ import { sanitizePayload } from '../../utils/sanitize';
 import { EmptyState } from '../Common/EmptyState';
 import { demoService } from '../../services/demo.service';
 import { useAuth } from '../../context/AuthContext';
+import { formatMoney } from '../../utils/format';
 
 const DocumentsView = () => {
   const { role } = usePermissions();
@@ -153,7 +154,7 @@ const DocumentsView = () => {
       width: '15%',
       accessor: (doc: Document) => (
         <span className="font-medium text-surface-text tabular-nums">
-          {new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(Number(doc?.amount) || 0)}
+          {formatMoney(Number(doc?.amount) || 0)}
         </span>
       ),
     },
@@ -225,7 +226,7 @@ const DocumentsView = () => {
           <div>
             <p className="text-[10px] text-surface-muted font-bold uppercase tracking-wider">Pagados / firmados</p>
             <p className="text-xl font-bold text-surface-text tabular-nums">
-              {new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(paidMothAmount)}
+              {formatMoney(paidMothAmount)}
             </p>
           </div>
         </div>
@@ -289,7 +290,7 @@ const DocumentsView = () => {
             </Select>
           </div>
           <Input 
-            label="Importe (USD)" 
+            label="Importe (€)" 
             type="number" 
             step="0.01" 
             value={newAmount} 

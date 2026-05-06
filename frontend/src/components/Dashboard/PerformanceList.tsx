@@ -1,6 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Users } from 'lucide-react';
+import { formatMoney } from '../../utils/format';
 
 interface PerformanceListProps {
     performance: Array<{
@@ -26,7 +27,7 @@ export const PerformanceList: React.FC<PerformanceListProps> = ({ performance })
                         <div className="flex justify-between items-center mb-2">
                             <span className="text-xs font-bold text-surface-muted">{rep.name}</span>
                             <span className="text-[11px] font-bold text-surface-text tabular-nums bg-surface-muted-bg px-2 py-0.5 rounded">
-                                {new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(rep.total_sales)}
+                                {formatMoney(rep.total_sales, { maximumFractionDigits: 0 })}
                             </span>
                         </div>
                         <div className="h-1.5 w-full bg-surface-muted-bg rounded-full overflow-hidden border border-surface-border/50">

@@ -17,6 +17,7 @@ import { Button } from '../UI/Button';
 import Modal from '../Common/Modal';
 import { Input } from '../UI/Input';
 import { sanitizePayload } from '../../utils/sanitize';
+import { formatMonthDay, formatTime } from '../../utils/format';
 
 const CalendarView = () => {
   const [currentDate, setCurrentDate] = useState(new Date());
@@ -27,8 +28,8 @@ const CalendarView = () => {
   const firstDayOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1).getDay();
 
   const monthNames = [
-    "January", "February", "March", "April", "May", "June",
-    "July", "August", "September", "October", "November", "December"
+    "enero", "febrero", "marzo", "abril", "mayo", "junio",
+    "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"
   ];
 
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -132,7 +133,7 @@ const CalendarView = () => {
           </div>
 
           <div className="grid grid-cols-7 gap-px bg-surface-border rounded-lg overflow-hidden border border-surface-border">
-            {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(day => (
+            {['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'].map(day => (
               <div key={day} className="bg-surface-muted-bg p-3 text-center text-[10px] font-bold uppercase tracking-wider text-surface-muted">
                 {day}
               </div>
@@ -150,11 +151,11 @@ const CalendarView = () => {
                   <span className={`text-xs font-bold ${isToday ? 'text-primary-600 dark:text-primary-400' : 'text-surface-muted'}`}>{day}</span>
                   <div className="mt-1.5 space-y-1">
                     {dayEvents.map(event => {
-                      const eventTime = new Date(event.start_date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                      const eventTime = formatTime(event.start_date);
                       return (
                         <div key={event.id} className="group/event relative">
                           <div className="text-[9px] p-1.5 bg-surface-muted-bg text-surface-text rounded border border-surface-border truncate font-semibold" title={event.title}>
-                            <span className="text-primary-600 dark:text-primary-400 mr-1">{eventTime.split(' ')[0]}</span>
+                            <span className="text-primary-600 dark:text-primary-400 mr-1">{eventTime}</span>
                             {event.title}
                           </div>
                         </div>
@@ -194,8 +195,8 @@ const CalendarView = () => {
                 .sort((a, b) => new Date(a.start_date).getTime() - new Date(b.start_date).getTime())
                 .map(event => {
                   const eventDate = new Date(event.start_date);
-                  const timeString = eventDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-                  const dateString = eventDate.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+                  const timeString = formatTime(eventDate);
+                  const dateString = formatMonthDay(eventDate);
 
                   return (
                     <div key={event.id} className="bg-surface-card p-4 rounded-lg border border-surface-border shadow-sm hover:border-primary-500/50 transition-all group relative">

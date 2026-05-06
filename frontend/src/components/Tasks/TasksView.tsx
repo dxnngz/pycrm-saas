@@ -25,6 +25,7 @@ import { Select } from '../UI/Select';
 import { ConfirmModal } from '../Common/ConfirmModal';
 import { useVirtualizer } from '@tanstack/react-virtual';
 import { toast } from 'sonner';
+import { formatDate } from '../../utils/format';
 
 const TasksView = () => {
     const { tasks, loading, createTask, toggleTask, deleteTask } = useTasks();
@@ -257,7 +258,7 @@ const TasksView = () => {
                                                 {task.deadline && (
                                                     <div className="flex items-center gap-1.5 text-[10px] text-surface-muted">
                                                         <Calendar size={12} />
-                                                        <span>{new Date(task.deadline).toLocaleDateString()}</span>
+                                                        <span>{formatDate(task.deadline)}</span>
                                                     </div>
                                                 )}
                                             </div>
