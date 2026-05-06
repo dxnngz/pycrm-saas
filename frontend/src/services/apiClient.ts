@@ -26,8 +26,10 @@ const onRefreshed = (token: string) => {
 const getCsrfToken = () => {
     const localToken = localStorage.getItem('csrfToken');
     if (localToken) return localToken;
-    const csrfMatch = document.cookie.match(/csrfToken=([^;]+)/);
-    return csrfMatch ? csrfMatch[1] : '';
+    const csrfMatch = document.cookie.match(/(?:^|;\s*)csrfToken=([^;]+)/);
+    if (csrfMatch) return csrfMatch[1];
+    const altMatch = document.cookie.match(/(?:^|;\s*)x-csrf-token=([^;]+)/);
+    return altMatch ? altMatch[1] : '';
 };
 
 export const getHeaders = (): Record<string, string> => {
