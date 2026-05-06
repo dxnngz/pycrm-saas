@@ -14,7 +14,7 @@ const API_URL = explicitApiBase || (import.meta.env.PROD ? '/api' : 'http://loca
 let isRefreshing = false;
 let refreshSubscribers: ((token: string) => void)[] = [];
 
-const REQUEST_TIMEOUT_MS = 20000;
+const REQUEST_TIMEOUT_MS = import.meta.env.PROD ? 65000 : 20000;
 
 const subscribeTokenRefresh = (cb: (token: string) => void) => {
     refreshSubscribers.push(cb);
