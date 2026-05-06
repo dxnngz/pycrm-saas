@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Input } from '../UI/Input';
 import { Button } from '../UI/Button';
+import { Alert } from '../UI/Alert';
 
 interface ResetFormProps {
     onSubmit: (newPassword: string) => Promise<void>;
@@ -55,6 +56,9 @@ export const ResetForm: React.FC<ResetFormProps> = ({ onSubmit, isLoading, onBac
                 onChange={(e) => setPassword(e.target.value)}
                 required
             />
+            <div className="text-[11px] font-semibold text-surface-muted">
+                Use at least 8 characters.
+            </div>
             <Input
                 label="Confirm new password"
                 type="password"
@@ -64,9 +68,7 @@ export const ResetForm: React.FC<ResetFormProps> = ({ onSubmit, isLoading, onBac
                 required
             />
             {localError ? (
-                <div className="text-xs font-bold text-red-500 bg-red-500/10 p-3 rounded-xl border border-red-500/20 text-center">
-                    {localError}
-                </div>
+                <Alert variant="danger">{localError}</Alert>
             ) : null}
             <Button type="submit" fullWidth isLoading={isLoading}>
                 Update password
@@ -83,4 +85,3 @@ export const ResetForm: React.FC<ResetFormProps> = ({ onSubmit, isLoading, onBac
         </form>
     );
 };
-

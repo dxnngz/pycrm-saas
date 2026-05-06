@@ -13,20 +13,22 @@ interface SalesChartProps {
     data: { name: string; sales: number }[];
 }
 
-const getCssVar = (name: string, fallback: string) => {
+const isDark = () => document.documentElement.classList.contains('dark');
+
+const getCssVar = (name: string, fallbacks: { light: string; dark: string }) => {
     const value = getComputedStyle(document.documentElement).getPropertyValue(name).trim();
-    return value || fallback;
+    return value || (isDark() ? fallbacks.dark : fallbacks.light);
 };
 
 const SalesChart = ({ data }: SalesChartProps) => {
     const safeData = Array.isArray(data) ? data : [];
     
     const [theme, setTheme] = useState(() => ({
-        primary: getCssVar('--color-primary-500', '#6366f1'),
-        border: getCssVar('--color-surface-border', '#e2e8f0'),
-        card: getCssVar('--color-surface-card', '#ffffff'),
-        text: getCssVar('--color-surface-text', '#0f172a'),
-        muted: getCssVar('--color-surface-muted', '#64748b'),
+        primary: getCssVar('--color-primary-500', { light: '#0ea5e9', dark: '#0ea5e9' }),
+        border: getCssVar('--color-surface-border', { light: '#e2e8f0', dark: '#1e293b' }),
+        card: getCssVar('--color-surface-card', { light: '#ffffff', dark: '#0f172a' }),
+        text: getCssVar('--color-surface-text', { light: '#0f172a', dark: '#f8fafc' }),
+        muted: getCssVar('--color-surface-muted', { light: '#64748b', dark: '#94a3b8' }),
     }));
 
     useEffect(() => {
@@ -34,11 +36,11 @@ const SalesChart = ({ data }: SalesChartProps) => {
             mutations.forEach((mutation) => {
                 if (mutation.attributeName === 'class') {
                     setTheme({
-                        primary: getCssVar('--color-primary-500', '#6366f1'),
-                        border: getCssVar('--color-surface-border', '#e2e8f0'),
-                        card: getCssVar('--color-surface-card', '#ffffff'),
-                        text: getCssVar('--color-surface-text', '#0f172a'),
-                        muted: getCssVar('--color-surface-muted', '#64748b'),
+                        primary: getCssVar('--color-primary-500', { light: '#0ea5e9', dark: '#0ea5e9' }),
+                        border: getCssVar('--color-surface-border', { light: '#e2e8f0', dark: '#1e293b' }),
+                        card: getCssVar('--color-surface-card', { light: '#ffffff', dark: '#0f172a' }),
+                        text: getCssVar('--color-surface-text', { light: '#0f172a', dark: '#f8fafc' }),
+                        muted: getCssVar('--color-surface-muted', { light: '#64748b', dark: '#94a3b8' }),
                     });
                 }
             });

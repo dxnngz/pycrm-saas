@@ -11,6 +11,7 @@ import { Tabs } from '../UI/Tabs';
 import { Skeleton } from '../UI/Skeleton';
 import { Badge } from '../UI/Badge';
 import { Card } from '../UI/Card';
+import { Alert } from '../UI/Alert';
 
 // Dashboard Components (Lazy Loaded)
 const SalesChart = lazy(() => import('./SalesChart'));
@@ -24,6 +25,9 @@ import { PerformanceList } from './PerformanceList';
 // Logic & Utilities
 import { useDashboardData } from '../../hooks/useDashboardData';
 import { generatePipelineReport } from '../../services/reportService';
+import { demoService } from '../../services/demo.service';
+import { toast } from 'sonner';
+import { useAuth } from '../../context/AuthContext';
 
 const DashboardSkeleton = () => (
     <div className="space-y-8 animate-in fade-in duration-500">
@@ -53,6 +57,8 @@ const DashboardSkeleton = () => (
 
 const DashboardView = () => {
     const [period, setPeriod] = useState<'monthly' | 'yearly'>('monthly');
+    const [seeding, setSeeding] = useState(false);
+    const { user } = useAuth();
 
     const { data, isLoading: loading, isFetching, refetch } = useDashboardData(period);
 
@@ -66,10 +72,32 @@ const DashboardView = () => {
         chartData: []
     };
     const isCached = !isFetching && data?.isCached;
+    const isEmpty =
+        stats.totalSales === 0 &&
+        stats.activeOpportunities === 0 &&
+        stats.pendingTasks === 0 &&
+        stats.winRate === 0 &&
+        (stats.recentActivity?.length || 0) === 0 &&
+        (stats.repPerformance?.length || 0) === 0 &&
+        (stats.chartData?.length || 0) === 0;
 
     const handleExport = () => {
         if (data?.rawOpps) {
             generatePipelineReport(data.rawOpps);
+        }
+    };
+
+    const handleSeedDemo = async () => {
+        setSeeding(true);
+        try {
+            const res = await demoService.seed();
+            toast.success(res.message || 'Demo data generated');
+            await refetch();
+        } catch (e: unknown) {
+            const msg = e instanceof Error ? e.message : 'Could not generate demo data';
+            toast.error(msg);
+        } finally {
+            setSeeding(false);
         }
     };
 
@@ -117,6 +145,21 @@ const DashboardView = () => {
 
             {/* Core Stats */}
             <StatsGrid stats={stats} />
+
+            {isEmpty && (
+                <div className="flex items-start justify-between gap-4">
+                    <div className="flex-1">
+                        <Alert variant="info" title="Workspace looks empty">
+                            Create your first client, opportunity and tasks — or generate demo data to make the dashboard look complete for a live presentation.
+                        </Alert>
+                    </div>
+                    {user?.role === 'admin' && (
+                        <Button variant="primary" size="sm" onClick={handleSeedDemo} isLoading={seeding}>
+                            Generate demo data
+                        </Button>
+                    )}
+                </div>
+            )}
 
             {/* Analysis Row */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">

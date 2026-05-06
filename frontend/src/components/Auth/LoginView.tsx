@@ -9,6 +9,7 @@ import { LoginForm } from './LoginForm';
 import { RegisterForm } from './RegisterForm';
 import { ForgotForm } from './ForgotForm';
 import { ResetForm } from './ResetForm';
+import { Alert } from '../UI/Alert';
 
 type AuthMode = 'login' | 'forgot' | 'reset' | 'register';
 
@@ -20,6 +21,12 @@ const LoginView = () => {
     const [success, setSuccess] = useState(false);
     const [resetToken, setResetToken] = useState('');
 
+    const switchMode = (next: AuthMode) => {
+        setAuthMode(next);
+        setError('');
+        setSuccess(false);
+    };
+
     useEffect(() => {
         const urlParams = new URLSearchParams(window.location.search);
         const queryToken = urlParams.get('token');
@@ -28,7 +35,7 @@ const LoginView = () => {
         const token = queryToken || pathToken;
         if (token) {
             setResetToken(token);
-            setAuthMode('reset');
+            switchMode('reset');
         }
     }, []);
 
@@ -59,7 +66,9 @@ const LoginView = () => {
             await login({ email: data.email, password: data.pass });
             toast.success('Account created successfully');
         } catch (err: unknown) {
-            setError(err instanceof Error ? err.message : 'Registration failed');
+            const msg = err instanceof Error ? err.message : 'Registration failed';
+            setError(msg);
+            toast.error('Registration failed', { description: msg });
         } finally {
             setLoading(false);
         }
@@ -71,8 +80,11 @@ const LoginView = () => {
         try {
             await authService.forgotPassword(email);
             setSuccess(true);
+            toast.success('Reset link sent', { description: 'If the email exists, you will receive a link shortly.' });
         } catch (err: unknown) {
-            setError(err instanceof Error ? err.message : 'Request failed');
+            const msg = err instanceof Error ? err.message : 'Request failed';
+            setError(msg);
+            toast.error('Request failed', { description: msg });
         } finally {
             setLoading(false);
         }
@@ -85,8 +97,11 @@ const LoginView = () => {
             if (!resetToken) throw new Error('Invalid reset link');
             await authService.resetPassword(resetToken, newPassword);
             setSuccess(true);
+            toast.success('Password updated', { description: 'You can sign in with your new password.' });
         } catch (err: unknown) {
-            setError(err instanceof Error ? err.message : 'Request failed');
+            const msg = err instanceof Error ? err.message : 'Request failed';
+            setError(msg);
+            toast.error('Request failed', { description: msg });
         } finally {
             setLoading(false);
         }
@@ -149,7 +164,7 @@ const LoginView = () => {
                                 <LoginForm
                                     onSubmit={handleLogin}
                                     isLoading={loading}
-                                    onForgotPassword={() => setAuthMode('forgot')}
+                                    onForgotPassword={() => switchMode('forgot')}
                                 />
                             </motion.div>
                         )}
@@ -165,7 +180,7 @@ const LoginView = () => {
                                 <RegisterForm
                                     onSubmit={handleRegister}
                                     isLoading={loading}
-                                    onBack={() => setAuthMode('login')}
+                                    onBack={() => switchMode('login')}
                                 />
                             </motion.div>
                         )}
@@ -181,7 +196,7 @@ const LoginView = () => {
                                 <ForgotForm
                                     onSubmit={handleForgot}
                                     isLoading={loading}
-                                    onBack={() => { setAuthMode('login'); setSuccess(false); }}
+                                    onBack={() => switchMode('login')}
                                     success={success}
                                 />
                             </motion.div>
@@ -198,7 +213,7 @@ const LoginView = () => {
                                 <ResetForm
                                     onSubmit={handleReset}
                                     isLoading={loading}
-                                    onBack={() => { setAuthMode('login'); setSuccess(false); }}
+                                    onBack={() => switchMode('login')}
                                     success={success}
                                 />
                             </motion.div>
@@ -206,13 +221,13 @@ const LoginView = () => {
                     </AnimatePresence>
 
                     {error && (
-                        <motion.p
+                        <motion.div
                             initial={{ opacity: 0, height: 0 }}
                             animate={{ opacity: 1, height: 'auto' }}
-                            className="mt-6 text-xs font-bold text-red-500 bg-red-500/10 p-4 rounded-xl border border-red-500/20 text-center"
+                            className="mt-6"
                         >
-                            {error}
-                        </motion.p>
+                            <Alert variant="danger">{error}</Alert>
+                        </motion.div>
                     )}
                 </motion.div>
 
@@ -222,7 +237,7 @@ const LoginView = () => {
                         <p className="text-sm text-surface-muted">
                             New organization?{' '}
                             <button
-                                onClick={() => setAuthMode('register')}
+                                onClick={() => switchMode('register')}
                                 className="text-primary-600 font-semibold hover:text-primary-700 transition-all"
                             >
                                 Register Instance
@@ -231,7 +246,7 @@ const LoginView = () => {
                     )}
                     {mode !== 'login' && mode !== 'forgot' && (
                         <button
-                            onClick={() => setAuthMode('login')}
+                            onClick={() => switchMode('login')}
                             className="text-sm font-semibold text-surface-muted hover:text-surface-text transition-all underline underline-offset-4"
                         >
                             Return to Portal
