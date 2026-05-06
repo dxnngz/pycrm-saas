@@ -1,35 +1,19 @@
-const normalizeApiBase = (url?: string): string => {
-    if (!url) return '';
-    const trimmed = url.replace(/\/+$/, '');
-    return trimmed.endsWith('/api') ? trimmed : `${trimmed}/api`;
-};
+import { customFetch, getHeaders, handleResponse } from './apiClient';
 
-const API_URL = normalizeApiBase(import.meta.env.VITE_API_URL) || '/api';
-
-const getHeaders = (): Record<string, string> => {
-    const headers: Record<string, string> = {
-        'Accept': 'application/json',
-        'Content-Type': 'application/json',
-    };
-    const token = localStorage.getItem('token');
-    if (token) {
-        headers['Authorization'] = `Bearer ${token}`;
+export const streamClientBrief = async (
+    clientId: number,
+    onMessage: (text: string) => void,
+    onDone: () => void
+) => {
+    const response = await customFetch(`/ai/client-brief/${clientId}`, { headers: getHeaders() });
+    if (!response.ok) {
+        const contentType = response.headers.get('content-type') || '';
+        const msg = contentType.includes('application/json') ? (await response.json())?.message : await response.text();
+        throw new Error(msg || 'No se pudo generar el briefing');
     }
-    return headers;
-};
-
-export const streamClientBrief = async (clientId: number, onMessage: (text: string) => void, onDone: () => void) => {
-    const token = localStorage.getItem('token');
-    const response = await fetch(`${API_URL}/ai/client-brief/${clientId}`, {
-        headers: {
-            'Authorization': `Bearer ${token}`
-        }
-    });
-
-    if (!response.ok) throw new Error('Failed to stream brief');
 
     const reader = response.body?.getReader();
-    if (!reader) return;
+    if (!reader) throw new Error('No se pudo iniciar el streaming');
 
     const decoder = new TextDecoder();
     let buffer = '';
@@ -43,41 +27,27 @@ export const streamClientBrief = async (clientId: number, onMessage: (text: stri
         buffer = lines.pop() || '';
 
         for (const line of lines) {
-            if (line.startsWith('data: ')) {
-                const json = JSON.parse(line.substring(6));
+            if (!line.trim().startsWith('data: ')) continue;
+            const dataStr = line.substring(6).trim();
+            if (!dataStr || dataStr === '[DONE]') continue;
+            try {
+                const json = JSON.parse(dataStr);
+                if (json.error) throw new Error(json.error);
                 if (json.text) onMessage(json.text);
                 if (json.done) onDone();
+            } catch (e: unknown) {
+                const msg = e instanceof Error ? e.message : 'Error leyendo el streaming';
+                throw new Error(msg);
             }
         }
     }
 };
 
-export const getSmartAlerts = async () => {
-    const response = await fetch(`${API_URL}/ai/alerts`, {
-        headers: getHeaders(),
-    });
+export const getSmartAlerts = async () =>
+    customFetch('/ai/alerts', { headers: getHeaders() }).then(handleResponse);
 
-    if (!response.ok) throw new Error('Failed to fetch smart alerts');
-    return response.json();
-};
+export const getOpportunityScore = async (opportunityId: number) =>
+    customFetch(`/ai/opportunity-score/${opportunityId}`, { headers: getHeaders() }).then(handleResponse);
 
-export const getOpportunityScore = async (opportunityId: number) => {
-    const response = await fetch(`${API_URL}/ai/opportunity-score/${opportunityId}`, {
-        headers: getHeaders(),
-    });
-
-    if (!response.ok) {
-        throw new Error('Failed to fetch opportunity score');
-    }
-
-    return response.json();
-};
-
-export const getExecutiveBriefing = async () => {
-    const response = await fetch(`${API_URL}/ai/executive-briefing`, {
-        headers: getHeaders(),
-    });
-
-    if (!response.ok) throw new Error('Failed to fetch executive briefing');
-    return response.json();
-};
+export const getExecutiveBriefing = async () =>
+    customFetch('/ai/executive-briefing', { headers: getHeaders() }).then(handleResponse);

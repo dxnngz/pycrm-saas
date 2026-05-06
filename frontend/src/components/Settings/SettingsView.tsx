@@ -5,29 +5,39 @@ import {
     Shield,
     Palette,
     Save,
-    RefreshCw,
     History,
     Settings as SettingsIcon,
     Database,
     Mail
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
+import { useUI } from '../../hooks/useUI';
 import { Button } from '../UI/Button';
 import { Input } from '../UI/Input';
 import { Badge } from '../UI/Badge';
 import { Skeleton } from '../UI/Skeleton';
 import { toast } from 'sonner';
 import { demoService } from '../../services/demo.service';
+import { authService } from '../../services/auth.service';
 
 const AuditLogs = lazy(() => import('./AuditLogs'));
 
 const SettingsView = () => {
-    const { user } = useAuth();
+    const { user, logout } = useAuth();
+    const { isDense, toggleDense } = useUI();
     const [activeTab, setActiveTab] = useState('profile');
     const [isSaving, setIsSaving] = useState(false);
     const [demoLoading, setDemoLoading] = useState(false);
     const [testEmailLoading, setTestEmailLoading] = useState(false);
     const [testEmailTo, setTestEmailTo] = useState(user?.email || '');
+    const [notifEmail, setNotifEmail] = useState(() => localStorage.getItem('pycrm-notif-email') !== 'false');
+    const [notifProduct, setNotifProduct] = useState(() => localStorage.getItem('pycrm-notif-product') !== 'false');
+    const [notifDigest, setNotifDigest] = useState(() => localStorage.getItem('pycrm-notif-digest') === 'true');
+    const [theme, setTheme] = useState<'light' | 'dark'>(() => (localStorage.getItem('theme') === 'dark' ? 'dark' : 'light'));
+    const [currentPassword, setCurrentPassword] = useState('');
+    const [newPassword, setNewPassword] = useState('');
+    const [confirmPassword, setConfirmPassword] = useState('');
+    const [passwordLoading, setPasswordLoading] = useState(false);
 
     const tabs = [
         { id: 'profile', label: 'My Profile', icon: User },
@@ -47,6 +57,42 @@ const SettingsView = () => {
             setIsSaving(false);
             // In a real app, this would be an API call
         }, 800);
+    };
+
+    const persistNotif = (key: string, value: boolean) => {
+        localStorage.setItem(key, String(value));
+    };
+
+    const applyTheme = (next: 'light' | 'dark') => {
+        setTheme(next);
+        localStorage.setItem('theme', next);
+        window.location.reload();
+    };
+
+    const handleChangePassword = async () => {
+        if (!currentPassword || !newPassword) {
+            toast.error('Completa todos los campos');
+            return;
+        }
+        if (newPassword !== confirmPassword) {
+            toast.error('Las contraseñas no coinciden');
+            return;
+        }
+
+        setPasswordLoading(true);
+        try {
+            const res = await authService.changePassword(currentPassword, newPassword);
+            toast.success(res.message || 'Contraseña actualizada');
+            logout();
+        } catch (e: unknown) {
+            const msg = e instanceof Error ? e.message : 'No se pudo actualizar la contraseña';
+            toast.error(msg);
+        } finally {
+            setPasswordLoading(false);
+            setCurrentPassword('');
+            setNewPassword('');
+            setConfirmPassword('');
+        }
     };
 
     const handleSeedDemo = async () => {
@@ -210,11 +256,132 @@ const SettingsView = () => {
                         </div>
                     )}
 
-                    {activeTab !== 'profile' && activeTab !== 'audit' && activeTab !== 'demo' && (
-                        <div className="h-full flex flex-col items-center justify-center text-surface-muted py-12">
-                            <RefreshCw size={48} className="mb-4 opacity-10" />
-                            <p className="text-xs font-bold uppercase tracking-widest opacity-60">Module in Development</p>
-                            <p className="text-[10px] mt-1">Full functionality will be available in the next release.</p>
+                    {activeTab === 'notifications' && (
+                        <div className="max-w-2xl space-y-8">
+                            <div className="space-y-2">
+                                <h3 className="text-lg font-bold text-surface-text">Notifications</h3>
+                                <p className="text-sm text-surface-muted">Controla qué avisos quieres recibir.</p>
+                            </div>
+
+                            <div className="space-y-3">
+                                <div className="flex items-center justify-between p-4 rounded-lg bg-surface-muted-bg/40 border border-surface-border">
+                                    <div>
+                                        <p className="text-xs font-bold text-surface-text uppercase tracking-wider">Email alerts</p>
+                                        <p className="text-xs text-surface-muted">Avisos críticos por email.</p>
+                                    </div>
+                                    <Button
+                                        variant={notifEmail ? 'primary' : 'outline'}
+                                        onClick={() => {
+                                            const next = !notifEmail;
+                                            setNotifEmail(next);
+                                            persistNotif('pycrm-notif-email', next);
+                                        }}
+                                    >
+                                        {notifEmail ? 'On' : 'Off'}
+                                    </Button>
+                                </div>
+
+                                <div className="flex items-center justify-between p-4 rounded-lg bg-surface-muted-bg/40 border border-surface-border">
+                                    <div>
+                                        <p className="text-xs font-bold text-surface-text uppercase tracking-wider">Product updates</p>
+                                        <p className="text-xs text-surface-muted">Novedades y mejoras.</p>
+                                    </div>
+                                    <Button
+                                        variant={notifProduct ? 'primary' : 'outline'}
+                                        onClick={() => {
+                                            const next = !notifProduct;
+                                            setNotifProduct(next);
+                                            persistNotif('pycrm-notif-product', next);
+                                        }}
+                                    >
+                                        {notifProduct ? 'On' : 'Off'}
+                                    </Button>
+                                </div>
+
+                                <div className="flex items-center justify-between p-4 rounded-lg bg-surface-muted-bg/40 border border-surface-border">
+                                    <div>
+                                        <p className="text-xs font-bold text-surface-text uppercase tracking-wider">Weekly digest</p>
+                                        <p className="text-xs text-surface-muted">Resumen semanal del pipeline.</p>
+                                    </div>
+                                    <Button
+                                        variant={notifDigest ? 'primary' : 'outline'}
+                                        onClick={() => {
+                                            const next = !notifDigest;
+                                            setNotifDigest(next);
+                                            persistNotif('pycrm-notif-digest', next);
+                                        }}
+                                    >
+                                        {notifDigest ? 'On' : 'Off'}
+                                    </Button>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
+                    {activeTab === 'appearance' && (
+                        <div className="max-w-2xl space-y-8">
+                            <div className="space-y-2">
+                                <h3 className="text-lg font-bold text-surface-text">Appearance</h3>
+                                <p className="text-sm text-surface-muted">Ajusta tema y densidad de la interfaz.</p>
+                            </div>
+
+                            <div className="p-4 rounded-lg bg-surface-muted-bg/40 border border-surface-border space-y-3">
+                                <p className="text-xs font-bold text-surface-text uppercase tracking-wider">Theme</p>
+                                <div className="flex gap-3">
+                                    <Button variant={theme === 'light' ? 'primary' : 'outline'} onClick={() => applyTheme('light')}>Light</Button>
+                                    <Button variant={theme === 'dark' ? 'primary' : 'outline'} onClick={() => applyTheme('dark')}>Dark</Button>
+                                </div>
+                                <p className="text-[10px] text-surface-muted">El cambio de tema aplica recargando la app.</p>
+                            </div>
+
+                            <div className="p-4 rounded-lg bg-surface-muted-bg/40 border border-surface-border space-y-3">
+                                <p className="text-xs font-bold text-surface-text uppercase tracking-wider">Density</p>
+                                <div className="flex items-center justify-between">
+                                    <p className="text-xs text-surface-muted">Modo compacto</p>
+                                    <Button variant={isDense ? 'primary' : 'outline'} onClick={toggleDense}>{isDense ? 'On' : 'Off'}</Button>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
+                    {activeTab === 'security' && (
+                        <div className="max-w-2xl space-y-8">
+                            <div className="space-y-2">
+                                <h3 className="text-lg font-bold text-surface-text">Security</h3>
+                                <p className="text-sm text-surface-muted">Actualiza tu contraseña de acceso.</p>
+                            </div>
+
+                            <div className="p-4 rounded-lg bg-surface-muted-bg/40 border border-surface-border space-y-4">
+                                <Input
+                                    label="Current password"
+                                    type="password"
+                                    value={currentPassword}
+                                    onChange={(e) => setCurrentPassword(e.target.value)}
+                                    placeholder="••••••••"
+                                />
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <Input
+                                        label="New password"
+                                        type="password"
+                                        value={newPassword}
+                                        onChange={(e) => setNewPassword(e.target.value)}
+                                        placeholder="Min 8 caracteres"
+                                    />
+                                    <Input
+                                        label="Confirm new password"
+                                        type="password"
+                                        value={confirmPassword}
+                                        onChange={(e) => setConfirmPassword(e.target.value)}
+                                        placeholder="Repite la nueva contraseña"
+                                    />
+                                </div>
+                                <div className="flex justify-end">
+                                    <Button variant="primary" onClick={handleChangePassword} isLoading={passwordLoading}>
+                                        Update password
+                                    </Button>
+                                </div>
+                                <p className="text-[10px] text-surface-muted">Al cambiar la contraseña se cierra la sesión.</p>
+                            </div>
                         </div>
                     )}
                 </div>

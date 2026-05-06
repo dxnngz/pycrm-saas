@@ -24,6 +24,7 @@ router.post('/mfa/setup', protect, authController.setupMFA);
 router.post('/mfa/verify', protect, authController.verifyAndEnableMFA);
 router.post('/mfa/disable', protect, authController.disableMFA);
 router.post('/logout', protect, authController.logout);
+router.post('/change-password', protect, authController.changePassword);
 router.get('/me', protect, authController.getProfile);
 router.get('/profile', protect, authController.getProfile);
 

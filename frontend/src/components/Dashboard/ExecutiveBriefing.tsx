@@ -13,6 +13,7 @@ import {
     type LucideIcon
 } from 'lucide-react';
 import { Card } from '../UI/Card';
+import { toast } from 'sonner';
 
 interface BriefingItem {
     id: string;
@@ -47,6 +48,7 @@ const ExecutiveBriefing: React.FC = () => {
     }
 
     const items: BriefingItem[] = data?.items || [];
+    const message: string | undefined = data?.message;
 
     return (
         <Card className="premium-shadow shrink-0">
@@ -72,6 +74,12 @@ const ExecutiveBriefing: React.FC = () => {
                             animate={{ opacity: 1, x: 0 }}
                             transition={{ delay: idx * 0.1 }}
                             className="group relative p-5 rounded-2xl border border-surface-border hover:bg-surface-hover transition-all cursor-pointer"
+                            onClick={() => {
+                                navigator.clipboard?.writeText(item.action).then(
+                                    () => toast.success('Acción copiada'),
+                                    () => toast.error('No se pudo copiar')
+                                );
+                            }}
                         >
                             <div className="flex gap-4">
                                 <div className={`w-10 h-10 rounded-xl ${config.bg} ${config.color} flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform`}>
@@ -96,12 +104,15 @@ const ExecutiveBriefing: React.FC = () => {
                 }) : (
                     <div className="py-12 text-center opacity-50">
                         <ShieldAlert className="w-10 h-10 mx-auto mb-3 text-surface-muted/50" />
-                        <p className="text-xs font-bold text-surface-muted uppercase tracking-widest">Sin sugerencias estratégicas actuales</p>
+                        <p className="text-xs font-bold text-surface-muted uppercase tracking-widest">{message || 'Sin sugerencias estratégicas actuales'}</p>
                     </div>
                 )}
             </div>
 
-            <button className="w-full mt-6 py-4 rounded-xl bg-surface-muted-bg text-surface-muted text-[10px] font-black uppercase tracking-widest hover:text-primary-500 hover:bg-primary-500/10 transition-all border border-transparent hover:border-primary-500/20">
+            <button
+                onClick={() => toast.info('Acción copiada en sugerencias o usa Nexus AI para profundizar')}
+                className="w-full mt-6 py-4 rounded-xl bg-surface-muted-bg text-surface-muted text-[10px] font-black uppercase tracking-widest hover:text-primary-500 hover:bg-primary-500/10 transition-all border border-transparent hover:border-primary-500/20"
+            >
                 Ver Análisis Completo
             </button>
         </Card>

@@ -200,6 +200,13 @@ export class AIService {
     }
 
     async streamClientBriefing(clientId: number, tenantId: number, res: Response) {
+        if (!process.env.OPENAI_API_KEY && !process.env.GROQ_API_KEY) {
+            res.write(`data: ${JSON.stringify({ error: "La IA no está configurada. Añade GROQ_API_KEY u OPENAI_API_KEY en Render para habilitar esta función." })}\n\n`);
+            res.write(`data: ${JSON.stringify({ done: true })}\n\n`);
+            res.end();
+            return;
+        }
+
         const client = await prisma.client.findFirst({
             where: { id: clientId, tenant_id: tenantId },
             include: {
@@ -246,12 +253,24 @@ export class AIService {
             res.write(`data: ${JSON.stringify({ done: true })}\n\n`);
             res.end();
         } catch (error: any) {
-            res.write(`data: ${JSON.stringify({ error: error.message })}\n\n`);
+            let errorMessage = "Lo siento, ocurrió un error interno al contactar al motor de Inteligencia Artificial.";
+            if (error.status === 401) {
+                errorMessage = "La API Key de Groq/OpenAI no es válida (Error 401 Unauthorized). Verifica la clave en Render.";
+            } else if (error.status === 429) {
+                errorMessage = "Has excedido el límite de peticiones. Intenta de nuevo más tarde.";
+            } else if (error.message) {
+                errorMessage = `Error del servidor de IA: ${error.message}`;
+            }
+            res.write(`data: ${JSON.stringify({ error: errorMessage })}\n\n`);
             res.end();
         }
     }
 
     async getExecutiveBriefing(tenantId: number) {
+        if (!process.env.OPENAI_API_KEY && !process.env.GROQ_API_KEY) {
+            return { items: [], message: "AI not configured for executive briefing." };
+        }
+
         // Fetch critical CRM data for context
         const [recentOpps, overdueTasks] = await Promise.all([
             prisma.opportunity.findMany({
@@ -291,7 +310,7 @@ export class AIService {
 
             return JSON.parse(response.choices[0].message.content || '{"items": []}');
         } catch (error) {
-            return { items: [] };
+            return { items: [], error: "Error generating executive briefing" };
         }
     }
 

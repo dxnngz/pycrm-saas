@@ -32,4 +32,11 @@ export const authService = {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ password: newPassword }),
         }).then(handleResponse),
+
+    changePassword: (currentPassword: string, newPassword: string): Promise<{ message: string }> =>
+        customFetch('/auth/change-password', {
+            method: 'POST',
+            headers: getHeaders(),
+            body: JSON.stringify({ currentPassword, newPassword }),
+        }).then(handleResponse),
 };

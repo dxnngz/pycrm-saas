@@ -5,7 +5,8 @@ export enum SystemRole {
     ADMIN = 'admin',
     MANAGER = 'manager',
     USER = 'user',
-    SALES = 'sales'
+    SALES = 'sales',
+    EMPLEADO = 'empleado'
 }
 
 // Definición Granular de Permisos
@@ -49,7 +50,12 @@ export const RolePermissions: Record<string, Permission[]> = {
         Permission.READ_OPPORTUNITY,
         Permission.READ_CLIENT,
         Permission.READ_TASK, Permission.WRITE_TASK
-    ]
+    ],
+    [SystemRole.EMPLEADO]: [
+        Permission.READ_OPPORTUNITY,
+        Permission.READ_CLIENT,
+        Permission.READ_TASK, Permission.WRITE_TASK
+    ],
 };
 
 // Middleware de Autorización por Permiso

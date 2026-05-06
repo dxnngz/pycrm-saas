@@ -20,6 +20,13 @@ export class AuthService {
         });
     }
 
+    async getUserAuthById(id: number) {
+        return await prisma.user.findUnique({
+            where: { id },
+            select: { id: true, email: true, password: true, tenant_id: true, role: true, name: true }
+        });
+    }
+
     async registerTenantWithUser(data: { name: string, email: string, passwordHash: string, role: string, companyName: string }) {
         return await prisma.$transaction(async (tx) => {
             const tenant = await tx.tenant.create({

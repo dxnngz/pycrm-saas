@@ -290,3 +290,46 @@ export const getProfile = asyncHandler(async (req: Request, res: Response) => {
     }
     res.status(200).json(user);
 });
+
+export const changePassword = asyncHandler(async (req: Request, res: Response) => {
+    const userId = req.user?.id;
+    const jti = req.user?.jti as string | undefined;
+    if (!userId) throw new AppError('No autenticado', 401);
+
+    const { currentPassword, newPassword } = req.body as { currentPassword?: string; newPassword?: string };
+    if (!currentPassword || !newPassword) {
+        throw new AppError('currentPassword y newPassword son obligatorios', 400);
+    }
+    if (newPassword.length < 8) {
+        throw new AppError('La nueva contraseña debe tener al menos 8 caracteres', 400);
+    }
+
+    const user = await authService.getUserAuthById(userId);
+    if (!user) throw new AppError('Usuario no encontrado', 404);
+
+    const ok = await comparePassword(currentPassword, user.password);
+    if (!ok) throw new AppError('La contraseña actual no es correcta', 401);
+
+    const hashed = await hashPassword(newPassword);
+    await authService.updatePassword(userId, hashed);
+    await authService.revokeAllUserTokens(userId);
+
+    if (jti) {
+        void import('../../core/redis.js').then(({ redisCache }) => redisCache.blacklistToken(jti, 60 * 60)).catch(() => null);
+    }
+
+    res.cookie('jwt', 'loggedout', {
+        expires: new Date(Date.now() + 10 * 1000),
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'strict'
+    });
+    res.cookie('refreshToken', 'loggedout', {
+        expires: new Date(Date.now() + 10 * 1000),
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'strict'
+    });
+
+    res.status(200).json({ success: true, message: 'Contraseña actualizada. Inicia sesión de nuevo.' });
+});

@@ -21,8 +21,6 @@ const getCssVar = (name: string, fallback: string) => {
 const SalesChart = ({ data }: SalesChartProps) => {
     const safeData = Array.isArray(data) ? data : [];
     
-    // Check for dark mode reactively
-    const [isDark, setIsDark] = useState(() => document.documentElement.classList.contains('dark'));
     const [theme, setTheme] = useState(() => ({
         primary: getCssVar('--color-primary-500', '#6366f1'),
         border: getCssVar('--color-surface-border', '#e2e8f0'),
@@ -35,7 +33,13 @@ const SalesChart = ({ data }: SalesChartProps) => {
         const observer = new MutationObserver((mutations) => {
             mutations.forEach((mutation) => {
                 if (mutation.attributeName === 'class') {
-                    setIsDark(document.documentElement.classList.contains('dark'));
+                    setTheme({
+                        primary: getCssVar('--color-primary-500', '#6366f1'),
+                        border: getCssVar('--color-surface-border', '#e2e8f0'),
+                        card: getCssVar('--color-surface-card', '#ffffff'),
+                        text: getCssVar('--color-surface-text', '#0f172a'),
+                        muted: getCssVar('--color-surface-muted', '#64748b'),
+                    });
                 }
             });
         });
@@ -43,16 +47,6 @@ const SalesChart = ({ data }: SalesChartProps) => {
         observer.observe(document.documentElement, { attributes: true });
         return () => observer.disconnect();
     }, []);
-
-    useEffect(() => {
-        setTheme({
-            primary: getCssVar('--color-primary-500', '#6366f1'),
-            border: getCssVar('--color-surface-border', '#e2e8f0'),
-            card: getCssVar('--color-surface-card', '#ffffff'),
-            text: getCssVar('--color-surface-text', '#0f172a'),
-            muted: getCssVar('--color-surface-muted', '#64748b'),
-        });
-    }, [isDark]);
 
     return (
         <div className="w-full h-full flex flex-col min-h-[350px]">
