@@ -46,8 +46,15 @@ export const streamClientBrief = async (
 export const getSmartAlerts = async () =>
     customFetch('/ai/alerts', { headers: getHeaders() }).then(handleResponse);
 
-export const getOpportunityScore = async (opportunityId: number) =>
-    customFetch(`/ai/opportunity-score/${opportunityId}`, { headers: getHeaders() }).then(handleResponse);
+export const getOpportunityScore = async (opportunityId: number) => {
+    const response = await customFetch(`/ai/opportunity-score/${opportunityId}`, { headers: getHeaders() });
+    if (!response.ok) {
+        const contentType = response.headers.get('content-type') || '';
+        const msg = contentType.includes('application/json') ? (await response.json())?.message : await response.text();
+        throw new Error(msg || 'No se pudo obtener el score');
+    }
+    return response.json();
+};
 
 export const getExecutiveBriefing = async () =>
     customFetch('/ai/executive-briefing', { headers: getHeaders() }).then(handleResponse);
