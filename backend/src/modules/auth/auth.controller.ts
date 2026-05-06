@@ -9,6 +9,7 @@ import { AppError } from '../../utils/AppError.js';
 import { sendEmail } from '../../core/mailer.js';
 import { env } from '../../env.js';
 import crypto from 'crypto';
+import { redisCache } from '../../core/redis.js';
 
 // Utilidad para establecer las cookies JWT seguras
 const sendTokenResponse = async (user: { id: number; name: string; email: string; role: string | null; tenant_id: number }, statusCode: number, res: Response, req: Request) => {
@@ -315,7 +316,7 @@ export const changePassword = asyncHandler(async (req: Request, res: Response) =
     await authService.revokeAllUserTokens(userId);
 
     if (jti) {
-        void import('../../core/redis.js').then(({ redisCache }) => redisCache.blacklistToken(jti, 60 * 60)).catch(() => null);
+        void redisCache.blacklistToken(jti, 60 * 60).catch(() => null);
     }
 
     res.cookie('jwt', 'loggedout', {

@@ -17,27 +17,43 @@ interface JWTPayload extends jwt.JwtPayload {
 }
 
 export const protect = (req: Request, res: Response, next: NextFunction) => {
-    let token = req.cookies?.jwt;
+    const cookieToken = req.cookies?.jwt;
+    const bearerToken = req.headers.authorization?.startsWith('Bearer')
+        ? req.headers.authorization.split(' ')[1]
+        : undefined;
 
-    if (!token && req.headers.authorization?.startsWith('Bearer')) {
-        token = req.headers.authorization.split(' ')[1];
-    }
-
-    if (!token) {
+    const candidates = [bearerToken, cookieToken].filter(Boolean) as string[];
+    if (candidates.length === 0) {
         return next(new AppError('No estás autenticado. Por favor, inicia sesión.', 401));
     }
 
-    jwt.verify(token, JWT_KEY, async (err: jwt.VerifyErrors | null, decoded: any) => {
-        if (err || !decoded) {
-            return res.status(401).json({ error: 'Auth failed' });
+    const verifyCandidate = (candidate: string) =>
+        new Promise<JWTPayload>((resolve, reject) => {
+            jwt.verify(candidate, JWT_KEY, (err: jwt.VerifyErrors | null, decoded: any) => {
+                if (err || !decoded) return reject(err || new Error('Auth failed'));
+                resolve(decoded as JWTPayload);
+            });
+        });
+
+    (async () => {
+        let payload: JWTPayload | null = null;
+        for (const candidate of candidates) {
+            try {
+                payload = await verifyCandidate(candidate);
+                break;
+            } catch {
+                continue;
+            }
         }
 
-        const payload = decoded as JWTPayload;
+        if (!payload) {
+            return next(new AppError('No estás autenticado. Por favor, inicia sesión.', 401));
+        }
+
         const currentContext = contextStore.getStore();
 
-        // REDIS REVOCATION CHECK: Elite security
-        if (payload.jti) {
-            const isBlacklisted = await redisCache.isTokenBlacklisted(payload.jti);
+        if ((payload as any).jti) {
+            const isBlacklisted = await redisCache.isTokenBlacklisted((payload as any).jti);
             if (isBlacklisted) {
                 return next(new AppError('Sesión invalidada por motivos de seguridad.', 401));
             }
@@ -50,13 +66,11 @@ export const protect = (req: Request, res: Response, next: NextFunction) => {
             role: payload.role,
             email: payload.email,
             name: payload.name,
-            jti: payload.jti
+            jti: (payload as any).jti
         };
 
-        // Ensure req.id is set for consistency, even if not used directly in contextStore.run
-        // It might be used by other middlewares or logging outside the contextStore.run scope.
-        req.id = req.id || payload.jti || `req-${Math.random().toString(36).substr(2, 9)}`;
-        const requestId = (currentContext?.requestId || req.id || payload.jti) as string;
+        req.id = req.id || (payload as any).jti || `req-${Math.random().toString(36).substr(2, 9)}`;
+        const requestId = (currentContext?.requestId || req.id || (payload as any).jti) as string;
 
         contextStore.run({
             ...currentContext,
@@ -73,7 +87,7 @@ export const protect = (req: Request, res: Response, next: NextFunction) => {
             });
             next();
         });
-    });
+    })().catch(next);
 };
 
 export const authMiddleware = protect;
