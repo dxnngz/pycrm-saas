@@ -45,7 +45,7 @@ const LoginView = () => {
         try {
             await login({ email, password: pass });
         } catch (err: unknown) {
-            const msg = err instanceof Error ? err.message : 'Authentication failed';
+            const msg = err instanceof Error ? err.message : 'No se pudo autenticar';
             setError(msg);
             toast.error('Acceso denegado', { description: msg });
         } finally {
@@ -66,7 +66,7 @@ const LoginView = () => {
             await login({ email: data.email, password: data.pass });
             toast.success('Cuenta creada correctamente');
         } catch (err: unknown) {
-            const msg = err instanceof Error ? err.message : 'Registration failed';
+            const msg = err instanceof Error ? err.message : 'No se pudo registrar';
             setError(msg);
             toast.error('No se pudo crear la cuenta', { description: msg });
         } finally {
@@ -82,7 +82,7 @@ const LoginView = () => {
             setSuccess(true);
             toast.success('Enlace enviado', { description: 'Si el email existe, recibirás un enlace en unos segundos.' });
         } catch (err: unknown) {
-            const msg = err instanceof Error ? err.message : 'Request failed';
+            const msg = err instanceof Error ? err.message : 'La solicitud falló';
             setError(msg);
             toast.error('No se pudo enviar', { description: msg });
         } finally {
@@ -94,12 +94,12 @@ const LoginView = () => {
         setLoading(true);
         setError('');
         try {
-            if (!resetToken) throw new Error('Invalid reset link');
+            if (!resetToken) throw new Error('Enlace de restablecimiento inválido');
             await authService.resetPassword(resetToken, newPassword);
             setSuccess(true);
             toast.success('Contraseña actualizada', { description: 'Ya puedes iniciar sesión con tu nueva contraseña.' });
         } catch (err: unknown) {
-            const msg = err instanceof Error ? err.message : 'Request failed';
+            const msg = err instanceof Error ? err.message : 'La solicitud falló';
             setError(msg);
             toast.error('No se pudo actualizar', { description: msg });
         } finally {

@@ -30,18 +30,18 @@ interface CommandCenterProps {
 }
 
 const QUICK_ACTIONS: CommandCenterItem[] = [
-    { id: 'new-client', label: 'Create New Customer', icon: Plus, color: 'text-emerald-500', bg: 'bg-emerald-500/10' },
-    { id: 'new-opp', label: 'New Sales Opportunity', icon: Target, color: 'text-primary-500', bg: 'bg-primary-500/10' },
-    { id: 'new-task', label: 'Assign Priority Task', icon: CheckSquare, color: 'text-amber-500', bg: 'bg-amber-500/10' },
+    { id: 'new-client', label: 'Crear nuevo cliente', icon: Plus, color: 'text-emerald-500', bg: 'bg-emerald-500/10' },
+    { id: 'new-opp', label: 'Nueva oportunidad de venta', icon: Target, color: 'text-primary-500', bg: 'bg-primary-500/10' },
+    { id: 'new-task', label: 'Asignar tarea prioritaria', icon: CheckSquare, color: 'text-amber-500', bg: 'bg-amber-500/10' },
 ];
 
 const NAVIGATION: CommandCenterItem[] = [
-    { id: 'dashboard', label: 'Go to Dashboard', icon: Command, color: 'text-surface-muted', bg: 'bg-surface-muted-bg' },
-    { id: 'contacts', label: 'Manage Customers', icon: Users, color: 'text-surface-muted', bg: 'bg-surface-muted-bg' },
-    { id: 'pipeline', label: 'Sales Pipeline', icon: Target, color: 'text-surface-muted', bg: 'bg-surface-muted-bg' },
-    { id: 'tasks', label: 'Global Task Manager', icon: CheckSquare, color: 'text-surface-muted', bg: 'bg-surface-muted-bg' },
-    { id: 'documents', label: 'Vault & Documents', icon: FileText, color: 'text-surface-muted', bg: 'bg-surface-muted-bg' },
-    { id: 'settings', label: 'Access Settings', icon: Settings, color: 'text-surface-muted', bg: 'bg-surface-muted-bg' },
+    { id: 'dashboard', label: 'Ir al panel', icon: Command, color: 'text-surface-muted', bg: 'bg-surface-muted-bg' },
+    { id: 'contacts', label: 'Gestionar clientes', icon: Users, color: 'text-surface-muted', bg: 'bg-surface-muted-bg' },
+    { id: 'pipeline', label: 'Pipeline de ventas', icon: Target, color: 'text-surface-muted', bg: 'bg-surface-muted-bg' },
+    { id: 'tasks', label: 'Gestor de tareas', icon: CheckSquare, color: 'text-surface-muted', bg: 'bg-surface-muted-bg' },
+    { id: 'documents', label: 'Documentos', icon: FileText, color: 'text-surface-muted', bg: 'bg-surface-muted-bg' },
+    { id: 'settings', label: 'Ajustes', icon: Settings, color: 'text-surface-muted', bg: 'bg-surface-muted-bg' },
 ];
 
 export const CommandCenter: React.FC<CommandCenterProps> = ({ isOpen, onClose, onNavigate }) => {
@@ -64,7 +64,7 @@ export const CommandCenter: React.FC<CommandCenterProps> = ({ isOpen, onClose, o
 
     const handleAction = useCallback((item: CommandCenterItem) => {
         if (item.id.startsWith('new-')) {
-            toast.info(`Action '${item.label}' will open in a creation modal.`);
+            toast.info(`La acción "${item.label}" se abrirá en un modal de creación.`);
         } else {
             onNavigate(item.id);
         }
@@ -117,7 +117,7 @@ export const CommandCenter: React.FC<CommandCenterProps> = ({ isOpen, onClose, o
                             <input
                                 ref={inputRef}
                                 type="text"
-                                placeholder="Search commands, customers, or actions..."
+                                placeholder="Busca comandos, clientes o acciones..."
                                 value={query}
                                 onChange={(e) => setQuery(e.target.value)}
                                 className="flex-1 bg-transparent border-none outline-none text-sm font-medium text-surface-text placeholder:text-surface-muted"
@@ -133,7 +133,7 @@ export const CommandCenter: React.FC<CommandCenterProps> = ({ isOpen, onClose, o
                                     {/* Quick Actions Section */}
                                     {allItems.some(i => i.id.startsWith('new-')) && (
                                         <div className="space-y-1">
-                                            <p className="px-3 py-2 text-[10px] font-bold text-surface-muted uppercase tracking-widest">Quick Actions</p>
+                                            <p className="px-3 py-2 text-[10px] font-bold text-surface-muted uppercase tracking-widest">Acciones rápidas</p>
                                             <div className="space-y-0.5">
                                                 {allItems.filter(i => i.id.startsWith('new-')).map((item) => {
                                                     const globalIdx = allItems.indexOf(item);
@@ -150,7 +150,7 @@ export const CommandCenter: React.FC<CommandCenterProps> = ({ isOpen, onClose, o
                                                                 </div>
                                                                 <span className={`text-sm font-medium ${selectedIndex === globalIdx ? 'text-surface-text' : 'text-surface-muted'}`}>{item.label}</span>
                                                             </div>
-                                                            <div className={`px-1.5 py-0.5 rounded border text-[9px] font-bold uppercase ${selectedIndex === globalIdx ? 'bg-primary-50 border-primary-100 text-primary-600' : 'bg-surface-muted-bg border-surface-border text-surface-muted'}`}>Action</div>
+                                                            <div className={`px-1.5 py-0.5 rounded border text-[9px] font-bold uppercase ${selectedIndex === globalIdx ? 'bg-surface-hover border-surface-border text-surface-text' : 'bg-surface-muted-bg border-surface-border text-surface-muted'}`}>Acción</div>
                                                         </button>
                                                     );
                                                 })}
@@ -161,7 +161,7 @@ export const CommandCenter: React.FC<CommandCenterProps> = ({ isOpen, onClose, o
                                     {/* Navigation Section */}
                                     {allItems.some(i => !i.id.startsWith('new-')) && (
                                         <div className="space-y-1">
-                                            <p className="px-3 py-2 text-[10px] font-bold text-surface-muted uppercase tracking-widest">Navigation</p>
+                                            <p className="px-3 py-2 text-[10px] font-bold text-surface-muted uppercase tracking-widest">Navegación</p>
                                             <div className="space-y-0.5">
                                                 {allItems.filter(i => !i.id.startsWith('new-')).map((item) => {
                                                     const globalIdx = allItems.indexOf(item);
@@ -191,8 +191,8 @@ export const CommandCenter: React.FC<CommandCenterProps> = ({ isOpen, onClose, o
                                     <div className="inline-flex items-center justify-center w-12 h-12 bg-surface-muted-bg text-surface-muted rounded-lg mb-4 border border-surface-border">
                                         <Zap size={24} />
                                     </div>
-                                    <p className="text-surface-muted text-sm font-medium">No results found for "{query}"</p>
-                                    <p className="text-[11px] text-surface-muted mt-1">Try searching for 'Panel', 'Contacts' or 'New Action'</p>
+                                    <p className="text-surface-muted text-sm font-medium">No se encontraron resultados para "{query}"</p>
+                                    <p className="text-[11px] text-surface-muted mt-1">Prueba con 'Panel', 'Clientes' o 'Nueva acción'</p>
                                 </div>
                             )}
                         </div>
@@ -201,15 +201,15 @@ export const CommandCenter: React.FC<CommandCenterProps> = ({ isOpen, onClose, o
                             <div className="flex items-center gap-4">
                                 <div className="flex items-center gap-1.5 text-[10px] font-medium text-surface-muted">
                                     <kbd className="px-1.5 py-0.5 bg-surface-card border border-surface-border rounded shadow-sm text-surface-muted">↑↓</kbd>
-                                    Navigate
+                                    Navegar
                                 </div>
                                 <div className="flex items-center gap-1.5 text-[10px] font-medium text-surface-muted">
                                     <kbd className="px-1.5 py-0.5 bg-surface-card border border-surface-border rounded shadow-sm text-surface-muted">Enter</kbd>
-                                    Select
+                                    Seleccionar
                                 </div>
                             </div>
                             <div className="text-[9px] font-bold text-surface-muted uppercase tracking-widest">
-                                PyCRM Command Center
+                                Centro de comandos PyCRM
                             </div>
                         </div>
                     </motion.div>

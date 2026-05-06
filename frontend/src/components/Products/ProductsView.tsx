@@ -63,7 +63,7 @@ const ProductsView = () => {
         price: newPrice,
         category: newCategory
       }));
-      toast.success('Product created successfully');
+      toast.success('Producto creado correctamente');
       setIsModalOpen(false);
       setNewName(''); setNewDesc(''); setNewPrice(''); setNewCategory('General');
       loadProducts();

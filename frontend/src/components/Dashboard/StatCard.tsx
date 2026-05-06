@@ -13,10 +13,10 @@ interface StatCardProps {
 
 const StatCard: React.FC<StatCardProps> = ({ title, value, icon, trend, trendUp, color = 'primary' }) => {
     const colorClasses: Record<string, string> = {
-        primary: 'bg-primary-500/10 dark:bg-primary-500/20 text-primary-600 dark:text-primary-400',
-        indigo: 'bg-indigo-500/10 dark:bg-indigo-500/20 text-indigo-600 dark:text-indigo-400',
-        emerald: 'bg-emerald-500/10 dark:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400',
-        amber: 'bg-amber-500/10 dark:bg-amber-500/20 text-amber-600 dark:text-amber-400',
+        primary: 'bg-primary-500/10 text-primary-600 dark:text-primary-400',
+        indigo: 'bg-info-bg text-info-icon',
+        emerald: 'bg-success-bg text-success-icon',
+        amber: 'bg-warning-bg text-warning-icon',
     };
 
     const currentColors = colorClasses[color] || colorClasses.primary;
@@ -33,7 +33,7 @@ const StatCard: React.FC<StatCardProps> = ({ title, value, icon, trend, trendUp,
                     {icon}
                 </div>
                 {trend && (
-                    <div className={`flex items-center gap-1 text-xs font-bold ${trendUp ? 'text-emerald-500' : 'text-rose-500'} bg-surface-muted-bg/50 px-2 py-1 rounded-lg border border-surface-border/20`}>
+                    <div className={`flex items-center gap-1 text-xs font-bold ${trendUp ? 'text-success-icon' : 'text-danger-icon'} bg-surface-muted-bg/50 px-2 py-1 rounded-lg border border-surface-border/20`}>
                         {trendUp ? <TrendingUp size={12} /> : <TrendingDown size={12} />}
                         {trend}
                     </div>

@@ -18,28 +18,28 @@ export const Alert: React.FC<AlertProps> = ({
     const { isDense } = useUI();
     const variants = {
         success: {
-            bg: 'bg-emerald-50 dark:bg-emerald-500/10',
-            border: 'border-emerald-200 dark:border-emerald-500/20',
-            text: 'text-emerald-800 dark:text-emerald-400',
-            icon: <CheckCircle2 size={18} className="text-emerald-500" />
+            bg: 'bg-success-bg',
+            border: 'border-success-border',
+            text: 'text-success-text',
+            icon: <CheckCircle2 size={18} className="text-success-icon" />
         },
         danger: {
-            bg: 'bg-red-50 dark:bg-red-500/10',
-            border: 'border-red-200 dark:border-red-500/20',
-            text: 'text-red-800 dark:text-red-400',
-            icon: <XCircle size={18} className="text-red-500" />
+            bg: 'bg-danger-bg',
+            border: 'border-danger-border',
+            text: 'text-danger-text',
+            icon: <XCircle size={18} className="text-danger-icon" />
         },
         warning: {
-            bg: 'bg-amber-50 dark:bg-amber-500/10',
-            border: 'border-amber-200 dark:border-amber-500/20',
-            text: 'text-amber-800 dark:text-amber-400',
-            icon: <AlertCircle size={18} className="text-amber-500" />
+            bg: 'bg-warning-bg',
+            border: 'border-warning-border',
+            text: 'text-warning-text',
+            icon: <AlertCircle size={18} className="text-warning-icon" />
         },
         info: {
-            bg: 'bg-blue-50 dark:bg-blue-500/10',
-            border: 'border-blue-200 dark:border-blue-500/20',
-            text: 'text-blue-800 dark:text-blue-400',
-            icon: <Info size={18} className="text-blue-500" />
+            bg: 'bg-info-bg',
+            border: 'border-info-border',
+            text: 'text-info-text',
+            icon: <Info size={18} className="text-info-icon" />
         }
     };
 

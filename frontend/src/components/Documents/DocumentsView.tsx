@@ -43,6 +43,22 @@ const DocumentsView = () => {
   const [newAmount, setNewAmount] = useState('');
   const [newStatus, setNewStatus] = useState('Pending');
 
+  const getTypeLabel = (type: string | undefined) => {
+    const t = (type ?? '').toLowerCase();
+    if (t === 'quote' || t === 'presupuesto') return 'Presupuesto';
+    if (t === 'contract' || t === 'contrato') return 'Contrato';
+    if (t === 'invoice' || t === 'factura') return 'Factura';
+    return type ?? 'Desconocido';
+  };
+
+  const getStatusLabel = (status: string | undefined) => {
+    const s = (status ?? '').toLowerCase();
+    if (s === 'pending' || s === 'pendiente') return 'Pendiente';
+    if (s === 'paid' || s === 'pagado') return 'Pagado';
+    if (s === 'signed' || s === 'firmado') return 'Firmado';
+    return status ?? 'Desconocido';
+  };
+
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
@@ -53,12 +69,12 @@ const DocumentsView = () => {
         amount: Number(newAmount),
         status: newStatus
       }));
-      toast.success('Document created successfully');
+      toast.success('Documento creado correctamente');
       setIsModalOpen(false);
       setNewName(''); setNewType('Quote'); setNewAmount(''); setNewStatus('Pending');
       loadDocuments();
     } catch {
-      toast.error('Failed to create document');
+      toast.error('No se pudo crear el documento');
     } finally {
       setIsSubmitting(false);
     }
@@ -70,7 +86,7 @@ const DocumentsView = () => {
       const res = await api.documents.getAll(1, 100, search);
       setDocuments(res?.documents || []);
     } catch {
-      console.error('Error loading documents');
+      console.error('Error al cargar documentos');
       toast.error('No se pudieron cargar los documentos');
     } finally {
       setLoading(false);
@@ -84,7 +100,7 @@ const DocumentsView = () => {
       toast.success(res.message || 'Datos de demostración creados');
       loadDocuments();
     } catch (e: unknown) {
-      const msg = e instanceof Error ? e.message : 'No se pudo crear datos de demostración';
+      const msg = e instanceof Error ? e.message : 'No se pudieron crear los datos de demostración';
       toast.error(msg);
     } finally {
       setSeeding(false);
@@ -125,7 +141,7 @@ const DocumentsView = () => {
           </div>
           <div className="min-w-0">
             <div className="font-medium text-surface-text leading-tight truncate">{doc?.name ?? 'Documento sin nombre'}</div>
-            <div className="text-[10px] font-bold text-surface-muted uppercase tracking-tight">{doc?.type ?? 'Desconocido'}</div>
+            <div className="text-[10px] font-bold text-surface-muted uppercase tracking-tight">{getTypeLabel(doc?.type)}</div>
           </div>
         </div>
       ),
@@ -146,7 +162,7 @@ const DocumentsView = () => {
         const s = (doc?.status ?? '').toLowerCase();
         const variant = (s === 'paid' || s === 'pagado' || s === 'signed' || s === 'firmado') ? 'success' :
           (s === 'pending' || s === 'pendiente') ? 'warning' : 'secondary';
-        return <Badge variant={variant}>{doc?.status ?? 'Desconocido'}</Badge>;
+        return <Badge variant={variant}>{getStatusLabel(doc?.status)}</Badge>;
       },
     },
     {
@@ -210,7 +226,7 @@ const DocumentsView = () => {
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div className="bg-surface-card p-4 rounded-lg border border-surface-border flex items-center gap-4 shadow-sm">
-          <div className="w-10 h-10 bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400 rounded-md flex items-center justify-center">
+          <div className="w-10 h-10 bg-warning-bg text-warning-icon rounded-md flex items-center justify-center">
             <Clock size={20} />
           </div>
           <div>
@@ -220,7 +236,7 @@ const DocumentsView = () => {
         </div>
 
         <div className="bg-surface-card p-4 rounded-lg border border-surface-border flex items-center gap-4 shadow-sm">
-          <div className="w-10 h-10 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400 rounded-md flex items-center justify-center">
+          <div className="w-10 h-10 bg-success-bg text-success-icon rounded-md flex items-center justify-center">
             <CheckCircle size={20} />
           </div>
           <div>
@@ -232,7 +248,7 @@ const DocumentsView = () => {
         </div>
 
         <div className="bg-surface-card p-4 rounded-lg border border-surface-border flex items-center gap-4 shadow-sm">
-          <div className="w-10 h-10 bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400 rounded-md flex items-center justify-center">
+          <div className="w-10 h-10 bg-info-bg text-info-icon rounded-md flex items-center justify-center">
             <FileCode size={20} />
           </div>
           <div>

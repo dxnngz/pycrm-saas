@@ -264,7 +264,7 @@ const PipelineView = () => {
             await updateOpportunityStatus(id, newStatus);
         } catch (error: unknown) {
             console.error(error);
-            toast.error('Failed to update opportunity status.');
+            toast.error('No se pudo actualizar el estado de la oportunidad.');
         }
     }, [updateOpportunityStatus]);
 
@@ -309,7 +309,7 @@ const PipelineView = () => {
     };
 
     const columnConfig = [
-        { id: 'pendiente' as const, title: 'Pipeline', color: 'bg-primary-500' },
+        { id: 'pendiente' as const, title: 'Pendiente', color: 'bg-primary-500' },
         { id: 'ganado' as const, title: 'Ganado', color: 'bg-emerald-500' },
         { id: 'perdido' as const, title: 'Perdido', color: 'bg-surface-muted' }
     ];

@@ -49,12 +49,12 @@ const CalendarView = () => {
         start_date: new Date(newStart).toISOString(),
         end_date: newEnd ? new Date(newEnd).toISOString() : undefined,
       }));
-      toast.success('Event created successfully');
+      toast.success('Evento creado correctamente');
       setIsModalOpen(false);
       setNewTitle(''); setNewDesc(''); setNewStart(''); setNewEnd('');
       loadEvents();
     } catch {
-      toast.error('Failed to create event');
+      toast.error('No se pudo crear el evento');
     } finally {
       setIsSubmitting(false);
     }
@@ -70,7 +70,7 @@ const CalendarView = () => {
       setEvents(res || []);
     } catch {
       console.error('Error loading events');
-      toast.error('Failed to load events');
+      toast.error('No se pudieron cargar los eventos');
     } finally {
       setLoading(false);
     }
@@ -89,13 +89,13 @@ const CalendarView = () => {
   };
 
   const handleDelete = async (id: number) => {
-    if (!confirm('Are you sure you want to delete this event?')) return;
+    if (!confirm('¿Seguro que quieres eliminar este evento?')) return;
     try {
       await api.events.delete(id);
-      toast.success('Event deleted successfully');
+      toast.success('Evento eliminado correctamente');
       loadEvents();
     } catch {
-      toast.error('Failed to delete event');
+      toast.error('No se pudo eliminar el evento');
     }
   };
 
@@ -103,15 +103,15 @@ const CalendarView = () => {
     <div className="space-y-6">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-xl font-bold text-surface-text">Sales Calendar</h1>
+          <h1 className="text-xl font-bold text-surface-text">Agenda</h1>
           <p className="text-sm text-surface-muted mt-1 flex items-center gap-1.5">
             <CalendarIcon size={14} className="text-primary-500" />
-            Manage meetings and strategic commercial events.
+            Gestiona reuniones y eventos comerciales.
           </p>
         </div>
         <Button variant="primary" size="md" onClick={() => setIsModalOpen(true)}>
           <Plus size={18} className="mr-2" />
-          New Event
+          Nuevo evento
         </Button>
       </div>
 
@@ -172,7 +172,7 @@ const CalendarView = () => {
         <div className="space-y-4">
           <div className="flex items-center gap-2 px-1">
             <CalendarDays size={16} className="text-surface-muted" />
-            <h3 className="text-sm font-bold text-surface-text uppercase tracking-tight">Upcoming Events</h3>
+            <h3 className="text-sm font-bold text-surface-text uppercase tracking-tight">Próximos eventos</h3>
           </div>
 
           {loading ? (
@@ -186,7 +186,7 @@ const CalendarView = () => {
               <div className="w-10 h-10 bg-surface-card rounded-md flex items-center justify-center mx-auto mb-3 shadow-sm border border-surface-border">
                 <CalendarIcon size={18} className="text-surface-muted" />
               </div>
-              <p className="text-[10px] font-bold text-surface-muted uppercase tracking-widest">No upcoming events</p>
+              <p className="text-[10px] font-bold text-surface-muted uppercase tracking-widest">No hay eventos</p>
             </div>
           ) : (
             <div className="space-y-3 max-h-[600px] overflow-y-auto pr-1">
@@ -221,7 +221,7 @@ const CalendarView = () => {
                         )}
                         <div className="flex items-center gap-2 text-[10px] text-surface-muted font-medium truncate">
                           <MapPin size={12} className="shrink-0" />
-                          <span>{event.description || 'No location provided'}</span>
+                          <span>{event.description || 'Sin ubicación'}</span>
                         </div>
                       </div>
                     </div>
@@ -232,39 +232,39 @@ const CalendarView = () => {
         </div>
       </div>
 
-      <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title="Create New Event" maxWidth="max-w-xl">
+      <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title="Nuevo evento" maxWidth="max-w-xl">
         <form onSubmit={handleCreate} className="space-y-4">
           <Input 
-            label="Event Title" 
+            label="Título" 
             value={newTitle} 
             onChange={e => setNewTitle(e.target.value)} 
             required 
-            placeholder="e.g. Q3 Roadmap Review" 
+            placeholder="Ej: Reunión de seguimiento" 
           />
           <Input 
-            label="Description / Location" 
+            label="Descripción / Ubicación" 
             value={newDesc} 
             onChange={e => setNewDesc(e.target.value)} 
-            placeholder="Zoom link or conference room..." 
+            placeholder="Enlace de Zoom o sala de reuniones..." 
           />
           <div className="grid grid-cols-2 gap-4">
             <Input 
-              label="Start Date & Time" 
+              label="Inicio" 
               type="datetime-local" 
               value={newStart} 
               onChange={e => setNewStart(e.target.value)} 
               required 
             />
             <Input 
-              label="End Date & Time (Optional)" 
+              label="Fin (opcional)" 
               type="datetime-local" 
               value={newEnd} 
               onChange={e => setNewEnd(e.target.value)} 
             />
           </div>
           <div className="pt-4 flex justify-end gap-3">
-            <Button variant="outline" onClick={() => setIsModalOpen(false)}>Cancel</Button>
-            <Button variant="primary" type="submit" isLoading={isSubmitting}>Create Event</Button>
+            <Button variant="outline" onClick={() => setIsModalOpen(false)}>Cancelar</Button>
+            <Button variant="primary" type="submit" isLoading={isSubmitting}>Crear evento</Button>
           </div>
         </form>
       </Modal>

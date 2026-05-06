@@ -156,7 +156,7 @@ const ContactsView = () => {
             loadClients();
         } catch (error: unknown) {
             console.error(error);
-            toast.error('Failed to save customer. Please try again.');
+            toast.error('No se pudo guardar el cliente. Inténtalo de nuevo.');
         } finally {
             setIsSubmitting(false);
         }
@@ -181,7 +181,7 @@ const ContactsView = () => {
             }
         } catch (error: unknown) {
             console.error(error);
-            toast.error('Failed to delete customer. Please try again.');
+            toast.error('No se pudo eliminar el cliente. Inténtalo de nuevo.');
         } finally {
             setIsSubmitting(false);
         }
@@ -207,7 +207,7 @@ const ContactsView = () => {
 
     const columns: VirtualColumn<Client>[] = [
         {
-            header: 'Customer',
+            header: 'Cliente',
             width: '35%',
             accessor: (client: Client) => (
                 <div className="flex items-center gap-3 py-1">
