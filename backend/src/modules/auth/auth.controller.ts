@@ -227,38 +227,34 @@ export const forgotPassword = asyncHandler(async (req: Request, res: Response) =
     const { email } = req.body;
     const user = await authService.getUserByEmail(email);
 
-    if (!user) {
-        return res.status(200).json({ success: true, message: 'Si el email existe, se ha enviado un enlace de recuperación' });
-    }
+    if (user) {
+        const resetToken = crypto.randomBytes(32).toString('hex');
+        const expiresAt = new Date(Date.now() + 1 * 60 * 60 * 1000); // 1 hour
+        await authService.savePasswordResetToken(user.id, resetToken, expiresAt);
 
-    const resetToken = crypto.randomBytes(32).toString('hex');
-    const expiresAt = new Date(Date.now() + 1 * 60 * 60 * 1000); // 1 hour
-    await authService.savePasswordResetToken(user.id, resetToken, expiresAt);
+        const base =
+            (process.env.PUBLIC_FRONTEND_URL || process.env.FRONTEND_URL || '')
+                .split(',')[0]
+                ?.trim()
+                ?.replace(/\/$/, '');
+        const resetUrl = base ? `${base}/reset-password/${resetToken}` : '';
 
-    const base =
-        (process.env.PUBLIC_FRONTEND_URL || process.env.FRONTEND_URL || '')
-            .split(',')[0]
-            ?.trim()
-            ?.replace(/\/$/, '');
-    const resetUrl = base ? `${base}/reset-password/${resetToken}` : '';
-
-    if (resetUrl && process.env.SMTP_USER && process.env.SMTP_PASS) {
-        try {
-            await sendEmail({
+        if (resetUrl && process.env.SMTP_USER && process.env.SMTP_PASS) {
+            void sendEmail({
                 to: user.email,
                 subject: 'Recuperación de contraseña',
                 text: `Para restablecer tu contraseña, abre este enlace: ${resetUrl}`,
                 html: `<p>Para restablecer tu contraseña, abre este enlace:</p><p><a href="${resetUrl}">${resetUrl}</a></p><p>Este enlace caduca en 1 hora.</p>`,
+            }).catch((e) => {
+                logger.error(e, 'Forgot password email send failed');
+                logger.info(`Password reset link (fallback): ${resetUrl}`);
             });
-        } catch (e) {
-            logger.error(e, 'Forgot password email send failed');
-            logger.info(`Password reset link (fallback): ${resetUrl}`);
+        } else {
+            logger.info(`Password reset link: ${base ? resetUrl : resetToken}`);
         }
-    } else {
-        logger.info(`Password reset link: ${base ? resetUrl : resetToken}`);
     }
 
-    res.status(200).json({ success: true, message: 'Email de recuperación enviado' });
+    res.status(200).json({ success: true, message: 'Si el email existe, se ha enviado un enlace de recuperación' });
 });
 
 export const resetPassword = asyncHandler(async (req: Request, res: Response) => {

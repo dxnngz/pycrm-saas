@@ -14,6 +14,8 @@ const API_URL = explicitApiBase || (import.meta.env.PROD ? '/api' : 'http://loca
 let isRefreshing = false;
 let refreshSubscribers: ((token: string) => void)[] = [];
 
+const REQUEST_TIMEOUT_MS = 20000;
+
 const subscribeTokenRefresh = (cb: (token: string) => void) => {
     refreshSubscribers.push(cb);
 };
@@ -73,11 +75,17 @@ export const customFetch = async (url: string, options?: RequestInit, retries = 
         credentials: 'include',
         ...options,
         headers,
-        body
+        body,
     };
 
+    const controller = options?.signal ? null : new AbortController();
+    const timeoutId = controller ? window.setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS) : null;
+
     try {
-        const response = await fetch(fullUrl, finalOptions);
+        const response = await fetch(fullUrl, {
+            ...finalOptions,
+            signal: options?.signal || controller?.signal,
+        });
         const duration = performance.now() - start;
 
         captureRUMMetrics({
@@ -91,6 +99,8 @@ export const customFetch = async (url: string, options?: RequestInit, retries = 
         });
 
         (response as Response & { __requestId?: string }).__requestId = requestId;
+        (response as Response & { __endpoint?: string }).__endpoint = url;
+        (response as Response & { __method?: string }).__method = (finalOptions?.method || 'GET').toString();
 
         if (!response.ok) {
             if (response.status === 401 && !window.location.pathname.includes('/login')) {
@@ -114,6 +124,9 @@ export const customFetch = async (url: string, options?: RequestInit, retries = 
                         if (refreshRes.ok) {
                             const data = await refreshRes.json();
                             localStorage.setItem('token', data.token);
+                            if (data.refreshToken) {
+                                localStorage.setItem('refreshToken', data.refreshToken);
+                            }
                             if (data.csrfToken) {
                                 localStorage.setItem('csrfToken', data.csrfToken);
                             }
@@ -136,19 +149,32 @@ export const customFetch = async (url: string, options?: RequestInit, retries = 
 
         return response;
     } catch (error) {
+        if (error instanceof DOMException && error.name === 'AbortError') {
+            throw new Error('Request timeout');
+        }
         if (retries > 0) {
             return new Promise(resolve => setTimeout(resolve, 1500)).then(() => customFetch(url, options, retries - 1));
         }
         throw error;
+    } finally {
+        if (timeoutId) window.clearTimeout(timeoutId);
     }
 };
 
 export const handleResponse = async (response: Response) => {
     const contentType = response.headers.get('content-type');
     const requestId = (response as Response & { __requestId?: string }).__requestId || 'local-fallback';
+    const endpoint = (response as Response & { __endpoint?: string }).__endpoint || '';
 
     if (!response.ok) {
-        if (response.status === 401) {
+        const isAuthEndpoint =
+            endpoint.startsWith('/auth/login') ||
+            endpoint.startsWith('/auth/register') ||
+            endpoint.startsWith('/auth/forgot-password') ||
+            endpoint.startsWith('/auth/reset-password') ||
+            endpoint.startsWith('/auth/refresh');
+
+        if (response.status === 401 && !isAuthEndpoint && localStorage.getItem('token')) {
             localStorage.clear();
             window.location.reload();
         }

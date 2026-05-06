@@ -7,6 +7,9 @@ const transporter = nodemailer.createTransport({
     host: env.SMTP_HOST || 'smtp.ethereal.email',
     port: parseInt(env.SMTP_PORT || '587'),
     secure: env.SMTP_SECURE === 'true', // true for 465, false for other ports
+    connectionTimeout: 10000,
+    greetingTimeout: 10000,
+    socketTimeout: 10000,
     auth: {
         user: env.SMTP_USER,
         pass: env.SMTP_PASS,
