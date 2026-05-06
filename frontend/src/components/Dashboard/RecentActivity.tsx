@@ -35,7 +35,7 @@ const RecentActivity = ({ activities }: RecentActivityProps) => {
                 ) : activities.map((activity) => (
                     <div key={activity.id} className="p-3 hover:bg-surface-hover transition-colors flex gap-3 group">
                         <div className={`h-8 w-8 shrink-0 rounded flex items-center justify-center border ${activity.type === 'sale'
-                                ? 'bg-emerald-50 text-emerald-600 border-emerald-100 dark:bg-emerald-500/10 dark:text-emerald-400 dark:border-emerald-500/20'
+                                ? 'bg-success-bg text-success-icon border-success-border'
                                 : 'bg-primary-50 text-primary-600 border-primary-100 dark:bg-primary-500/10 dark:text-primary-400 dark:border-primary-500/20'
                             }`}>
                             {activity.type === 'sale' ? <ArrowUpRight size={14} /> : <CheckSquare size={14} />}
@@ -48,7 +48,7 @@ const RecentActivity = ({ activities }: RecentActivityProps) => {
                             <p className="text-[11px] text-surface-muted truncate mt-0.5">{activity.description}</p>
                             {activity.amount && (
                                 <div className="mt-1.5 leading-none">
-                                    <span className="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 tabular-nums">
+                                    <span className="text-[10px] font-bold text-success-text tabular-nums">
                                         +{formatMoney(Number(activity.amount))}
                                     </span>
                                 </div>

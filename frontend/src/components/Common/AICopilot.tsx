@@ -95,7 +95,7 @@ export const AICopilot: React.FC = () => {
                             animate={{ scale: 1, opacity: 1 }}
                             exit={{ scale: 0, opacity: 0 }}
                             onClick={() => setIsOpen(true)}
-                            className="group relative flex items-center justify-center p-4 rounded-full bg-gradient-to-r from-indigo-600 to-purple-600 dark:from-indigo-500 dark:to-purple-500 text-white shadow-xl hover:shadow-2xl transition-all duration-300 ring-4 ring-surface-border/20"
+                            className="group relative flex items-center justify-center p-4 rounded-full bg-gradient-to-r from-primary-600 to-primary-700 text-white shadow-xl hover:shadow-2xl transition-all duration-300 ring-4 ring-surface-border/20"
                         >
                             <Bot className="w-6 h-6 animate-pulse" />
                             <div className="absolute inset-0 rounded-full bg-surface-card opacity-0 group-hover:opacity-10 transition-opacity" />
@@ -116,14 +116,14 @@ export const AICopilot: React.FC = () => {
                         }}
                     >
                         {/* Header */}
-                        <div className="flex items-center justify-between px-5 py-4 bg-gradient-to-r from-indigo-600 to-purple-600 flex-shrink-0">
+                        <div className="flex items-center justify-between px-5 py-4 bg-gradient-to-r from-primary-600 to-primary-700 flex-shrink-0">
                             <div className="flex items-center space-x-3">
                                 <div className="p-2 bg-surface-card/20 rounded-xl backdrop-blur-sm">
                                     <Bot className="w-5 h-5 text-white" />
                                 </div>
                                 <div>
                                     <h3 className="font-semibold text-white">Nexus AI</h3>
-                                    <p className="text-xs text-indigo-100 opacity-90">Copiloto Enterprise</p>
+                                    <p className="text-xs text-white/80">Copiloto Enterprise</p>
                                 </div>
                             </div>
                             <div className="flex items-center space-x-1">
@@ -154,12 +154,12 @@ export const AICopilot: React.FC = () => {
                                     <div
                                         className={`max-w-[85%] rounded-2xl px-4 py-3 shadow-sm
                       ${msg.role === 'user'
-                                                ? 'bg-indigo-600 text-white rounded-tr-sm'
+                                                ? 'bg-primary-600 text-white rounded-tr-sm'
                                                 : 'bg-surface-card text-surface-text border border-surface-border rounded-tl-sm'
                                             }`}
                                     >
                                         {msg.role === 'assistant' ? (
-                                            <div className="prose prose-sm dark:prose-invert prose-p:leading-relaxed prose-pre:bg-surface-muted-bg prose-pre:text-surface-text prose-pre:border prose-pre:border-surface-border prose-a:text-indigo-500">
+                                            <div className="prose prose-sm dark:prose-invert prose-p:leading-relaxed prose-pre:bg-surface-muted-bg prose-pre:text-surface-text prose-pre:border prose-pre:border-surface-border prose-a:text-primary-600 dark:prose-a:text-primary-400">
                                                 <ReactMarkdown>{msg.content}</ReactMarkdown>
                                             </div>
                                         ) : (
@@ -172,7 +172,7 @@ export const AICopilot: React.FC = () => {
                             {isLoading && (
                                 <div className="flex justify-start">
                                     <div className="bg-surface-card border border-surface-border rounded-2xl rounded-tl-sm px-4 py-3 shadow-sm flex items-center space-x-2">
-                                        <Loader2 className="w-4 h-4 animate-spin text-indigo-500" />
+                                        <Loader2 className="w-4 h-4 animate-spin text-primary-500" />
                                         <span className="text-xs text-surface-muted font-medium">Nexus está analizando...</span>
                                     </div>
                                 </div>
@@ -190,16 +190,16 @@ export const AICopilot: React.FC = () => {
                                     type="text"
                                     value={input}
                                     onChange={(e) => setInput(e.target.value)}
-                                    placeholder="Ask Nexus (Cmd+K)..."
+                                    placeholder="Pregunta a Nexus (Cmd+K)..."
                                     disabled={isLoading}
-                                    aria-label="Nexus AI Input"
+                                    aria-label="Entrada de Nexus AI"
                                     autoFocus
-                                    className="w-full pl-12 pr-12 py-3 bg-surface-input border border-surface-border rounded-xl text-sm text-surface-text placeholder:text-surface-muted focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-shadow disabled:opacity-50"
+                                    className="w-full pl-12 pr-12 py-3 bg-surface-input border border-surface-border rounded-xl text-sm text-surface-text placeholder:text-surface-muted focus:outline-none focus:ring-2 focus:ring-primary-500 transition-shadow disabled:opacity-50"
                                 />
                                 <button
                                     type="submit"
                                     disabled={!input.trim() || isLoading}
-                                    className="absolute right-2 top-1/2 -translate-y-1/2 p-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 disabled:opacity-50 transition-colors shadow-sm"
+                                    className="absolute right-2 top-1/2 -translate-y-1/2 p-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 disabled:opacity-50 transition-colors shadow-sm"
                                 >
                                     <Send className="w-4 h-4" />
                                 </button>

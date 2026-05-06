@@ -32,8 +32,8 @@ export const ConfirmModal = ({
         >
             <div className="space-y-8">
                 <div className="flex gap-4">
-                    <div className={`shrink-0 w-12 h-12 rounded-2xl flex items-center justify-center ${variant === 'danger' ? 'bg-rose-500/10 text-rose-500' :
-                            variant === 'warning' ? 'bg-amber-500/10 text-amber-500' :
+                    <div className={`shrink-0 w-12 h-12 rounded-2xl flex items-center justify-center ${variant === 'danger' ? 'bg-danger-bg text-danger-icon' :
+                            variant === 'warning' ? 'bg-warning-bg text-warning-icon' :
                                 'bg-primary-500/10 text-primary-500'
                         }`}>
                         <AlertTriangle size={24} />
@@ -55,8 +55,8 @@ export const ConfirmModal = ({
                     <button
                         onClick={onConfirm}
                         disabled={isLoading}
-                        className={`flex-1 py-4 rounded-2xl font-black text-xs uppercase tracking-widest transition-all shadow-xl ${variant === 'danger' ? 'bg-rose-600 text-white shadow-rose-600/20 hover:bg-rose-700' :
-                                variant === 'warning' ? 'bg-amber-500 text-white shadow-amber-500/20 hover:bg-amber-600' :
+                        className={`flex-1 py-4 rounded-2xl font-black text-xs uppercase tracking-widest transition-all shadow-xl ${variant === 'danger' ? 'bg-danger-solid text-white hover:bg-danger-solid-hover' :
+                                variant === 'warning' ? 'bg-warning-solid text-white hover:bg-warning-solid-hover' :
                                     'bg-primary-600 text-white shadow-primary-600/20 hover:bg-primary-700'
                             }`}
                     >

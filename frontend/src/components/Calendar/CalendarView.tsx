@@ -200,7 +200,7 @@ const CalendarView = () => {
 
                   return (
                     <div key={event.id} className="bg-surface-card p-4 rounded-lg border border-surface-border shadow-sm hover:border-primary-500/50 transition-all group relative">
-                      <button onClick={() => handleDelete(event.id)} className="absolute top-3 right-3 p-1.5 text-surface-muted hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded transition-all opacity-0 group-hover:opacity-100">
+                      <button onClick={() => handleDelete(event.id)} className="absolute top-3 right-3 p-1.5 text-surface-muted hover:text-danger-icon hover:bg-danger-bg rounded transition-all opacity-0 group-hover:opacity-100">
                         <Trash2 size={14} />
                       </button>
                       <div className="flex items-center gap-3 mb-3">

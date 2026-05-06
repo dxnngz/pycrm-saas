@@ -58,8 +58,8 @@ export const Header: React.FC<HeaderProps> = ({
                 <div className="hidden sm:flex items-center gap-3">
                     <Breadcrumbs items={[{ label: title }]} />
                     {!isOnline && (
-                        <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-red-100 dark:bg-red-900/40 border border-red-200 dark:border-red-800 text-[10px] font-bold text-red-600 dark:text-red-400 animate-pulse">
-                            <span className="w-1.5 h-1.5 rounded-full bg-red-500" />
+                        <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-danger-bg border border-danger-border text-[10px] font-bold text-danger-text animate-pulse">
+                            <span className="w-1.5 h-1.5 rounded-full bg-danger-icon" />
                             SIN CONEXIÓN
                         </div>
                     )}

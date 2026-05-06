@@ -49,9 +49,9 @@ const Timeline = ({ clientId }: TimelineProps) => {
 
     const getIcon = (type: string) => {
         switch (type) {
-            case 'call': return <Phone size={18} className="text-blue-500" />;
+            case 'call': return <Phone size={18} className="text-info-icon" />;
             case 'email': return <Mail size={18} className="text-purple-500" />;
-            case 'meeting': return <Users size={18} className="text-emerald-500" />;
+            case 'meeting': return <Users size={18} className="text-success-icon" />;
             default: return <MessageSquare size={18} className="text-surface-muted" />;
         }
     };

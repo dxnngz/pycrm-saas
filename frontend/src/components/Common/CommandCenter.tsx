@@ -30,9 +30,9 @@ interface CommandCenterProps {
 }
 
 const QUICK_ACTIONS: CommandCenterItem[] = [
-    { id: 'new-client', label: 'Crear nuevo cliente', icon: Plus, color: 'text-emerald-500', bg: 'bg-emerald-500/10' },
+    { id: 'new-client', label: 'Crear nuevo cliente', icon: Plus, color: 'text-success-icon', bg: 'bg-success-bg' },
     { id: 'new-opp', label: 'Nueva oportunidad de venta', icon: Target, color: 'text-primary-500', bg: 'bg-primary-500/10' },
-    { id: 'new-task', label: 'Asignar tarea prioritaria', icon: CheckSquare, color: 'text-amber-500', bg: 'bg-amber-500/10' },
+    { id: 'new-task', label: 'Asignar tarea prioritaria', icon: CheckSquare, color: 'text-warning-icon', bg: 'bg-warning-bg' },
 ];
 
 const NAVIGATION: CommandCenterItem[] = [

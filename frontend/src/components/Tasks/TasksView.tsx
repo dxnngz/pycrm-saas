@@ -130,7 +130,7 @@ const TasksView = () => {
                 <div>
                     <h1 className="text-xl font-bold text-surface-text">Tareas</h1>
                     <p className="text-sm text-surface-muted mt-1 flex items-center gap-1.5">
-                        <ShieldCheck size={14} className="text-emerald-500" />
+                        <ShieldCheck size={14} className="text-success-icon" />
                         Organiza y prioriza tus tareas diarias.
                     </p>
                 </div>
@@ -156,7 +156,7 @@ const TasksView = () => {
                     </div>
                 </div>
                 <div className="bg-surface-card p-4 rounded-lg border border-surface-border flex items-center gap-4">
-                    <div className="w-10 h-10 bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 rounded-md flex items-center justify-center">
+                    <div className="w-10 h-10 bg-success-bg text-success-icon rounded-md flex items-center justify-center">
                         <CheckCircle2 size={20} />
                     </div>
                     <div>
@@ -165,7 +165,7 @@ const TasksView = () => {
                     </div>
                 </div>
                 <div className="bg-surface-card p-4 rounded-lg border border-surface-border flex items-center gap-4">
-                    <div className="w-10 h-10 bg-rose-50 dark:bg-rose-500/10 text-rose-600 dark:text-rose-400 rounded-md flex items-center justify-center">
+                    <div className="w-10 h-10 bg-danger-bg text-danger-icon rounded-md flex items-center justify-center">
                         <AlertCircle size={20} />
                     </div>
                     <div>
@@ -241,7 +241,7 @@ const TasksView = () => {
                                     >
                                         <button
                                             onClick={() => handleToggle(task.id)}
-                                            className={`shrink-0 transition-transform hover:scale-110 ${task.completed ? 'text-emerald-500' : 'text-surface-muted/50 hover:text-primary-500'}`}
+                                            className={`shrink-0 transition-transform hover:scale-110 ${task.completed ? 'text-success-icon' : 'text-surface-muted/50 hover:text-primary-500'}`}
                                         >
                                             {task.completed ? <CheckCircle2 size={24} /> : <Circle size={24} />}
                                         </button>
@@ -275,7 +275,7 @@ const TasksView = () => {
                                             {canDeleteTask && (
                                                 <button
                                                     onClick={() => handleDeleteClick(task.id)}
-                                                    className="p-2 text-surface-muted hover:text-red-600 rounded-md transition-colors"
+                                                    className="p-2 text-surface-muted hover:text-danger-icon rounded-md transition-colors"
                                                     title="Eliminar"
                                                 >
                                                     <Trash2 size={16} />

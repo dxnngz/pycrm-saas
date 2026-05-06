@@ -92,7 +92,7 @@ const UsersView = () => {
             accessor: (user: User) => (
                 <button
                     onClick={() => handleDeleteUser(user.id)}
-                    className="p-1.5 text-surface-muted hover:text-red-600 rounded-md transition-colors"
+                    className="p-1.5 text-surface-muted hover:text-danger-icon rounded-md transition-colors"
                     title="Eliminar"
                 >
                     <Trash2 size={16} />

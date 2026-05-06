@@ -24,8 +24,8 @@ interface BriefingItem {
 }
 
 const typeConfig: Record<string, { icon: LucideIcon; color: string; bg: string }> = {
-    opportunity: { icon: Target, color: "text-emerald-500", bg: "bg-emerald-500/10" },
-    warning: { icon: Clock, color: "text-amber-500", bg: "bg-amber-500/10" },
+    opportunity: { icon: Target, color: "text-success-icon", bg: "bg-success-bg" },
+    warning: { icon: Clock, color: "text-warning-icon", bg: "bg-warning-bg" },
     critical: { icon: TrendingUp, color: "text-primary-500", bg: "bg-primary-500/10" }
 };
 

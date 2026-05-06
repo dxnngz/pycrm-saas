@@ -34,7 +34,7 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
             secondary: 'bg-surface-card text-surface-text border border-surface-border hover:bg-surface-hover shadow-sm',
             outline: 'border border-surface-border bg-transparent hover:bg-surface-hover text-surface-muted',
             ghost: 'bg-transparent hover:bg-surface-hover text-surface-muted',
-            danger: 'bg-red-600 text-white hover:bg-red-700 shadow-sm border border-red-700/50',
+            danger: 'bg-danger-solid text-white hover:bg-danger-solid-hover shadow-sm border border-danger-solid-border',
         };
 
         // Sizes

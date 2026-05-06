@@ -28,11 +28,11 @@ export const Select = forwardRef<HTMLSelectElement, SelectProps>(
                         ref={ref}
                         className={`
                             w-full ${isDense ? 'h-8 px-2.5' : 'h-10 px-3'} bg-surface-input
-                            border ${error ? 'border-red-500' : 'border-surface-border'}
+                            border ${error ? 'border-danger-border' : 'border-surface-border'}
                             rounded-md ${icon ? 'pl-9' : (isDense ? 'px-2.5' : 'px-3')} pr-10
                             text-sm text-surface-text
                             appearance-none cursor-pointer
-                            focus:outline-none focus:ring-2 ${error ? 'focus:ring-red-500/10' : 'focus:ring-primary-500/10'}
+                            focus:outline-none focus:ring-2 ${error ? 'focus:ring-danger-border/20' : 'focus:ring-primary-500/10'}
                             focus:border-primary-500 transition-all shadow-sm
                             disabled:opacity-50 disabled:cursor-not-allowed
                             ${className}
@@ -47,7 +47,7 @@ export const Select = forwardRef<HTMLSelectElement, SelectProps>(
                         </svg>
                     </div>
                 </div>
-                {error && <p className="text-[10px] font-medium text-red-500 mt-1 pl-0.5">{error}</p>}
+                {error && <p className="text-[10px] font-medium text-danger-text mt-1 pl-0.5">{error}</p>}
             </div>
         );
     }

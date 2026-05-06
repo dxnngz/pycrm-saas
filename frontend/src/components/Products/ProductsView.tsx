@@ -155,7 +155,7 @@ const ProductsView = () => {
           <button className="p-1.5 text-surface-muted hover:text-primary-600 rounded-md transition-colors" title="Editar">
             <Edit2 size={16} />
           </button>
-          <button onClick={() => handleDelete(product.id)} className="p-1.5 text-surface-muted hover:text-red-600 rounded-md transition-colors" title="Eliminar">
+          <button onClick={() => handleDelete(product.id)} className="p-1.5 text-surface-muted hover:text-danger-icon rounded-md transition-colors" title="Eliminar">
             <Trash2 size={16} />
           </button>
         </div>
@@ -195,7 +195,7 @@ const ProductsView = () => {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {/* ... (Stats remain the same) */}
         <div className="bg-surface-card p-4 rounded-lg border border-surface-border flex items-center gap-4">
-          <div className="w-10 h-10 bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 rounded-md flex items-center justify-center">
+          <div className="w-10 h-10 bg-info-bg text-info-icon rounded-md flex items-center justify-center">
             <Tag size={20} />
           </div>
           <div>
@@ -217,7 +217,7 @@ const ProductsView = () => {
         </div>
 
         <div className="bg-surface-card p-4 rounded-lg border border-surface-border flex items-center gap-4">
-          <div className="w-10 h-10 bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 rounded-md flex items-center justify-center">
+          <div className="w-10 h-10 bg-success-bg text-success-icon rounded-md flex items-center justify-center">
             <Filter size={20} />
           </div>
           <div>

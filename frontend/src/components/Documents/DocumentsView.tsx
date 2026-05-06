@@ -187,7 +187,7 @@ const DocumentsView = () => {
             <Download size={16} />
           </button>
           {canDeleteDocument && (
-            <button onClick={() => handleDelete(doc.id)} className="p-1.5 text-surface-muted hover:text-red-600 rounded-md transition-colors" title="Eliminar">
+            <button onClick={() => handleDelete(doc.id)} className="p-1.5 text-surface-muted hover:text-danger-icon rounded-md transition-colors" title="Eliminar">
               <Trash2 size={16} />
             </button>
           )}

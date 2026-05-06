@@ -23,7 +23,7 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
                 <div className="relative group">
                     {/* Icon Container */}
                     {icon && (
-                        <div className={`absolute left-4 top-1/2 -translate-y-1/2 transition-colors duration-200 ${error ? 'text-rose-500' : isFocused ? 'text-primary-500' : 'text-surface-muted group-hover:text-surface-text'
+                        <div className={`absolute left-4 top-1/2 -translate-y-1/2 transition-colors duration-200 ${error ? 'text-danger-icon' : isFocused ? 'text-primary-500' : 'text-surface-muted group-hover:text-surface-text'
                             }`}>
                             {icon}
                         </div>
@@ -47,7 +47,7 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
                             border-2 rounded-2xl outline-none transition-all duration-200
                             ${icon ? 'pl-12' : 'pl-4'} pr-12 pt-6 pb-2
                             ${error
-                                ? 'border-rose-500/50 focus:border-rose-500 dark:border-rose-500/30'
+                                ? 'border-danger-border focus:border-danger-border'
                                 : 'border-surface-border focus:border-primary-500 dark:focus:border-primary-500'
                             }
                             placeholder-transparent font-medium text-surface-text
@@ -64,7 +64,7 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
                                 ? 'text-[10px] font-black uppercase tracking-widest -translate-y-[18px] opacity-100'
                                 : 'text-sm font-bold text-surface-muted opacity-60'
                             }
-                            ${error ? 'text-rose-500' : isFocused ? 'text-primary-500' : 'text-surface-muted'}
+                            ${error ? 'text-danger-text' : isFocused ? 'text-primary-500' : 'text-surface-muted'}
                         `}
                     >
                         {label}
@@ -85,7 +85,7 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
 
                     {/* Error Icon */}
                     {error && !isPassword && (
-                        <div className="absolute right-4 top-1/2 -translate-y-1/2 text-rose-500">
+                        <div className="absolute right-4 top-1/2 -translate-y-1/2 text-danger-icon">
                             <AlertCircle size={18} />
                         </div>
                     )}
@@ -99,7 +99,7 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
                             animate={{ opacity: 1, y: 0 }}
                             exit={{ opacity: 0, y: -10 }}
                             aria-live="polite"
-                            className="text-[11px] font-bold text-rose-500 pl-4 flex items-center gap-1.5"
+                            className="text-[11px] font-bold text-danger-text pl-4 flex items-center gap-1.5"
                         >
                             <AlertCircle size={12} />
                             {error}

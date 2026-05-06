@@ -45,7 +45,7 @@ const OpportunityCard = memo(({
                 <div className="flex items-center justify-between">
                     <span className="text-[10px] font-bold text-surface-muted uppercase tracking-wider">{opp.client_company}</span>
                     {opp.status === 'pendiente' && scores[opp.id] && (
-                        <div className="flex items-center gap-1 text-[10px] font-semibold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-500/10 px-1.5 py-0.5 rounded border border-emerald-500/20">
+                        <div className="flex items-center gap-1 text-[10px] font-semibold text-success-text bg-success-bg px-1.5 py-0.5 rounded border border-success-border">
                             <TrendingUp size={10} />
                             {scores[opp.id].score}%
                         </div>
@@ -70,14 +70,14 @@ const OpportunityCard = memo(({
                         <>
                             <button
                                 onClick={() => onUpdateStatus(opp.id, 'ganado')}
-                                className="p-1.5 text-surface-muted hover:text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-500/10 rounded transition-colors"
+                                className="p-1.5 text-surface-muted hover:text-success-icon hover:bg-success-bg rounded transition-colors"
                                 title="Marcar como ganado"
                             >
                                 <Check size={14} />
                             </button>
                             <button
                                 onClick={() => onUpdateStatus(opp.id, 'perdido')}
-                                className="p-1.5 text-surface-muted hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-500/10 rounded transition-colors"
+                                className="p-1.5 text-surface-muted hover:text-danger-icon hover:bg-danger-bg rounded transition-colors"
                                 title="Marcar como perdido"
                             >
                                 <X size={14} />
@@ -310,7 +310,7 @@ const PipelineView = () => {
 
     const columnConfig = [
         { id: 'pendiente' as const, title: 'Pendiente', color: 'bg-primary-500' },
-        { id: 'ganado' as const, title: 'Ganado', color: 'bg-emerald-500' },
+        { id: 'ganado' as const, title: 'Ganado', color: 'bg-success-icon' },
         { id: 'perdido' as const, title: 'Perdido', color: 'bg-surface-muted' }
     ];
 
@@ -320,7 +320,7 @@ const PipelineView = () => {
                 <div>
                     <h1 className="text-xl font-bold text-surface-text">Pipeline de ventas</h1>
                     <p className="text-sm text-surface-muted mt-1 flex items-center gap-1.5">
-                        <ShieldCheck size={14} className="text-emerald-500" />
+                        <ShieldCheck size={14} className="text-success-icon" />
                         Seguimiento y previsión de oportunidades con IA.
                     </p>
                 </div>

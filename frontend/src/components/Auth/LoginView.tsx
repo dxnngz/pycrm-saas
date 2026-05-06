@@ -111,7 +111,7 @@ const LoginView = () => {
         <div className="min-h-screen flex items-center justify-center bg-surface-bg p-6 overflow-hidden relative">
             {/* Background Decorative Elements */}
             <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-primary-500/10 blur-[120px] rounded-full" />
-            <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-indigo-500/10 blur-[120px] rounded-full" />
+            <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-primary-500/10 blur-[120px] rounded-full" />
 
             <div className="w-full max-w-[440px] z-10 space-y-8">
                 {/* Minimal Header */}

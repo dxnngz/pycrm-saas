@@ -228,7 +228,7 @@ const ContactsView = () => {
             className: 'hidden md:flex items-center',
         },
         {
-            header: 'Contact',
+            header: 'Contacto',
             width: '25%',
             accessor: (client: Client) => (
                 <div className="space-y-0.5 py-1 truncate">
@@ -245,18 +245,18 @@ const ContactsView = () => {
             className: 'hidden lg:flex items-center',
         },
         {
-            header: 'Status',
+            header: 'Estado',
             width: '10%',
             accessor: (client: Client) => (
                 <Badge variant={client.status === 'activo' ? 'success' : 'secondary'}>
-                    {client.status === 'activo' ? 'Active' : 'Inactive'}
+                    {client.status === 'activo' ? 'Activo' : 'Inactivo'}
                 </Badge>
             ),
             align: 'center',
             className: 'flex items-center justify-center',
         },
         {
-            header: 'Actions',
+            header: 'Acciones',
             width: '5%',
             align: 'right',
             className: 'flex items-center justify-end',
@@ -277,7 +277,7 @@ const ContactsView = () => {
                             e.stopPropagation();
                             handleViewBrief(client);
                         }}
-                        className="p-1.5 text-surface-muted hover:text-amber-500 dark:hover:text-amber-400 rounded-md transition-colors"
+                        className="p-1.5 text-surface-muted hover:text-info-icon rounded-md transition-colors"
                         title="Resumen IA"
                     >
                         <Sparkles size={16} />
@@ -298,7 +298,7 @@ const ContactsView = () => {
                                 e.stopPropagation();
                                 handleDeleteClient(client.id);
                             }}
-                            className="p-1.5 text-surface-muted hover:text-red-600 rounded-md transition-colors"
+                            className="p-1.5 text-surface-muted hover:text-danger-icon rounded-md transition-colors"
                             title="Eliminar"
                         >
                             <Trash2 size={16} />
@@ -488,7 +488,7 @@ const ContactsView = () => {
                                     type="button"
                                     onClick={() => setNewStatus('activo')}
                                     className={`flex-1 py-2 text-xs font-bold rounded-lg transition-all ${newStatus === 'activo'
-                                        ? 'bg-surface-card text-emerald-600 dark:text-emerald-400 shadow-sm'
+                                        ? 'bg-surface-card text-success-text shadow-sm'
                                         : 'text-surface-muted hover:text-surface-text'}`}
                                 >
                                     Activo
@@ -578,7 +578,7 @@ const ContactsView = () => {
                     </div>
                 ) : (
                     <div className="prose prose-slate dark:prose-invert max-w-none text-sm">
-                        <div className="bg-amber-50/50 dark:bg-amber-900/10 border border-amber-200/50 dark:border-amber-800/30 rounded-xl p-6 text-surface-text shadow-sm leading-relaxed">
+                        <div className="bg-info-bg border border-info-border rounded-xl p-6 text-surface-text shadow-sm leading-relaxed">
                             <ReactMarkdown
                                 components={{
                                     h1: ({ ...props }) => <h1 className="text-lg font-bold text-surface-text mb-4 flex items-center gap-2" {...props} />,

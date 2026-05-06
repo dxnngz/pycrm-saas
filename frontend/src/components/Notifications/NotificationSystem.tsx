@@ -64,8 +64,8 @@ export const NotificationSystem = ({ isOpen, onClose }: NotificationSystemProps)
                                 notifications.map((n) => (
                                     <div key={n.id} className="group relative bg-surface-muted-bg/40 p-6 rounded-2xl border border-surface-border hover:border-primary-500/20 transition-all">
                                         <div className="flex gap-4">
-                                            <div className={`mt-1 h-10 w-10 shrink-0 rounded-xl flex items-center justify-center ${n.type === 'success' ? 'bg-emerald-500/10 text-emerald-500' :
-                                                n.type === 'warning' ? 'bg-amber-500/10 text-amber-500' :
+                                            <div className={`mt-1 h-10 w-10 shrink-0 rounded-xl flex items-center justify-center ${n.type === 'success' ? 'bg-success-bg text-success-icon' :
+                                                n.type === 'warning' ? 'bg-warning-bg text-warning-icon' :
                                                     'bg-primary-500/10 text-primary-500'
                                                 }`}>
                                                 {n.type === 'success' ? <CheckCircle size={18} /> :
@@ -79,7 +79,7 @@ export const NotificationSystem = ({ isOpen, onClose }: NotificationSystemProps)
                                         </div>
                                         <button
                                             onClick={() => removeOne(n.id)}
-                                            className="absolute top-4 right-4 p-2 text-surface-muted hover:text-rose-500 opacity-0 group-hover:opacity-100 transition-all"
+                                            className="absolute top-4 right-4 p-2 text-surface-muted hover:text-danger-icon opacity-0 group-hover:opacity-100 transition-all"
                                         >
                                             <Trash2 size={14} />
                                         </button>

@@ -19,10 +19,10 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
                     ref={ref}
                     className={`
                         w-full bg-surface-input
-                        border ${error ? 'border-red-500' : 'border-surface-border'}
+                        border ${error ? 'border-danger-border' : 'border-surface-border'}
                         rounded-md p-2.5 text-sm text-surface-text
                         placeholder:text-surface-muted
-                        focus:outline-none focus:ring-2 ${error ? 'focus:ring-red-500/10' : 'focus:ring-primary-500/10'}
+                        focus:outline-none focus:ring-2 ${error ? 'focus:ring-danger-border/20' : 'focus:ring-primary-500/10'}
                         focus:border-primary-500 transition-all shadow-sm
                         disabled:opacity-50 disabled:cursor-not-allowed
                         min-h-[80px] resize-y
@@ -30,7 +30,7 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
                     `}
                     {...props}
                 />
-                {error && <p className="text-[10px] font-medium text-red-500 mt-1 pl-0.5">{error}</p>}
+                {error && <p className="text-[10px] font-medium text-danger-text mt-1 pl-0.5">{error}</p>}
             </div>
         );
     }

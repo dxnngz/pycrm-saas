@@ -8,9 +8,9 @@ import { motion, AnimatePresence } from 'framer-motion';
 type ViewId = 'dashboard' | 'contacts' | 'pipeline' | 'tasks' | 'documents' | 'settings' | 'users' | 'calendar' | 'products';
 
 const QUICK_ACTIONS: SearchResult[] = [
-    { id: 'new-client', label: 'Crear Nuevo Cliente', icon: Plus, viewId: 'contacts', color: 'text-emerald-400' },
-    { id: 'new-opp', label: 'Nueva Oportunidad', icon: Target, viewId: 'pipeline', color: 'text-indigo-400' },
-    { id: 'new-task', label: 'Nueva Tarea', icon: CheckSquare, viewId: 'tasks', color: 'text-amber-400' },
+    { id: 'new-client', label: 'Crear Nuevo Cliente', icon: Plus, viewId: 'contacts', color: 'text-success-icon' },
+    { id: 'new-opp', label: 'Nueva Oportunidad', icon: Target, viewId: 'pipeline', color: 'text-primary-400' },
+    { id: 'new-task', label: 'Nueva Tarea', icon: CheckSquare, viewId: 'tasks', color: 'text-warning-icon' },
 ];
 
 const NAVIGATION: SearchResult[] = [
@@ -142,7 +142,7 @@ export const CommandBar = ({ isOpen, onClose, onNavigate }: { isOpen: boolean, o
                                             onMouseEnter={() => setSelectedIndex(idx)}
                                             className={`w-full flex items-center gap-3 p-3 rounded-xl transition-all text-left group ${selectedIndex === idx ? 'bg-surface-hover' : 'hover:bg-surface-hover/50'}`}
                                         >
-                                            <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${selectedIndex === idx ? 'bg-indigo-500/20' : 'bg-surface-muted-bg/50'}`}>
+                                            <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${selectedIndex === idx ? 'bg-primary-500/20' : 'bg-surface-muted-bg/50'}`}>
                                                 <item.icon className={`w-5 h-5 ${item.color || 'text-surface-muted'}`} />
                                             </div>
                                             <div className="flex-1 min-w-0">
@@ -153,7 +153,7 @@ export const CommandBar = ({ isOpen, onClose, onNavigate }: { isOpen: boolean, o
                                             </div>
                                             {selectedIndex === idx && (
                                                 <motion.div layoutId="arrow">
-                                                    <ArrowRight className="w-4 h-4 text-indigo-400" />
+                                                    <ArrowRight className="w-4 h-4 text-primary-400" />
                                                 </motion.div>
                                             )}
                                         </button>
@@ -197,7 +197,7 @@ export const CommandBar = ({ isOpen, onClose, onNavigate }: { isOpen: boolean, o
                                 <span><span className="bg-surface-card/30 px-1 rounded text-surface-muted mr-1 border border-surface-border">↑↓</span> Navegar</span>
                                 <span><span className="bg-surface-card/30 px-1 rounded text-surface-muted mr-1 border border-surface-border">Enter</span> Seleccionar</span>
                             </div>
-                            <div className="flex items-center gap-1 text-indigo-400/80">
+                            <div className="flex items-center gap-1 text-primary-400/80">
                                 <Zap className="w-3 h-3 fill-current" />
                                 <span className="font-bold uppercase tracking-widest">PyCRM Nexus AI</span>
                             </div>

@@ -36,7 +36,7 @@ class ErrorBoundary extends Component<Props, State> {
             return (
                 <div className="min-h-screen bg-surface-bg flex items-center justify-center p-6">
                     <div className="max-w-xl w-full bg-surface-card rounded-[3rem] p-12 border border-surface-border shadow-2xl text-center space-y-8">
-                        <div className="inline-flex h-24 w-24 items-center justify-center bg-rose-500/10 rounded-3xl text-rose-500 animate-pulse">
+                        <div className="inline-flex h-24 w-24 items-center justify-center bg-danger-bg rounded-3xl text-danger-icon animate-pulse">
                             <AlertCircle size={48} />
                         </div>
 
@@ -48,8 +48,8 @@ class ErrorBoundary extends Component<Props, State> {
                         </div>
 
                         <div className="bg-surface-muted-bg/40 p-6 rounded-2xl text-left border border-surface-border">
-                            <p className="text-[10px] font-black text-surface-muted uppercase tracking-widest mb-2">Internal Fault Report</p>
-                            <code className="text-xs font-mono text-rose-500 break-all">{this.state.error?.message}</code>
+                            <p className="text-[10px] font-black text-surface-muted uppercase tracking-widest mb-2">Informe interno</p>
+                            <code className="text-xs font-mono text-danger-text break-all">{this.state.error?.message}</code>
                         </div>
 
                         <div className="flex flex-col sm:flex-row gap-4 pt-4">

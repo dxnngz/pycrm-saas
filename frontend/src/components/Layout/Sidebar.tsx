@@ -115,7 +115,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                     </button>
                     <button
                         onClick={onLogout}
-                        className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-surface-muted hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 transition-all text-xs font-medium"
+                        className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-surface-muted hover:text-danger-icon hover:bg-danger-bg transition-all text-xs font-medium"
                     >
                         <LogOut size={18} className="flex-shrink-0" />
                         {!sidebarCollapsed && <span>Salir</span>}

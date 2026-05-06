@@ -37,7 +37,7 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
                         className={`block mb-1 ${isDense ? 'text-[10px]' : 'text-[11px]'} font-bold text-surface-muted uppercase tracking-wider`}
                     >
                         {label}
-                        {props.required && <span className="text-red-500 ml-1">*</span>}
+                        {props.required && <span className="text-danger-icon ml-1">*</span>}
                     </label>
                 )}
                 <div className="relative">
@@ -55,7 +55,7 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
                             bg-surface-input border border-surface-border text-surface-text
                             placeholder:text-surface-muted
                             disabled:opacity-50 disabled:cursor-not-allowed
-                            ${error ? 'border-red-500 focus:border-red-500 focus:ring-red-500/10' : 'focus:border-primary-500 focus:ring-primary-500/20'}
+                            ${error ? 'border-danger-border focus:border-danger-border focus:ring-danger-border/20' : 'focus:border-primary-500 focus:ring-primary-500/20'}
                             ${icon && iconPosition === 'left' ? 'pl-10' : 'pl-4'}
                             ${icon && iconPosition === 'right' ? 'pr-10' : 'pr-4'}
                             ${isDense ? 'py-2 px-3' : 'py-3'}
@@ -72,7 +72,7 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
                     )}
                 </div>
                 {error && (
-                    <p id={`${inputId}-error`} className="mt-1.5 text-sm text-red-500 font-medium">
+                    <p id={`${inputId}-error`} className="mt-1.5 text-sm text-danger-text font-medium">
                         {error}
                     </p>
                 )}

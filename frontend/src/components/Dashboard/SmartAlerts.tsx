@@ -42,7 +42,7 @@ const SmartAlerts: React.FC = () => {
                         Estado del sistema
                     </h3>
                     <div className="flex items-center gap-1.5 mt-0.5">
-                        <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                        <div className="w-1.5 h-1.5 rounded-full bg-success-icon animate-pulse" />
                         <p className="text-[9px] text-surface-muted font-bold uppercase tracking-tight">Auto-reparación activa</p>
                     </div>
                 </div>
@@ -58,11 +58,11 @@ const SmartAlerts: React.FC = () => {
                             animate={{ opacity: 1, x: 0 }}
                             transition={{ delay: idx * 0.1 }}
                             className={`p-3 rounded-lg border flex gap-3 transition-all hover:bg-surface-hover ${alert.type === 'WARNING'
-                                ? 'bg-red-50/30 dark:bg-red-900/10 border-red-100 dark:border-red-900/30'
+                                ? 'bg-danger-bg border-danger-border'
                                 : 'bg-primary-50/30 dark:bg-primary-900/10 border-primary-100 dark:border-primary-900/30'
                                 }`}
                         >
-                            <div className={`mt-0.5 w-7 h-7 rounded-md flex items-center justify-center flex-shrink-0 ${alert.type === 'WARNING' ? 'bg-red-100 dark:bg-red-900/30 text-red-600' : 'bg-primary-100 dark:bg-primary-900/30 text-primary-600'
+                            <div className={`mt-0.5 w-7 h-7 rounded-md flex items-center justify-center flex-shrink-0 ${alert.type === 'WARNING' ? 'bg-danger-bg text-danger-icon' : 'bg-primary-100 dark:bg-primary-900/30 text-primary-600'
                                 }`}>
                                 {alert.type === 'WARNING' ? <AlertCircle size={14} /> : <Lightbulb size={14} />}
                             </div>
@@ -70,7 +70,7 @@ const SmartAlerts: React.FC = () => {
                                 <div className="flex items-center gap-2 mb-0.5">
                                     <span className="text-[11px] font-bold text-surface-text truncate">{alert.title}</span>
                                     {alert.impact === 'HIGH' && (
-                                        <span className="px-1 py-0.5 rounded-[4px] text-[8px] font-black bg-red-100 dark:bg-red-900/40 text-red-600 dark:text-red-400 uppercase">Prioridad</span>
+                                        <span className="px-1 py-0.5 rounded-[4px] text-[8px] font-black bg-danger-bg text-danger-text uppercase">Prioridad</span>
                                     )}
                                 </div>
                                 <p className="text-[10px] text-surface-muted leading-relaxed font-medium line-clamp-2">{alert.description}</p>

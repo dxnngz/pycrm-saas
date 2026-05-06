@@ -37,7 +37,7 @@ const AIBanner: FC<AIBannerProps> = ({ forecast, monthsAnalyzed }) => {
                 <div className="flex items-center gap-12 border-l border-surface-border/60 pl-12 h-20">
                     <div className="text-center">
                         <p className="text-surface-muted text-[10px] font-black uppercase tracking-widest mb-1">Crecimiento IA</p>
-                        <div className={`flex items-center gap-2 text-2xl font-black ${forecast && forecast.growth >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
+                        <div className={`flex items-center gap-2 text-2xl font-black ${forecast && forecast.growth >= 0 ? 'text-success-icon' : 'text-danger-icon'}`}>
                             {forecast && forecast.growth >= 0 ? <ArrowUpRight size={24} /> : <ArrowDownRight size={24} />}
                             {forecast?.growth}%
                         </div>
@@ -47,8 +47,8 @@ const AIBanner: FC<AIBannerProps> = ({ forecast, monthsAnalyzed }) => {
                         <p className="text-surface-text text-2xl font-black">94.2%</p>
                     </div>
                     <div className="text-center">
-                        <p className="text-surface-muted text-[10px] font-black uppercase tracking-widest mb-1">Status</p>
-                        <span className="bg-emerald-500/20 text-emerald-400 text-[10px] font-black px-3 py-1 rounded-full uppercase border border-emerald-500/30">
+                        <p className="text-surface-muted text-[10px] font-black uppercase tracking-widest mb-1">Estado</p>
+                        <span className="bg-success-bg text-success-text text-[10px] font-black px-3 py-1 rounded-full uppercase border border-success-border">
                             Optimizado
                         </span>
                     </div>
