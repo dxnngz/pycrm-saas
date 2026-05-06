@@ -7,6 +7,7 @@ import { logger } from '../../utils/logger.js';
 import { asyncHandler } from '../../utils/asyncHandler.js';
 import { AppError } from '../../utils/AppError.js';
 import { sendEmail } from '../../core/mailer.js';
+import { env } from '../../env.js';
 import crypto from 'crypto';
 
 // Utilidad para establecer las cookies JWT seguras
@@ -233,13 +234,13 @@ export const forgotPassword = asyncHandler(async (req: Request, res: Response) =
         await authService.savePasswordResetToken(user.id, resetToken, expiresAt);
 
         const base =
-            (process.env.PUBLIC_FRONTEND_URL || process.env.FRONTEND_URL || '')
+            ((process.env.PUBLIC_FRONTEND_URL || process.env.FRONTEND_URL || env.FRONTEND_URL || '') as string)
                 .split(',')[0]
                 ?.trim()
                 ?.replace(/\/$/, '');
         const resetUrl = base ? `${base}/reset-password/${resetToken}` : '';
 
-        if (resetUrl && process.env.SMTP_USER && process.env.SMTP_PASS) {
+        if (resetUrl && env.SMTP_HOST && env.SMTP_USER && env.SMTP_PASS) {
             void sendEmail({
                 to: user.email,
                 subject: 'Recuperación de contraseña',

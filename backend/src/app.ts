@@ -31,6 +31,7 @@ import aiRoutes from './modules/ai/ai.routes.js';
 import auditRoutes from './modules/audit/audit.routes.js';
 import automationRoutes from './modules/automations/automation.routes.js';
 import webhookRoutes from './modules/webhooks/webhook.routes.js';
+import demoRoutes from './modules/demo/demo.routes.js';
 
 import { globalErrorHandler } from './core/middlewares/error.middleware.js';
 import { requestIdMiddleware } from './core/middlewares/requestId.middleware.js';
@@ -241,6 +242,7 @@ app.use('/api/tenants', tenantRoutes);
 app.use('/api/integrations', integrationRoutes);
 app.use('/api/telemetry', telemetryRoutes);
 app.use('/api/health', healthRoutes);
+app.use('/api/demo', demoRoutes);
 
 // Catch-all 404 for API routes
 app.use('/api', (req, res) => {
