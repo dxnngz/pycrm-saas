@@ -29,11 +29,16 @@ import { Badge } from '../UI/Badge';
 import { ConfirmModal } from '../Common/ConfirmModal';
 import { Skeleton } from '../UI/Skeleton';
 import { Input } from '../UI/Input';
+import { EmptyState } from '../Common/EmptyState';
+import { demoService } from '../../services/demo.service';
+import { useAuth } from '../../context/AuthContext';
 
 const ContactsView = () => {
+    const { user } = useAuth();
     const [search, setSearch] = useState('');
     const [debouncedSearch, setDebouncedSearch] = useState('');
     const [page, setPage] = useState(1);
+    const [seeding, setSeeding] = useState(false);
 
     useEffect(() => {
         const timer = setTimeout(() => {
@@ -185,6 +190,20 @@ const ContactsView = () => {
     const handleExportPDF = useCallback(() => {
         generateClientReport(clients);
     }, [clients]);
+
+    const handleSeedDemo = async () => {
+        setSeeding(true);
+        try {
+            const res = await demoService.seed();
+            toast.success(res.message || 'Datos de demostración creados');
+            await loadClients();
+        } catch (e: unknown) {
+            const msg = e instanceof Error ? e.message : 'No se pudo crear datos de demostración';
+            toast.error(msg);
+        } finally {
+            setSeeding(false);
+        }
+    };
 
     const columns: VirtualColumn<Client>[] = [
         {
@@ -370,6 +389,17 @@ const ContactsView = () => {
                 columns={columns}
                 isLoading={loading}
                 emptyMessage="No customers found."
+                emptyContent={
+                    <EmptyState
+                        title="No hay clientes todavía"
+                        description="Crea tu primer cliente o genera datos demo para que la app se vea completa."
+                        icon={UserPlus}
+                        actionLabel={canCreateClient ? 'Crear cliente' : undefined}
+                        onAction={canCreateClient ? () => handleOpenModal() : undefined}
+                        secondaryActionLabel={user?.role === 'admin' ? (seeding ? 'Creando…' : 'Crear datos demo') : undefined}
+                        onSecondaryAction={user?.role === 'admin' ? handleSeedDemo : undefined}
+                    />
+                }
                 height="600px"
             />
 

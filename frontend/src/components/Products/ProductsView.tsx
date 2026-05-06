@@ -19,8 +19,12 @@ import Modal from '../Common/Modal';
 import { Input } from '../UI/Input';
 import { Select } from '../UI/Select';
 import { sanitizePayload } from '../../utils/sanitize';
+import { EmptyState } from '../Common/EmptyState';
+import { demoService } from '../../services/demo.service';
+import { useAuth } from '../../context/AuthContext';
 
 const ProductsView = () => {
+  const { user } = useAuth();
   const [search, setSearch] = useState('');
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
@@ -28,10 +32,25 @@ const ProductsView = () => {
   
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [seeding, setSeeding] = useState(false);
   const [newName, setNewName] = useState('');
   const [newDesc, setNewDesc] = useState('');
   const [newPrice, setNewPrice] = useState('');
   const [newCategory, setNewCategory] = useState('General');
+
+  const handleSeedDemo = async () => {
+    setSeeding(true);
+    try {
+      const res = await demoService.seed();
+      toast.success(res.message || 'Datos de demostración creados');
+      loadProducts();
+    } catch (e: unknown) {
+      const msg = e instanceof Error ? e.message : 'No se pudo crear datos de demostración';
+      toast.error(msg);
+    } finally {
+      setSeeding(false);
+    }
+  };
 
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -212,6 +231,17 @@ const ProductsView = () => {
         columns={columns}
         isLoading={loading}
         emptyMessage="No products found in catalog."
+        emptyContent={
+          <EmptyState
+            title="No hay productos todavía"
+            description="Crea tu primer producto o genera datos demo para que la app se vea completa."
+            icon={Package}
+            actionLabel="Crear producto"
+            onAction={() => setIsModalOpen(true)}
+            secondaryActionLabel={user?.role === 'admin' ? (seeding ? 'Creando…' : 'Crear datos demo') : undefined}
+            onSecondaryAction={user?.role === 'admin' ? handleSeedDemo : undefined}
+          />
+        }
         height="500px"
       />
 

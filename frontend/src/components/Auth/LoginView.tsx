@@ -47,7 +47,7 @@ const LoginView = () => {
         } catch (err: unknown) {
             const msg = err instanceof Error ? err.message : 'Authentication failed';
             setError(msg);
-            toast.error('Access denied', { description: msg });
+            toast.error('Acceso denegado', { description: msg });
         } finally {
             setLoading(false);
         }
@@ -64,11 +64,11 @@ const LoginView = () => {
                 companyName: data.company,
             });
             await login({ email: data.email, password: data.pass });
-            toast.success('Account created successfully');
+            toast.success('Cuenta creada correctamente');
         } catch (err: unknown) {
             const msg = err instanceof Error ? err.message : 'Registration failed';
             setError(msg);
-            toast.error('Registration failed', { description: msg });
+            toast.error('No se pudo crear la cuenta', { description: msg });
         } finally {
             setLoading(false);
         }
@@ -80,11 +80,11 @@ const LoginView = () => {
         try {
             await authService.forgotPassword(email);
             setSuccess(true);
-            toast.success('Reset link sent', { description: 'If the email exists, you will receive a link shortly.' });
+            toast.success('Enlace enviado', { description: 'Si el email existe, recibirás un enlace en unos segundos.' });
         } catch (err: unknown) {
             const msg = err instanceof Error ? err.message : 'Request failed';
             setError(msg);
-            toast.error('Request failed', { description: msg });
+            toast.error('No se pudo enviar', { description: msg });
         } finally {
             setLoading(false);
         }
@@ -97,11 +97,11 @@ const LoginView = () => {
             if (!resetToken) throw new Error('Invalid reset link');
             await authService.resetPassword(resetToken, newPassword);
             setSuccess(true);
-            toast.success('Password updated', { description: 'You can sign in with your new password.' });
+            toast.success('Contraseña actualizada', { description: 'Ya puedes iniciar sesión con tu nueva contraseña.' });
         } catch (err: unknown) {
             const msg = err instanceof Error ? err.message : 'Request failed';
             setError(msg);
-            toast.error('Request failed', { description: msg });
+            toast.error('No se pudo actualizar', { description: msg });
         } finally {
             setLoading(false);
         }

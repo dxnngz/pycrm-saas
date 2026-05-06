@@ -57,7 +57,7 @@ export const ResetForm: React.FC<ResetFormProps> = ({ onSubmit, isLoading, onBac
                 required
             />
             <div className="text-[11px] font-semibold text-surface-muted">
-                Use at least 8 characters.
+                Usa al menos 8 caracteres.
             </div>
             <Input
                 label="Confirm new password"

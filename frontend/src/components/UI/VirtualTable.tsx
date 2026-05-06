@@ -16,6 +16,7 @@ export interface VirtualTableProps<T> {
     onRowClick?: (item: T) => void;
     isLoading?: boolean;
     emptyMessage?: string;
+    emptyContent?: ReactNode;
     height?: string;
     rowHeight?: number;
 }
@@ -26,6 +27,7 @@ export function VirtualTable<T>({
     onRowClick,
     isLoading,
     emptyMessage = 'No data found',
+    emptyContent,
     height = '600px',
     rowHeight,
 }: VirtualTableProps<T>) {
@@ -55,8 +57,16 @@ export function VirtualTable<T>({
 
     if (data.length === 0) {
         return (
-            <div className="w-full h-64 flex items-center justify-center border border-surface-border rounded-lg bg-surface-card text-surface-muted text-sm italic shadow-sm">
-                {emptyMessage}
+            <div className="w-full border border-surface-border rounded-lg bg-surface-card shadow-sm">
+                <div className="h-64 flex items-center justify-center">
+                    {emptyContent ? (
+                        emptyContent
+                    ) : (
+                        <div className="text-surface-muted text-sm italic">
+                            {emptyMessage}
+                        </div>
+                    )}
+                </div>
             </div>
         );
     }

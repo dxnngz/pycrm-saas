@@ -4,7 +4,6 @@ import {
     Bell,
     Shield,
     Palette,
-    Save,
     History,
     Settings as SettingsIcon,
     Database,
@@ -26,7 +25,6 @@ const SettingsView = () => {
     const { user, logout } = useAuth();
     const { isDense, toggleDense } = useUI();
     const [activeTab, setActiveTab] = useState('profile');
-    const [isSaving, setIsSaving] = useState(false);
     const [demoLoading, setDemoLoading] = useState(false);
     const [testEmailLoading, setTestEmailLoading] = useState(false);
     const [testEmailTo, setTestEmailTo] = useState(user?.email || '');
@@ -50,14 +48,6 @@ const SettingsView = () => {
         tabs.push({ id: 'audit', label: 'Activity Log', icon: History });
         tabs.push({ id: 'demo', label: 'Demo Data', icon: Database });
     }
-
-    const handleSave = () => {
-        setIsSaving(true);
-        setTimeout(() => {
-            setIsSaving(false);
-            // In a real app, this would be an API call
-        }, 800);
-    };
 
     const persistNotif = (key: string, value: boolean) => {
         localStorage.setItem(key, String(value));
@@ -131,15 +121,7 @@ const SettingsView = () => {
                         Manage your account preferences and application settings.
                     </p>
                 </div>
-                <Button
-                    onClick={handleSave}
-                    isLoading={isSaving}
-                    variant="primary"
-                    size="md"
-                >
-                    {!isSaving && <Save size={16} className="mr-2" />}
-                    Save Changes
-                </Button>
+                <Badge variant="success">Guardado automático</Badge>
             </div>
 
             <div className="flex flex-col lg:flex-row gap-6 flex-1 min-h-0">

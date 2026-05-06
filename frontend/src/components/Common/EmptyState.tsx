@@ -9,6 +9,8 @@ interface EmptyStateProps {
     icon: LucideIcon;
     actionLabel?: string;
     onAction?: () => void;
+    secondaryActionLabel?: string;
+    onSecondaryAction?: () => void;
 }
 
 export const EmptyState: React.FC<EmptyStateProps> = ({
@@ -16,7 +18,9 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
     description,
     icon: Icon,
     actionLabel,
-    onAction
+    onAction,
+    secondaryActionLabel,
+    onSecondaryAction
 }) => {
     return (
         <div className="flex flex-col items-center justify-center p-12 text-center bg-surface-card rounded-xl border border-dashed border-surface-border">
@@ -27,12 +31,19 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
             <p className="text-sm text-surface-muted max-w-xs mb-8">
                 {description}
             </p>
-            {actionLabel && onAction && (
-                <Button variant="primary" onClick={onAction}>
-                    <Plus size={18} className="mr-2" />
-                    {actionLabel}
-                </Button>
-            )}
+            <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
+                {actionLabel && onAction && (
+                    <Button variant="primary" onClick={onAction}>
+                        <Plus size={18} className="mr-2" />
+                        {actionLabel}
+                    </Button>
+                )}
+                {secondaryActionLabel && onSecondaryAction && (
+                    <Button variant="outline" onClick={onSecondaryAction}>
+                        {secondaryActionLabel}
+                    </Button>
+                )}
+            </div>
         </div>
     );
 };

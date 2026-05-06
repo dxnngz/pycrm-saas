@@ -22,13 +22,18 @@ import Modal from '../Common/Modal';
 import { Input } from '../UI/Input';
 import { Select } from '../UI/Select';
 import { sanitizePayload } from '../../utils/sanitize';
+import { EmptyState } from '../Common/EmptyState';
+import { demoService } from '../../services/demo.service';
+import { useAuth } from '../../context/AuthContext';
 
 const DocumentsView = () => {
   const { role } = usePermissions();
   const canDeleteDocument = role === 'admin' || role === 'manager';
+  const { user } = useAuth();
   const [search, setSearch] = useState('');
   const [documents, setDocuments] = useState<Document[]>([]);
   const [loading, setLoading] = useState(true);
+  const [seeding, setSeeding] = useState(false);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -70,6 +75,20 @@ const DocumentsView = () => {
       setLoading(false);
     }
   }, [search]);
+
+  const handleSeedDemo = async () => {
+    setSeeding(true);
+    try {
+      const res = await demoService.seed();
+      toast.success(res.message || 'Datos de demostración creados');
+      loadDocuments();
+    } catch (e: unknown) {
+      const msg = e instanceof Error ? e.message : 'No se pudo crear datos de demostración';
+      toast.error(msg);
+    } finally {
+      setSeeding(false);
+    }
+  };
 
   useEffect(() => {
     const delayDebounceFn = setTimeout(() => {
@@ -227,6 +246,17 @@ const DocumentsView = () => {
         columns={columns}
         isLoading={loading}
         emptyMessage="No documents found in registry."
+        emptyContent={
+          <EmptyState
+            title="No hay documentos todavía"
+            description="Crea tu primer documento o genera datos demo para que la app se vea completa."
+            icon={FileText}
+            actionLabel="Crear documento"
+            onAction={() => setIsModalOpen(true)}
+            secondaryActionLabel={user?.role === 'admin' ? (seeding ? 'Creando…' : 'Crear datos demo') : undefined}
+            onSecondaryAction={user?.role === 'admin' ? handleSeedDemo : undefined}
+          />
+        }
         height="calc(100vh - 350px)"
       />
 

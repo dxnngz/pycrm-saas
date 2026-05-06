@@ -149,13 +149,13 @@ const DashboardView = () => {
             {isEmpty && (
                 <div className="flex items-start justify-between gap-4">
                     <div className="flex-1">
-                        <Alert variant="info" title="Workspace looks empty">
-                            Create your first client, opportunity and tasks — or generate demo data to make the dashboard look complete for a live presentation.
+                        <Alert variant="info" title="El panel está vacío">
+                            Crea tu primer cliente, oportunidades y tareas — o genera datos demo para que la app se vea completa en la presentación.
                         </Alert>
                     </div>
                     {user?.role === 'admin' && (
                         <Button variant="primary" size="sm" onClick={handleSeedDemo} isLoading={seeding}>
-                            Generate demo data
+                            Crear datos demo
                         </Button>
                     )}
                 </div>
