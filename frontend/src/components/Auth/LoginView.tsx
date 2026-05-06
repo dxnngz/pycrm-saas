@@ -129,10 +129,10 @@ const LoginView = () => {
                         transition={{ delay: 0.1 }}
                         className="text-2xl font-bold tracking-tight text-surface-text"
                     >
-                        {mode === 'login' && 'Identity Portal'}
-                        {mode === 'register' && 'Account Activation'}
-                        {mode === 'forgot' && 'Access Recovery'}
-                        {mode === 'reset' && 'Password Reset'}
+                        {mode === 'login' && 'Portal de acceso'}
+                        {mode === 'register' && 'Crear cuenta'}
+                        {mode === 'forgot' && 'Recuperar acceso'}
+                        {mode === 'reset' && 'Nueva contraseña'}
                     </motion.h1>
                     <motion.p
                         initial={{ opacity: 0 }}
@@ -140,10 +140,10 @@ const LoginView = () => {
                         transition={{ delay: 0.2 }}
                         className="text-sm font-medium text-surface-muted"
                     >
-                        {mode === 'login' && 'Sign in to access your enterprise workspace'}
-                        {mode === 'register' && 'Enter your organization details to begin'}
-                        {mode === 'forgot' && 'Follow the steps to recover your access'}
-                        {mode === 'reset' && 'Set a new password to recover access'}
+                        {mode === 'login' && 'Inicia sesión para acceder a tu espacio de trabajo'}
+                        {mode === 'register' && 'Introduce los datos de tu organización para empezar'}
+                        {mode === 'forgot' && 'Sigue los pasos para recuperar tu acceso'}
+                        {mode === 'reset' && 'Define una nueva contraseña para recuperar el acceso'}
                     </motion.p>
                 </div>
 
@@ -235,12 +235,12 @@ const LoginView = () => {
                 <div className="text-center">
                     {mode === 'login' && (
                         <p className="text-sm text-surface-muted">
-                            New organization?{' '}
+                            ¿Nueva organización?{' '}
                             <button
                                 onClick={() => switchMode('register')}
                                 className="text-primary-600 font-semibold hover:text-primary-700 transition-all"
                             >
-                                Register Instance
+                                Crear cuenta
                             </button>
                         </p>
                     )}
@@ -249,13 +249,13 @@ const LoginView = () => {
                             onClick={() => switchMode('login')}
                             className="text-sm font-semibold text-surface-muted hover:text-surface-text transition-all underline underline-offset-4"
                         >
-                            Return to Portal
+                            Volver
                         </button>
                     )}
                 </div>
 
                 <div className="pt-8 text-center text-[10px] font-bold text-surface-muted uppercase tracking-[0.2em] opacity-50">
-                    PyCRM Enterprise Node &bull; SECURE ENVIRONMENT
+                    PyCRM Enterprise Node &bull; ENTORNO SEGURO
                 </div>
             </div>
         </div>

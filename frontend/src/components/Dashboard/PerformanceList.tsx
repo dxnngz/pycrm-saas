@@ -16,7 +16,7 @@ export const PerformanceList: React.FC<PerformanceListProps> = ({ performance })
             <div className="p-4 border-b border-surface-border bg-surface-muted-bg/50">
                 <h3 className="text-[11px] font-bold text-surface-text uppercase tracking-wider flex items-center gap-2">
                     <Users size={14} className="text-primary-600 dark:text-primary-400" />
-                    Commercial Performance
+                    Rendimiento comercial
                 </h3>
             </div>
 
@@ -42,7 +42,7 @@ export const PerformanceList: React.FC<PerformanceListProps> = ({ performance })
             </div>
             {performance.length === 0 && (
                 <div className="flex-1 flex items-center justify-center p-8 text-surface-muted opacity-60 italic text-[10px]">
-                    No performance metrics recorded for this period.
+                    No hay métricas registradas en este periodo.
                 </div>
             )}
         </div>

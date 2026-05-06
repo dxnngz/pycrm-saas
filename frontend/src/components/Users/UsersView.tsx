@@ -20,7 +20,7 @@ const UsersView = () => {
         } catch (error) {
             console.error(error);
             setUsers([]);
-            toast.error('Failed to load users');
+            toast.error('No se pudieron cargar los usuarios');
         } finally {
             setLoading(false);
         }
@@ -35,28 +35,28 @@ const UsersView = () => {
         try {
             await api.users.updateRole(userId, newRole);
             setUsers(prev => prev.map(u => u.id === userId ? { ...u, role: newRole } : u));
-            toast.success(`User role updated to ${newRole}`);
+            toast.success(`Rol actualizado a ${newRole}`);
         } catch (error) {
             console.error(error);
-            toast.error('Failed to update role');
+            toast.error('No se pudo actualizar el rol');
         }
     };
 
     const handleDeleteUser = async (userId: number) => {
-        if (!confirm('Are you sure you want to permanently delete this user? This action cannot be undone.')) return;
+        if (!confirm('¿Seguro que quieres eliminar este usuario? Esta acción no se puede deshacer.')) return;
         try {
             await api.users.delete(userId);
             setUsers(prev => prev.filter(u => u.id !== userId));
-            toast.success('User deleted successfully');
+            toast.success('Usuario eliminado correctamente');
         } catch (error) {
             console.error(error);
-            toast.error('Failed to delete user');
+            toast.error('No se pudo eliminar el usuario');
         }
     };
 
     const columns: Column<User>[] = [
         {
-            header: 'Identity',
+            header: 'Usuario',
             accessor: (user: User) => (
                 <div className="flex items-center gap-3">
                     <div className="w-8 h-8 rounded-md bg-surface-muted-bg flex items-center justify-center text-[10px] font-bold text-surface-muted border border-surface-border">
@@ -67,17 +67,18 @@ const UsersView = () => {
             ),
         },
         {
-            header: 'Corporate Email',
+            header: 'Email',
             accessor: 'email',
             className: 'text-surface-muted',
         },
         {
-            header: 'Access Level',
+            header: 'Rol',
             align: 'center',
             accessor: (user: User) => (
                 <button
                     onClick={() => handleRoleChange(user.id, user.role)}
                     className="focus:outline-none"
+                    title="Cambiar rol"
                 >
                     <Badge variant={user.role === 'admin' ? 'success' : 'secondary'}>
                         {user.role}
@@ -86,12 +87,13 @@ const UsersView = () => {
             ),
         },
         {
-            header: 'Actions',
+            header: 'Acciones',
             align: 'right',
             accessor: (user: User) => (
                 <button
                     onClick={() => handleDeleteUser(user.id)}
                     className="p-1.5 text-surface-muted hover:text-red-600 rounded-md transition-colors"
+                    title="Eliminar"
                 >
                     <Trash2 size={16} />
                 </button>
@@ -103,10 +105,10 @@ const UsersView = () => {
         <div className="space-y-6">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
-                    <h1 className="text-xl font-bold text-surface-text">User Management</h1>
+                    <h1 className="text-xl font-bold text-surface-text">Usuarios</h1>
                     <p className="text-sm text-surface-muted mt-1 flex items-center gap-1.5">
                         <Shield size={14} className="text-primary-500" />
-                        Role-Based Access Control (RBAC) - Administrator View
+                        Gestión de accesos (RBAC) - Vista de administrador
                     </p>
                 </div>
                 <Button
@@ -116,7 +118,7 @@ const UsersView = () => {
                     disabled={loading}
                 >
                     {loading ? <Loader2 className="animate-spin mr-2" size={16} /> : <UserCog size={16} className="mr-2" />}
-                    Refresh List
+                    Actualizar
                 </Button>
             </div>
 
@@ -124,7 +126,7 @@ const UsersView = () => {
                 data={users}
                 columns={columns}
                 isLoading={loading}
-                emptyMessage="No users found in the registry."
+                emptyMessage="No hay usuarios registrados."
             />
         </div>
     );

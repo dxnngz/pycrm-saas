@@ -22,7 +22,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onSubmit, isLoading, onFor
     return (
         <form onSubmit={handleSubmit} className="space-y-4">
             <Input
-                label="Email address"
+                label="Email"
                 type="email"
                 placeholder="name@company.com"
                 value={email}
@@ -33,14 +33,14 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onSubmit, isLoading, onFor
             <div className="space-y-1">
                 <div className="flex items-center justify-between mb-1">
                     <label className="text-[11px] font-bold text-surface-muted uppercase tracking-wider">
-                        Password
+                        Contraseña
                     </label>
                     <button
                         type="button"
                         onClick={onForgotPassword}
                         className="text-[10px] font-bold text-primary-600 hover:text-primary-700 dark:text-primary-400 uppercase tracking-tight"
                     >
-                        Forgot password?
+                        ¿Olvidaste tu contraseña?
                     </button>
                 </div>
                 <div className="relative">
@@ -62,7 +62,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onSubmit, isLoading, onFor
             </div>
 
             <Button type="submit" fullWidth isLoading={isLoading} className="mt-2">
-                Sign in <ChevronRight size={14} className="ml-1" />
+                Iniciar sesión <ChevronRight size={14} className="ml-1" />
             </Button>
         </form>
     );

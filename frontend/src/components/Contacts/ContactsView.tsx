@@ -268,7 +268,7 @@ const ContactsView = () => {
                             handleOpenTimeline(client);
                         }}
                         className="p-1.5 text-surface-muted hover:text-surface-text rounded-md transition-colors"
-                        title="Timeline"
+                        title="Historial"
                     >
                         <History size={16} />
                     </button>
@@ -278,7 +278,7 @@ const ContactsView = () => {
                             handleViewBrief(client);
                         }}
                         className="p-1.5 text-surface-muted hover:text-amber-500 dark:hover:text-amber-400 rounded-md transition-colors"
-                        title="AI Executive Brief"
+                        title="Resumen IA"
                     >
                         <Sparkles size={16} />
                     </button>
@@ -288,7 +288,7 @@ const ContactsView = () => {
                             handleOpenModal(client);
                         }}
                         className="p-1.5 text-surface-muted hover:text-primary-600 rounded-md transition-colors"
-                        title="Edit"
+                        title="Editar"
                     >
                         <Edit2 size={16} />
                     </button>
@@ -299,7 +299,7 @@ const ContactsView = () => {
                                 handleDeleteClient(client.id);
                             }}
                             className="p-1.5 text-surface-muted hover:text-red-600 rounded-md transition-colors"
-                            title="Delete"
+                            title="Eliminar"
                         >
                             <Trash2 size={16} />
                         </button>
@@ -345,9 +345,9 @@ const ContactsView = () => {
         <div className="space-y-6">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
-                    <h1 className="text-xl font-bold text-surface-text">Customers</h1>
+                    <h1 className="text-xl font-bold text-surface-text">Clientes</h1>
                     <p className="text-sm text-surface-muted mt-1">
-                        Manage your client database and communication history.
+                        Gestiona tu base de clientes y el historial de comunicación.
                     </p>
                 </div>
                 <div className="flex flex-wrap items-center gap-3">
@@ -355,7 +355,7 @@ const ContactsView = () => {
                         <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-surface-muted group-focus-within:text-primary-500 transition-colors" size={16} />
                         <input
                             type="text"
-                            placeholder="Search (Cmd+K)..."
+                            placeholder="Buscar (Cmd+K)..."
                             value={search}
                             onChange={(e) => setSearch(e.target.value)}
                             className="w-full h-10 pl-10 pr-4 bg-surface-muted-bg border border-surface-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all"
@@ -368,7 +368,7 @@ const ContactsView = () => {
                         onClick={handleExportPDF}
                     >
                         <FileDown size={16} className="mr-2" />
-                        Export
+                        Exportar
                     </Button>
 
                     {canCreateClient && (
@@ -378,7 +378,7 @@ const ContactsView = () => {
                             onClick={() => handleOpenModal()}
                         >
                             <UserPlus size={16} className="mr-2" />
-                            New Client (Alt+N)
+                            Nuevo cliente (Alt+N)
                         </Button>
                     )}
                 </div>
@@ -388,7 +388,7 @@ const ContactsView = () => {
                 data={clients}
                 columns={columns}
                 isLoading={loading}
-                emptyMessage="No customers found."
+                emptyMessage="No se encontraron clientes."
                 emptyContent={
                     <EmptyState
                         title="No hay clientes todavía"
@@ -406,7 +406,7 @@ const ContactsView = () => {
             {clients && clients.length > 0 && (
                 <div className="flex flex-col md:flex-row items-center justify-between gap-4 py-4 border-t border-surface-border">
                     <p className="text-xs text-surface-muted">
-                        Showing <span className="font-medium text-surface-text">{clients.length}</span> of <span className="font-medium text-surface-text">{pagination.total}</span> records
+                        Mostrando <span className="font-medium text-surface-text">{clients.length}</span> de <span className="font-medium text-surface-text">{pagination.total}</span> registros
                     </p>
                     <div className="flex items-center gap-2">
                         <Button
@@ -416,7 +416,7 @@ const ContactsView = () => {
                             onClick={() => setPage(pagination.page - 1)}
                         >
                             <ChevronLeft size={14} className="mr-1" />
-                            Previous
+                            Anterior
                         </Button>
                         <div className="flex items-center gap-1">
                             {Array.from({ length: Math.min(pagination.totalPages, 5) }, (_, i) => i + 1).map((p) => (
@@ -439,7 +439,7 @@ const ContactsView = () => {
                             onClick={() => setPage(pagination.page + 1)}
                         >
                             <span className="flex items-center gap-1">
-                                Next <ChevronRight size={14} />
+                                Siguiente <ChevronRight size={14} />
                             </span>
                         </Button>
                     </div>
@@ -450,31 +450,31 @@ const ContactsView = () => {
             <Modal
                 isOpen={isModalOpen}
                 onClose={() => setIsModalOpen(false)}
-                title={editingClient ? "Edit Customer" : "New Customer"}
+                title={editingClient ? "Editar cliente" : "Nuevo cliente"}
                 maxWidth="max-w-xl"
             >
                 <form onSubmit={handleSubmit} className="space-y-4">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <Input
-                            label="Full Name"
+                            label="Nombre completo"
                             type="text"
                             required
                             value={newName}
                             onChange={(e) => setNewName(e.target.value)}
-                            placeholder="e.g. John Doe"
+                            placeholder="Ej: Juan Pérez"
                         />
                         <Input
-                            label="Company / Organization"
+                            label="Empresa / Organización"
                             type="text"
                             required
                             value={newCompany}
                             onChange={(e) => setNewCompany(e.target.value)}
-                            placeholder="e.g. Acme Corp"
+                            placeholder="Ej: ACME S.L."
                         />
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <Input
-                            label="Email Address"
+                            label="Correo electrónico"
                             type="email"
                             required
                             value={newEmail}
@@ -482,7 +482,7 @@ const ContactsView = () => {
                             placeholder="john@example.com"
                         />
                         <div className="space-y-1.5">
-                            <label className="block text-[11px] font-bold text-surface-muted uppercase tracking-wider">Account Status</label>
+                            <label className="block text-[11px] font-bold text-surface-muted uppercase tracking-wider">Estado</label>
                             <div className="flex p-1 bg-surface-muted-bg rounded-xl">
                                 <button
                                     type="button"
@@ -491,7 +491,7 @@ const ContactsView = () => {
                                         ? 'bg-surface-card text-emerald-600 dark:text-emerald-400 shadow-sm'
                                         : 'text-surface-muted hover:text-surface-text'}`}
                                 >
-                                    Active
+                                    Activo
                                 </button>
                                 <button
                                     type="button"
@@ -500,13 +500,13 @@ const ContactsView = () => {
                                         ? 'bg-surface-card text-surface-muted shadow-sm'
                                         : 'text-surface-muted hover:text-surface-text'}`}
                                 >
-                                    Inactive
+                                    Inactivo
                                 </button>
                             </div>
                         </div>
                     </div>
                     <div className="space-y-1.5">
-                        <label className="block text-[11px] font-bold text-surface-muted uppercase tracking-wider">Phone Number</label>
+                        <label className="block text-[11px] font-bold text-surface-muted uppercase tracking-wider">Teléfono</label>
                         <div className="flex gap-2">
                             <select
                                 className="w-28 h-10 px-2 bg-surface-muted-bg border border-surface-border rounded-lg text-sm text-surface-muted focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all cursor-pointer font-medium"
@@ -541,14 +541,14 @@ const ContactsView = () => {
                             variant="outline"
                             onClick={() => setIsModalOpen(false)}
                         >
-                            Cancel
+                            Cancelar
                         </Button>
                         <Button
                             variant="primary"
                             type="submit"
                             isLoading={isSubmitting}
                         >
-                            {editingClient ? 'Update Customer' : 'Create Customer'}
+                            {editingClient ? 'Actualizar cliente' : 'Crear cliente'}
                         </Button>
                     </div>
                 </form>
@@ -558,7 +558,7 @@ const ContactsView = () => {
             <Modal
                 isOpen={isTimelineOpen}
                 onClose={() => setIsTimelineOpen(false)}
-                title={`Communication History: ${selectedClient?.name}`}
+                title={`Historial de comunicación: ${selectedClient?.name}`}
                 maxWidth="max-w-4xl"
             >
                 {selectedClient && <Timeline clientId={selectedClient.id} />}
@@ -568,13 +568,13 @@ const ContactsView = () => {
             <Modal
                 isOpen={isBriefModalOpen}
                 onClose={() => setIsBriefModalOpen(false)}
-                title={`AI Executive Brief: ${selectedClient?.name}`}
+                title={`Resumen IA: ${selectedClient?.name}`}
                 maxWidth="max-w-2xl"
             >
                 {isBriefLoading ? (
                     <div className="flex flex-col items-center justify-center py-12 gap-4">
                         <Loader2 className="w-8 h-8 text-primary-500 animate-spin" />
-                        <p className="text-sm text-surface-muted animate-pulse font-medium">Analyzing history and drafting brief...</p>
+                        <p className="text-sm text-surface-muted animate-pulse font-medium">Analizando historial y generando resumen...</p>
                     </div>
                 ) : (
                     <div className="prose prose-slate dark:prose-invert max-w-none text-sm">
@@ -593,7 +593,7 @@ const ContactsView = () => {
                         </div>
                         <div className="mt-6 flex justify-end">
                             <Button variant="outline" size="sm" onClick={() => setIsBriefModalOpen(false)}>
-                                Close Brief
+                                Cerrar
                             </Button>
                         </div>
                     </div>
@@ -605,9 +605,9 @@ const ContactsView = () => {
                 isOpen={isDeleteModalOpen}
                 onClose={() => setIsDeleteModalOpen(false)}
                 onConfirm={confirmDelete}
-                title="Delete Customer"
-                message={`Are you sure you want to delete ${clients.find(c => c.id === clientToDelete)?.name}? This action cannot be undone.`}
-                confirmLabel="Delete"
+                title="Eliminar cliente"
+                message={`¿Seguro que quieres eliminar a ${clients.find(c => c.id === clientToDelete)?.name}? Esta acción no se puede deshacer.`}
+                confirmLabel="Eliminar"
                 variant="danger"
                 isLoading={isSubmitting}
             />

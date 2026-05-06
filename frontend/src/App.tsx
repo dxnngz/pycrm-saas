@@ -72,7 +72,7 @@ const App: FC = () => {
         if (targetView) {
           e.preventDefault();
           setActiveView(targetView);
-          toast.info(`Navigating to ${targetView}`, { duration: 800 });
+          toast.info(`Navegando a ${targetView}`, { duration: 800 });
         }
       }
     };
@@ -125,20 +125,20 @@ const App: FC = () => {
 
   const navItems = [
     { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
-    { id: 'contacts', label: 'Customers', icon: Users },
+    { id: 'contacts', label: 'Clientes', icon: Users },
     { id: 'pipeline', label: 'Pipeline', icon: Target },
-    { id: 'tasks', label: 'Tasks', icon: CheckSquare },
-    { id: 'calendar', label: 'Agency', icon: Calendar },
-    { id: 'products', label: 'Inventory', icon: Package },
-    { id: 'documents', label: 'Vault', icon: FileText },
+    { id: 'tasks', label: 'Tareas', icon: CheckSquare },
+    { id: 'calendar', label: 'Agenda', icon: Calendar },
+    { id: 'products', label: 'Productos', icon: Package },
+    { id: 'documents', label: 'Documentos', icon: FileText },
   ];
 
   if (user?.role === 'admin') {
-    navItems.push({ id: 'users', label: 'Staff Management', icon: Users });
+    navItems.push({ id: 'users', label: 'Usuarios', icon: Users });
   }
 
   const getViewLabel = (viewId: View) => {
-    if (viewId === 'settings') return 'Settings';
+    if (viewId === 'settings') return 'Ajustes';
     return navItems.find(i => i.id === viewId)?.label || 'Dashboard';
   };
 
@@ -175,7 +175,7 @@ const App: FC = () => {
             setIsMobileMenuOpen={setIsMobileMenuOpen}
             setIsNotificationsOpen={setIsNotificationsOpen}
             setIsCommandCenterOpen={setIsCommandBarOpen}
-            userName={user?.name || 'User'}
+            userName={user?.name || 'Usuario'}
           />
 
           <div className="p-4 lg:p-6 flex-1 w-full max-w-[1600px] mx-auto">

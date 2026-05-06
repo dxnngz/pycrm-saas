@@ -67,7 +67,7 @@ const ProductsView = () => {
       setNewName(''); setNewDesc(''); setNewPrice(''); setNewCategory('General');
       loadProducts();
     } catch {
-      toast.error('Failed to create product');
+      toast.error('No se pudo crear el producto');
     } finally {
       setIsSubmitting(false);
     }
@@ -81,7 +81,7 @@ const ProductsView = () => {
       setTotalItems(res.total || 0);
     } catch {
       console.error('Error loading products');
-      toast.error('Failed to load products');
+      toast.error('No se pudieron cargar los productos');
     } finally {
       setLoading(false);
     }
@@ -95,13 +95,13 @@ const ProductsView = () => {
   }, [loadProducts]);
 
   const handleDelete = async (id: number) => {
-    if (!confirm('Are you sure you want to delete this product?')) return;
+    if (!confirm('¿Seguro que quieres eliminar este producto?')) return;
     try {
       await api.products.delete(id);
-      toast.success('Product removed successfully');
+      toast.success('Producto eliminado correctamente');
       loadProducts();
     } catch {
-      toast.error('Failed to delete product');
+      toast.error('No se pudo eliminar el producto');
     }
   };
 
@@ -113,7 +113,7 @@ const ProductsView = () => {
 
   const columns: VirtualColumn<Product>[] = [
     {
-      header: 'Product / Service',
+      header: 'Producto / Servicio',
       width: '40%',
       accessor: (product: Product) => (
         <div className="flex items-center gap-3">
@@ -128,7 +128,7 @@ const ProductsView = () => {
       ),
     },
     {
-      header: 'Category',
+      header: 'Categoría',
       width: '25%',
       accessor: (product: Product) => (
         <Badge variant="secondary">
@@ -137,7 +137,7 @@ const ProductsView = () => {
       ),
     },
     {
-      header: 'Unit Price',
+      header: 'Precio',
       width: '25%',
       accessor: (product: Product) => (
         <span className="font-medium text-surface-text tabular-nums">
@@ -146,15 +146,15 @@ const ProductsView = () => {
       ),
     },
     {
-      header: 'Actions',
+      header: 'Acciones',
       width: '10%',
       align: 'right',
       accessor: (product: Product) => (
         <div className="flex items-center justify-end gap-1">
-          <button className="p-1.5 text-surface-muted hover:text-primary-600 rounded-md transition-colors">
+          <button className="p-1.5 text-surface-muted hover:text-primary-600 rounded-md transition-colors" title="Editar">
             <Edit2 size={16} />
           </button>
-          <button onClick={() => handleDelete(product.id)} className="p-1.5 text-surface-muted hover:text-red-600 rounded-md transition-colors">
+          <button onClick={() => handleDelete(product.id)} className="p-1.5 text-surface-muted hover:text-red-600 rounded-md transition-colors" title="Eliminar">
             <Trash2 size={16} />
           </button>
         </div>
@@ -167,10 +167,10 @@ const ProductsView = () => {
       {/* ... (Header remains the same) */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-xl font-bold text-surface-text">Product Catalog</h1>
+          <h1 className="text-xl font-bold text-surface-text">Catálogo</h1>
           <p className="text-sm text-surface-muted mt-1 flex items-center gap-1.5">
             <Package size={14} className="text-primary-500" />
-            Manage your inventory and commercial services.
+            Gestiona tus productos y servicios.
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-3">
@@ -178,7 +178,7 @@ const ProductsView = () => {
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-surface-muted group-focus-within:text-primary-500 transition-colors" size={16} />
             <input
               type="text"
-              placeholder="Search products..."
+              placeholder="Buscar productos..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               className="w-full h-10 pl-10 pr-4 bg-surface-input border border-surface-border rounded-lg text-sm text-surface-text placeholder:text-surface-muted focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all shadow-sm"
@@ -186,7 +186,7 @@ const ProductsView = () => {
           </div>
           <Button variant="primary" size="md" onClick={() => setIsModalOpen(true)}>
             <Plus size={18} className="mr-2" />
-            New Product
+            Nuevo producto
           </Button>
         </div>
       </div>
@@ -198,7 +198,7 @@ const ProductsView = () => {
             <Tag size={20} />
           </div>
           <div>
-            <p className="text-[10px] text-surface-muted font-bold uppercase tracking-wider">Total Items</p>
+            <p className="text-[10px] text-surface-muted font-bold uppercase tracking-wider">Total</p>
             <p className="text-xl font-bold text-surface-text tabular-nums">{totalItems}</p>
           </div>
         </div>
@@ -208,7 +208,7 @@ const ProductsView = () => {
             <BarChart2 size={20} />
           </div>
           <div>
-            <p className="text-[10px] text-surface-muted font-bold uppercase tracking-wider">Avg. Price</p>
+            <p className="text-[10px] text-surface-muted font-bold uppercase tracking-wider">Precio medio</p>
             <p className="text-xl font-bold text-surface-text tabular-nums">
               {new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(avgPrice)}
             </p>
@@ -220,7 +220,7 @@ const ProductsView = () => {
             <Filter size={20} />
           </div>
           <div>
-            <p className="text-[10px] text-surface-muted font-bold uppercase tracking-wider">Categories</p>
+            <p className="text-[10px] text-surface-muted font-bold uppercase tracking-wider">Categorías</p>
             <p className="text-xl font-bold text-surface-text tabular-nums">{uniqueCategories}</p>
           </div>
         </div>
@@ -230,7 +230,7 @@ const ProductsView = () => {
         data={products}
         columns={columns}
         isLoading={loading}
-        emptyMessage="No products found in catalog."
+        emptyMessage="No se encontraron productos."
         emptyContent={
           <EmptyState
             title="No hay productos todavía"
@@ -245,24 +245,24 @@ const ProductsView = () => {
         height="500px"
       />
 
-      <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title="Create New Product" maxWidth="max-w-xl">
+      <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title="Nuevo producto" maxWidth="max-w-xl">
         <form onSubmit={handleCreate} className="space-y-4">
           <Input 
-            label="Product Name" 
+            label="Nombre" 
             value={newName} 
             onChange={e => setNewName(e.target.value)} 
             required 
-            placeholder="e.g. Enterprise License" 
+            placeholder="Ej: Licencia Enterprise" 
           />
           <Input 
-            label="Description" 
+            label="Descripción" 
             value={newDesc} 
             onChange={e => setNewDesc(e.target.value)} 
-            placeholder="Features included..." 
+            placeholder="Características incluidas..." 
           />
           <div className="grid grid-cols-2 gap-4">
             <Input 
-              label="Unit Price ($)" 
+              label="Precio (USD)" 
               type="number" 
               step="0.01" 
               value={newPrice} 
@@ -270,19 +270,19 @@ const ProductsView = () => {
               required 
             />
             <Select 
-              label="Category" 
+              label="Categoría" 
               value={newCategory} 
               onChange={e => setNewCategory(e.target.value)}
             >
               <option value="General">General</option>
               <option value="Software">Software</option>
               <option value="Hardware">Hardware</option>
-              <option value="Service">Service</option>
+              <option value="Service">Servicio</option>
             </Select>
           </div>
           <div className="pt-4 flex justify-end gap-3">
-            <Button variant="outline" onClick={() => setIsModalOpen(false)}>Cancel</Button>
-            <Button variant="primary" type="submit" isLoading={isSubmitting}>Create Product</Button>
+            <Button variant="outline" onClick={() => setIsModalOpen(false)}>Cancelar</Button>
+            <Button variant="primary" type="submit" isLoading={isSubmitting}>Crear producto</Button>
           </div>
         </form>
       </Modal>

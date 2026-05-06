@@ -110,18 +110,18 @@ const DashboardView = () => {
                 <div className="space-y-1">
                     <h1 className="text-xl font-bold tracking-tight text-surface-text flex items-center gap-2">
                         <LayoutDashboard size={20} className="text-primary-600 dark:text-primary-400" />
-                        Executive Dashboard
+                        Dashboard Ejecutivo
                     </h1>
                     <p className="text-xs text-surface-muted">
-                        Operational oversight and real-time commercial network analytics.
+                        Control operativo y analítica comercial en tiempo real.
                     </p>
                 </div>
 
                 <div className="flex items-center gap-3">
                     <Tabs
                         tabs={[
-                            { id: 'monthly', label: 'Monthly' },
-                            { id: 'yearly', label: 'Yearly' }
+                            { id: 'monthly', label: 'Mensual' },
+                            { id: 'yearly', label: 'Anual' }
                         ]}
                         activeTab={period}
                         onChange={(id: string) => setPeriod(id as 'monthly' | 'yearly')}
@@ -131,14 +131,14 @@ const DashboardView = () => {
                         onClick={() => refetch()}
                         disabled={isFetching}
                         className="p-2 border border-surface-border rounded-md hover:bg-surface-hover transition-all text-surface-muted disabled:opacity-50"
-                        title="Force refresh"
+                        title="Actualizar"
                     >
                         <RefreshCw size={14} className={isFetching ? 'animate-spin' : ''} />
                     </button>
 
                     <Button variant="outline" size="sm" onClick={handleExport}>
                         <Download size={14} className="mr-2" />
-                        Generate Report
+                        Generar informe
                     </Button>
                 </div>
             </div>
@@ -166,11 +166,11 @@ const DashboardView = () => {
                 <Card className="lg:col-span-2 flex flex-col min-h-[400px]">
                     <div className="flex items-center justify-between mb-6">
                         <div>
-                            <h3 className="text-[11px] font-bold text-surface-text uppercase tracking-wider">Revenue Analysis</h3>
-                            <p className="text-[9px] text-surface-muted font-bold mt-0.5 uppercase tracking-tight">Time-series performance metrics</p>
+                            <h3 className="text-[11px] font-bold text-surface-text uppercase tracking-wider">Análisis de ingresos</h3>
+                            <p className="text-[9px] text-surface-muted font-bold mt-0.5 uppercase tracking-tight">Métricas por periodo</p>
                         </div>
                         {isCached && (
-                            <Badge variant="success" className="animate-pulse">Optimized</Badge>
+                            <Badge variant="success" className="animate-pulse">Optimizado</Badge>
                         )}
                     </div>
                     <div className="flex-1 w-full flex items-center justify-center overflow-hidden">

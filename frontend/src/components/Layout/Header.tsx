@@ -60,7 +60,7 @@ export const Header: React.FC<HeaderProps> = ({
                     {!isOnline && (
                         <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-red-100 dark:bg-red-900/40 border border-red-200 dark:border-red-800 text-[10px] font-bold text-red-600 dark:text-red-400 animate-pulse">
                             <span className="w-1.5 h-1.5 rounded-full bg-red-500" />
-                            OFFLINE MODE
+                            SIN CONEXIÓN
                         </div>
                     )}
                 </div>
@@ -75,7 +75,7 @@ export const Header: React.FC<HeaderProps> = ({
                     <Search className="absolute left-3 text-surface-muted group-hover:text-surface-text transition-colors" size={14} />
                     <div className="w-full pl-9 pr-3 py-1.5 bg-surface-muted-bg/50 rounded-md border border-surface-border hover:bg-surface-hover transition-all">
                         <div className="flex items-center justify-between">
-                            <span className="text-xs text-surface-muted font-medium">Quick Search...</span>
+                            <span className="text-xs text-surface-muted font-medium">Búsqueda rápida...</span>
                             <div className="flex items-center gap-1 px-1.5 py-0.5 bg-surface-card border border-surface-border rounded text-[9px] font-bold text-surface-muted">
                                 <Command size={9} /> K
                             </div>
@@ -90,7 +90,7 @@ export const Header: React.FC<HeaderProps> = ({
                         <button
                             onClick={() => setIsDenseMode()}
                             className={`p-1.5 rounded-md transition-all ${isDenseMode ? 'bg-surface-card shadow-sm text-primary-600' : 'text-surface-muted hover:text-surface-text'}`}
-                            title="Toggle high density mode"
+                            title="Alternar modo compacto"
                         >
                             <AlignJustify size={14} />
                         </button>
@@ -98,7 +98,7 @@ export const Header: React.FC<HeaderProps> = ({
                         <button
                             onClick={() => setIsDarkMode(!isDarkMode)}
                             className="p-1.5 text-surface-muted hover:text-surface-text transition-colors"
-                            title="Toggle dark mode"
+                            title="Alternar modo oscuro"
                         >
                             {isDarkMode ? <Sun size={14} /> : <Moon size={14} />}
                         </button>

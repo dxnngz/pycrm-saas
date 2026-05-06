@@ -301,7 +301,7 @@ const PipelineView = () => {
             loadOpportunities(pagination.page, pagination.limit, search);
         } catch (error: unknown) {
             console.error(error);
-            toast.error('Failed to create opportunity. Please try again.');
+            toast.error('No se pudo crear la oportunidad. Inténtalo de nuevo.');
         } finally {
             setIsSubmitting(false);
         }
@@ -309,27 +309,27 @@ const PipelineView = () => {
 
     const columnConfig = [
         { id: 'pendiente' as const, title: 'Pipeline', color: 'bg-primary-500' },
-        { id: 'ganado' as const, title: 'Won', color: 'bg-emerald-500' },
-        { id: 'perdido' as const, title: 'Lost', color: 'bg-surface-muted' }
+        { id: 'ganado' as const, title: 'Ganado', color: 'bg-emerald-500' },
+        { id: 'perdido' as const, title: 'Perdido', color: 'bg-surface-muted' }
     ];
 
     return (
         <div className="flex flex-col gap-6 h-[calc(100vh-140px)]">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
-                    <h1 className="text-xl font-bold text-surface-text">Sales Pipeline</h1>
+                    <h1 className="text-xl font-bold text-surface-text">Pipeline de ventas</h1>
                     <p className="text-sm text-surface-muted mt-1 flex items-center gap-1.5">
                         <ShieldCheck size={14} className="text-emerald-500" />
-                        AI-powered opportunity tracking and forecasting.
+                        Seguimiento y previsión de oportunidades con IA.
                     </p>
                 </div>
                 <div className="flex flex-wrap items-center gap-3">
                     <div className="flex items-center bg-surface-muted-bg p-1 rounded-lg border border-surface-border">
                         {[
-                            { id: 'all', label: 'All', icon: Briefcase },
-                            { id: 'high-value', label: 'High Value', icon: TrendingUp },
-                            { id: 'high-score', label: 'High Prob.', icon: Target },
-                            { id: 'stagnant', label: 'Stagnant', icon: Zap }
+                            { id: 'all', label: 'Todas', icon: Briefcase },
+                            { id: 'high-value', label: 'Alto valor', icon: TrendingUp },
+                            { id: 'high-score', label: 'Alta prob.', icon: Target },
+                            { id: 'stagnant', label: 'Estancadas', icon: Zap }
                         ].map(f => (
                             <button
                                 key={f.id}
@@ -347,7 +347,7 @@ const PipelineView = () => {
                         <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-surface-muted group-focus-within:text-primary-500 transition-colors" size={16} />
                         <input
                             type="text"
-                            placeholder="Search opportunities..."
+                            placeholder="Buscar oportunidades..."
                             value={search}
                             onChange={(e) => setSearch(e.target.value)}
                             className="w-full h-10 pl-10 pr-4 bg-surface-input border border-surface-border rounded-lg text-sm text-surface-text placeholder:text-surface-muted focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all shadow-sm"
@@ -360,7 +360,7 @@ const PipelineView = () => {
                             onClick={() => setIsModalOpen(true)}
                         >
                             <Plus size={18} className="mr-2" />
-                            New Opportunity
+                            Nueva oportunidad
                         </Button>
                     )}
                 </div>
@@ -405,7 +405,7 @@ const PipelineView = () => {
                                                 className={`flex-1 flex flex-col items-center justify-center text-surface-muted border border-dashed border-surface-border rounded-lg bg-surface-card/50 h-32 ${snapshot.isDraggingOver ? 'bg-surface-hover' : ''}`}
                                             >
                                                 <Target size={24} className="mb-2 opacity-20" />
-                                                <p className="text-[10px] font-bold uppercase tracking-wider opacity-60">No deals</p>
+                                                <p className="text-[10px] font-bold uppercase tracking-wider opacity-60">Sin oportunidades</p>
                                                 {provided.placeholder}
                                             </div>
                                         );
@@ -432,35 +432,35 @@ const PipelineView = () => {
             <Modal
                 isOpen={isModalOpen}
                 onClose={() => setIsModalOpen(false)}
-                title="Create Opportunity"
+                title="Nueva oportunidad"
                 maxWidth="max-w-xl"
             >
                 <form onSubmit={handleCreateOpportunity} className="space-y-4">
                     <Select
-                        label="Account / Client"
+                        label="Cliente"
                         required
                         name="clientId"
                         value={clientId}
                         onChange={(e) => setClientId(e.target.value)}
                     >
-                        <option value="">Select a client...</option>
+                        <option value="">Selecciona un cliente...</option>
                         {clients.map(c => (
                             <option key={c.id} value={c.id}>{c.name}</option>
                         ))}
                     </Select>
 
                     <Input
-                        label="Product / Solution"
+                        label="Producto / Solución"
                         type="text"
                         required
                         value={product}
                         onChange={(e) => setProduct(e.target.value)}
-                        placeholder="e.g. Enterprise Solution"
+                        placeholder="Ej: Solución enterprise"
                     />
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <Input
-                            label="Deal Value ($)"
+                            label="Importe (USD)"
                             type="number"
                             required
                             value={amount}
@@ -468,13 +468,13 @@ const PipelineView = () => {
                             placeholder="0.00"
                         />
                         <Select
-                            label="Pipeline Stage"
+                            label="Estado"
                             value={status}
                             onChange={(e) => setStatus(e.target.value as 'pendiente' | 'ganado' | 'perdido')}
                         >
-                            <option value="pendiente">Pending</option>
-                            <option value="ganado">Won</option>
-                            <option value="perdido">Lost</option>
+                            <option value="pendiente">Pendiente</option>
+                            <option value="ganado">Ganado</option>
+                            <option value="perdido">Perdido</option>
                         </Select>
                     </div>
 
@@ -483,14 +483,14 @@ const PipelineView = () => {
                             variant="outline"
                             onClick={() => setIsModalOpen(false)}
                         >
-                            Cancel
+                            Cancelar
                         </Button>
                         <Button
                             variant="primary"
                             type="submit"
                             isLoading={isSubmitting}
                         >
-                            Create Deal
+                            Crear oportunidad
                         </Button>
                     </div>
                 </form>

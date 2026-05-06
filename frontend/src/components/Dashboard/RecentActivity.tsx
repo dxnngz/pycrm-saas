@@ -20,16 +20,16 @@ const RecentActivity = ({ activities }: RecentActivityProps) => {
             <div className="flex items-center justify-between p-4 border-b border-surface-border bg-surface-muted-bg/50">
                 <h3 className="text-[11px] font-bold text-surface-text uppercase tracking-wider flex items-center gap-2">
                     <History size={14} className="text-primary-600 dark:text-primary-400" />
-                    Activity Stream
+                    Actividad
                 </h3>
-                <Badge variant="success" className="animate-pulse">Live</Badge>
+                <Badge variant="success" className="animate-pulse">En vivo</Badge>
             </div>
 
             <div className="flex-1 overflow-y-auto divide-y divide-surface-border/50">
                 {activities.length === 0 ? (
                     <div className="h-full flex flex-col items-center justify-center py-20 text-surface-muted">
                         <History size={32} className="mb-2 opacity-20" />
-                        <p className="text-[10px] font-bold uppercase tracking-widest opacity-60">No recent activity</p>
+                        <p className="text-[10px] font-bold uppercase tracking-widest opacity-60">Sin actividad reciente</p>
                     </div>
                 ) : activities.map((activity) => (
                     <div key={activity.id} className="p-3 hover:bg-surface-hover transition-colors flex gap-3 group">
@@ -58,7 +58,7 @@ const RecentActivity = ({ activities }: RecentActivityProps) => {
             </div>
             <div className="p-3 border-t border-surface-border bg-surface-muted-bg/20">
                 <button className="w-full py-2 text-[10px] font-bold text-surface-muted hover:text-primary-600 transition-colors uppercase tracking-widest flex items-center justify-center gap-2">
-                    View Full Audit Trail
+                    Ver auditoría completa
                 </button>
             </div>
         </div>

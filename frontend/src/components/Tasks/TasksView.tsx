@@ -59,7 +59,7 @@ const TasksView = () => {
             setNewPriority('Media');
         } catch (error: unknown) {
             console.error(error);
-            toast.error('Failed to create task. Please try again.');
+            toast.error('No se pudo crear la tarea. Inténtalo de nuevo.');
         } finally {
             setIsSubmitting(false);
         }
@@ -70,7 +70,7 @@ const TasksView = () => {
             await toggleTask(id);
         } catch (error: unknown) {
             console.error('Error toggling task:', error);
-            toast.error('Failed to update task status.');
+            toast.error('No se pudo actualizar el estado.');
         }
     };
 
@@ -88,7 +88,7 @@ const TasksView = () => {
             setTaskToDelete(null);
         } catch (error: unknown) {
             console.error('Error deleting task:', error);
-            toast.error('Failed to delete task. Please try again.');
+            toast.error('No se pudo eliminar la tarea. Inténtalo de nuevo.');
         } finally {
             setIsSubmitting(false);
         }
@@ -127,10 +127,10 @@ const TasksView = () => {
         <div className="space-y-6 h-[calc(100vh-140px)] flex flex-col">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 shrink-0">
                 <div>
-                    <h1 className="text-xl font-bold text-surface-text">Task Management</h1>
+                    <h1 className="text-xl font-bold text-surface-text">Tareas</h1>
                     <p className="text-sm text-surface-muted mt-1 flex items-center gap-1.5">
                         <ShieldCheck size={14} className="text-emerald-500" />
-                        Track and prioritize your daily objectives.
+                        Organiza y prioriza tus tareas diarias.
                     </p>
                 </div>
                 <Button
@@ -139,7 +139,7 @@ const TasksView = () => {
                     onClick={() => setIsModalOpen(true)}
                 >
                     <Plus size={18} className="mr-2" />
-                    New Task
+                    Nueva tarea
                 </Button>
             </div>
 
@@ -150,7 +150,7 @@ const TasksView = () => {
                         <Clock size={20} />
                     </div>
                     <div>
-                        <p className="text-[10px] text-surface-muted font-bold uppercase tracking-wider">Pending</p>
+                        <p className="text-[10px] text-surface-muted font-bold uppercase tracking-wider">Pendientes</p>
                         <p className="text-xl font-bold text-surface-text tabular-nums">{stats.pendientes}</p>
                     </div>
                 </div>
@@ -159,7 +159,7 @@ const TasksView = () => {
                         <CheckCircle2 size={20} />
                     </div>
                     <div>
-                        <p className="text-[10px] text-surface-muted font-bold uppercase tracking-wider">Completed</p>
+                        <p className="text-[10px] text-surface-muted font-bold uppercase tracking-wider">Completadas</p>
                         <p className="text-xl font-bold text-surface-text tabular-nums">{stats.completadas}</p>
                     </div>
                 </div>
@@ -168,7 +168,7 @@ const TasksView = () => {
                         <AlertCircle size={20} />
                     </div>
                     <div>
-                        <p className="text-[10px] text-surface-muted font-bold uppercase tracking-wider">Urgent</p>
+                        <p className="text-[10px] text-surface-muted font-bold uppercase tracking-wider">Urgentes</p>
                         <p className="text-xl font-bold text-surface-text tabular-nums">{stats.urgentes}</p>
                     </div>
                 </div>
@@ -180,7 +180,7 @@ const TasksView = () => {
                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-surface-muted group-focus-within:text-primary-500 transition-colors" size={16} />
                     <input
                         type="text"
-                        placeholder="Search tasks..."
+                        placeholder="Buscar tareas..."
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
                         className="w-full h-10 pl-10 pr-4 bg-surface-input border border-surface-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all shadow-sm"
@@ -193,10 +193,10 @@ const TasksView = () => {
                         onChange={(e) => setFilterPriority(e.target.value)}
                         className="w-full h-10 pl-9 pr-8 bg-surface-input border border-surface-border rounded-lg text-xs font-bold text-surface-muted uppercase tracking-wider appearance-none cursor-pointer focus:outline-none focus:ring-2 focus:ring-primary-500/20 shadow-sm"
                     >
-                        <option value="All">All Priorities</option>
-                        <option value="Alta">High Priority</option>
-                        <option value="Media">Medium Priority</option>
-                        <option value="Baja">Low Priority</option>
+                        <option value="All">Todas</option>
+                        <option value="Alta">Alta</option>
+                        <option value="Media">Media</option>
+                        <option value="Baja">Baja</option>
                     </select>
                     <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 text-surface-muted pointer-events-none" size={14} />
                 </div>
@@ -213,7 +213,7 @@ const TasksView = () => {
                 ) : filteredTasks.length === 0 ? (
                     <div className="flex-1 flex flex-col items-center justify-center text-surface-muted py-20">
                         <AlertCircle size={40} className="mb-4 opacity-20" />
-                        <p className="text-xs font-bold uppercase tracking-widest opacity-60">No tasks found</p>
+                        <p className="text-xs font-bold uppercase tracking-widest opacity-60">No hay tareas</p>
                     </div>
                 ) : (
                     <div
@@ -252,7 +252,7 @@ const TasksView = () => {
                                             <div className="flex items-center gap-4 mt-1">
                                                 <div className="flex items-center gap-1.5 text-[10px] text-surface-muted">
                                                     <Users size={12} />
-                                                    <span className="truncate max-w-[120px]">{task.client_name || 'Individual'}</span>
+                                                    <span className="truncate max-w-[120px]">{task.client_name || 'Personal'}</span>
                                                 </div>
                                                 {task.deadline && (
                                                     <div className="flex items-center gap-1.5 text-[10px] text-surface-muted">
@@ -268,13 +268,14 @@ const TasksView = () => {
                                                 task.priority === 'Alta' ? 'danger' :
                                                     task.priority === 'Media' ? 'warning' : 'secondary'
                                             }>
-                                                {task.priority === 'Alta' ? 'High' : task.priority === 'Media' ? 'Medium' : 'Low'}
+                                                {task.priority === 'Alta' ? 'Alta' : task.priority === 'Media' ? 'Media' : 'Baja'}
                                             </Badge>
 
                                             {canDeleteTask && (
                                                 <button
                                                     onClick={() => handleDeleteClick(task.id)}
                                                     className="p-2 text-surface-muted hover:text-red-600 rounded-md transition-colors"
+                                                    title="Eliminar"
                                                 >
                                                     <Trash2 size={16} />
                                                 </button>
@@ -292,35 +293,35 @@ const TasksView = () => {
             <Modal
                 isOpen={isModalOpen}
                 onClose={() => setIsModalOpen(false)}
-                title="Create New Task"
+                title="Nueva tarea"
                 maxWidth="max-w-xl"
             >
                 <form onSubmit={handleCreateTask} className="space-y-4">
                     <Input
-                        label="Task Description"
+                        label="Descripción"
                         type="text"
                         required
                         value={newTitle}
                         onChange={(e) => setNewTitle(e.target.value)}
-                        placeholder="e.g. Schedule follow-up meeting"
+                        placeholder="Ej: Llamar al cliente para seguimiento"
                     />
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <Input
-                            label="Due Date"
+                            label="Fecha límite"
                             type="datetime-local"
                             required
                             value={newDeadline}
                             onChange={(e) => setNewDeadline(e.target.value)}
                         />
                         <Select
-                            label="Priority Level"
+                            label="Prioridad"
                             value={newPriority}
                             onChange={(e) => setNewPriority(e.target.value as 'Alta' | 'Media' | 'Baja')}
                         >
-                            <option value="Baja">Low Priority</option>
-                            <option value="Media">Medium Priority</option>
-                            <option value="Alta">High Priority</option>
+                            <option value="Baja">Baja</option>
+                            <option value="Media">Media</option>
+                            <option value="Alta">Alta</option>
                         </Select>
                     </div>
 
@@ -329,14 +330,14 @@ const TasksView = () => {
                             variant="outline"
                             onClick={() => setIsModalOpen(false)}
                         >
-                            Cancel
+                            Cancelar
                         </Button>
                         <Button
                             variant="primary"
                             type="submit"
                             isLoading={isSubmitting}
                         >
-                            Create Task
+                            Crear tarea
                         </Button>
                     </div>
                 </form>
@@ -347,9 +348,9 @@ const TasksView = () => {
                 isOpen={isDeleteModalOpen}
                 onClose={() => setIsDeleteModalOpen(false)}
                 onConfirm={confirmDelete}
-                title="Delete Task"
-                message="Are you sure you want to delete this task? This action cannot be undone."
-                confirmLabel="Delete Task"
+                title="Eliminar tarea"
+                message="¿Seguro que quieres eliminar esta tarea? Esta acción no se puede deshacer."
+                confirmLabel="Eliminar"
                 variant="danger"
                 isLoading={isSubmitting}
             />

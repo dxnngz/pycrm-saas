@@ -70,7 +70,7 @@ const DocumentsView = () => {
       setDocuments(res?.documents || []);
     } catch {
       console.error('Error loading documents');
-      toast.error('Failed to load documents');
+      toast.error('No se pudieron cargar los documentos');
     } finally {
       setLoading(false);
     }
@@ -98,13 +98,13 @@ const DocumentsView = () => {
   }, [loadDocuments]);
 
   const handleDelete = async (id: number) => {
-    if (!confirm('Are you sure you want to delete this document?')) return;
+    if (!confirm('¿Seguro que quieres eliminar este documento?')) return;
     try {
       await api.documents.delete(id);
-      toast.success('Document deleted successfully');
+      toast.success('Documento eliminado correctamente');
       loadDocuments();
     } catch {
-      toast.error('Failed to delete document');
+      toast.error('No se pudo eliminar el documento');
     }
   };
 
@@ -115,7 +115,7 @@ const DocumentsView = () => {
 
   const columns: Column<Document>[] = [
     {
-      header: 'Document Name',
+      header: 'Documento',
       width: '40%',
       accessor: (doc: Document) => (
         <div className="flex items-center gap-3 py-1">
@@ -123,33 +123,33 @@ const DocumentsView = () => {
             <FileText size={16} />
           </div>
           <div className="min-w-0">
-            <div className="font-medium text-surface-text leading-tight truncate">{doc?.name ?? 'Unnamed Document'}</div>
-            <div className="text-[10px] font-bold text-surface-muted uppercase tracking-tight">{doc?.type ?? 'Unknown'}</div>
+            <div className="font-medium text-surface-text leading-tight truncate">{doc?.name ?? 'Documento sin nombre'}</div>
+            <div className="text-[10px] font-bold text-surface-muted uppercase tracking-tight">{doc?.type ?? 'Desconocido'}</div>
           </div>
         </div>
       ),
     },
     {
-      header: 'Client',
+      header: 'Cliente',
       width: '20%',
       accessor: (doc: Document) => (
         <span className="text-surface-muted truncate">
-          {doc?.client_name || (doc?.client_id ? `ID: #${doc.client_id}` : 'No Client')}
+          {doc?.client_name || (doc?.client_id ? `ID: #${doc.client_id}` : 'Sin cliente')}
         </span>
       ),
     },
     {
-      header: 'Status',
+      header: 'Estado',
       width: '15%',
       accessor: (doc: Document) => {
         const s = (doc?.status ?? '').toLowerCase();
         const variant = (s === 'paid' || s === 'pagado' || s === 'signed' || s === 'firmado') ? 'success' :
           (s === 'pending' || s === 'pendiente') ? 'warning' : 'secondary';
-        return <Badge variant={variant}>{doc?.status ?? 'Unknown'}</Badge>;
+        return <Badge variant={variant}>{doc?.status ?? 'Desconocido'}</Badge>;
       },
     },
     {
-      header: 'Amount',
+      header: 'Importe',
       width: '15%',
       accessor: (doc: Document) => (
         <span className="font-medium text-surface-text tabular-nums">
@@ -158,19 +158,19 @@ const DocumentsView = () => {
       ),
     },
     {
-      header: 'Actions',
+      header: 'Acciones',
       width: '10%',
       align: 'right',
       accessor: (doc: Document) => (
         <div className="flex items-center justify-end gap-1">
-          <button className="p-1.5 text-surface-muted hover:text-primary-600 rounded-md transition-colors" title="Preview">
+          <button className="p-1.5 text-surface-muted hover:text-primary-600 rounded-md transition-colors" title="Vista previa">
             <Eye size={16} />
           </button>
-          <button className="p-1.5 text-surface-muted hover:text-primary-600 rounded-md transition-colors" title="Download">
+          <button className="p-1.5 text-surface-muted hover:text-primary-600 rounded-md transition-colors" title="Descargar">
             <Download size={16} />
           </button>
           {canDeleteDocument && (
-            <button onClick={() => handleDelete(doc.id)} className="p-1.5 text-surface-muted hover:text-red-600 rounded-md transition-colors" title="Delete">
+            <button onClick={() => handleDelete(doc.id)} className="p-1.5 text-surface-muted hover:text-red-600 rounded-md transition-colors" title="Eliminar">
               <Trash2 size={16} />
             </button>
           )}
@@ -183,10 +183,10 @@ const DocumentsView = () => {
     <div className="space-y-6">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-xl font-bold text-surface-text">Document Management</h1>
+          <h1 className="text-xl font-bold text-surface-text">Documentos</h1>
           <p className="text-sm text-surface-muted mt-1 flex items-center gap-1.5">
             <FileSearch size={14} className="text-primary-500" />
-            Manage quotes, contracts, and commercial billing.
+            Gestiona presupuestos, contratos y facturación comercial.
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-3">
@@ -194,7 +194,7 @@ const DocumentsView = () => {
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-surface-muted group-focus-within:text-primary-500 transition-colors" size={16} />
             <input
               type="text"
-              placeholder="Search documents..."
+              placeholder="Buscar documentos..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               className="w-full h-10 pl-10 pr-4 bg-surface-input border border-surface-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all shadow-sm"
@@ -202,7 +202,7 @@ const DocumentsView = () => {
           </div>
           <Button variant="primary" size="md" onClick={() => setIsModalOpen(true)}>
             <Plus size={18} className="mr-2" />
-            Create Document
+            Crear documento
           </Button>
         </div>
       </div>
@@ -213,7 +213,7 @@ const DocumentsView = () => {
             <Clock size={20} />
           </div>
           <div>
-            <p className="text-[10px] text-surface-muted font-bold uppercase tracking-wider">Pending</p>
+            <p className="text-[10px] text-surface-muted font-bold uppercase tracking-wider">Pendientes</p>
             <p className="text-xl font-bold text-surface-text tabular-nums">{pendingDocs}</p>
           </div>
         </div>
@@ -223,7 +223,7 @@ const DocumentsView = () => {
             <CheckCircle size={20} />
           </div>
           <div>
-            <p className="text-[10px] text-surface-muted font-bold uppercase tracking-wider">Paid / Signed</p>
+            <p className="text-[10px] text-surface-muted font-bold uppercase tracking-wider">Pagados / firmados</p>
             <p className="text-xl font-bold text-surface-text tabular-nums">
               {new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(paidMothAmount)}
             </p>
@@ -235,7 +235,7 @@ const DocumentsView = () => {
             <FileCode size={20} />
           </div>
           <div>
-            <p className="text-[10px] text-surface-muted font-bold uppercase tracking-wider">Quotes Issued</p>
+            <p className="text-[10px] text-surface-muted font-bold uppercase tracking-wider">Presupuestos</p>
             <p className="text-xl font-bold text-surface-text tabular-nums">{quotesCount}</p>
           </div>
         </div>
@@ -245,7 +245,7 @@ const DocumentsView = () => {
         data={safeDocs}
         columns={columns}
         isLoading={loading}
-        emptyMessage="No documents found in registry."
+        emptyMessage="No se encontraron documentos."
         emptyContent={
           <EmptyState
             title="No hay documentos todavía"
@@ -260,45 +260,45 @@ const DocumentsView = () => {
         height="calc(100vh - 350px)"
       />
 
-      <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title="Create New Document" maxWidth="max-w-xl">
+      <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title="Nuevo documento" maxWidth="max-w-xl">
         <form onSubmit={handleCreate} className="space-y-4">
           <Input 
-            label="Document Name" 
+            label="Nombre del documento" 
             value={newName} 
             onChange={e => setNewName(e.target.value)} 
             required 
-            placeholder="e.g. Q3 Sales Proposal" 
+            placeholder="Ej: Propuesta comercial Q3" 
           />
           <div className="grid grid-cols-2 gap-4">
             <Select 
-              label="Type" 
+              label="Tipo" 
               value={newType} 
               onChange={e => setNewType(e.target.value)}
             >
-              <option value="Quote">Quote</option>
-              <option value="Contract">Contract</option>
-              <option value="Invoice">Invoice</option>
+              <option value="Quote">Presupuesto</option>
+              <option value="Contract">Contrato</option>
+              <option value="Invoice">Factura</option>
             </Select>
             <Select 
-              label="Status" 
+              label="Estado" 
               value={newStatus} 
               onChange={e => setNewStatus(e.target.value)}
             >
-              <option value="Pending">Pending</option>
-              <option value="Paid">Paid/Signed</option>
+              <option value="Pending">Pendiente</option>
+              <option value="Paid">Pagado/Firmado</option>
             </Select>
           </div>
           <Input 
-            label="Amount ($)" 
+            label="Importe (USD)" 
             type="number" 
             step="0.01" 
             value={newAmount} 
             onChange={e => setNewAmount(e.target.value)} 
-            placeholder="Optional value..."
+            placeholder="Opcional..."
           />
           <div className="pt-4 flex justify-end gap-3">
-            <Button variant="outline" onClick={() => setIsModalOpen(false)}>Cancel</Button>
-            <Button variant="primary" type="submit" isLoading={isSubmitting}>Create Document</Button>
+            <Button variant="outline" onClick={() => setIsModalOpen(false)}>Cancelar</Button>
+            <Button variant="primary" type="submit" isLoading={isSubmitting}>Crear documento</Button>
           </div>
         </form>
       </Modal>

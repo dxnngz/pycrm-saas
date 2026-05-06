@@ -65,7 +65,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
                     <nav className="space-y-1.5" aria-label="Main Navigation">
                         {!sidebarCollapsed && (
-                            <p className="text-[10px] font-bold text-surface-muted uppercase tracking-widest mb-3 pl-3">Main</p>
+                            <p className="text-[10px] font-bold text-surface-muted uppercase tracking-widest mb-3 pl-3">Menú</p>
                         )}
                         {navItems.map((item) => (
                             <button
@@ -93,11 +93,11 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 <div className="mt-auto p-4 border-t border-surface-border bg-surface-bg/50 flex-shrink-0">
                     <button
                         onClick={toggleDense}
-                        title={isDense ? "Switch to Default UI" : "Switch to High Density UI"}
+                        title={isDense ? "Cambiar a modo normal" : "Cambiar a modo compacto"}
                         className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all text-surface-muted hover:text-primary-600 hover:bg-primary-50 dark:hover:bg-primary-500/10 mb-1"
                     >
                         {isDense ? <ZapOff size={18} /> : <Zap size={18} />}
-                        {!sidebarCollapsed && <span className="text-xs font-medium">{isDense ? 'Standard View' : 'Dense View'}</span>}
+                        {!sidebarCollapsed && <span className="text-xs font-medium">{isDense ? 'Modo normal' : 'Modo compacto'}</span>}
                     </button>
 
                     <button
@@ -111,14 +111,14 @@ export const Sidebar: React.FC<SidebarProps> = ({
                             }`}
                     >
                         <Settings size={18} className="flex-shrink-0" />
-                        {!sidebarCollapsed && <span>Configuration</span>}
+                        {!sidebarCollapsed && <span>Ajustes</span>}
                     </button>
                     <button
                         onClick={onLogout}
                         className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-surface-muted hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 transition-all text-xs font-medium"
                     >
                         <LogOut size={18} className="flex-shrink-0" />
-                        {!sidebarCollapsed && <span>Log out</span>}
+                        {!sidebarCollapsed && <span>Salir</span>}
                     </button>
                 </div>
             </div>

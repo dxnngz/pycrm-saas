@@ -26,7 +26,7 @@ export function VirtualTable<T>({
     columns,
     onRowClick,
     isLoading,
-    emptyMessage = 'No data found',
+    emptyMessage = 'No se encontraron datos',
     emptyContent,
     height = '600px',
     rowHeight,
@@ -49,7 +49,7 @@ export function VirtualTable<T>({
             <div className="w-full h-64 flex items-center justify-center border border-surface-border rounded-lg bg-surface-card shadow-sm">
                 <div className="flex flex-col items-center gap-2">
                     <div className="w-6 h-6 border-2 border-primary-500/30 border-t-primary-500 rounded-full animate-spin" />
-                    <span className="text-sm text-surface-muted font-medium">Loading records...</span>
+                    <span className="text-sm text-surface-muted font-medium">Cargando...</span>
                 </div>
             </div>
         );

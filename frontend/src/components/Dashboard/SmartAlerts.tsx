@@ -39,14 +39,14 @@ const SmartAlerts: React.FC = () => {
                 <div>
                     <h3 className="text-[11px] font-bold text-surface-text uppercase tracking-wider flex items-center gap-1.5">
                         <ShieldAlert size={12} className="text-primary-500" />
-                        Armor Status
+                        Estado del sistema
                     </h3>
                     <div className="flex items-center gap-1.5 mt-0.5">
                         <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                        <p className="text-[9px] text-surface-muted font-bold uppercase tracking-tight">Self-Healing Active</p>
+                        <p className="text-[9px] text-surface-muted font-bold uppercase tracking-tight">Auto-reparación activa</p>
                     </div>
                 </div>
-                <Badge variant="success">Optimal</Badge>
+                <Badge variant="success">Óptimo</Badge>
             </div>
 
             <div className="space-y-3 overflow-y-auto max-h-[400px] pr-1">

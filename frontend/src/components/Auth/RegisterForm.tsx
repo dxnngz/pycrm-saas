@@ -22,21 +22,21 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({ onSubmit, isLoading,
     return (
         <form onSubmit={handleSubmit} className="space-y-3">
             <Input
-                label="Company name"
-                placeholder="Your corporate name"
+                label="Empresa"
+                placeholder="Nombre de la empresa"
                 value={company}
                 onChange={(e) => setCompany(e.target.value)}
                 required
             />
             <Input
-                label="Full name"
-                placeholder="John Doe"
+                label="Nombre"
+                placeholder="Juan Pérez"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 required
             />
             <Input
-                label="Work email"
+                label="Email"
                 type="email"
                 placeholder="john@company.com"
                 value={email}
@@ -44,16 +44,16 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({ onSubmit, isLoading,
                 required
             />
             <Input
-                label="Password"
+                label="Contraseña"
                 type="password"
-                placeholder="Min. 8 characters"
+                placeholder="Mín. 8 caracteres"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
                 minLength={8}
             />
             <Button type="submit" fullWidth isLoading={isLoading} className="mt-4">
-                Create account
+                Crear cuenta
             </Button>
             <Button
                 type="button"
@@ -62,7 +62,7 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({ onSubmit, isLoading,
                 onClick={onBack}
                 className="text-[10px] font-bold uppercase tracking-widest text-surface-muted"
             >
-                Already have an account? Sign in
+                ¿Ya tienes cuenta? Inicia sesión
             </Button>
         </form>
     );

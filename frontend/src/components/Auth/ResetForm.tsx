@@ -33,14 +33,14 @@ export const ResetForm: React.FC<ResetFormProps> = ({ onSubmit, isLoading, onBac
         return (
             <div className="text-center space-y-4 py-4">
                 <p className="text-sm text-surface-muted">
-                    Your password has been updated. You can sign in now.
+                    Tu contraseña se ha actualizado. Ya puedes iniciar sesión.
                 </p>
                 <Button
                     variant="outline"
                     fullWidth
                     onClick={onBack}
                 >
-                    Back to sign in
+                    Volver a iniciar sesión
                 </Button>
             </div>
         );
@@ -49,7 +49,7 @@ export const ResetForm: React.FC<ResetFormProps> = ({ onSubmit, isLoading, onBac
     return (
         <form onSubmit={handleSubmit} className="space-y-4">
             <Input
-                label="New password"
+                label="Nueva contraseña"
                 type="password"
                 placeholder="••••••••"
                 value={password}
@@ -60,7 +60,7 @@ export const ResetForm: React.FC<ResetFormProps> = ({ onSubmit, isLoading, onBac
                 Usa al menos 8 caracteres.
             </div>
             <Input
-                label="Confirm new password"
+                label="Confirmar contraseña"
                 type="password"
                 placeholder="••••••••"
                 value={confirm}
@@ -71,7 +71,7 @@ export const ResetForm: React.FC<ResetFormProps> = ({ onSubmit, isLoading, onBac
                 <Alert variant="danger">{localError}</Alert>
             ) : null}
             <Button type="submit" fullWidth isLoading={isLoading}>
-                Update password
+                Actualizar contraseña
             </Button>
             <Button
                 type="button"
@@ -80,7 +80,7 @@ export const ResetForm: React.FC<ResetFormProps> = ({ onSubmit, isLoading, onBac
                 onClick={onBack}
                 className="text-[10px] font-bold uppercase tracking-widest text-surface-muted"
             >
-                Back to sign in
+                Volver a iniciar sesión
             </Button>
         </form>
     );

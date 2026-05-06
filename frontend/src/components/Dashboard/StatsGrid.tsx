@@ -15,7 +15,7 @@ export const StatsGrid: React.FC<StatsGridProps> = ({ stats }) => {
     return (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             <StatCard
-                title="Total Sales"
+                title="Ventas totales"
                 value={`$${stats.totalSales.toLocaleString()}`}
                 icon={<DollarSign size={20} />}
                 trend="+12.5%"
@@ -23,15 +23,15 @@ export const StatsGrid: React.FC<StatsGridProps> = ({ stats }) => {
                 color="primary"
             />
             <StatCard
-                title="Active Opportunities"
+                title="Oportunidades activas"
                 value={stats.activeOpportunities.toString()}
                 icon={<Target size={20} />}
-                trend="+3 new"
+                trend="+3 nuevas"
                 trendUp={true}
                 color="indigo"
             />
             <StatCard
-                title="Pipeline Win Rate"
+                title="Tasa de cierre"
                 value={`${Number(stats.winRate).toFixed(1)}%`}
                 icon={<TrendingUp size={20} />}
                 trend="-2.4%"
@@ -39,7 +39,7 @@ export const StatsGrid: React.FC<StatsGridProps> = ({ stats }) => {
                 color="emerald"
             />
             <StatCard
-                title="Pending Tasks"
+                title="Tareas pendientes"
                 value={stats.pendingTasks.toString()}
                 icon={<Activity size={20} />}
                 trend="Normal"
