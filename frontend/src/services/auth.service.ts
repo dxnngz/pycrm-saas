@@ -27,9 +27,9 @@ export const authService = {
         }).then(handleResponse),
 
     resetPassword: (token: string, newPassword: string): Promise<{ message: string }> =>
-        customFetch('/auth/reset-password', {
+        customFetch(`/auth/reset-password/${encodeURIComponent(token)}`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ token, newPassword }),
+            body: JSON.stringify({ password: newPassword }),
         }).then(handleResponse),
 };

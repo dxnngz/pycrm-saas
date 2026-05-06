@@ -6,6 +6,7 @@ import { comparePassword, hashPassword, generateToken, generateRefreshToken, ver
 import { logger } from '../../utils/logger.js';
 import { asyncHandler } from '../../utils/asyncHandler.js';
 import { AppError } from '../../utils/AppError.js';
+import { sendEmail } from '../../core/mailer.js';
 import crypto from 'crypto';
 
 // Utilidad para establecer las cookies JWT seguras
@@ -234,16 +235,38 @@ export const forgotPassword = asyncHandler(async (req: Request, res: Response) =
     const expiresAt = new Date(Date.now() + 1 * 60 * 60 * 1000); // 1 hour
     await authService.savePasswordResetToken(user.id, resetToken, expiresAt);
 
-    logger.info(`Password reset link: ${process.env.FRONTEND_URL}/reset-password/${resetToken}`);
+    const base =
+        (process.env.PUBLIC_FRONTEND_URL || process.env.FRONTEND_URL || '')
+            .split(',')[0]
+            ?.trim()
+            ?.replace(/\/$/, '');
+    const resetUrl = base ? `${base}/reset-password/${resetToken}` : '';
+
+    if (resetUrl && process.env.SMTP_USER && process.env.SMTP_PASS) {
+        try {
+            await sendEmail({
+                to: user.email,
+                subject: 'Recuperación de contraseña',
+                text: `Para restablecer tu contraseña, abre este enlace: ${resetUrl}`,
+                html: `<p>Para restablecer tu contraseña, abre este enlace:</p><p><a href="${resetUrl}">${resetUrl}</a></p><p>Este enlace caduca en 1 hora.</p>`,
+            });
+        } catch (e) {
+            logger.error(e, 'Forgot password email send failed');
+            logger.info(`Password reset link (fallback): ${resetUrl}`);
+        }
+    } else {
+        logger.info(`Password reset link: ${base ? resetUrl : resetToken}`);
+    }
 
     res.status(200).json({ success: true, message: 'Email de recuperación enviado' });
 });
 
 export const resetPassword = asyncHandler(async (req: Request, res: Response) => {
     const token = String(req.params.token || req.body.token || '');
-    const { password } = req.body;
+    const { password, newPassword } = req.body as { password?: string; newPassword?: string };
+    const nextPassword = password || newPassword;
 
-    if (!token || !password) {
+    if (!token || !nextPassword) {
         throw new AppError('Token y contraseña son obligatorios', 400);
     }
 
@@ -252,7 +275,7 @@ export const resetPassword = asyncHandler(async (req: Request, res: Response) =>
         throw new AppError('Token inválido o expirado', 400);
     }
 
-    const hashed = await hashPassword(password);
+    const hashed = await hashPassword(nextPassword);
     await authService.updatePassword(resetRecord.user_id!, hashed);
     await authService.deletePasswordResetToken(token);
 

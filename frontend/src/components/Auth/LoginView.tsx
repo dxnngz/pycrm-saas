@@ -8,6 +8,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { LoginForm } from './LoginForm';
 import { RegisterForm } from './RegisterForm';
 import { ForgotForm } from './ForgotForm';
+import { ResetForm } from './ResetForm';
 
 type AuthMode = 'login' | 'forgot' | 'reset' | 'register';
 
@@ -17,10 +18,18 @@ const LoginView = () => {
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
     const [success, setSuccess] = useState(false);
+    const [resetToken, setResetToken] = useState('');
 
     useEffect(() => {
         const urlParams = new URLSearchParams(window.location.search);
-        if (urlParams.get('token')) setAuthMode('reset');
+        const queryToken = urlParams.get('token');
+        const pathMatch = window.location.pathname.match(/^\/reset-password\/([^/]+)$/);
+        const pathToken = pathMatch?.[1];
+        const token = queryToken || pathToken;
+        if (token) {
+            setResetToken(token);
+            setAuthMode('reset');
+        }
     }, []);
 
     const handleLogin = async (email: string, pass: string) => {
@@ -69,6 +78,20 @@ const LoginView = () => {
         }
     };
 
+    const handleReset = async (newPassword: string) => {
+        setLoading(true);
+        setError('');
+        try {
+            if (!resetToken) throw new Error('Invalid reset link');
+            await authService.resetPassword(resetToken, newPassword);
+            setSuccess(true);
+        } catch (err: unknown) {
+            setError(err instanceof Error ? err.message : 'Request failed');
+        } finally {
+            setLoading(false);
+        }
+    };
+
     return (
         <div className="min-h-screen flex items-center justify-center bg-surface-bg p-6 overflow-hidden relative">
             {/* Background Decorative Elements */}
@@ -94,6 +117,7 @@ const LoginView = () => {
                         {mode === 'login' && 'Identity Portal'}
                         {mode === 'register' && 'Account Activation'}
                         {mode === 'forgot' && 'Access Recovery'}
+                        {mode === 'reset' && 'Password Reset'}
                     </motion.h1>
                     <motion.p
                         initial={{ opacity: 0 }}
@@ -104,6 +128,7 @@ const LoginView = () => {
                         {mode === 'login' && 'Sign in to access your enterprise workspace'}
                         {mode === 'register' && 'Enter your organization details to begin'}
                         {mode === 'forgot' && 'Follow the steps to recover your access'}
+                        {mode === 'reset' && 'Set a new password to recover access'}
                     </motion.p>
                 </div>
 
@@ -155,6 +180,23 @@ const LoginView = () => {
                             >
                                 <ForgotForm
                                     onSubmit={handleForgot}
+                                    isLoading={loading}
+                                    onBack={() => { setAuthMode('login'); setSuccess(false); }}
+                                    success={success}
+                                />
+                            </motion.div>
+                        )}
+
+                        {mode === 'reset' && (
+                            <motion.div
+                                key="reset"
+                                initial={{ opacity: 0, y: 20 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                exit={{ opacity: 0, y: -20 }}
+                                transition={{ duration: 0.2 }}
+                            >
+                                <ResetForm
+                                    onSubmit={handleReset}
                                     isLoading={loading}
                                     onBack={() => { setAuthMode('login'); setSuccess(false); }}
                                     success={success}
