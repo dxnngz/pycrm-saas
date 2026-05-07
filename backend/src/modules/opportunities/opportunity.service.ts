@@ -96,15 +96,17 @@ export class OpportunityService {
     async createOpportunity(data: { client_id: number; product: string; amount: number; status?: string; estimated_close_date?: string }, tenantId: number) {
         const status = data.status || 'pendiente';
         const closedStatuses = new Set(['ganado', 'ganada', 'perdido', 'perdida']);
+        const isClosed = closedStatuses.has(status);
         const result = await opportunityRepository.create({
             client_id: data.client_id,
             tenant_id: tenantId,
             product: data.product,
             amount: data.amount,
             status,
-            estimated_close_date: closedStatuses.has(status)
-                ? new Date()
-                : (data.estimated_close_date ? new Date(data.estimated_close_date) : new Date(Date.now() + 30 * 24 * 60 * 60 * 1000))
+            estimated_close_date: data.estimated_close_date
+                ? new Date(data.estimated_close_date)
+                : new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+            closed_at: isClosed ? new Date() : null
         });
         await redisCache.invalidateTenantCache(tenantId, 'opportunities');
         await redisCache.invalidate(`dashboard:metrics:${tenantId}:*`);
@@ -116,9 +118,10 @@ export class OpportunityService {
         if (!opp) throw new Error('Opportunity not found or access denied');
 
         const closedStatuses = new Set(['ganado', 'ganada', 'perdido', 'perdida']);
+        const isClosed = closedStatuses.has(status);
         const result = await opportunityRepository.update(tenantId, id, {
             status,
-            ...(closedStatuses.has(status) && { estimated_close_date: new Date() }),
+            closed_at: isClosed ? new Date() : null,
             ...(version !== undefined && { version })
         });
 

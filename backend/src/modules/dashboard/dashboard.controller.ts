@@ -11,3 +11,12 @@ export const getMetrics = asyncHandler(async (req: Request, res: Response) => {
     const metrics = await dashboardService.getDashboardMetrics(tenantId, period, { forceRefresh });
     res.json(metrics);
 });
+
+export const getActivity = asyncHandler(async (req: Request, res: Response) => {
+    const limitRaw = req.query.limit;
+    const limitValue = Array.isArray(limitRaw) ? limitRaw[0] : limitRaw;
+    const limit = limitValue ? Number(limitValue) : 10;
+    const tenantId = req.user!.tenantId;
+    const activity = await dashboardService.getRecentActivity(tenantId, limit);
+    res.json(activity);
+});

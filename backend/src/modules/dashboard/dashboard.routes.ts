@@ -7,5 +7,6 @@ const router = Router();
 router.use(protect);
 
 router.get('/metrics', dashboardController.getMetrics);
+router.get('/activity', dashboardController.getActivity);
 
 export default router;

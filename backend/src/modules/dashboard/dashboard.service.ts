@@ -74,6 +74,146 @@ export class DashboardService {
         }
     }
 
+    async getRecentActivity(tenantId: number, limit: number = 10) {
+        const take = Number.isFinite(limit) ? Math.max(1, Math.min(50, Math.floor(limit))) : 10;
+
+        const logs = await prisma.auditLog.findMany({
+            where: {
+                tenant_id: tenantId,
+                entity: { in: ['Opportunity', 'Task', 'Client'] }
+            },
+            orderBy: { created_at: 'desc' },
+            take,
+            include: {
+                user: { select: { name: true } }
+            }
+        });
+
+        const oppIds = logs.filter(l => l.entity === 'Opportunity').map(l => l.entity_id);
+        const taskIds = logs.filter(l => l.entity === 'Task').map(l => l.entity_id);
+        const clientIds = logs.filter(l => l.entity === 'Client').map(l => l.entity_id);
+
+        const [opps, tasks, clients] = await Promise.all([
+            oppIds.length
+                ? prisma.opportunity.findMany({
+                    where: { tenant_id: tenantId, id: { in: oppIds } },
+                    include: { client: { select: { name: true, company: true } } }
+                })
+                : Promise.resolve([]),
+            taskIds.length
+                ? prisma.task.findMany({
+                    where: { tenant_id: tenantId, id: { in: taskIds } },
+                    include: { client: { select: { name: true } } }
+                })
+                : Promise.resolve([]),
+            clientIds.length
+                ? prisma.client.findMany({
+                    where: { tenant_id: tenantId, id: { in: clientIds } },
+                    select: { id: true, name: true, company: true }
+                })
+                : Promise.resolve([]),
+        ]);
+
+        const oppById = new Map(opps.map(o => [o.id, o]));
+        const taskById = new Map(tasks.map(t => [t.id, t]));
+        const clientById = new Map(clients.map(c => [c.id, c]));
+
+        return logs.map((log) => {
+            const timestamp = log.created_at.toISOString();
+            const actor = log.user?.name || 'Sistema';
+
+            if (log.entity === 'Opportunity') {
+                const opp = oppById.get(log.entity_id);
+                const clientName = opp?.client?.name || 'Prospecto';
+                const product = opp?.product || `Oportunidad #${log.entity_id}`;
+                const amount = opp?.amount ? Number(opp.amount) : undefined;
+
+                const updatedData = (log.changes as any)?.updatedData;
+                const status = String(updatedData?.status || opp?.status || '').trim();
+
+                if (log.action === 'CREATE') {
+                    return {
+                        id: `audit-${log.id}`,
+                        type: 'task-new',
+                        title: 'Nueva oportunidad',
+                        description: `${clientName} - ${product} · ${actor}`,
+                        time: timestamp,
+                        amount
+                    };
+                }
+
+                if (status === 'ganado' || status === 'ganada') {
+                    return {
+                        id: `audit-${log.id}`,
+                        type: 'sale',
+                        title: 'Venta cerrada',
+                        description: `${clientName} - ${product} · ${actor}`,
+                        time: timestamp,
+                        amount
+                    };
+                }
+
+                if (status === 'perdido' || status === 'perdida') {
+                    return {
+                        id: `audit-${log.id}`,
+                        type: 'task-new',
+                        title: 'Oportunidad perdida',
+                        description: `${clientName} - ${product} · ${actor}`,
+                        time: timestamp,
+                        amount
+                    };
+                }
+
+                return {
+                    id: `audit-${log.id}`,
+                    type: 'task-new',
+                    title: 'Oportunidad actualizada',
+                    description: `${clientName} - ${product} · ${actor}`,
+                    time: timestamp,
+                    amount
+                };
+            }
+
+            if (log.entity === 'Task') {
+                const task = taskById.get(log.entity_id);
+                const title = task?.title || `Tarea #${log.entity_id}`;
+                const clientName = task?.client?.name;
+                const updatedData = (log.changes as any)?.updatedData;
+                const completed = Boolean(updatedData?.completed ?? (log.changes as any)?.finalState?.completed ?? task?.completed);
+
+                return {
+                    id: `audit-${log.id}`,
+                    type: completed ? 'task-done' : 'task-new',
+                    title: completed ? 'Tarea finalizada' : (log.action === 'CREATE' ? 'Nueva tarea' : 'Tarea actualizada'),
+                    description: `${clientName ? `${clientName} · ` : ''}${title} · ${actor}`,
+                    time: timestamp
+                };
+            }
+
+            if (log.entity === 'Client') {
+                const client = clientById.get(log.entity_id);
+                const name = client?.name || `Cliente #${log.entity_id}`;
+                const company = client?.company ? ` (${client.company})` : '';
+
+                return {
+                    id: `audit-${log.id}`,
+                    type: 'task-new',
+                    title: log.action === 'CREATE' ? 'Nuevo cliente' : (log.action === 'DELETE' ? 'Cliente eliminado' : 'Cliente actualizado'),
+                    description: `${name}${company} · ${actor}`,
+                    time: timestamp
+                };
+            }
+
+            return {
+                id: `audit-${log.id}`,
+                type: 'task-new',
+                title: `${log.entity} ${log.action}`,
+                description: `#${log.entity_id} · ${actor}`,
+                time: timestamp
+            };
+        });
+    }
+
     private async fetchFreshMetrics(tenantId: number, period: 'monthly' | 'yearly') {
         const isYearly = period === 'yearly';
         const now = new Date();
@@ -88,14 +228,14 @@ export class DashboardService {
         // Implementation of the original logic...
         // 1. Sales Metrics
         const salesResult: any = isYearly
-            ? await prisma.$queryRaw`SELECT COALESCE(SUM(amount), 0) as total FROM opportunities WHERE status IN ('ganado', 'ganada') AND tenant_id = ${tenantId} AND COALESCE(estimated_close_date, created_at::date) >= ${rangeStart} AND COALESCE(estimated_close_date, created_at::date) < ${rangeEnd}`
-            : await prisma.$queryRaw`SELECT COALESCE(SUM(amount), 0) as total FROM opportunities WHERE status IN ('ganado', 'ganada') AND tenant_id = ${tenantId} AND COALESCE(estimated_close_date, created_at::date) >= ${rangeStart} AND COALESCE(estimated_close_date, created_at::date) < ${rangeEnd}`;
+            ? await prisma.$queryRaw`SELECT COALESCE(SUM(amount), 0) as total FROM opportunities WHERE status IN ('ganado', 'ganada') AND tenant_id = ${tenantId} AND COALESCE(closed_at, estimated_close_date, created_at::date) >= ${rangeStart} AND COALESCE(closed_at, estimated_close_date, created_at::date) < ${rangeEnd}`
+            : await prisma.$queryRaw`SELECT COALESCE(SUM(amount), 0) as total FROM opportunities WHERE status IN ('ganado', 'ganada') AND tenant_id = ${tenantId} AND COALESCE(closed_at, estimated_close_date, created_at::date) >= ${rangeStart} AND COALESCE(closed_at, estimated_close_date, created_at::date) < ${rangeEnd}`;
         const totalSales = parseFloat(salesResult[0]?.total || 0);
 
         // 2. Conversion
         const metricsResult: any = isYearly
-            ? await prisma.$queryRaw`SELECT COUNT(*) FILTER (WHERE status IN ('ganado', 'ganada')) as won, COUNT(*) FILTER (WHERE status IN ('ganado', 'ganada', 'perdido', 'perdida')) as closed, COALESCE(AVG(amount) FILTER (WHERE status IN ('ganado', 'ganada')), 0) as avg_ticket FROM opportunities WHERE tenant_id = ${tenantId} AND COALESCE(estimated_close_date, created_at::date) >= ${rangeStart} AND COALESCE(estimated_close_date, created_at::date) < ${rangeEnd}`
-            : await prisma.$queryRaw`SELECT COUNT(*) FILTER (WHERE status IN ('ganado', 'ganada')) as won, COUNT(*) FILTER (WHERE status IN ('ganado', 'ganada', 'perdido', 'perdida')) as closed, COALESCE(AVG(amount) FILTER (WHERE status IN ('ganado', 'ganada')), 0) as avg_ticket FROM opportunities WHERE tenant_id = ${tenantId} AND COALESCE(estimated_close_date, created_at::date) >= ${rangeStart} AND COALESCE(estimated_close_date, created_at::date) < ${rangeEnd}`;
+            ? await prisma.$queryRaw`SELECT COUNT(*) FILTER (WHERE status IN ('ganado', 'ganada')) as won, COUNT(*) FILTER (WHERE status IN ('ganado', 'ganada', 'perdido', 'perdida')) as closed, COALESCE(AVG(amount) FILTER (WHERE status IN ('ganado', 'ganada')), 0) as avg_ticket FROM opportunities WHERE tenant_id = ${tenantId} AND COALESCE(closed_at, estimated_close_date, created_at::date) >= ${rangeStart} AND COALESCE(closed_at, estimated_close_date, created_at::date) < ${rangeEnd}`
+            : await prisma.$queryRaw`SELECT COUNT(*) FILTER (WHERE status IN ('ganado', 'ganada')) as won, COUNT(*) FILTER (WHERE status IN ('ganado', 'ganada', 'perdido', 'perdida')) as closed, COALESCE(AVG(amount) FILTER (WHERE status IN ('ganado', 'ganada')), 0) as avg_ticket FROM opportunities WHERE tenant_id = ${tenantId} AND COALESCE(closed_at, estimated_close_date, created_at::date) >= ${rangeStart} AND COALESCE(closed_at, estimated_close_date, created_at::date) < ${rangeEnd}`;
 
         const { won = 0, closed = 0, avg_ticket = 0 } = metricsResult[0] || {};
         const conversionRate = Number(closed) > 0 ? (Number(won) / Number(closed)) * 100 : 0;
@@ -104,7 +244,7 @@ export class DashboardService {
         const repPerformanceResult: any = await prisma.$queryRaw`
             SELECT u.id, u.name, COALESCE(SUM(o.amount), 0) as total_sales
             FROM users u
-            LEFT JOIN opportunities o ON u.id = o.assigned_to AND o.status IN ('ganado', 'ganada') AND o.tenant_id = ${tenantId} AND COALESCE(o.estimated_close_date, o.created_at::date) >= ${rangeStart} AND COALESCE(o.estimated_close_date, o.created_at::date) < ${rangeEnd}
+            LEFT JOIN opportunities o ON u.id = o.assigned_to AND o.status IN ('ganado', 'ganada') AND o.tenant_id = ${tenantId} AND COALESCE(o.closed_at, o.estimated_close_date, o.created_at::date) >= ${rangeStart} AND COALESCE(o.closed_at, o.estimated_close_date, o.created_at::date) < ${rangeEnd}
             WHERE u.tenant_id = ${tenantId}
             GROUP BY u.id, u.name
             ORDER BY total_sales DESC
@@ -121,21 +261,21 @@ export class DashboardService {
             ? await prisma.$queryRaw`
                 SELECT 
                     SUM(amount) as sales,
-                    TO_CHAR(COALESCE(estimated_close_date, created_at::date), 'YYYY-MM') as sort_key
+                    TO_CHAR(COALESCE(closed_at, estimated_close_date, created_at::date), 'YYYY-MM') as sort_key
                 FROM opportunities
                 WHERE tenant_id = ${tenantId} AND status IN ('ganado', 'ganada')
-                AND COALESCE(estimated_close_date, created_at::date) >= ${startOfYear} AND COALESCE(estimated_close_date, created_at::date) < ${nextYear}
-                GROUP BY TO_CHAR(COALESCE(estimated_close_date, created_at::date), 'YYYY-MM')
+                AND COALESCE(closed_at, estimated_close_date, created_at::date) >= ${startOfYear} AND COALESCE(closed_at, estimated_close_date, created_at::date) < ${nextYear}
+                GROUP BY TO_CHAR(COALESCE(closed_at, estimated_close_date, created_at::date), 'YYYY-MM')
                 ORDER BY sort_key ASC
             `
             : await prisma.$queryRaw`
                 SELECT 
                     SUM(amount) as sales,
-                    TO_CHAR(COALESCE(estimated_close_date, created_at::date), 'YYYY-MM') as sort_key
+                    TO_CHAR(COALESCE(closed_at, estimated_close_date, created_at::date), 'YYYY-MM') as sort_key
                 FROM opportunities
                 WHERE tenant_id = ${tenantId} AND status IN ('ganado', 'ganada')
-                AND COALESCE(estimated_close_date, created_at::date) >= ${chartStart} AND COALESCE(estimated_close_date, created_at::date) < ${nextMonth}
-                GROUP BY TO_CHAR(COALESCE(estimated_close_date, created_at::date), 'YYYY-MM')
+                AND COALESCE(closed_at, estimated_close_date, created_at::date) >= ${chartStart} AND COALESCE(closed_at, estimated_close_date, created_at::date) < ${nextMonth}
+                GROUP BY TO_CHAR(COALESCE(closed_at, estimated_close_date, created_at::date), 'YYYY-MM')
                 ORDER BY sort_key ASC
             `;
 
