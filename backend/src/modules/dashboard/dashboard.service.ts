@@ -1,4 +1,3 @@
-import { Prisma } from '@prisma/client';
 import { prisma } from '../../core/prisma.js';
 import { redisCache } from '../../core/redis.js';
 import { logger } from '../../utils/logger.js';
@@ -106,6 +105,7 @@ export class DashboardService {
         }));
 
         // 4. Chart Data (Monthly trend for the last 6 months)
+        const chartStart = new Date(now.getFullYear(), now.getMonth() - 5, 1);
         const chartDataResult: any = await prisma.$queryRaw`
             SELECT 
                 TO_CHAR(created_at, 'Mon') as name,
@@ -113,14 +113,24 @@ export class DashboardService {
                 TO_CHAR(created_at, 'YYYY-MM') as sort_key
             FROM opportunities
             WHERE tenant_id = ${tenantId} AND status = 'ganado'
-            AND created_at >= ${new Date(now.getFullYear(), now.getMonth() - 5, 1)}
+            AND created_at >= ${chartStart}
             GROUP BY TO_CHAR(created_at, 'Mon'), TO_CHAR(created_at, 'YYYY-MM')
             ORDER BY sort_key ASC
         `;
-        const chartData = chartDataResult.map((c: any) => ({
-            name: c.name,
-            sales: parseFloat(c.sales)
-        }));
+        const salesByMonthKey = new Map<string, number>();
+        for (const row of chartDataResult || []) {
+            const key = String(row.sort_key || '').trim();
+            if (!key) continue;
+            const sales = parseFloat(row.sales) || 0;
+            salesByMonthKey.set(key, sales);
+        }
+
+        const chartData = Array.from({ length: 6 }).map((_, i) => {
+            const d = new Date(chartStart.getFullYear(), chartStart.getMonth() + i, 1);
+            const monthKey = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+            const name = d.toLocaleString('en-US', { month: 'short' });
+            return { name, sales: salesByMonthKey.get(monthKey) || 0 };
+        });
 
         return {
             totalSales,
