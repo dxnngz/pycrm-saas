@@ -36,7 +36,7 @@ export class ClientService {
             status: data.status || 'activo'
         });
         await redisCache.invalidateTenantCache(tenantId, 'clients');
-        await redisCache.invalidateTenantCache(tenantId, 'dashboard');
+        await redisCache.invalidate(`dashboard:metrics:${tenantId}:*`);
         return result;
     }
 
@@ -46,7 +46,7 @@ export class ClientService {
 
         const result = await clientRepository.update(tenantId, id, data);
         await redisCache.invalidateTenantCache(tenantId, 'clients');
-        await redisCache.invalidateTenantCache(tenantId, 'dashboard');
+        await redisCache.invalidate(`dashboard:metrics:${tenantId}:*`);
         return result;
     }
 
@@ -56,7 +56,7 @@ export class ClientService {
 
         const result = await clientRepository.delete(tenantId, id);
         await redisCache.invalidateTenantCache(tenantId, 'clients');
-        await redisCache.invalidateTenantCache(tenantId, 'dashboard');
+        await redisCache.invalidate(`dashboard:metrics:${tenantId}:*`);
         return result;
     }
 

@@ -12,6 +12,7 @@ interface PerformanceListProps {
 }
 
 export const PerformanceList: React.FC<PerformanceListProps> = ({ performance }) => {
+    const maxSales = performance.reduce((acc, r) => Math.max(acc, Number(r.total_sales) || 0), 0) || 1;
     return (
         <div className="bg-surface-card border border-surface-border rounded-lg shadow-sm h-full flex flex-col overflow-hidden">
             <div className="p-4 border-b border-surface-border bg-surface-muted-bg/50">
@@ -33,7 +34,7 @@ export const PerformanceList: React.FC<PerformanceListProps> = ({ performance })
                         <div className="h-1.5 w-full bg-surface-muted-bg rounded-full overflow-hidden border border-surface-border/50">
                             <motion.div
                                 initial={{ width: 0 }}
-                                animate={{ width: `${Math.min(100, (rep.total_sales / 60000) * 100)}%` }}
+                                animate={{ width: `${Math.min(100, (Number(rep.total_sales) / maxSales) * 100)}%` }}
                                 transition={{ duration: 1, ease: 'easeOut' }}
                                 className="h-full bg-primary-600 rounded-full"
                             />

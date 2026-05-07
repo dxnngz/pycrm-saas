@@ -3,11 +3,19 @@ import { redisCache } from '../../core/redis.js';
 import { logger } from '../../utils/logger.js';
 
 export class DashboardService {
-    async getDashboardMetrics(tenantId: number, period: 'monthly' | 'yearly' = 'monthly') {
+    async getDashboardMetrics(
+        tenantId: number,
+        period: 'monthly' | 'yearly' = 'monthly',
+        options: { forceRefresh?: boolean } = {}
+    ) {
         const cacheKey = `dashboard:metrics:${tenantId}:${period}`;
         const cacheTtlSeconds = 600; // 10 minutes
 
         try {
+            if (options.forceRefresh) {
+                await redisCache.invalidate(cacheKey);
+            }
+
             // 1. ELITE SWR ARMOR: Attempt to get cached data for instant response
             const cachedData = await redisCache.get<any>(cacheKey);
 
@@ -70,20 +78,24 @@ export class DashboardService {
         const isYearly = period === 'yearly';
         const now = new Date();
         const startOfYear = new Date(now.getFullYear(), 0, 1);
-        const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+        const nextYear = new Date(now.getFullYear() + 1, 0, 1);
         const nextMonth = new Date(now.getFullYear(), now.getMonth() + 1, 1);
+        const chartStart = new Date(now.getFullYear(), now.getMonth() - 5, 1);
+
+        const rangeStart = isYearly ? startOfYear : chartStart;
+        const rangeEnd = isYearly ? nextYear : nextMonth;
 
         // Implementation of the original logic...
         // 1. Sales Metrics
         const salesResult: any = isYearly
-            ? await prisma.$queryRaw`SELECT COALESCE(SUM(amount), 0) as total FROM opportunities WHERE status = 'ganado' AND tenant_id = ${tenantId} AND created_at >= ${startOfYear}`
-            : await prisma.$queryRaw`SELECT COALESCE(SUM(amount), 0) as total FROM opportunities WHERE status = 'ganado' AND tenant_id = ${tenantId} AND created_at >= ${startOfMonth} AND created_at < ${nextMonth}`;
+            ? await prisma.$queryRaw`SELECT COALESCE(SUM(amount), 0) as total FROM opportunities WHERE status IN ('ganado', 'ganada') AND tenant_id = ${tenantId} AND COALESCE(estimated_close_date, created_at::date) >= ${rangeStart} AND COALESCE(estimated_close_date, created_at::date) < ${rangeEnd}`
+            : await prisma.$queryRaw`SELECT COALESCE(SUM(amount), 0) as total FROM opportunities WHERE status IN ('ganado', 'ganada') AND tenant_id = ${tenantId} AND COALESCE(estimated_close_date, created_at::date) >= ${rangeStart} AND COALESCE(estimated_close_date, created_at::date) < ${rangeEnd}`;
         const totalSales = parseFloat(salesResult[0]?.total || 0);
 
         // 2. Conversion
         const metricsResult: any = isYearly
-            ? await prisma.$queryRaw`SELECT COUNT(*) FILTER (WHERE status = 'ganado') as won, COUNT(*) FILTER (WHERE status IN ('ganado', 'perdido')) as closed, COALESCE(AVG(amount) FILTER (WHERE status = 'ganado'), 0) as avg_ticket FROM opportunities WHERE tenant_id = ${tenantId} AND created_at >= ${startOfYear}`
-            : await prisma.$queryRaw`SELECT COUNT(*) FILTER (WHERE status = 'ganado') as won, COUNT(*) FILTER (WHERE status IN ('ganado', 'perdido')) as closed, COALESCE(AVG(amount) FILTER (WHERE status = 'ganado'), 0) as avg_ticket FROM opportunities WHERE tenant_id = ${tenantId} AND created_at >= ${startOfMonth} AND created_at < ${nextMonth}`;
+            ? await prisma.$queryRaw`SELECT COUNT(*) FILTER (WHERE status IN ('ganado', 'ganada')) as won, COUNT(*) FILTER (WHERE status IN ('ganado', 'ganada', 'perdido', 'perdida')) as closed, COALESCE(AVG(amount) FILTER (WHERE status IN ('ganado', 'ganada')), 0) as avg_ticket FROM opportunities WHERE tenant_id = ${tenantId} AND COALESCE(estimated_close_date, created_at::date) >= ${rangeStart} AND COALESCE(estimated_close_date, created_at::date) < ${rangeEnd}`
+            : await prisma.$queryRaw`SELECT COUNT(*) FILTER (WHERE status IN ('ganado', 'ganada')) as won, COUNT(*) FILTER (WHERE status IN ('ganado', 'ganada', 'perdido', 'perdida')) as closed, COALESCE(AVG(amount) FILTER (WHERE status IN ('ganado', 'ganada')), 0) as avg_ticket FROM opportunities WHERE tenant_id = ${tenantId} AND COALESCE(estimated_close_date, created_at::date) >= ${rangeStart} AND COALESCE(estimated_close_date, created_at::date) < ${rangeEnd}`;
 
         const { won = 0, closed = 0, avg_ticket = 0 } = metricsResult[0] || {};
         const conversionRate = Number(closed) > 0 ? (Number(won) / Number(closed)) * 100 : 0;
@@ -92,7 +104,7 @@ export class DashboardService {
         const repPerformanceResult: any = await prisma.$queryRaw`
             SELECT u.id, u.name, COALESCE(SUM(o.amount), 0) as total_sales
             FROM users u
-            LEFT JOIN opportunities o ON u.id = o.assigned_to AND o.status = 'ganado' AND o.tenant_id = ${tenantId}
+            LEFT JOIN opportunities o ON u.id = o.assigned_to AND o.status IN ('ganado', 'ganada') AND o.tenant_id = ${tenantId} AND COALESCE(o.estimated_close_date, o.created_at::date) >= ${rangeStart} AND COALESCE(o.estimated_close_date, o.created_at::date) < ${rangeEnd}
             WHERE u.tenant_id = ${tenantId}
             GROUP BY u.id, u.name
             ORDER BY total_sales DESC
@@ -104,32 +116,45 @@ export class DashboardService {
             total_sales: parseFloat(r.total_sales)
         }));
 
-        // 4. Chart Data (Monthly trend for the last 6 months)
-        const chartStart = new Date(now.getFullYear(), now.getMonth() - 5, 1);
-        const chartDataResult: any = await prisma.$queryRaw`
-            SELECT 
-                TO_CHAR(created_at, 'Mon') as name,
-                SUM(amount) as sales,
-                TO_CHAR(created_at, 'YYYY-MM') as sort_key
-            FROM opportunities
-            WHERE tenant_id = ${tenantId} AND status = 'ganado'
-            AND created_at >= ${chartStart}
-            GROUP BY TO_CHAR(created_at, 'Mon'), TO_CHAR(created_at, 'YYYY-MM')
-            ORDER BY sort_key ASC
-        `;
-        const salesByMonthKey = new Map<string, number>();
+        // 4. Chart Data (Aligns with selected period)
+        const chartDataResult: any = isYearly
+            ? await prisma.$queryRaw`
+                SELECT 
+                    SUM(amount) as sales,
+                    TO_CHAR(COALESCE(estimated_close_date, created_at::date), 'YYYY-MM') as sort_key
+                FROM opportunities
+                WHERE tenant_id = ${tenantId} AND status IN ('ganado', 'ganada')
+                AND COALESCE(estimated_close_date, created_at::date) >= ${startOfYear} AND COALESCE(estimated_close_date, created_at::date) < ${nextYear}
+                GROUP BY TO_CHAR(COALESCE(estimated_close_date, created_at::date), 'YYYY-MM')
+                ORDER BY sort_key ASC
+            `
+            : await prisma.$queryRaw`
+                SELECT 
+                    SUM(amount) as sales,
+                    TO_CHAR(COALESCE(estimated_close_date, created_at::date), 'YYYY-MM') as sort_key
+                FROM opportunities
+                WHERE tenant_id = ${tenantId} AND status IN ('ganado', 'ganada')
+                AND COALESCE(estimated_close_date, created_at::date) >= ${chartStart} AND COALESCE(estimated_close_date, created_at::date) < ${nextMonth}
+                GROUP BY TO_CHAR(COALESCE(estimated_close_date, created_at::date), 'YYYY-MM')
+                ORDER BY sort_key ASC
+            `;
+
+        const salesByKey = new Map<string, number>();
         for (const row of chartDataResult || []) {
             const key = String(row.sort_key || '').trim();
             if (!key) continue;
             const sales = parseFloat(row.sales) || 0;
-            salesByMonthKey.set(key, sales);
+            salesByKey.set(key, sales);
         }
 
-        const chartData = Array.from({ length: 6 }).map((_, i) => {
-            const d = new Date(chartStart.getFullYear(), chartStart.getMonth() + i, 1);
+        const chartLength = isYearly ? 12 : 6;
+        const chartBase = isYearly ? startOfYear : chartStart;
+
+        const chartData = Array.from({ length: chartLength }).map((_, i) => {
+            const d = new Date(chartBase.getFullYear(), chartBase.getMonth() + i, 1);
             const monthKey = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
-            const name = d.toLocaleString('en-US', { month: 'short' });
-            return { name, sales: salesByMonthKey.get(monthKey) || 0 };
+            const name = d.toLocaleString('es-ES', { month: 'short' });
+            return { name, sales: salesByKey.get(monthKey) || 0 };
         });
 
         return {

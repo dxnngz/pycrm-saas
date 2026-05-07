@@ -114,6 +114,8 @@ export interface PaginatedResponse<T> {
     total: number;
     limit: number;
     cursor?: number;
+    nextCursor?: number | null;
+    hasMore?: boolean;
     page?: number;
     totalPages?: number;
 }

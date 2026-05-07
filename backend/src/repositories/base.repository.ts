@@ -48,7 +48,7 @@ export abstract class BaseRepository<T extends BaseModel> {
         return await this.model.findMany({
             where: finalWhere,
             take,
-            skip,
+            skip: cursor ? (typeof skip === 'number' ? skip : 1) : skip,
             cursor: cursor ? { id: cursor } : undefined,
             orderBy,
             include

@@ -1,35 +1,31 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useInfiniteQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { clientService } from '../services/client.service';
 import type { Client } from '../types';
 
-export const useClients = (page: number = 1, limit: number = 10, search: string = '') => {
+export const useClients = (limit: number = 10, search: string = '') => {
     const queryClient = useQueryClient();
 
-    const { data: qData, isLoading: loading, refetch } = useQuery({
-        queryKey: ['clients', page, limit, search],
-        queryFn: async () => {
-            const response = await clientService.getAll(page, limit, search);
-
-            if (response && Array.isArray(response.data)) {
-                return {
-                    clients: response.data,
-                    pagination: {
-                        total: response.total || 0,
-                        page: response.page || 1,
-                        limit: response.limit || 10,
-                        totalPages: response.totalPages || 0
-                    }
-                };
-            } else if (Array.isArray(response)) {
-                return {
-                    clients: response as Client[],
-                    pagination: { total: response.length, page: 1, limit: 10, totalPages: 1 }
-                };
-            }
-            return { clients: [], pagination: { total: 0, page: 1, limit: 10, totalPages: 0 } };
+    const { data, isLoading: loading, fetchNextPage, hasNextPage, isFetchingNextPage, refetch } = useInfiniteQuery({
+        queryKey: ['clients', limit, search],
+        initialPageParam: undefined as number | undefined,
+        queryFn: async ({ pageParam }) => {
+            const response = await clientService.getAll({ limit, search, cursor: pageParam });
+            const items = Array.isArray(response?.data) ? response.data : [];
+            return { ...response, data: items };
         },
-        placeholderData: (previousData) => previousData // replacing deprecated keepPreviousData in v5
+        getNextPageParam: (lastPage) => {
+            if (!lastPage?.hasMore) return undefined;
+            const next = lastPage.nextCursor;
+            return typeof next === 'number' ? next : undefined;
+        },
+        placeholderData: (previousData) => previousData
     });
+
+    const pages = data?.pages || [];
+    const clients = pages.flatMap((p) => (Array.isArray(p.data) ? p.data : []));
+    const total = Number(pages[0]?.total) || clients.length;
+    const nextCursor = pages[pages.length - 1]?.nextCursor ?? null;
+    const hasMore = !!hasNextPage;
 
     const createMutation = useMutation({
         mutationFn: (data: Partial<Client>) => clientService.create(data),
@@ -47,10 +43,12 @@ export const useClients = (page: number = 1, limit: number = 10, search: string 
     });
 
     return {
-        clients: qData?.clients || [],
+        clients,
         loading,
-        pagination: qData?.pagination || { total: 0, page: 1, limit: 10, totalPages: 0 },
+        pagination: { total, limit, nextCursor, hasMore },
         loadClients: () => refetch(),
+        loadMore: () => fetchNextPage(),
+        isLoadingMore: isFetchingNextPage,
         createClient: createMutation.mutateAsync,
         updateClient: (id: number, data: Partial<Client>) => updateMutation.mutateAsync({ id, data }),
         deleteClient: deleteMutation.mutateAsync,

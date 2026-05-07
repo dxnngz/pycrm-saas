@@ -21,7 +21,9 @@ export const generatePipelineReport = (opportunities: Opportunity[]) => {
 
     // Summary Box
     const totalAmount = opportunities.reduce((acc, o) => acc + (Number(o.amount) || 0), 0);
-    const wonAmount = opportunities.filter(o => o.status === 'ganado').reduce((acc, o) => acc + (Number(o.amount) || 0), 0);
+    const wonAmount = opportunities
+        .filter(o => o.status === 'ganado' || o.status === 'ganada')
+        .reduce((acc, o) => acc + (Number(o.amount) || 0), 0);
 
     doc.setDrawColor(226, 232, 240);
     doc.setFillColor(248, 250, 252);

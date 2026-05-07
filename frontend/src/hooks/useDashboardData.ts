@@ -4,14 +4,14 @@ import { taskService } from '../services/task.service';
 import { dashboardService } from '../services/dashboard.service';
 import { predictFutureSales } from '../services/mlService';
 
-export const useDashboardData = (period: 'monthly' | 'yearly') => {
+export const useDashboardData = (period: 'monthly' | 'yearly', refreshNonce: number = 0) => {
     return useQuery({
-        queryKey: ['dashboard_data', period],
+        queryKey: ['dashboard_data', period, refreshNonce],
         queryFn: async () => {
             const [oppsResponse, tasks, backendMetrics] = await Promise.all([
-                opportunityService.getAll(1, 100),
+                opportunityService.getAll({ limit: 1000 }),
                 taskService.getAll(),
-                dashboardService.getMetrics(period)
+                dashboardService.getMetrics(period, { forceRefresh: refreshNonce > 0 })
             ]);
 
             const opps = Array.isArray(oppsResponse?.data) ? oppsResponse.data : [];
@@ -19,23 +19,32 @@ export const useDashboardData = (period: 'monthly' | 'yearly') => {
             const completedTasks = tasksList.filter(t => t.completed).length;
             const pendingTasks = tasksList.filter(t => !t.completed).length;
 
+            const closedStatuses = new Set(['ganado', 'ganada', 'perdido', 'perdida']);
+            const activeOpportunities = opps.filter(o => !closedStatuses.has(o.status)).length;
+
+            const sortedOpps = [...opps].sort((a, b) => {
+                const da = a.created_at ? new Date(a.created_at).getTime() : 0;
+                const db = b.created_at ? new Date(b.created_at).getTime() : 0;
+                return db - da;
+            });
+
             const recentActivity = [
-                ...opps.slice(0, 3).map(o => ({
+                ...sortedOpps.slice(0, 3).map(o => ({
                     id: `opp-${o.id}`,
                     type: 'sale' as const,
-                    title: (o.status === 'ganado' || o.status === 'ganada') ? 'Sale Closed' : 'New Opportunity',
-                    description: `${o.client_name || 'Prospect'} - ${o.product}`,
-                    time: 'Recent',
+                    title: (o.status === 'ganado' || o.status === 'ganada') ? 'Venta cerrada' : 'Nueva oportunidad',
+                    description: `${o.client_name || 'Prospecto'} - ${o.product}`,
+                    time: 'Reciente',
                     amount: Number(o.amount)
                 })),
                 ...tasksList.slice(0, 2).map(t => ({
                     id: `task-${t.id}`,
                     type: t.completed ? 'task-done' as const : 'task-new' as const,
-                    title: t.completed ? 'Task Finalized' : 'New Task Assigned',
+                    title: t.completed ? 'Tarea finalizada' : 'Nueva tarea asignada',
                     description: t.title,
-                    time: 'Today'
+                    time: 'Hoy'
                 }))
-            ].sort(() => Math.random() - 0.5);
+            ];
 
             const prediction = await predictFutureSales(opps.map(o => ({
                 amount: Number(o.amount),
@@ -47,7 +56,7 @@ export const useDashboardData = (period: 'monthly' | 'yearly') => {
                 rawTasks: tasksList,
                 stats: {
                     totalSales: backendMetrics?.totalSales || 0,
-                    activeOpportunities: opps.filter(o => o.status === 'pendiente').length,
+                    activeOpportunities,
                     completedTasks,
                     pendingTasks,
                     recentActivity,
@@ -56,7 +65,10 @@ export const useDashboardData = (period: 'monthly' | 'yearly') => {
                     chartData: backendMetrics?.chartData || []
                 },
                 forecast: prediction,
-                isCached: !!backendMetrics?._cached
+                isCached: !!backendMetrics?.cached,
+                degraded: !!backendMetrics?.degraded,
+                message: backendMetrics?.message,
+                lastUpdated: backendMetrics?.timestamp
             };
         },
     });

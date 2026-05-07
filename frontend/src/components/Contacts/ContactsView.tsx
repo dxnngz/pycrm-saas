@@ -10,9 +10,7 @@ import {
     Sparkles,
     Loader2,
     FileDown,
-    Edit2,
-    ChevronLeft,
-    ChevronRight
+    Edit2
 } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import { streamClientBrief } from '../../services/ai';
@@ -37,7 +35,6 @@ const ContactsView = () => {
     const { user } = useAuth();
     const [search, setSearch] = useState('');
     const [debouncedSearch, setDebouncedSearch] = useState('');
-    const [page, setPage] = useState(1);
     const [seeding, setSeeding] = useState(false);
 
     useEffect(() => {
@@ -47,11 +44,7 @@ const ContactsView = () => {
         return () => clearTimeout(timer);
     }, [search]);
 
-    useEffect(() => {
-        setPage(1);
-    }, [debouncedSearch]);
-
-    const { clients, loading, pagination, loadClients, createClient, updateClient, deleteClient } = useClients(page, 10, debouncedSearch);
+    const { clients, loading, pagination, loadClients, loadMore, isLoadingMore, createClient, updateClient, deleteClient } = useClients(10, debouncedSearch);
     const { canCreateClient, canDeleteClient } = usePermissions();
 
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -174,11 +167,7 @@ const ContactsView = () => {
             await deleteClient(clientToDelete);
             setIsDeleteModalOpen(false);
             setClientToDelete(null);
-            if (clients && clients.length === 1 && pagination.page > 1) {
-                setPage(pagination.page - 1);
-            } else {
-                loadClients();
-            }
+            loadClients();
         } catch (error: unknown) {
             console.error(error);
             toast.error('No se pudo eliminar el cliente. Inténtalo de nuevo.');
@@ -408,41 +397,11 @@ const ContactsView = () => {
                     <p className="text-xs text-surface-muted">
                         Mostrando <span className="font-medium text-surface-text">{clients.length}</span> de <span className="font-medium text-surface-text">{pagination.total}</span> registros
                     </p>
-                    <div className="flex items-center gap-2">
-                        <Button
-                            variant="outline"
-                            size="sm"
-                            disabled={pagination.page === 1}
-                            onClick={() => setPage(pagination.page - 1)}
-                        >
-                            <ChevronLeft size={14} className="mr-1" />
-                            Anterior
+                    {pagination.hasMore && (
+                        <Button variant="outline" size="sm" onClick={() => loadMore()} isLoading={isLoadingMore}>
+                            Cargar más
                         </Button>
-                        <div className="flex items-center gap-1">
-                            {Array.from({ length: Math.min(pagination.totalPages, 5) }, (_, i) => i + 1).map((p) => (
-                                <button
-                                    key={p}
-                                    onClick={() => setPage(p)}
-                                    className={`w-8 h-8 rounded text-xs font-medium transition-colors ${pagination.page === p
-                                        ? 'bg-surface-text text-surface-bg'
-                                        : 'text-surface-muted hover:bg-surface-hover'
-                                        }`}
-                                >
-                                    {p}
-                                </button>
-                            ))}
-                        </div>
-                        <Button
-                            variant="outline"
-                            size="sm"
-                            disabled={pagination.page === pagination.totalPages}
-                            onClick={() => setPage(pagination.page + 1)}
-                        >
-                            <span className="flex items-center gap-1">
-                                Siguiente <ChevronRight size={14} />
-                            </span>
-                        </Button>
-                    </div>
+                    )}
                 </div>
             )}
 

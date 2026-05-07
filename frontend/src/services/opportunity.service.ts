@@ -1,11 +1,27 @@
 import { customFetch, getHeaders, handleResponse } from './apiClient';
 import type { Opportunity, PaginatedResponse } from '../types';
 
+export interface OpportunitySummary {
+    total: number;
+    byStatus: { pendiente: number; ganado: number; perdido: number };
+    amountByStatus: { pendiente: number; ganado: number; perdido: number };
+}
+
 export const opportunityService = {
-    getAll: (page: number = 1, limit: number = 10, search: string = ''): Promise<PaginatedResponse<Opportunity>> =>
-        customFetch(`/opportunities?page=${page}&limit=${limit}&search=${encodeURIComponent(search)}`, {
+    getAll: (options: { limit?: number; search?: string; cursor?: number } = {}): Promise<PaginatedResponse<Opportunity> & { nextCursor?: number | null; hasMore?: boolean }> => {
+        const limit = options.limit ?? 10;
+        const search = options.search ?? '';
+        const cursor = options.cursor;
+        const cursorParam = cursor ? `&cursor=${cursor}` : '';
+
+        return customFetch(`/opportunities?limit=${limit}&search=${encodeURIComponent(search)}${cursorParam}`, {
             headers: getHeaders()
-        }).then(handleResponse),
+        }).then(handleResponse);
+    },
+
+    getSummary: (search: string = ''): Promise<OpportunitySummary> =>
+        customFetch(`/opportunities/summary?search=${encodeURIComponent(search)}`, { headers: getHeaders() })
+            .then(handleResponse),
 
     create: (opportunity: Partial<Opportunity>): Promise<Opportunity> =>
         customFetch('/opportunities', {

@@ -15,7 +15,7 @@ export const initCacheSubscriber = () => {
         if (payload.tenantId) {
             await redisCache.invalidateTenantCache(payload.tenantId, 'opportunities');
             // Dashboard also depends on opportunities
-            await redisCache.invalidateTenantCache(payload.tenantId, 'dashboard');
+            await redisCache.invalidate(`dashboard:metrics:${payload.tenantId}:*`);
             console.info(`[CacheSubscriber] Invalidated opportunity/dashboard cache for tenant ${payload.tenantId}`);
         }
     });
@@ -23,7 +23,7 @@ export const initCacheSubscriber = () => {
     // Dashboard-specific (if any other events trigger it)
     events.on('workflow:dashboard_refresh', async (payload: { tenantId: number }) => {
         if (payload.tenantId) {
-            await redisCache.invalidateTenantCache(payload.tenantId, 'dashboard');
+            await redisCache.invalidate(`dashboard:metrics:${payload.tenantId}:*`);
         }
     });
 

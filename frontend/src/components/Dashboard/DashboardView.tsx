@@ -1,4 +1,4 @@
-import { useState, lazy, Suspense } from 'react';
+import { useEffect, useState, lazy, Suspense } from 'react';
 import {
     Download,
     RefreshCw,
@@ -55,10 +55,15 @@ const DashboardSkeleton = () => (
 
 const DashboardView = () => {
     const [period, setPeriod] = useState<'monthly' | 'yearly'>('monthly');
+    const [refreshNonce, setRefreshNonce] = useState(0);
     const [seeding, setSeeding] = useState(false);
     const { user } = useAuth();
 
-    const { data, isLoading: loading, isFetching, refetch } = useDashboardData(period);
+    useEffect(() => {
+        setRefreshNonce(0);
+    }, [period]);
+
+    const { data, isLoading: loading, isFetching } = useDashboardData(period, refreshNonce);
 
     const stats = data?.stats || {
         totalSales: 0,
@@ -70,6 +75,8 @@ const DashboardView = () => {
         chartData: []
     };
     const isCached = !isFetching && data?.isCached;
+    const degraded = !!data?.degraded;
+    const lastUpdated = data?.lastUpdated ? new Date(data.lastUpdated).toLocaleString('es-ES') : null;
     const isEmpty =
         stats.totalSales === 0 &&
         stats.activeOpportunities === 0 &&
@@ -91,7 +98,7 @@ const DashboardView = () => {
         try {
             const res = await demoService.seed();
             toast.success(res.message || 'Datos de demostración creados');
-            await refetch();
+            setRefreshNonce((n) => n + 1);
         } catch (e: unknown) {
             const msg = e instanceof Error ? e.message : 'No se pudieron crear los datos de demostración';
             toast.error(msg);
@@ -112,22 +119,22 @@ const DashboardView = () => {
                         Panel Ejecutivo
                     </h1>
                     <p className="text-xs text-surface-muted">
-                        Control operativo y analítica comercial en tiempo real.
+                        Control operativo y analítica comercial en tiempo real{lastUpdated ? ` · Actualizado: ${lastUpdated}` : ''}.
                     </p>
                 </div>
 
                 <div className="flex items-center gap-3">
                     <Tabs
                         tabs={[
-                            { id: 'monthly', label: 'Mensual' },
-                            { id: 'yearly', label: 'Anual' }
+                            { id: 'monthly', label: '6 meses' },
+                            { id: 'yearly', label: 'Año' }
                         ]}
                         activeTab={period}
                         onChange={(id: string) => setPeriod(id as 'monthly' | 'yearly')}
                     />
 
                     <button
-                        onClick={() => refetch()}
+                        onClick={() => setRefreshNonce((n) => n + 1)}
                         disabled={isFetching}
                         className="p-2 border border-surface-border rounded-md hover:bg-surface-hover transition-all text-surface-muted disabled:opacity-50"
                         title="Actualizar"
@@ -144,8 +151,14 @@ const DashboardView = () => {
 
             {/* Core Stats */}
             <Suspense fallback={<Skeleton className="h-28 w-full rounded-xl" />}>
-                <StatsGrid stats={stats} />
+                <StatsGrid stats={stats} period={period} />
             </Suspense>
+
+            {degraded && (
+                <Alert variant="warning" title="Datos temporales">
+                    {data?.message || 'Algunas métricas pueden estar desactualizadas. Usa “Actualizar” para forzar un recálculo.'}
+                </Alert>
+            )}
 
             {isEmpty && (
                 <div className="flex items-start justify-between gap-4">

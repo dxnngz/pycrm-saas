@@ -2,10 +2,15 @@ import { customFetch, getHeaders, handleResponse } from './apiClient';
 import type { Client, PaginatedResponse } from '../types';
 
 export const clientService = {
-    getAll: (page: number = 1, limit: number = 10, search: string = ''): Promise<PaginatedResponse<Client>> =>
-        customFetch(`/clients?page=${page}&limit=${limit}&search=${encodeURIComponent(search)}`, {
+    getAll: (options: { limit?: number; search?: string; cursor?: number } = {}): Promise<PaginatedResponse<Client> & { nextCursor?: number | null; hasMore?: boolean }> => {
+        const limit = options.limit ?? 10;
+        const search = options.search ?? '';
+        const cursor = options.cursor;
+        const cursorParam = cursor ? `&cursor=${cursor}` : '';
+        return customFetch(`/clients?limit=${limit}&search=${encodeURIComponent(search)}${cursorParam}`, {
             headers: getHeaders()
-        }).then(handleResponse),
+        }).then(handleResponse);
+    },
 
     create: (client: Partial<Client>): Promise<Client> =>
         customFetch('/clients', {

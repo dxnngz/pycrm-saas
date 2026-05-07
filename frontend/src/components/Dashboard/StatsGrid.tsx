@@ -4,6 +4,7 @@ import StatCard from './StatCard';
 import { formatMoney } from '../../utils/format';
 
 interface StatsGridProps {
+    period?: 'monthly' | 'yearly';
     stats: {
         totalSales: number;
         activeOpportunities: number;
@@ -12,39 +13,32 @@ interface StatsGridProps {
     };
 }
 
-export const StatsGrid: React.FC<StatsGridProps> = ({ stats }) => {
+export const StatsGrid: React.FC<StatsGridProps> = ({ stats, period = 'monthly' }) => {
+    const salesTitle = period === 'yearly' ? 'Ventas del año' : 'Ventas (6 meses)';
     return (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             <StatCard
-                title="Ventas totales"
+                title={salesTitle}
                 value={formatMoney(stats.totalSales, { maximumFractionDigits: 0 })}
                 icon={<DollarSign size={20} />}
-                trend="+12.5%"
-                trendUp={true}
                 color="primary"
             />
             <StatCard
                 title="Oportunidades activas"
                 value={stats.activeOpportunities.toString()}
                 icon={<Target size={20} />}
-                trend="+3 nuevas"
-                trendUp={true}
                 color="indigo"
             />
             <StatCard
                 title="Tasa de cierre"
                 value={`${Number(stats.winRate).toFixed(1)}%`}
                 icon={<TrendingUp size={20} />}
-                trend="-2.4%"
-                trendUp={false}
                 color="emerald"
             />
             <StatCard
                 title="Tareas pendientes"
                 value={stats.pendingTasks.toString()}
                 icon={<Activity size={20} />}
-                trend="Normal"
-                trendUp={true}
                 color="amber"
             />
         </div>

@@ -14,6 +14,7 @@ import {
 } from 'lucide-react';
 import { getOpportunityScore } from '../../services/ai';
 import { useOpportunities } from '../../hooks/useOpportunities';
+import { useOpportunitySummary } from '../../hooks/useOpportunitySummary';
 import { useClients } from '../../hooks/useClients';
 import { usePermissions } from '../../hooks/usePermissions';
 import type { Opportunity } from '../../types';
@@ -101,20 +102,19 @@ const OpportunityCard = memo(({
 OpportunityCard.displayName = 'OpportunityCard';
 
 const PipelineView = () => {
-    const [page, setPage] = useState(1);
     const [search, setSearch] = useState('');
     const [debouncedSearch, setDebouncedSearch] = useState('');
 
     useEffect(() => {
         const timer = setTimeout(() => {
             setDebouncedSearch(search);
-            setPage(1);
         }, 300);
         return () => clearTimeout(timer);
     }, [search]);
 
-    const { opportunities, loading: oppsLoading, pagination, loadOpportunities, createOpportunity, updateOpportunityStatus } = useOpportunities(page, 50, debouncedSearch);
-    const { clients, loading: clientsLoading } = useClients(1, 100);
+    const { opportunities, loading: oppsLoading, pagination, loadMore, isLoadingMore, createOpportunity, updateOpportunityStatus } = useOpportunities(50, debouncedSearch);
+    const { data: summaryData } = useOpportunitySummary(debouncedSearch);
+    const { clients, loading: clientsLoading } = useClients(100);
     const { canCreateOpportunity } = usePermissions();
     const loading = oppsLoading || clientsLoading;
 
@@ -148,6 +148,8 @@ const PipelineView = () => {
     });
 
     const safeOpportunities = filteredOpportunities;
+    const totalMatches = summaryData?.total ?? pagination.total ?? safeOpportunities.length;
+    const summaryByStatus = summaryData?.byStatus ?? { pendiente: 0, ganado: 0, perdido: 0 };
 
     useEffect(() => {
         const fetchScores = async () => {
@@ -223,7 +225,6 @@ const PipelineView = () => {
             setProduct('');
             setAmount('');
             setStatus('pendiente');
-            loadOpportunities(pagination.page, pagination.limit, search);
         } catch (error: unknown) {
             console.error(error);
             toast.error('No se pudo crear la oportunidad. Inténtalo de nuevo.');
@@ -300,7 +301,7 @@ const PipelineView = () => {
                                     <div className={`w-2 h-2 rounded-full ${column.color}`}></div>
                                     <h3 className="font-bold text-surface-muted uppercase text-[10px] tracking-wider">{column.title}</h3>
                                     <Badge variant="secondary">
-                                        {safeOpportunities.filter(o => o.status === column.id).length}
+                                        {summaryByStatus[column.id]}
                                     </Badge>
                                 </div>
                                 <button className="text-surface-muted hover:text-surface-text transition-colors">
@@ -379,6 +380,17 @@ const PipelineView = () => {
                     ))}
                 </div>
             </DragDropContext>
+
+            <div className="flex items-center justify-between gap-3">
+                <div className="text-xs text-surface-muted">
+                    Mostrando {safeOpportunities.length} de {totalMatches}
+                </div>
+                {pagination.hasMore && (
+                    <Button variant="outline" size="sm" onClick={() => loadMore()} isLoading={isLoadingMore}>
+                        Cargar más
+                    </Button>
+                )}
+            </div>
 
             {/* Creation Modal */}
             <Modal

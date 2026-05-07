@@ -18,6 +18,17 @@ export const getOpportunities = asyncHandler(async (req: Request, res: Response)
     res.json(opportunities);
 });
 
+export const getOpportunitySummary = asyncHandler(async (req: Request, res: Response) => {
+    const { search } = req.query as any;
+    const user = req.user!;
+
+    const summary = await opportunityService.getOpportunitySummary(user.tenantId, {
+        search: (search as string) || ''
+    });
+
+    res.json(summary);
+});
+
 export const createOpportunity = asyncHandler(async (req: Request, res: Response) => {
     const tenantId = req.user!.tenantId;
     const userId = req.user!.userId;

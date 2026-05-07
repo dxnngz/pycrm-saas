@@ -28,6 +28,12 @@ export const getOpportunitiesSchema = z.object({
     })
 });
 
+export const getOpportunitySummarySchema = z.object({
+    query: z.object({
+        search: z.string().optional().default(''),
+    })
+});
+
 export const opportunityIdSchema = z.object({
     params: z.object({
         id: z.string().regex(/^\d+$/, 'ID debe ser un número').transform(Number)
