@@ -37,9 +37,9 @@ export const ForgotForm: React.FC<ForgotFormProps> = ({ onSubmit, isLoading, onB
     return (
         <form onSubmit={handleSubmit} className="space-y-4">
             <Input
-                label="Email"
+                label="Correo"
                 type="email"
-                placeholder="name@company.com"
+                placeholder="nombre@empresa.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required

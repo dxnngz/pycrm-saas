@@ -20,7 +20,7 @@ export const Spinner: React.FC<SpinnerProps> = ({ size = 'md', className = '' })
                 ${className}
             `}
             role="status"
-            aria-label="loading"
+            aria-label="cargando"
         />
     );
 };

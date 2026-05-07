@@ -20,7 +20,7 @@ const RecentActivity = ({ activities }: RecentActivityProps) => {
         <div className="bg-surface-card rounded-lg border border-surface-border shadow-sm h-full flex flex-col overflow-hidden">
             <div className="flex items-center justify-between p-4 border-b border-surface-border bg-surface-muted-bg/50">
                 <h3 className="text-[11px] font-bold text-surface-text uppercase tracking-wider flex items-center gap-2">
-                    <History size={14} className="text-primary-600 dark:text-primary-400" />
+                    <History size={14} className="text-primary-600" />
                     Actividad
                 </h3>
                 <Badge variant="success" className="animate-pulse">En vivo</Badge>
@@ -36,7 +36,7 @@ const RecentActivity = ({ activities }: RecentActivityProps) => {
                     <div key={activity.id} className="p-3 hover:bg-surface-hover transition-colors flex gap-3 group">
                         <div className={`h-8 w-8 shrink-0 rounded flex items-center justify-center border ${activity.type === 'sale'
                                 ? 'bg-success-bg text-success-icon border-success-border'
-                                : 'bg-primary-50 text-primary-600 border-primary-100 dark:bg-primary-500/10 dark:text-primary-400 dark:border-primary-500/20'
+                                : 'bg-primary-500/10 text-primary-600 border-primary-500/20'
                             }`}>
                             {activity.type === 'sale' ? <ArrowUpRight size={14} /> : <CheckSquare size={14} />}
                         </div>

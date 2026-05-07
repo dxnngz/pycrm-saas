@@ -58,7 +58,7 @@ export const generatePipelineReport = (opportunities: Opportunity[]) => {
         doc.setPage(i);
         doc.setFontSize(8);
         doc.setTextColor(150);
-        doc.text(`Página ${i} de ${pageCount} - PyCRM Enterprise Solution`, 14, doc.internal.pageSize.height - 10);
+        doc.text(`Página ${i} de ${pageCount} - PyCRM Solución Enterprise`, 14, doc.internal.pageSize.height - 10);
     }
 
     doc.save(`PyCRM_Pipeline_Report_${date.replace(/\//g, '-')}.pdf`);
@@ -81,7 +81,7 @@ export const generateClientReport = (clients: Client[]) => {
 
     autoTable(doc, {
         startY: 40,
-        head: [['Nombre', 'Empresa', 'Email', 'Teléfono']],
+        head: [['Nombre', 'Empresa', 'Correo', 'Teléfono']],
         body: tableData,
         headStyles: { fillColor: [15, 23, 42], textColor: [255, 255, 255] },
         styles: { fontSize: 10 },

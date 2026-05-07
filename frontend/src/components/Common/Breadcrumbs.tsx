@@ -1,4 +1,5 @@
 import { ChevronRight, Home } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 interface BreadcrumbItem {
     label: string;
@@ -10,12 +11,18 @@ interface BreadcrumbsProps {
 }
 
 export const Breadcrumbs = ({ items }: BreadcrumbsProps) => {
+    const navigate = useNavigate();
     return (
         <nav className="flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] text-surface-muted">
-            <div className="flex items-center gap-2 hover:text-primary-500 cursor-pointer transition-colors group">
+            <button
+                type="button"
+                onClick={() => navigate('/')}
+                aria-label="Ir al portal"
+                className="flex items-center gap-2 hover:text-primary-500 cursor-pointer transition-colors group"
+            >
                 <Home size={12} className="group-hover:scale-110 transition-transform" />
                 <span className="hidden sm:inline">Portal</span>
-            </div>
+            </button>
 
             {items.map((item, index) => (
                 <div key={index} className="flex items-center gap-2">

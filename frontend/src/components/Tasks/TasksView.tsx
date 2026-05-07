@@ -147,7 +147,7 @@ const TasksView = () => {
             {/* Stats Header */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 shrink-0">
                 <div className="bg-surface-card p-4 rounded-lg border border-surface-border flex items-center gap-4">
-                    <div className="w-10 h-10 bg-primary-50 dark:bg-primary-500/10 text-primary-600 dark:text-primary-400 rounded-md flex items-center justify-center">
+                    <div className="w-10 h-10 bg-primary-500/10 text-primary-600 rounded-md flex items-center justify-center">
                         <Clock size={20} />
                     </div>
                     <div>

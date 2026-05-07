@@ -48,7 +48,7 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
                             ${icon ? 'pl-12' : 'pl-4'} pr-12 pt-6 pb-2
                             ${error
                                 ? 'border-danger-border focus:border-danger-border'
-                                : 'border-surface-border focus:border-primary-500 dark:focus:border-primary-500'
+                                : 'border-surface-border focus:border-primary-500'
                             }
                             placeholder-transparent font-medium text-surface-text
                             ${className}

@@ -136,4 +136,23 @@ body {
   .glass-card {
     @apply bg-surface-card/80 backdrop-blur-md border border-surface-border shadow-sm;
   }
+
+  .prose-surface {
+    --tw-prose-body: var(--color-surface-text);
+    --tw-prose-headings: var(--color-surface-text);
+    --tw-prose-lead: var(--color-surface-text);
+    --tw-prose-links: var(--color-primary-500);
+    --tw-prose-bold: var(--color-surface-text);
+    --tw-prose-counters: var(--color-surface-muted);
+    --tw-prose-bullets: var(--color-surface-muted);
+    --tw-prose-hr: var(--color-surface-border);
+    --tw-prose-quotes: var(--color-surface-text);
+    --tw-prose-quote-borders: var(--color-surface-border);
+    --tw-prose-captions: var(--color-surface-muted);
+    --tw-prose-code: var(--color-surface-text);
+    --tw-prose-pre-code: var(--color-surface-text);
+    --tw-prose-pre-bg: var(--color-surface-muted-bg);
+    --tw-prose-th-borders: var(--color-surface-border);
+    --tw-prose-td-borders: var(--color-surface-border);
+  }
 }

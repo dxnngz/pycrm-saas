@@ -100,89 +100,6 @@ const OpportunityCard = memo(({
 
 OpportunityCard.displayName = 'OpportunityCard';
 
-import { useVirtualizer } from '@tanstack/react-virtual';
-
-const VirtualColumnBody = ({
-    opps,
-    provided,
-    snapshot,
-    scores,
-    canCreateOpportunity,
-    handleUpdateStatus
-}: {
-    opps: Opportunity[],
-    provided: unknown,
-    snapshot: unknown,
-    scores: Record<number, { score: number; classification: string }>,
-    canCreateOpportunity: boolean,
-    handleUpdateStatus: (id: number, status: 'pendiente' | 'ganado' | 'perdido') => void
-}) => {
-    const parentRef = React.useRef<HTMLDivElement>(null);
-
-    const rowVirtualizer = useVirtualizer({
-        count: opps.length,
-        getScrollElement: () => parentRef.current,
-        estimateSize: () => 160, // Estimated height of OpportunityCard
-        overscan: 5,
-    });
-
-    const p = provided as Record<string, unknown>;
-    const s = snapshot as Record<string, unknown>;
-
-    return (
-        <div
-            ref={(el) => {
-                (p.innerRef as (el: HTMLElement | null) => void)(el);
-                (parentRef as React.MutableRefObject<HTMLDivElement | null>).current = el;
-            }}
-            {...(p.droppableProps as Record<string, unknown>)}
-            className={`flex-1 overflow-y-auto custom-scrollbar p-3 rounded-lg border transition-colors min-h-[400px] ${(s.isDraggingOver as boolean) ? 'bg-surface-hover border-primary-500/30' : 'bg-surface-muted-bg/30 border-surface-border'}`}
-        >
-            <div
-                style={{
-                    height: `${rowVirtualizer.getTotalSize()}px`,
-                    width: '100%',
-                    position: 'relative',
-                }}
-            >
-                {rowVirtualizer.getVirtualItems().map((virtualRow) => {
-                    const opp = opps[virtualRow.index];
-                    return (
-                        <div
-                            key={opp.id}
-                            className="absolute top-0 left-0 w-full"
-                            style={{
-                                height: `${virtualRow.size}px`,
-                                transform: `translateY(${virtualRow.start}px)`,
-                            }}
-                        >
-                            <Draggable draggableId={`opp-${opp.id}`} index={virtualRow.index} isDragDisabled={!canCreateOpportunity}>
-                                {(draggableProvided, draggableSnapshot) => (
-                                    <div
-                                        ref={draggableProvided.innerRef}
-                                        {...draggableProvided.draggableProps}
-                                        {...draggableProvided.dragHandleProps}
-                                        style={{ ...draggableProvided.draggableProps.style, opacity: draggableSnapshot.isDragging ? 0.8 : 1 }}
-                                        className="mb-3"
-                                    >
-                                        <OpportunityCard
-                                            opp={opp}
-                                            scores={scores}
-                                            canEditOpportunity={canCreateOpportunity}
-                                            onUpdateStatus={handleUpdateStatus}
-                                        />
-                                    </div>
-                                )}
-                            </Draggable>
-                        </div>
-                    );
-                })}
-            </div>
-            {p.placeholder as React.ReactNode}
-        </div>
-    );
-};
-
 const PipelineView = () => {
     const [page, setPage] = useState(1);
     const [search, setSearch] = useState('');
@@ -273,12 +190,19 @@ const PipelineView = () => {
 
         if (!destination) return;
 
-        if (destination.droppableId === source.droppableId && destination.index === source.index) {
+        if (destination.droppableId === source.droppableId) {
             return;
         }
 
-        const opportunityId = parseInt(draggableId.replace('opp-', ''), 10);
-        const newStatus = destination.droppableId as 'pendiente' | 'ganado' | 'perdido';
+        const match = /^opp-(\d+)$/.exec(draggableId);
+        const opportunityId = match ? Number(match[1]) : NaN;
+        if (!Number.isFinite(opportunityId)) return;
+
+        if (destination.droppableId !== 'pendiente' && destination.droppableId !== 'ganado' && destination.droppableId !== 'perdido') {
+            return;
+        }
+
+        const newStatus = destination.droppableId;
 
         handleUpdateStatus(opportunityId, newStatus);
     }, [handleUpdateStatus]);
@@ -413,14 +337,41 @@ const PipelineView = () => {
                                     }
 
                                     return (
-                                        <VirtualColumnBody
-                                            opps={columnOpps}
-                                            provided={provided}
-                                            snapshot={snapshot}
-                                            scores={scores}
-                                            canCreateOpportunity={canCreateOpportunity}
-                                            handleUpdateStatus={handleUpdateStatus}
-                                        />
+                                        <div
+                                            ref={provided.innerRef}
+                                            {...provided.droppableProps}
+                                            className={`flex-1 overflow-y-auto custom-scrollbar p-3 rounded-lg border transition-colors min-h-[400px] ${snapshot.isDraggingOver ? 'bg-surface-hover border-primary-500/30' : 'bg-surface-muted-bg/30 border-surface-border'}`}
+                                        >
+                                            {columnOpps.map((opp, index) => (
+                                                <Draggable
+                                                    key={opp.id}
+                                                    draggableId={`opp-${opp.id}`}
+                                                    index={index}
+                                                    isDragDisabled={!canCreateOpportunity}
+                                                >
+                                                    {(draggableProvided, draggableSnapshot) => (
+                                                        <div
+                                                            ref={draggableProvided.innerRef}
+                                                            {...draggableProvided.draggableProps}
+                                                            {...draggableProvided.dragHandleProps}
+                                                            style={{
+                                                                ...draggableProvided.draggableProps.style,
+                                                                opacity: draggableSnapshot.isDragging ? 0.8 : 1
+                                                            }}
+                                                            className="mb-3"
+                                                        >
+                                                            <OpportunityCard
+                                                                opp={opp}
+                                                                scores={scores}
+                                                                canEditOpportunity={canCreateOpportunity}
+                                                                onUpdateStatus={handleUpdateStatus}
+                                                            />
+                                                        </div>
+                                                    )}
+                                                </Draggable>
+                                            ))}
+                                            {provided.placeholder}
+                                        </div>
                                     );
                                 }}
                             </Droppable>

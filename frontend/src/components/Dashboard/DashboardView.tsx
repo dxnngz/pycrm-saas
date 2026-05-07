@@ -16,15 +16,13 @@ import { Alert } from '../UI/Alert';
 // Dashboard Components (Lazy Loaded)
 const SalesChart = lazy(() => import('./SalesChart'));
 const RecentActivity = lazy(() => import('./RecentActivity'));
-
-import ExecutiveBriefing from './ExecutiveBriefing';
-import SmartAlerts from './SmartAlerts';
-import { StatsGrid } from './StatsGrid';
-import { PerformanceList } from './PerformanceList';
+const SmartAlerts = lazy(() => import('./SmartAlerts'));
+const ExecutiveBriefing = lazy(() => import('./ExecutiveBriefing'));
+const StatsGrid = lazy(() => import('./StatsGrid'));
+const PerformanceList = lazy(() => import('./PerformanceList'));
 
 // Logic & Utilities
 import { useDashboardData } from '../../hooks/useDashboardData';
-import { generatePipelineReport } from '../../services/reportService';
 import { demoService } from '../../services/demo.service';
 import { toast } from 'sonner';
 import { useAuth } from '../../context/AuthContext';
@@ -81,8 +79,9 @@ const DashboardView = () => {
         (stats.repPerformance?.length || 0) === 0 &&
         (stats.chartData?.length || 0) === 0;
 
-    const handleExport = () => {
+    const handleExport = async () => {
         if (data?.rawOpps) {
+            const { generatePipelineReport } = await import('../../services/reportService');
             generatePipelineReport(data.rawOpps);
         }
     };
@@ -91,10 +90,10 @@ const DashboardView = () => {
         setSeeding(true);
         try {
             const res = await demoService.seed();
-            toast.success(res.message || 'Demo data generated');
+            toast.success(res.message || 'Datos de demostración creados');
             await refetch();
         } catch (e: unknown) {
-            const msg = e instanceof Error ? e.message : 'Could not generate demo data';
+            const msg = e instanceof Error ? e.message : 'No se pudieron crear los datos de demostración';
             toast.error(msg);
         } finally {
             setSeeding(false);
@@ -109,8 +108,8 @@ const DashboardView = () => {
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div className="space-y-1">
                     <h1 className="text-xl font-bold tracking-tight text-surface-text flex items-center gap-2">
-                        <LayoutDashboard size={20} className="text-primary-600 dark:text-primary-400" />
-                        Dashboard Ejecutivo
+                        <LayoutDashboard size={20} className="text-primary-600" />
+                        Panel Ejecutivo
                     </h1>
                     <p className="text-xs text-surface-muted">
                         Control operativo y analítica comercial en tiempo real.
@@ -144,7 +143,9 @@ const DashboardView = () => {
             </div>
 
             {/* Core Stats */}
-            <StatsGrid stats={stats} />
+            <Suspense fallback={<Skeleton className="h-28 w-full rounded-xl" />}>
+                <StatsGrid stats={stats} />
+            </Suspense>
 
             {isEmpty && (
                 <div className="flex items-start justify-between gap-4">
@@ -180,8 +181,12 @@ const DashboardView = () => {
                     </div>
                 </Card>
                 <div className="lg:col-span-1 space-y-6">
-                    <SmartAlerts />
-                    <ExecutiveBriefing />
+                    <Suspense fallback={<Skeleton className="h-28 w-full rounded-xl" />}>
+                        <SmartAlerts />
+                    </Suspense>
+                    <Suspense fallback={<Skeleton className="h-[400px] w-full rounded-xl" />}>
+                        <ExecutiveBriefing />
+                    </Suspense>
                 </div>
             </div>
 
@@ -190,7 +195,9 @@ const DashboardView = () => {
                 <Suspense fallback={<Skeleton className="h-[400px] w-full rounded-lg" />}>
                     <RecentActivity activities={stats.recentActivity} />
                 </Suspense>
-                <PerformanceList performance={stats.repPerformance} />
+                <Suspense fallback={<Skeleton className="h-[400px] w-full rounded-lg" />}>
+                    <PerformanceList performance={stats.repPerformance} />
+                </Suspense>
             </div>
         </div>
     );

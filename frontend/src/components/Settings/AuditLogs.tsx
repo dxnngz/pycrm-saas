@@ -98,7 +98,7 @@ export const AuditLogs = () => {
                                 </td>
                                 <td className="px-4 py-4">
                                     <div className="flex items-center gap-2">
-                                        <div className="w-6 h-6 rounded bg-primary-100 dark:bg-primary-900/30 flex items-center justify-center text-[10px] font-bold text-primary-600">
+                                        <div className="w-6 h-6 rounded bg-primary-500/10 border border-primary-500/20 flex items-center justify-center text-[10px] font-bold text-primary-600">
                                             {log.user?.name?.charAt(0) || <User size={10} />}
                                         </div>
                                         <span className="text-xs text-surface-text font-medium">
@@ -123,13 +123,13 @@ export const AuditLogs = () => {
                 </table>
             </div>
 
-            <div className="p-4 rounded-xl bg-primary-50 dark:bg-primary-900/10 border border-primary-100/50 dark:border-primary-800/30 flex items-start gap-4">
-                <div className="p-2 rounded-lg bg-primary-100 dark:bg-primary-900/40 text-primary-600">
+            <div className="p-4 rounded-xl bg-info-bg border border-info-border flex items-start gap-4">
+                <div className="p-2 rounded-lg bg-surface-card border border-info-border text-info-icon">
                     <Info size={16} />
                 </div>
                 <div>
-                    <h5 className="text-[10px] font-black text-primary-700 dark:text-primary-400 uppercase tracking-widest">Cumplimiento</h5>
-                    <p className="text-[11px] text-primary-900/70 dark:text-primary-100/60 mt-0.5 leading-relaxed">
+                    <h5 className="text-[10px] font-black text-info-text uppercase tracking-widest">Cumplimiento</h5>
+                    <p className="text-[11px] text-surface-text/70 mt-0.5 leading-relaxed">
                         Estos registros se almacenan de forma segura y sirven para trazabilidad administrativa. Útiles para auditorías y control interno.
                     </p>
                 </div>

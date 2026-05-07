@@ -67,7 +67,7 @@ const UsersView = () => {
             ),
         },
         {
-            header: 'Email',
+            header: 'Correo',
             accessor: 'email',
             className: 'text-surface-muted',
         },

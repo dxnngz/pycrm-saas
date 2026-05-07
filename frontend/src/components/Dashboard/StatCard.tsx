@@ -13,7 +13,7 @@ interface StatCardProps {
 
 const StatCard: React.FC<StatCardProps> = ({ title, value, icon, trend, trendUp, color = 'primary' }) => {
     const colorClasses: Record<string, string> = {
-        primary: 'bg-primary-500/10 text-primary-600 dark:text-primary-400',
+        primary: 'bg-primary-500/10 text-primary-600',
         indigo: 'bg-info-bg text-info-icon',
         emerald: 'bg-success-bg text-success-icon',
         amber: 'bg-warning-bg text-warning-icon',

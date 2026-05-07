@@ -59,10 +59,10 @@ const SmartAlerts: React.FC = () => {
                             transition={{ delay: idx * 0.1 }}
                             className={`p-3 rounded-lg border flex gap-3 transition-all hover:bg-surface-hover ${alert.type === 'WARNING'
                                 ? 'bg-danger-bg border-danger-border'
-                                : 'bg-primary-50/30 dark:bg-primary-900/10 border-primary-100 dark:border-primary-900/30'
+                                : 'bg-primary-500/10 border-primary-500/20'
                                 }`}
                         >
-                            <div className={`mt-0.5 w-7 h-7 rounded-md flex items-center justify-center flex-shrink-0 ${alert.type === 'WARNING' ? 'bg-danger-bg text-danger-icon' : 'bg-primary-100 dark:bg-primary-900/30 text-primary-600'
+                            <div className={`mt-0.5 w-7 h-7 rounded-md flex items-center justify-center flex-shrink-0 ${alert.type === 'WARNING' ? 'bg-danger-bg text-danger-icon' : 'bg-primary-500/10 border border-primary-500/20 text-primary-600'
                                 }`}>
                                 {alert.type === 'WARNING' ? <AlertCircle size={14} /> : <Lightbulb size={14} />}
                             </div>

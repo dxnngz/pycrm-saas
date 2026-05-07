@@ -122,6 +122,7 @@ export const CommandBar = ({ isOpen, onClose, onNavigate }: { isOpen: boolean, o
                             <input
                                 ref={inputRef}
                                 type="text"
+                                aria-label="Buscar en el centro de comandos"
                                 placeholder="Busca comandos, clientes o deja que la IA te ayude..."
                                 className="w-full bg-transparent border-none outline-none text-surface-text placeholder:text-surface-muted text-lg"
                                 value={query}
@@ -138,6 +139,7 @@ export const CommandBar = ({ isOpen, onClose, onNavigate }: { isOpen: boolean, o
                                     {results.map((item, idx) => (
                                         <button
                                             key={item.id}
+                                            type="button"
                                             onClick={() => handleSelect(item)}
                                             onMouseEnter={() => setSelectedIndex(idx)}
                                             className={`w-full flex items-center gap-3 p-3 rounded-xl transition-all text-left group ${selectedIndex === idx ? 'bg-surface-hover' : 'hover:bg-surface-hover/50'}`}
@@ -165,7 +167,7 @@ export const CommandBar = ({ isOpen, onClose, onNavigate }: { isOpen: boolean, o
                                         <div className="text-[10px] font-bold text-surface-muted uppercase tracking-widest px-2">Acciones Populares</div>
                                         <div className="grid grid-cols-2 gap-2">
                                             {QUICK_ACTIONS.map(action => (
-                                                <button key={action.id} onClick={() => handleSelect(action)} className="flex items-center gap-3 p-3 rounded-xl bg-surface-muted-bg/50 hover:bg-surface-hover transition-colors border border-surface-border">
+                                                <button type="button" key={action.id} onClick={() => handleSelect(action)} className="flex items-center gap-3 p-3 rounded-xl bg-surface-muted-bg/50 hover:bg-surface-hover transition-colors border border-surface-border">
                                                     <action.icon className={`w-4 h-4 ${action.color}`} />
                                                     <span className="text-xs text-surface-text">{action.label}</span>
                                                 </button>
@@ -177,7 +179,7 @@ export const CommandBar = ({ isOpen, onClose, onNavigate }: { isOpen: boolean, o
                                         <div className="text-[10px] font-bold text-surface-muted uppercase tracking-widest px-2">Navegación Recomendada</div>
                                         <div className="flex flex-wrap gap-2">
                                             {NAVIGATION.slice(0, 4).map(nav => (
-                                                <button key={nav.id} onClick={() => handleSelect(nav)} className="px-3 py-1.5 rounded-full bg-surface-muted-bg/50 hover:bg-surface-hover text-[11px] text-surface-muted transition-colors border border-surface-border">
+                                                <button type="button" key={nav.id} onClick={() => handleSelect(nav)} className="px-3 py-1.5 rounded-full bg-surface-muted-bg/50 hover:bg-surface-hover text-[11px] text-surface-muted transition-colors border border-surface-border">
                                                     {nav.label}
                                                 </button>
                                             ))}

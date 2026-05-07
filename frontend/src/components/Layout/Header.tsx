@@ -6,7 +6,8 @@ import {
     AlignJustify,
     Sun,
     Moon,
-    Bell
+    Bell,
+    Info
 } from 'lucide-react';
 import { Breadcrumbs } from '../Common/Breadcrumbs';
 import { Avatar } from '../UI/Avatar';
@@ -15,10 +16,11 @@ import { useUI } from '../../hooks/useUI';
 interface HeaderProps {
     title: string;
     isDarkMode: boolean;
-    setIsDarkMode: (dark: boolean) => void;
-    setIsMobileMenuOpen: (open: boolean) => void;
-    setIsNotificationsOpen: (open: boolean) => void;
-    setIsCommandCenterOpen: (open: boolean) => void;
+    setIsDarkMode: React.Dispatch<React.SetStateAction<boolean>>;
+    setIsMobileMenuOpen: React.Dispatch<React.SetStateAction<boolean>>;
+    setIsNotificationsOpen: React.Dispatch<React.SetStateAction<boolean>>;
+    setIsCommandCenterOpen: React.Dispatch<React.SetStateAction<boolean>>;
+    setIsShortcutsOpen: React.Dispatch<React.SetStateAction<boolean>>;
     userName?: string;
 }
 
@@ -29,6 +31,7 @@ export const Header: React.FC<HeaderProps> = ({
     setIsMobileMenuOpen,
     setIsNotificationsOpen,
     setIsCommandCenterOpen,
+    setIsShortcutsOpen,
     userName
 }) => {
     const { isDense: isDenseMode, toggleDense: setIsDenseMode } = useUI();
@@ -49,7 +52,9 @@ export const Header: React.FC<HeaderProps> = ({
         <header className="h-14 bg-surface-bg/80 backdrop-blur-md flex items-center justify-between px-6 sticky top-0 z-30 border-b border-surface-border transition-colors">
             <div className="flex items-center gap-4">
                 <button
+                    type="button"
                     onClick={() => setIsMobileMenuOpen(true)}
+                    aria-label="Abrir menú"
                     className="lg:hidden p-2 text-surface-muted hover:text-surface-text"
                 >
                     <Menu size={20} />
@@ -68,8 +73,10 @@ export const Header: React.FC<HeaderProps> = ({
 
             <div className="flex items-center gap-4">
                 {/* Command Bar Hook */}
-                <div
+                <button
+                    type="button"
                     onClick={() => setIsCommandCenterOpen(true)}
+                    aria-label="Abrir búsqueda rápida"
                     className="relative w-64 hidden md:flex items-center group cursor-pointer"
                 >
                     <Search className="absolute left-3 text-surface-muted group-hover:text-surface-text transition-colors" size={14} />
@@ -81,14 +88,17 @@ export const Header: React.FC<HeaderProps> = ({
                             </div>
                         </div>
                     </div>
-                </div>
+                </button>
 
                 {/* Preference Switchers */}
                 <div className="flex items-center gap-3">
                     <span className="hidden md:block text-[10px] font-bold text-surface-muted uppercase tracking-widest bg-surface-muted-bg px-2 py-0.5 rounded">v1.2.5-elite</span>
                     <div className="flex items-center gap-1 bg-surface-muted-bg/50 p-1 rounded-lg border border-surface-border">
                         <button
+                            type="button"
                             onClick={() => setIsDenseMode()}
+                            aria-label={isDenseMode ? 'Desactivar modo compacto' : 'Activar modo compacto'}
+                            aria-pressed={isDenseMode}
                             className={`p-1.5 rounded-md transition-all ${isDenseMode ? 'bg-surface-card shadow-sm text-primary-600' : 'text-surface-muted hover:text-surface-text'}`}
                             title="Alternar modo compacto"
                         >
@@ -96,7 +106,10 @@ export const Header: React.FC<HeaderProps> = ({
                         </button>
                         <div className="w-px h-3 bg-surface-border mx-0.5" />
                         <button
+                            type="button"
                             onClick={() => setIsDarkMode(!isDarkMode)}
+                            aria-label={isDarkMode ? 'Activar modo claro' : 'Activar modo oscuro'}
+                            aria-pressed={isDarkMode}
                             className="p-1.5 text-surface-muted hover:text-surface-text transition-colors"
                             title="Alternar modo oscuro"
                         >
@@ -107,16 +120,28 @@ export const Header: React.FC<HeaderProps> = ({
 
                 {/* Notifications */}
                 <button
+                    type="button"
                     onClick={() => setIsNotificationsOpen(true)}
+                    aria-label="Abrir notificaciones"
                     className="p-2 text-surface-muted hover:bg-surface-hover rounded-lg relative transition-colors"
                 >
                     <Bell size={18} />
                     <span className="absolute top-2.5 right-2.5 w-1.5 h-1.5 bg-primary-600 rounded-full border border-surface-card"></span>
                 </button>
 
+                <button
+                    type="button"
+                    onClick={() => setIsShortcutsOpen(prev => !prev)}
+                    aria-label="Abrir atajos de teclado"
+                    className="p-2 text-surface-muted hover:bg-surface-hover rounded-lg transition-colors"
+                    title="Atajos"
+                >
+                    <Info size={18} />
+                </button>
+
                 {/* User Profile */}
                 <div className="h-8 w-px bg-surface-border mx-1 hidden sm:block" />
-                <button className="flex items-center gap-2 group">
+                <button type="button" aria-label="Abrir perfil" className="flex items-center gap-2 group">
                     <Avatar
                         name={userName}
                         size="sm"

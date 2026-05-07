@@ -159,7 +159,7 @@ export const AICopilot: React.FC = () => {
                                             }`}
                                     >
                                         {msg.role === 'assistant' ? (
-                                            <div className="prose prose-sm dark:prose-invert prose-p:leading-relaxed prose-pre:bg-surface-muted-bg prose-pre:text-surface-text prose-pre:border prose-pre:border-surface-border prose-a:text-primary-600 dark:prose-a:text-primary-400">
+                                            <div className="prose prose-sm prose-surface prose-p:leading-relaxed prose-pre:border prose-pre:border-surface-border prose-a:text-primary-500">
                                                 <ReactMarkdown>{msg.content}</ReactMarkdown>
                                             </div>
                                         ) : (

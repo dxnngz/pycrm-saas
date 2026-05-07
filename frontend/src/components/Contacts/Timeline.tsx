@@ -87,7 +87,7 @@ const Timeline = ({ clientId }: TimelineProps) => {
                                     : 'bg-surface-card text-surface-muted border border-surface-border'
                                     }`}
                             >
-                                {t === 'call' ? 'Llamada' : t === 'email' ? 'Email' : t === 'meeting' ? 'Reunión' : 'Nota'}
+                                {t === 'call' ? 'Llamada' : t === 'email' ? 'Correo' : t === 'meeting' ? 'Reunión' : 'Nota'}
                             </button>
                         ))}
                     </div>
@@ -137,7 +137,7 @@ const Timeline = ({ clientId }: TimelineProps) => {
                                             minute: '2-digit'
                                         })}
                                     </span>
-                                    <span className="text-[10px] font-black uppercase tracking-widest text-primary-500 bg-primary-50 dark:bg-primary-900/20 px-2 py-1 rounded-lg">
+                                    <span className="text-[10px] font-black uppercase tracking-widest text-primary-600 bg-primary-500/10 border border-primary-500/20 px-2 py-1 rounded-lg">
                                         {contact.type}
                                     </span>
                                 </div>

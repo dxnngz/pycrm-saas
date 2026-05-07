@@ -75,7 +75,7 @@ export function VirtualTable<T>({
         <div
             className="w-full border border-surface-border rounded-lg overflow-hidden bg-surface-card shadow-sm flex flex-col focus-within:ring-1 focus-within:ring-primary-500/20"
             role="grid"
-            aria-label="Data Grid"
+            aria-label="Tabla de datos"
             aria-rowcount={data.length + 1}
             aria-colcount={columns.length}
         >

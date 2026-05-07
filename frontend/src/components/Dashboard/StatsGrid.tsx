@@ -50,3 +50,5 @@ export const StatsGrid: React.FC<StatsGridProps> = ({ stats }) => {
         </div>
     );
 };
+
+export default StatsGrid;

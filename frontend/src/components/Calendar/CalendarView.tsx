@@ -147,15 +147,15 @@ const CalendarView = () => {
               const isToday = new Date().toDateString() === new Date(currentDate.getFullYear(), currentDate.getMonth(), day).toDateString();
 
               return (
-                <div key={day} className={`bg-surface-card p-2 min-h-[100px] border-t border-l border-surface-border hover:bg-surface-hover transition-colors group relative overflow-y-auto max-h-[120px] ${isToday ? 'bg-primary-50/20 dark:bg-primary-500/5' : ''}`}>
-                  <span className={`text-xs font-bold ${isToday ? 'text-primary-600 dark:text-primary-400' : 'text-surface-muted'}`}>{day}</span>
+                <div key={day} className={`bg-surface-card p-2 min-h-[100px] border-t border-l border-surface-border hover:bg-surface-hover transition-colors group relative overflow-y-auto max-h-[120px] ${isToday ? 'bg-primary-500/10' : ''}`}>
+                  <span className={`text-xs font-bold ${isToday ? 'text-primary-600' : 'text-surface-muted'}`}>{day}</span>
                   <div className="mt-1.5 space-y-1">
                     {dayEvents.map(event => {
                       const eventTime = formatTime(event.start_date);
                       return (
                         <div key={event.id} className="group/event relative">
                           <div className="text-[9px] p-1.5 bg-surface-muted-bg text-surface-text rounded border border-surface-border truncate font-semibold" title={event.title}>
-                            <span className="text-primary-600 dark:text-primary-400 mr-1">{eventTime}</span>
+                            <span className="text-primary-600 mr-1">{eventTime}</span>
                             {event.title}
                           </div>
                         </div>
@@ -208,7 +208,7 @@ const CalendarView = () => {
                           <Clock size={16} className="text-surface-muted" />
                         </div>
                         <div>
-                          <p className="text-[10px] font-bold text-primary-600 dark:text-primary-400 uppercase tracking-wider">{dateString} • {timeString}</p>
+                          <p className="text-[10px] font-bold text-primary-600 uppercase tracking-wider">{dateString} • {timeString}</p>
                           <h4 className="text-sm font-semibold text-surface-text leading-tight truncate max-w-[140px]">{event.title}</h4>
                         </div>
                       </div>

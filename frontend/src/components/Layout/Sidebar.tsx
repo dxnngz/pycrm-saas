@@ -56,14 +56,16 @@ export const Sidebar: React.FC<SidebarProps> = ({
                             )}
                         </div>
                         <button
+                            type="button"
                             onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
+                            aria-label={sidebarCollapsed ? 'Expandir barra lateral' : 'Colapsar barra lateral'}
                             className="hidden lg:flex text-surface-muted hover:text-surface-text transition-colors"
                         >
                             {sidebarCollapsed ? <PanelLeftOpen size={18} /> : <PanelLeftClose size={18} />}
                         </button>
                     </div>
 
-                    <nav className="space-y-1.5" aria-label="Main Navigation">
+                    <nav className="space-y-1.5" aria-label="Navegación principal">
                         {!sidebarCollapsed && (
                             <p className="text-[10px] font-bold text-surface-muted uppercase tracking-widest mb-3 pl-3">Menú</p>
                         )}
@@ -72,17 +74,19 @@ export const Sidebar: React.FC<SidebarProps> = ({
                                 key={item.id}
                                 type="button"
                                 title={sidebarCollapsed ? item.label : undefined}
+                                aria-current={activeView === item.id ? 'page' : undefined}
                                 onClick={() => {
                                     setActiveView(item.id);
                                     setIsMobileMenuOpen(false);
                                 }}
                                 onMouseEnter={() => prefetchView(item.id)}
+                                onFocus={() => prefetchView(item.id)}
                                 className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all group ${activeView === item.id
                                     ? 'bg-surface-card text-surface-text font-bold ring-1 ring-surface-border shadow-sm'
                                     : 'text-surface-muted hover:text-surface-text hover:bg-surface-hover'
                                     }`}
                             >
-                                <item.icon size={18} className={`${activeView === item.id ? 'text-primary-600 dark:text-primary-400' : 'opacity-70 group-hover:opacity-100'} transition-colors flex-shrink-0`} aria-hidden="true" />
+                                <item.icon size={18} className={`${activeView === item.id ? 'text-primary-600' : 'opacity-70 group-hover:opacity-100'} transition-colors flex-shrink-0`} aria-hidden="true" />
                                 {!sidebarCollapsed && <span className="text-xs truncate">{item.label}</span>}
                             </button>
                         ))}
@@ -92,19 +96,22 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 {/* Footer Actions */}
                 <div className="mt-auto p-4 border-t border-surface-border bg-surface-bg/50 flex-shrink-0">
                     <button
+                        type="button"
                         onClick={toggleDense}
                         title={isDense ? "Cambiar a modo normal" : "Cambiar a modo compacto"}
-                        className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all text-surface-muted hover:text-primary-600 hover:bg-primary-50 dark:hover:bg-primary-500/10 mb-1"
+                        className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all text-surface-muted hover:text-primary-600 hover:bg-primary-500/10 mb-1"
                     >
                         {isDense ? <ZapOff size={18} /> : <Zap size={18} />}
                         {!sidebarCollapsed && <span className="text-xs font-medium">{isDense ? 'Modo normal' : 'Modo compacto'}</span>}
                     </button>
 
                     <button
+                        type="button"
                         onClick={() => {
                             setActiveView('settings');
                             setIsMobileMenuOpen(false);
                         }}
+                        aria-current={activeView === 'settings' ? 'page' : undefined}
                         className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all text-xs font-medium ${activeView === 'settings'
                             ? 'bg-surface-card text-surface-text font-bold ring-1 ring-surface-border shadow-sm border border-surface-border'
                             : 'text-surface-muted hover:text-surface-text hover:bg-surface-hover'
@@ -114,6 +121,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                         {!sidebarCollapsed && <span>Ajustes</span>}
                     </button>
                     <button
+                        type="button"
                         onClick={onLogout}
                         className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-surface-muted hover:text-danger-icon hover:bg-danger-bg transition-all text-xs font-medium"
                     >

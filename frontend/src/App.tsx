@@ -8,6 +8,7 @@ import {
   Target,
   CheckSquare,
 } from 'lucide-react';
+import { useLocation, useNavigate, Routes, Route, Navigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from './context/AuthContext';
 import { Toaster, toast } from 'sonner';
@@ -22,6 +23,7 @@ import { NotificationSystem } from './components/Notifications/NotificationSyste
 import { AppViewSkeleton } from './components/Common/Skeletons';
 import { CommandBar } from './components/Navigation/CommandBar';
 import { AICopilot } from './components/Common/AICopilot';
+import { ShortcutsModal } from './components/Common/ShortcutsModal';
 
 // View Components
 import LoginView from './components/Auth/LoginView';
@@ -43,26 +45,78 @@ type View = 'dashboard' | 'contacts' | 'pipeline' | 'tasks' | 'calendar' | 'prod
 
 import { useUI } from './hooks/useUI';
 
+const getViewFromPathname = (pathname: string): View => {
+  const normalized = (pathname || '/').split('?')[0].split('#')[0];
+  const clean = normalized.replace(/\/+$/, '') || '/';
+  if (clean === '/' || clean === '/dashboard') return 'dashboard';
+  if (clean === '/contacts' || clean === '/clientes') return 'contacts';
+  if (clean === '/pipeline') return 'pipeline';
+  if (clean === '/tasks' || clean === '/tareas') return 'tasks';
+  if (clean === '/calendar' || clean === '/agenda') return 'calendar';
+  if (clean === '/products' || clean === '/productos') return 'products';
+  if (clean === '/documents' || clean === '/documentos') return 'documents';
+  if (clean === '/users' || clean === '/usuarios') return 'users';
+  if (clean === '/settings' || clean === '/ajustes') return 'settings';
+  return 'dashboard';
+};
+
+const getPathnameFromView = (view: View): string => {
+  switch (view) {
+    case 'dashboard': return '/';
+    case 'contacts': return '/contacts';
+    case 'pipeline': return '/pipeline';
+    case 'tasks': return '/tasks';
+    case 'calendar': return '/calendar';
+    case 'products': return '/products';
+    case 'documents': return '/documents';
+    case 'users': return '/users';
+    case 'settings': return '/settings';
+    default: return '/';
+  }
+};
+
 const App: FC = () => {
   const { user, logout, loading } = useAuth();
   const { sidebarCollapsed } = useUI();
-  const [activeView, setActiveView] = useState<View>('dashboard');
+  const location = useLocation();
+  const navigate = useNavigate();
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
   const [isCommandBarOpen, setIsCommandBarOpen] = useState(false);
+  const [isShortcutsOpen, setIsShortcutsOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isDarkMode, setIsDarkMode] = useState(() => {
     return localStorage.getItem('theme') === 'dark' ||
       (!localStorage.getItem('theme') && window.matchMedia('(prefers-color-scheme: dark)').matches);
   });
 
+  const activeView = getViewFromPathname(location.pathname);
+
   useEffect(() => {
     const keysPressed = new Set<string>();
+    const viewLabels: Record<View, string> = {
+      dashboard: 'Panel',
+      contacts: 'Clientes',
+      pipeline: 'Pipeline',
+      tasks: 'Tareas',
+      calendar: 'Agenda',
+      products: 'Productos',
+      documents: 'Documentos',
+      users: 'Usuarios',
+      settings: 'Ajustes',
+    };
 
     const handleKeyDown = (e: KeyboardEvent) => {
+      const target = e.target as HTMLElement | null;
+      const tag = target?.tagName?.toLowerCase() || '';
+      if (tag === 'input' || tag === 'textarea' || tag === 'select' || target?.isContentEditable) return;
       keysPressed.add(e.key?.toLowerCase() || '');
       if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
         e.preventDefault();
         setIsCommandBarOpen(true);
+      }
+      if (e.key === '?' || (e.shiftKey && e.key === '/')) {
+        e.preventDefault();
+        setIsShortcutsOpen(prev => !prev);
       }
       if (keysPressed.has('g')) {
         const viewMap: Record<string, View> = {
@@ -71,8 +125,8 @@ const App: FC = () => {
         const targetView = viewMap[e.key?.toLowerCase() || ''];
         if (targetView) {
           e.preventDefault();
-          setActiveView(targetView);
-          toast.info(`Navegando a ${targetView}`, { duration: 800 });
+          navigate(getPathnameFromView(targetView), { replace: false });
+          toast.info(`Navegando a ${viewLabels[targetView]}`, { duration: 800 });
         }
       }
     };
@@ -85,12 +139,21 @@ const App: FC = () => {
       window.removeEventListener('keydown', handleKeyDown);
       window.removeEventListener('keyup', handleKeyUp);
     };
-  }, []);
+  }, [navigate]);
 
   useEffect(() => {
     document.documentElement.classList.toggle('dark', isDarkMode);
     localStorage.setItem('theme', isDarkMode ? 'dark' : 'light');
   }, [isDarkMode]);
+
+  useEffect(() => {
+    if (!isMobileMenuOpen) return;
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setIsMobileMenuOpen(false);
+    };
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, [isMobileMenuOpen]);
 
 
 
@@ -124,7 +187,7 @@ const App: FC = () => {
   };
 
   const navItems = [
-    { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
+    { id: 'dashboard', label: 'Panel', icon: LayoutDashboard },
     { id: 'contacts', label: 'Clientes', icon: Users },
     { id: 'pipeline', label: 'Pipeline', icon: Target },
     { id: 'tasks', label: 'Tareas', icon: CheckSquare },
@@ -139,7 +202,7 @@ const App: FC = () => {
 
   const getViewLabel = (viewId: View) => {
     if (viewId === 'settings') return 'Ajustes';
-    return navItems.find(i => i.id === viewId)?.label || 'Dashboard';
+    return navItems.find(i => i.id === viewId)?.label || 'Panel';
   };
 
   return (
@@ -160,7 +223,7 @@ const App: FC = () => {
         <Sidebar
           navItems={navItems}
           activeView={activeView}
-          setActiveView={(v) => setActiveView(v as View)}
+          setActiveView={(v) => navigate(getPathnameFromView(v as View))}
           onLogout={logout}
           isMobileMenuOpen={isMobileMenuOpen}
           setIsMobileMenuOpen={setIsMobileMenuOpen}
@@ -175,28 +238,40 @@ const App: FC = () => {
             setIsMobileMenuOpen={setIsMobileMenuOpen}
             setIsNotificationsOpen={setIsNotificationsOpen}
             setIsCommandCenterOpen={setIsCommandBarOpen}
+            setIsShortcutsOpen={setIsShortcutsOpen}
             userName={user?.name || 'Usuario'}
           />
 
           <div className="p-4 lg:p-6 flex-1 w-full max-w-[1600px] mx-auto">
             <AnimatePresence mode="wait">
               <motion.div
-                key={activeView}
+                key={location.pathname}
                 initial={{ opacity: 0, y: 3 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0 }}
                 transition={{ duration: 0.12 }}
               >
                 <Suspense fallback={<AppViewSkeleton />}>
-                  {activeView === 'dashboard' && <DashboardView />}
-                  {activeView === 'contacts' && <ContactsView />}
-                  {activeView === 'pipeline' && <PipelineView />}
-                  {activeView === 'tasks' && <TasksView />}
-                  {activeView === 'calendar' && <CalendarView />}
-                  {activeView === 'products' && <ProductsView />}
-                  {activeView === 'documents' && <DocumentsView />}
-                  {activeView === 'users' && <UsersView />}
-                  {activeView === 'settings' && <SettingsView />}
+                  <Routes>
+                    <Route path="/" element={<DashboardView />} />
+                    <Route path="/dashboard" element={<Navigate to="/" replace />} />
+                    <Route path="/contacts" element={<ContactsView />} />
+                    <Route path="/clientes" element={<Navigate to="/contacts" replace />} />
+                    <Route path="/pipeline" element={<PipelineView />} />
+                    <Route path="/tasks" element={<TasksView />} />
+                    <Route path="/tareas" element={<Navigate to="/tasks" replace />} />
+                    <Route path="/calendar" element={<CalendarView />} />
+                    <Route path="/agenda" element={<Navigate to="/calendar" replace />} />
+                    <Route path="/products" element={<ProductsView />} />
+                    <Route path="/productos" element={<Navigate to="/products" replace />} />
+                    <Route path="/documents" element={<DocumentsView />} />
+                    <Route path="/documentos" element={<Navigate to="/documents" replace />} />
+                    <Route path="/settings" element={<SettingsView />} />
+                    <Route path="/ajustes" element={<Navigate to="/settings" replace />} />
+                    <Route path="/users" element={<UsersView />} />
+                    <Route path="/usuarios" element={<Navigate to="/users" replace />} />
+                    <Route path="*" element={<Navigate to="/" replace />} />
+                  </Routes>
                 </Suspense>
               </motion.div>
             </AnimatePresence>
@@ -207,8 +282,9 @@ const App: FC = () => {
         <CommandBar
           isOpen={isCommandBarOpen}
           onClose={() => setIsCommandBarOpen(false)}
-          onNavigate={(view) => setActiveView(view)}
+          onNavigate={(view) => navigate(getPathnameFromView(view as View))}
         />
+        <ShortcutsModal isOpen={isShortcutsOpen} onClose={() => setIsShortcutsOpen(false)} />
         <AICopilot />
         <Toaster position="bottom-right" richColors closeButton theme={isDarkMode ? 'dark' : 'light'} />
       </div>

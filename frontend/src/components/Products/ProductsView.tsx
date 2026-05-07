@@ -205,7 +205,7 @@ const ProductsView = () => {
         </div>
 
         <div className="bg-surface-card p-4 rounded-lg border border-surface-border flex items-center gap-4">
-          <div className="w-10 h-10 bg-primary-50 dark:bg-primary-500/10 text-primary-600 dark:text-primary-400 rounded-md flex items-center justify-center">
+          <div className="w-10 h-10 bg-primary-500/10 text-primary-600 rounded-md flex items-center justify-center">
             <BarChart2 size={20} />
           </div>
           <div>

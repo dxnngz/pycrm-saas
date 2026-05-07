@@ -49,6 +49,10 @@ const ExecutiveBriefing: React.FC = () => {
 
     const items: BriefingItem[] = data?.items || [];
     const message: string | undefined = data?.message;
+    const displayMessage =
+        message && message.toLowerCase().includes('not configured')
+            ? 'La IA no está configurada para el briefing ejecutivo.'
+            : message;
 
     return (
         <Card className="premium-shadow shrink-0">
@@ -93,7 +97,7 @@ const ExecutiveBriefing: React.FC = () => {
                                     <p className="text-xs text-surface-muted font-medium leading-relaxed mb-3">
                                         {item.description}
                                     </p>
-                                    <button className="flex items-center gap-2 text-[10px] font-black text-primary-600 dark:text-primary-400 uppercase tracking-widest group-hover:gap-3 transition-all">
+                                    <button type="button" className="flex items-center gap-2 text-[10px] font-black text-primary-500 uppercase tracking-widest group-hover:gap-3 transition-all">
                                         {item.action}
                                         <ArrowRight size={14} />
                                     </button>
@@ -104,7 +108,7 @@ const ExecutiveBriefing: React.FC = () => {
                 }) : (
                     <div className="py-12 text-center opacity-50">
                         <ShieldAlert className="w-10 h-10 mx-auto mb-3 text-surface-muted/50" />
-                        <p className="text-xs font-bold text-surface-muted uppercase tracking-widest">{message || 'Sin sugerencias estratégicas actuales'}</p>
+                        <p className="text-xs font-bold text-surface-muted uppercase tracking-widest">{displayMessage || 'Sin sugerencias estratégicas actuales'}</p>
                     </div>
                 )}
             </div>

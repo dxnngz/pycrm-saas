@@ -36,9 +36,9 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({ onSubmit, isLoading,
                 required
             />
             <Input
-                label="Email"
+                label="Correo"
                 type="email"
-                placeholder="john@company.com"
+                placeholder="nombre@empresa.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required

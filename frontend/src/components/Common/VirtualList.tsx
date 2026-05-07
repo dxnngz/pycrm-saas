@@ -39,7 +39,7 @@ export const VirtualList = <T,>({
         <div
             ref={parentRef}
             onScroll={handleScroll}
-            className={`overflow-auto scrollbar-thin scrollbar-thumb-slate-200 dark:scrollbar-thumb-slate-800 ${className}`}
+            className={`overflow-auto custom-scrollbar ${className}`}
             style={{ height }}
         >
             <div

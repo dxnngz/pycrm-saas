@@ -22,9 +22,9 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onSubmit, isLoading, onFor
     return (
         <form onSubmit={handleSubmit} className="space-y-4">
             <Input
-                label="Email"
+                label="Correo"
                 type="email"
-                placeholder="name@company.com"
+                placeholder="nombre@empresa.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 autoFocus
@@ -38,7 +38,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onSubmit, isLoading, onFor
                     <button
                         type="button"
                         onClick={onForgotPassword}
-                        className="text-[10px] font-bold text-primary-600 hover:text-primary-700 dark:text-primary-400 uppercase tracking-tight"
+                        className="text-[10px] font-bold text-primary-600 hover:text-primary-700 uppercase tracking-tight"
                     >
                         ¿Olvidaste tu contraseña?
                     </button>

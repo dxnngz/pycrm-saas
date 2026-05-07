@@ -222,7 +222,7 @@ const ContactsView = () => {
             ),
         },
         {
-            header: 'Organization',
+            header: 'Empresa',
             accessor: 'company',
             width: '25%',
             className: 'hidden md:flex items-center',
@@ -577,7 +577,7 @@ const ContactsView = () => {
                         <p className="text-sm text-surface-muted animate-pulse font-medium">Analizando historial y generando resumen...</p>
                     </div>
                 ) : (
-                    <div className="prose prose-slate dark:prose-invert max-w-none text-sm">
+                    <div className="prose prose-sm prose-surface max-w-none text-sm">
                         <div className="bg-info-bg border border-info-border rounded-xl p-6 text-surface-text shadow-sm leading-relaxed">
                             <ReactMarkdown
                                 components={{

@@ -4,6 +4,8 @@ import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
 import { VitePWA } from 'vite-plugin-pwa'
 
+const proxyTarget = process.env.VITE_PROXY_TARGET || 'http://127.0.0.1:3001'
+
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [
@@ -37,7 +39,7 @@ export default defineConfig({
       manifest: {
         name: 'PyCRM Enterprise',
         short_name: 'PyCRM',
-        description: 'Elite B2B SaaS CRM for Enterprise Teams',
+        description: 'CRM SaaS B2B para equipos comerciales: paneles, pipeline, tareas, documentos e IA.',
         theme_color: '#0f172a',
         icons: [
           {
@@ -73,7 +75,7 @@ export default defineConfig({
   server: {
     proxy: {
       '/api': {
-        target: 'http://127.0.0.1:3001',
+        target: proxyTarget,
         changeOrigin: true,
         secure: false,
       }

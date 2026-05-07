@@ -16,7 +16,7 @@ export const PerformanceList: React.FC<PerformanceListProps> = ({ performance })
         <div className="bg-surface-card border border-surface-border rounded-lg shadow-sm h-full flex flex-col overflow-hidden">
             <div className="p-4 border-b border-surface-border bg-surface-muted-bg/50">
                 <h3 className="text-[11px] font-bold text-surface-text uppercase tracking-wider flex items-center gap-2">
-                    <Users size={14} className="text-primary-600 dark:text-primary-400" />
+                    <Users size={14} className="text-primary-600" />
                     Rendimiento comercial
                 </h3>
             </div>
@@ -49,3 +49,5 @@ export const PerformanceList: React.FC<PerformanceListProps> = ({ performance })
         </div>
     );
 };
+
+export default PerformanceList;

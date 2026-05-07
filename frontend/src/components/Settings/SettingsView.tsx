@@ -131,7 +131,7 @@ const SettingsView = () => {
                             key={tab.id}
                             onClick={() => setActiveTab(tab.id)}
                             className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium transition-all ${activeTab === tab.id
-                                ? 'bg-surface-card text-primary-600 dark:text-primary-400 shadow-sm border border-surface-border'
+                                ? 'bg-surface-card text-primary-600 shadow-sm border border-surface-border'
                                 : 'text-surface-muted hover:text-surface-text hover:bg-surface-hover'
                                 }`}
                         >
@@ -163,7 +163,7 @@ const SettingsView = () => {
                                     placeholder="Tu nombre"
                                 />
                                 <Input
-                                    label="Email"
+                                    label="Correo"
                                     type="email"
                                     defaultValue={user?.email}
                                     disabled
@@ -216,7 +216,7 @@ const SettingsView = () => {
 
                             <div className="p-4 rounded-lg bg-surface-muted-bg/40 border border-surface-border space-y-3">
                                 <div className="space-y-2">
-                                    <p className="text-xs font-bold text-surface-text uppercase tracking-wider">Email de prueba</p>
+                                    <p className="text-xs font-bold text-surface-text uppercase tracking-wider">Correo de prueba</p>
                                     <p className="text-xs text-surface-muted">Verifica Mailjet/SMTP enviando un email de prueba.</p>
                                 </div>
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">

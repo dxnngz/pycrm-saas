@@ -77,10 +77,10 @@ export const CommandCenter: React.FC<CommandCenterProps> = ({ isOpen, onClose, o
 
             if (e.key === 'ArrowDown') {
                 e.preventDefault();
-                setSelectedIndex(prev => (prev + 1) % allItems.length);
+                setSelectedIndex(prev => (prev + 1) % (allItems.length || 1));
             } else if (e.key === 'ArrowUp') {
                 e.preventDefault();
-                setSelectedIndex(prev => (prev - 1 + allItems.length) % allItems.length);
+                setSelectedIndex(prev => (prev - 1 + (allItems.length || 1)) % (allItems.length || 1));
             } else if (e.key === 'Enter') {
                 e.preventDefault();
                 const selected = allItems[selectedIndex];

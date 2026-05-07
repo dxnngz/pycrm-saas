@@ -19,11 +19,11 @@ export const ResetForm: React.FC<ResetFormProps> = ({ onSubmit, isLoading, onBac
         e.preventDefault();
         setLocalError('');
         if (password.length < 8) {
-            setLocalError('Password must be at least 8 characters');
+            setLocalError('La contraseña debe tener al menos 8 caracteres');
             return;
         }
         if (password !== confirm) {
-            setLocalError('Passwords do not match');
+            setLocalError('Las contraseñas no coinciden');
             return;
         }
         await onSubmit(password);
