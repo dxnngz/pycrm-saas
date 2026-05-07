@@ -16,6 +16,8 @@ export const updateOpportunityStatusSchema = z.object({
     }),
     body: z.object({
         status: z.enum(['pendiente', 'ganado', 'perdido']),
+        lost_reason: z.string().trim().min(1).max(50).optional(),
+        lost_reason_detail: z.string().trim().max(1000).optional(),
         version: z.number().optional()
     })
 });

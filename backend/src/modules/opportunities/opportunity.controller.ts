@@ -45,9 +45,13 @@ export const updateOpportunityStatus = asyncHandler(async (req: Request, res: Re
     try {
         const tenantId = req.user!.tenantId;
         const id = parseInt(req.params.id as string);
-        const { status, version } = req.body;
+        const { status, version, lost_reason, lost_reason_detail } = req.body;
 
-        const opportunity = await opportunityService.updateOpportunityStatusById(tenantId, id, status, version);
+        const opportunity = await opportunityService.updateOpportunityStatusById(tenantId, id, status, {
+            version,
+            lost_reason,
+            lost_reason_detail
+        });
 
         events.emit('workflow:opportunity_status_updated', { tenantId, userId: req.user?.userId, data: opportunity });
 

@@ -1,6 +1,7 @@
 import { prisma } from '../../core/prisma.js';
 import { redisCache } from '../../core/redis.js';
 import { opportunityRepository } from '../../repositories/opportunity.repository.js';
+import { AppError } from '../../utils/AppError.js';
 
 export class OpportunityService {
 
@@ -93,7 +94,7 @@ export class OpportunityService {
         };
     }
 
-    async createOpportunity(data: { client_id: number; product: string; amount: number; status?: string; estimated_close_date?: string }, tenantId: number) {
+    async createOpportunity(data: { client_id: number; product: string; amount: number; status?: string; estimated_close_date?: string; notes?: string }, tenantId: number) {
         const status = data.status || 'pendiente';
         const closedStatuses = new Set(['ganado', 'ganada', 'perdido', 'perdida']);
         const isClosed = closedStatuses.has(status);
@@ -106,23 +107,40 @@ export class OpportunityService {
             estimated_close_date: data.estimated_close_date
                 ? new Date(data.estimated_close_date)
                 : new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
-            closed_at: isClosed ? new Date() : null
+            closed_at: isClosed ? new Date() : null,
+            notes: data.notes?.trim() ? data.notes.trim() : null
         });
         await redisCache.invalidateTenantCache(tenantId, 'opportunities');
         await redisCache.invalidate(`dashboard:metrics:${tenantId}:*`);
         return result;
     }
 
-    async updateOpportunityStatusById(tenantId: number, id: number, status: string, version?: number) {
+    async updateOpportunityStatusById(
+        tenantId: number,
+        id: number,
+        status: string,
+        options: { version?: number; lost_reason?: string; lost_reason_detail?: string } = {}
+    ) {
         const opp = await opportunityRepository.findUnique(tenantId, id);
         if (!opp) throw new Error('Opportunity not found or access denied');
 
         const closedStatuses = new Set(['ganado', 'ganada', 'perdido', 'perdida']);
         const isClosed = closedStatuses.has(status);
+        const isLost = status === 'perdido' || status === 'perdida';
+
+        const lostReason = options.lost_reason?.trim();
+        const lostReasonDetail = options.lost_reason_detail?.trim();
+
+        if (isLost && !lostReason) {
+            throw new AppError('Indica un motivo de pérdida para marcar la oportunidad como perdida.', 400);
+        }
+
         const result = await opportunityRepository.update(tenantId, id, {
             status,
             closed_at: isClosed ? new Date() : null,
-            ...(version !== undefined && { version })
+            lost_reason: isLost ? lostReason : null,
+            lost_reason_detail: isLost ? (lostReasonDetail || null) : null,
+            ...(options.version !== undefined && { version: options.version })
         });
 
         await redisCache.invalidateTenantCache(tenantId, 'opportunities');
