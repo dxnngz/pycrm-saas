@@ -119,6 +119,11 @@ const PipelineView = () => {
     const loading = oppsLoading || clientsLoading;
 
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [isLossModalOpen, setIsLossModalOpen] = useState(false);
+    const [lossOppId, setLossOppId] = useState<number | null>(null);
+    const [lossReason, setLossReason] = useState('');
+    const [lossReasonDetail, setLossReasonDetail] = useState('');
+    const [isLossSubmitting, setIsLossSubmitting] = useState(false);
     const [activeFilter, setActiveFilter] = useState<'all' | 'high-value' | 'high-score' | 'stagnant'>('all');
 
     // Form state
@@ -181,7 +186,15 @@ const PipelineView = () => {
 
     const handleUpdateStatus = useCallback(async (id: number, newStatus: 'pendiente' | 'ganado' | 'perdido') => {
         try {
-            await updateOpportunityStatus(id, newStatus);
+            if (newStatus === 'perdido') {
+                setLossOppId(id);
+                setLossReason('');
+                setLossReasonDetail('');
+                setIsLossModalOpen(true);
+                return;
+            }
+
+            await updateOpportunityStatus(id, { status: newStatus });
         } catch (error: unknown) {
             console.error(error);
             toast.error('No se pudo actualizar el estado de la oportunidad.');
@@ -209,6 +222,30 @@ const PipelineView = () => {
 
         handleUpdateStatus(opportunityId, newStatus);
     }, [handleUpdateStatus]);
+
+    const handleConfirmLoss = async (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!lossOppId) return;
+        if (!lossReason.trim()) return;
+
+        setIsLossSubmitting(true);
+        try {
+            await updateOpportunityStatus(lossOppId, {
+                status: 'perdido',
+                lost_reason: lossReason.trim(),
+                lost_reason_detail: lossReasonDetail.trim() ? lossReasonDetail.trim() : undefined
+            });
+            setIsLossModalOpen(false);
+            setLossOppId(null);
+            setLossReason('');
+            setLossReasonDetail('');
+        } catch (error: unknown) {
+            console.error(error);
+            toast.error('No se pudo marcar como perdida. Inténtalo de nuevo.');
+        } finally {
+            setIsLossSubmitting(false);
+        }
+    };
 
     const handleCreateOpportunity = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -459,6 +496,68 @@ const PipelineView = () => {
                             isLoading={isSubmitting}
                         >
                             Crear oportunidad
+                        </Button>
+                    </div>
+                </form>
+            </Modal>
+
+            <Modal
+                isOpen={isLossModalOpen}
+                onClose={() => {
+                    if (isLossSubmitting) return;
+                    setIsLossModalOpen(false);
+                    setLossOppId(null);
+                }}
+                title="Motivo de pérdida"
+                maxWidth="max-w-xl"
+            >
+                <form onSubmit={handleConfirmLoss} className="space-y-4">
+                    <Select
+                        label="Motivo"
+                        required
+                        value={lossReason}
+                        onChange={(e) => setLossReason(e.target.value)}
+                    >
+                        <option value="">Selecciona un motivo...</option>
+                        <option value="Precio">Precio</option>
+                        <option value="Competencia">Competencia</option>
+                        <option value="Sin respuesta">Sin respuesta</option>
+                        <option value="No encaja">No encaja</option>
+                        <option value="Timing">Timing</option>
+                        <option value="Otro">Otro</option>
+                    </Select>
+
+                    <div className="w-full">
+                        <label className="block mb-1 text-[11px] font-bold text-surface-muted uppercase tracking-wider">
+                            Detalle (opcional)
+                        </label>
+                        <textarea
+                            value={lossReasonDetail}
+                            onChange={(e) => setLossReasonDetail(e.target.value)}
+                            rows={4}
+                            className="w-full rounded-xl text-sm transition-all bg-surface-input border border-surface-border text-surface-text placeholder:text-surface-muted focus:border-primary-500 focus:ring-primary-500/20 focus:outline-none focus:ring-2 px-4 py-3 shadow-sm"
+                            placeholder="Ej: el cliente pidió integración X y no la tenemos…"
+                        />
+                    </div>
+
+                    <div className="pt-4 flex justify-end gap-3">
+                        <Button
+                            variant="outline"
+                            onClick={() => {
+                                if (isLossSubmitting) return;
+                                setIsLossModalOpen(false);
+                                setLossOppId(null);
+                            }}
+                        >
+                            Cancelar
+                        </Button>
+                        <Button
+                            variant="primary"
+                            type="submit"
+                            isLoading={isLossSubmitting}
+                            disabled={!lossReason.trim()}
+                        >
+                            Marcar como perdida
                         </Button>
                     </div>
                 </form>

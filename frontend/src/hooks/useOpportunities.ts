@@ -44,8 +44,10 @@ export const useOpportunities = (limit: number = 10, search: string = '') => {
     });
 
     const updateStatusMutation = useMutation({
-        mutationFn: ({ id, status }: { id: number; status: 'pendiente' | 'ganado' | 'perdido' }) => opportunityService.updateStatus(id, status),
-        onMutate: async ({ id, status }) => {
+        mutationFn: ({ id, payload }: { id: number; payload: { status: 'pendiente' | 'ganado' | 'perdido'; lost_reason?: string; lost_reason_detail?: string } }) =>
+            opportunityService.updateStatus(id, payload),
+        onMutate: async ({ id, payload }) => {
+            const status = payload.status;
             // Cancel any outgoing refetches
             await queryClient.cancelQueries({ queryKey: ['opportunities', limit, search] });
 
@@ -89,6 +91,7 @@ export const useOpportunities = (limit: number = 10, search: string = '') => {
         loadMore: () => fetchNextPage(),
         isLoadingMore: isFetchingNextPage,
         createOpportunity: createMutation.mutateAsync,
-        updateOpportunityStatus: (id: number, status: 'pendiente' | 'ganado' | 'perdido') => updateStatusMutation.mutateAsync({ id, status }),
+        updateOpportunityStatus: (id: number, payload: { status: 'pendiente' | 'ganado' | 'perdido'; lost_reason?: string; lost_reason_detail?: string }) =>
+            updateStatusMutation.mutateAsync({ id, payload }),
     };
 };

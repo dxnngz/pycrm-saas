@@ -85,6 +85,9 @@ export interface Opportunity {
     status: 'pendiente' | 'ganada' | 'perdida' | 'negociacion' | 'ganado' | 'perdido';
     estimated_close_date?: string;
     closed_at?: string;
+    notes?: string;
+    lost_reason?: string;
+    lost_reason_detail?: string;
     created_at?: string;
     client_name?: string; // UI specific
     client_company?: string; // UI specific

@@ -30,11 +30,14 @@ export const opportunityService = {
             body: JSON.stringify(opportunity),
         }).then(handleResponse),
 
-    updateStatus: (id: number, status: string): Promise<Opportunity> =>
+    updateStatus: (
+        id: number,
+        payload: { status: string; lost_reason?: string; lost_reason_detail?: string }
+    ): Promise<Opportunity> =>
         customFetch(`/opportunities/${id}/status`, {
             method: 'PATCH',
             headers: getHeaders(),
-            body: JSON.stringify({ status }),
+            body: JSON.stringify(payload),
         }).then(handleResponse),
 
     getLeadScore: (opportunityId: number): Promise<{ score: number; classification: 'HIGH' | 'MEDIUM' | 'LOW'; recommendation: string; factors: Record<string, unknown> }> =>
