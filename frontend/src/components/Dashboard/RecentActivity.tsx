@@ -1,6 +1,7 @@
 import { History, ArrowUpRight, CheckSquare } from 'lucide-react';
 import { Badge } from '../UI/Badge';
 import { formatMoney } from '../../utils/format';
+import { useNavigate } from 'react-router-dom';
 
 interface Activity {
     id: string;
@@ -16,6 +17,7 @@ interface RecentActivityProps {
 }
 
 const RecentActivity = ({ activities }: RecentActivityProps) => {
+    const navigate = useNavigate();
     return (
         <div className="bg-surface-card rounded-lg border border-surface-border shadow-sm h-full flex flex-col overflow-hidden">
             <div className="flex items-center justify-between p-4 border-b border-surface-border bg-surface-muted-bg/50">
@@ -58,7 +60,10 @@ const RecentActivity = ({ activities }: RecentActivityProps) => {
                 ))}
             </div>
             <div className="p-3 border-t border-surface-border bg-surface-muted-bg/20">
-                <button className="w-full py-2 text-[10px] font-bold text-surface-muted hover:text-primary-600 transition-colors uppercase tracking-widest flex items-center justify-center gap-2">
+                <button
+                    onClick={() => navigate('/settings?tab=audit')}
+                    className="w-full py-2 text-[10px] font-bold text-surface-muted hover:text-primary-600 transition-colors uppercase tracking-widest flex items-center justify-center gap-2"
+                >
                     Ver auditoría completa
                 </button>
             </div>

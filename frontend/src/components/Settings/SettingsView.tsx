@@ -1,4 +1,5 @@
-import { useState, lazy, Suspense } from 'react';
+import { useEffect, useState, lazy, Suspense } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import {
     User,
     Bell,
@@ -22,9 +23,14 @@ import { authService } from '../../services/auth.service';
 const AuditLogs = lazy(() => import('./AuditLogs'));
 
 const SettingsView = () => {
+    const location = useLocation();
+    const navigate = useNavigate();
     const { user, logout } = useAuth();
     const { isDense, toggleDense } = useUI();
-    const [activeTab, setActiveTab] = useState('profile');
+    const [activeTab, setActiveTab] = useState(() => {
+        const tab = new URLSearchParams(location.search).get('tab');
+        return tab || 'profile';
+    });
     const [demoLoading, setDemoLoading] = useState(false);
     const [testEmailLoading, setTestEmailLoading] = useState(false);
     const [testEmailTo, setTestEmailTo] = useState(user?.email || '');
@@ -48,6 +54,21 @@ const SettingsView = () => {
         tabs.push({ id: 'audit', label: 'Registro', icon: History });
         tabs.push({ id: 'demo', label: 'Datos demo', icon: Database });
     }
+
+    useEffect(() => {
+        const allowedTabs = user?.role === 'admin'
+            ? new Set(['profile', 'notifications', 'security', 'appearance', 'audit', 'demo'])
+            : new Set(['profile', 'notifications', 'security', 'appearance']);
+
+        const tab = new URLSearchParams(location.search).get('tab');
+        if (tab && allowedTabs.has(tab)) {
+            setActiveTab(tab);
+            return;
+        }
+        if (!allowedTabs.has(activeTab)) {
+            setActiveTab('profile');
+        }
+    }, [location.search, activeTab, user?.role]);
 
     const persistNotif = (key: string, value: boolean) => {
         localStorage.setItem(key, String(value));
@@ -129,7 +150,10 @@ const SettingsView = () => {
                     {tabs.map((tab) => (
                         <button
                             key={tab.id}
-                            onClick={() => setActiveTab(tab.id)}
+                            onClick={() => {
+                                setActiveTab(tab.id);
+                                navigate(`/settings?tab=${tab.id}`, { replace: true });
+                            }}
                             className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium transition-all ${activeTab === tab.id
                                 ? 'bg-surface-card text-primary-600 shadow-sm border border-surface-border'
                                 : 'text-surface-muted hover:text-surface-text hover:bg-surface-hover'

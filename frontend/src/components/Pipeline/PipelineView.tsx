@@ -150,6 +150,7 @@ const PipelineView = () => {
     const safeOpportunities = filteredOpportunities;
     const totalMatches = summaryData?.total ?? pagination.total ?? safeOpportunities.length;
     const summaryByStatus = summaryData?.byStatus ?? { pendiente: 0, ganado: 0, perdido: 0 };
+    const amountByStatus = summaryData?.amountByStatus ?? { pendiente: 0, ganado: 0, perdido: 0 };
 
     useEffect(() => {
         const fetchScores = async () => {
@@ -303,6 +304,9 @@ const PipelineView = () => {
                                     <Badge variant="secondary">
                                         {summaryByStatus[column.id]}
                                     </Badge>
+                                    <span className="text-[10px] font-bold text-surface-muted tabular-nums">
+                                        {formatMoney(Number(amountByStatus[column.id] || 0), { maximumFractionDigits: 0 })}
+                                    </span>
                                 </div>
                                 <button className="text-surface-muted hover:text-surface-text transition-colors">
                                     <MoreVertical size={16} />

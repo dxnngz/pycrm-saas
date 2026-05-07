@@ -12,6 +12,15 @@ export interface DashboardStats {
     message?: string;
 }
 
+export interface DashboardActivityItem {
+    id: string;
+    type: 'sale' | 'task-done' | 'task-new';
+    title: string;
+    description: string;
+    time: string;
+    amount?: number;
+}
+
 export const dashboardService = {
     getMetrics: async (period: string = 'monthly', options: { forceRefresh?: boolean } = {}): Promise<DashboardStats> => {
         const refreshParam = options.forceRefresh ? '&refresh=1' : '';
@@ -24,5 +33,10 @@ export const dashboardService = {
         }
 
         return data as DashboardStats;
-    }
+    },
+
+    getActivity: async (limit: number = 10): Promise<DashboardActivityItem[]> => {
+        const data = await customFetch(`/dashboard/activity?limit=${limit}`, { headers: getHeaders() }).then(handleResponse);
+        return Array.isArray(data) ? (data as DashboardActivityItem[]) : [];
+    },
 };
