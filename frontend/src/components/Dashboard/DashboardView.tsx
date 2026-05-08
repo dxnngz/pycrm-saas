@@ -20,6 +20,7 @@ const SmartAlerts = lazy(() => import('./SmartAlerts'));
 const ExecutiveBriefing = lazy(() => import('./ExecutiveBriefing'));
 const StatsGrid = lazy(() => import('./StatsGrid'));
 const PerformanceList = lazy(() => import('./PerformanceList'));
+const LossReasonsWidget = lazy(() => import('./LossReasonsWidget'));
 
 // Logic & Utilities
 import { useDashboardData } from '../../hooks/useDashboardData';
@@ -71,6 +72,7 @@ const DashboardView = () => {
         winRate: 0,
         pendingTasks: 0,
         recentActivity: [],
+        lossesByReason: [],
         repPerformance: [],
         chartData: []
     };
@@ -196,6 +198,9 @@ const DashboardView = () => {
                 <div className="lg:col-span-1 space-y-6">
                     <Suspense fallback={<Skeleton className="h-28 w-full rounded-xl" />}>
                         <SmartAlerts />
+                    </Suspense>
+                    <Suspense fallback={<Skeleton className="h-48 w-full rounded-xl" />}>
+                        <LossReasonsWidget items={stats.lossesByReason || []} period={period} />
                     </Suspense>
                     <Suspense fallback={<Skeleton className="h-[400px] w-full rounded-xl" />}>
                         <ExecutiveBriefing />

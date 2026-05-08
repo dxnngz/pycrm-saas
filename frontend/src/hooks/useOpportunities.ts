@@ -43,6 +43,15 @@ export const useOpportunities = (limit: number = 10, search: string = '') => {
         }
     });
 
+    const updateMutation = useMutation({
+        mutationFn: ({ id, data }: { id: number; data: Partial<Opportunity> & { version?: number } }) => opportunityService.update(id, data),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['opportunities'] });
+            queryClient.invalidateQueries({ queryKey: ['opportunity_summary'] });
+            queryClient.invalidateQueries({ queryKey: ['dashboard_data'] });
+        }
+    });
+
     const updateStatusMutation = useMutation({
         mutationFn: ({ id, payload }: { id: number; payload: { status: 'pendiente' | 'ganado' | 'perdido'; lost_reason?: string; lost_reason_detail?: string } }) =>
             opportunityService.updateStatus(id, payload),
@@ -91,6 +100,7 @@ export const useOpportunities = (limit: number = 10, search: string = '') => {
         loadMore: () => fetchNextPage(),
         isLoadingMore: isFetchingNextPage,
         createOpportunity: createMutation.mutateAsync,
+        updateOpportunity: (id: number, data: Partial<Opportunity> & { version?: number }) => updateMutation.mutateAsync({ id, data }),
         updateOpportunityStatus: (id: number, payload: { status: 'pendiente' | 'ganado' | 'perdido'; lost_reason?: string; lost_reason_detail?: string }) =>
             updateStatusMutation.mutateAsync({ id, payload }),
     };

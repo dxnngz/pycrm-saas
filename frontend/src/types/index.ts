@@ -88,6 +88,9 @@ export interface Opportunity {
     notes?: string;
     lost_reason?: string;
     lost_reason_detail?: string;
+    source?: string;
+    probability?: number;
+    next_action_at?: string;
     created_at?: string;
     client_name?: string; // UI specific
     client_company?: string; // UI specific

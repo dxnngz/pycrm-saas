@@ -4,6 +4,7 @@ export interface DashboardStats {
     totalSales: number;
     conversionRate: number;
     averageTicket: number;
+    lossesByReason?: Array<{ reason: string; count: number; amount: number }>;
     repPerformance: Array<{ id: string | number; name: string; total_sales: number }>;
     chartData: Array<{ name: string; sales: number }>;
     cached?: boolean;

@@ -10,13 +10,15 @@ import {
     Briefcase,
     TrendingUp,
     ShieldCheck,
-    Zap
+    Zap,
+    Pencil
 } from 'lucide-react';
 import { getOpportunityScore } from '../../services/ai';
 import { useOpportunities } from '../../hooks/useOpportunities';
 import { useOpportunitySummary } from '../../hooks/useOpportunitySummary';
 import { useClients } from '../../hooks/useClients';
 import { usePermissions } from '../../hooks/usePermissions';
+import { useTenantPlan } from '../../hooks/useTenantPlan';
 import type { Opportunity } from '../../types';
 import { sanitizePayload } from '../../utils/sanitize';
 import Modal from '../Common/Modal';
@@ -31,12 +33,14 @@ const OpportunityCard = memo(({
     opp,
     scores,
     canEditOpportunity,
-    onUpdateStatus
+    onUpdateStatus,
+    onEdit
 }: {
     opp: Opportunity,
     scores: Record<number, { score: number; classification: string }>,
     canEditOpportunity: boolean,
-    onUpdateStatus: (id: number, status: 'pendiente' | 'ganado' | 'perdido') => void
+    onUpdateStatus: (id: number, status: 'pendiente' | 'ganado' | 'perdido') => void,
+    onEdit: (opp: Opportunity) => void
 }) => {
     return (
         <div
@@ -67,6 +71,19 @@ const OpportunityCard = memo(({
                 </div>
 
                 <div className="flex items-center gap-1">
+                    {canEditOpportunity && (
+                        <button
+                            onClick={(e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                onEdit(opp);
+                            }}
+                            className="p-1.5 text-surface-muted hover:text-primary-600 hover:bg-surface-hover rounded transition-colors"
+                            title="Editar"
+                        >
+                            <Pencil size={14} />
+                        </button>
+                    )}
                     {canEditOpportunity && opp.status === 'pendiente' && (
                         <>
                             <button
@@ -112,10 +129,11 @@ const PipelineView = () => {
         return () => clearTimeout(timer);
     }, [search]);
 
-    const { opportunities, loading: oppsLoading, pagination, loadMore, isLoadingMore, createOpportunity, updateOpportunityStatus } = useOpportunities(50, debouncedSearch);
+    const { opportunities, loading: oppsLoading, pagination, loadMore, isLoadingMore, createOpportunity, updateOpportunityStatus, updateOpportunity } = useOpportunities(50, debouncedSearch);
     const { data: summaryData } = useOpportunitySummary(debouncedSearch);
     const { clients, loading: clientsLoading } = useClients(100);
     const { canCreateOpportunity } = usePermissions();
+    const { data: tenantPlan } = useTenantPlan();
     const loading = oppsLoading || clientsLoading;
 
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -124,6 +142,16 @@ const PipelineView = () => {
     const [lossReason, setLossReason] = useState('');
     const [lossReasonDetail, setLossReasonDetail] = useState('');
     const [isLossSubmitting, setIsLossSubmitting] = useState(false);
+    const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+    const [editOpp, setEditOpp] = useState<Opportunity | null>(null);
+    const [editProduct, setEditProduct] = useState('');
+    const [editAmount, setEditAmount] = useState('');
+    const [editSource, setEditSource] = useState('');
+    const [editProbability, setEditProbability] = useState('');
+    const [editEstimatedCloseDate, setEditEstimatedCloseDate] = useState('');
+    const [editNextActionAt, setEditNextActionAt] = useState('');
+    const [editNotes, setEditNotes] = useState('');
+    const [isEditSubmitting, setIsEditSubmitting] = useState(false);
     const [activeFilter, setActiveFilter] = useState<'all' | 'high-value' | 'high-score' | 'stagnant'>('all');
 
     // Form state
@@ -222,6 +250,72 @@ const PipelineView = () => {
 
         handleUpdateStatus(opportunityId, newStatus);
     }, [handleUpdateStatus]);
+
+    const settings = (tenantPlan?.settings || {}) as Record<string, unknown>;
+    const lossReasons = Array.isArray(settings.lossReasons) && settings.lossReasons.length > 0
+        ? settings.lossReasons.filter((v) => typeof v === 'string' && v.trim()).map((v) => String(v))
+        : ['Precio', 'Competencia', 'Sin respuesta', 'No encaja', 'Timing', 'Otro'];
+
+    const toDateInputValue = (value?: string) => {
+        if (!value) return '';
+        const d = new Date(value);
+        if (Number.isNaN(d.getTime())) return '';
+        const yyyy = d.getFullYear();
+        const mm = String(d.getMonth() + 1).padStart(2, '0');
+        const dd = String(d.getDate()).padStart(2, '0');
+        return `${yyyy}-${mm}-${dd}`;
+    };
+
+    const toDatetimeLocalValue = (value?: string) => {
+        if (!value) return '';
+        const d = new Date(value);
+        if (Number.isNaN(d.getTime())) return '';
+        const yyyy = d.getFullYear();
+        const mm = String(d.getMonth() + 1).padStart(2, '0');
+        const dd = String(d.getDate()).padStart(2, '0');
+        const hh = String(d.getHours()).padStart(2, '0');
+        const mi = String(d.getMinutes()).padStart(2, '0');
+        return `${yyyy}-${mm}-${dd}T${hh}:${mi}`;
+    };
+
+    const openEdit = (opp: Opportunity) => {
+        setEditOpp(opp);
+        setEditProduct(opp.product || '');
+        setEditAmount(String(opp.amount ?? ''));
+        setEditSource(opp.source || '');
+        setEditProbability(opp.probability !== undefined && opp.probability !== null ? String(opp.probability) : '');
+        setEditEstimatedCloseDate(toDateInputValue(opp.estimated_close_date));
+        setEditNextActionAt(toDatetimeLocalValue(opp.next_action_at));
+        setEditNotes(opp.notes || '');
+        setIsEditModalOpen(true);
+    };
+
+    const handleSaveEdit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!editOpp) return;
+
+        setIsEditSubmitting(true);
+        try {
+            const payload: Record<string, unknown> = {
+                product: editProduct.trim(),
+                amount: Number(editAmount),
+                source: editSource.trim() ? editSource.trim() : undefined,
+                probability: editProbability.trim() ? Number(editProbability) : undefined,
+                estimated_close_date: editEstimatedCloseDate ? new Date(editEstimatedCloseDate).toISOString() : '',
+                next_action_at: editNextActionAt ? new Date(editNextActionAt).toISOString() : '',
+                notes: editNotes.trim() ? editNotes.trim() : '',
+            };
+
+            await updateOpportunity(editOpp.id, sanitizePayload(payload) as any);
+            setIsEditModalOpen(false);
+            setEditOpp(null);
+        } catch (error: unknown) {
+            console.error(error);
+            toast.error('No se pudo guardar la oportunidad.');
+        } finally {
+            setIsEditSubmitting(false);
+        }
+    };
 
     const handleConfirmLoss = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -407,6 +501,7 @@ const PipelineView = () => {
                                                                 scores={scores}
                                                                 canEditOpportunity={canCreateOpportunity}
                                                                 onUpdateStatus={handleUpdateStatus}
+                                                                onEdit={openEdit}
                                                             />
                                                         </div>
                                                     )}
@@ -519,12 +614,9 @@ const PipelineView = () => {
                         onChange={(e) => setLossReason(e.target.value)}
                     >
                         <option value="">Selecciona un motivo...</option>
-                        <option value="Precio">Precio</option>
-                        <option value="Competencia">Competencia</option>
-                        <option value="Sin respuesta">Sin respuesta</option>
-                        <option value="No encaja">No encaja</option>
-                        <option value="Timing">Timing</option>
-                        <option value="Otro">Otro</option>
+                        {lossReasons.map((r) => (
+                            <option key={r} value={r}>{r}</option>
+                        ))}
                     </Select>
 
                     <div className="w-full">
@@ -558,6 +650,99 @@ const PipelineView = () => {
                             disabled={!lossReason.trim()}
                         >
                             Marcar como perdida
+                        </Button>
+                    </div>
+                </form>
+            </Modal>
+
+            <Modal
+                isOpen={isEditModalOpen}
+                onClose={() => {
+                    if (isEditSubmitting) return;
+                    setIsEditModalOpen(false);
+                    setEditOpp(null);
+                }}
+                title="Editar oportunidad"
+                maxWidth="max-w-xl"
+            >
+                <form onSubmit={handleSaveEdit} className="space-y-4">
+                    <Input
+                        label="Producto / Solución"
+                        required
+                        value={editProduct}
+                        onChange={(e) => setEditProduct(e.target.value)}
+                    />
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <Input
+                            label="Importe (€)"
+                            type="number"
+                            required
+                            value={editAmount}
+                            onChange={(e) => setEditAmount(e.target.value)}
+                        />
+                        <Input
+                            label="Fuente"
+                            value={editSource}
+                            onChange={(e) => setEditSource(e.target.value)}
+                            placeholder="Ej: web, referral, llamada..."
+                        />
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <Input
+                            label="Probabilidad (%)"
+                            type="number"
+                            value={editProbability}
+                            onChange={(e) => setEditProbability(e.target.value)}
+                            placeholder="0 - 100"
+                        />
+                        <Input
+                            label="Próxima acción"
+                            type="datetime-local"
+                            value={editNextActionAt}
+                            onChange={(e) => setEditNextActionAt(e.target.value)}
+                        />
+                    </div>
+
+                    <Input
+                        label="Cierre estimado"
+                        type="date"
+                        value={editEstimatedCloseDate}
+                        onChange={(e) => setEditEstimatedCloseDate(e.target.value)}
+                    />
+
+                    <div className="w-full">
+                        <label className="block mb-1 text-[11px] font-bold text-surface-muted uppercase tracking-wider">
+                            Notas
+                        </label>
+                        <textarea
+                            value={editNotes}
+                            onChange={(e) => setEditNotes(e.target.value)}
+                            rows={5}
+                            className="w-full rounded-xl text-sm transition-all bg-surface-input border border-surface-border text-surface-text placeholder:text-surface-muted focus:border-primary-500 focus:ring-primary-500/20 focus:outline-none focus:ring-2 px-4 py-3 shadow-sm"
+                            placeholder="Contexto, próximos pasos, objeciones..."
+                        />
+                    </div>
+
+                    <div className="pt-4 flex justify-end gap-3">
+                        <Button
+                            variant="outline"
+                            onClick={() => {
+                                if (isEditSubmitting) return;
+                                setIsEditModalOpen(false);
+                                setEditOpp(null);
+                            }}
+                        >
+                            Cancelar
+                        </Button>
+                        <Button
+                            variant="primary"
+                            type="submit"
+                            isLoading={isEditSubmitting}
+                            disabled={!editProduct.trim() || !editAmount.trim()}
+                        >
+                            Guardar
                         </Button>
                     </div>
                 </form>

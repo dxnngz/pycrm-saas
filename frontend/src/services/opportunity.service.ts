@@ -30,6 +30,13 @@ export const opportunityService = {
             body: JSON.stringify(opportunity),
         }).then(handleResponse),
 
+    update: (id: number, opportunity: Partial<Opportunity> & { version?: number }): Promise<Opportunity> =>
+        customFetch(`/opportunities/${id}`, {
+            method: 'PATCH',
+            headers: getHeaders(),
+            body: JSON.stringify(opportunity),
+        }).then(handleResponse),
+
     updateStatus: (
         id: number,
         payload: { status: string; lost_reason?: string; lost_reason_detail?: string }

@@ -8,7 +8,8 @@ import {
     History,
     Settings as SettingsIcon,
     Database,
-    Mail
+    Mail,
+    TrendingDown
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useUI } from '../../hooks/useUI';
@@ -21,6 +22,7 @@ import { demoService } from '../../services/demo.service';
 import { authService } from '../../services/auth.service';
 
 const AuditLogs = lazy(() => import('./AuditLogs'));
+const LossReasonsSettings = lazy(() => import('./LossReasonsSettings'));
 
 const SettingsView = () => {
     const location = useLocation();
@@ -50,6 +52,10 @@ const SettingsView = () => {
         { id: 'appearance', label: 'Apariencia', icon: Palette },
     ];
 
+    if (user?.role === 'admin' || user?.role === 'manager') {
+        tabs.push({ id: 'sales', label: 'Ventas', icon: TrendingDown });
+    }
+
     if (user?.role === 'admin') {
         tabs.push({ id: 'audit', label: 'Registro', icon: History });
         tabs.push({ id: 'demo', label: 'Datos demo', icon: Database });
@@ -57,8 +63,10 @@ const SettingsView = () => {
 
     useEffect(() => {
         const allowedTabs = user?.role === 'admin'
-            ? new Set(['profile', 'notifications', 'security', 'appearance', 'audit', 'demo'])
-            : new Set(['profile', 'notifications', 'security', 'appearance']);
+            ? new Set(['profile', 'notifications', 'security', 'appearance', 'sales', 'audit', 'demo'])
+            : user?.role === 'manager'
+                ? new Set(['profile', 'notifications', 'security', 'appearance', 'sales'])
+                : new Set(['profile', 'notifications', 'security', 'appearance']);
 
         const tab = new URLSearchParams(location.search).get('tab');
         if (tab && allowedTabs.has(tab)) {
@@ -213,6 +221,12 @@ const SettingsView = () => {
                     {activeTab === 'audit' && (
                         <Suspense fallback={<div className="space-y-4 pt-4"><Skeleton className="h-40 w-full rounded-2xl" /><Skeleton className="h-40 w-full rounded-2xl" /></div>}>
                             <AuditLogs />
+                        </Suspense>
+                    )}
+
+                    {activeTab === 'sales' && (user?.role === 'admin' || user?.role === 'manager') && (
+                        <Suspense fallback={<div className="space-y-4 pt-4"><Skeleton className="h-40 w-full rounded-2xl" /><Skeleton className="h-28 w-full rounded-2xl" /></div>}>
+                            <LossReasonsSettings />
                         </Suspense>
                     )}
 

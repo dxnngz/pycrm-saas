@@ -77,6 +77,7 @@ export const useDashboardData = (period: 'monthly' | 'yearly', refreshNonce: num
                     recentActivity,
                     winRate: backendMetrics?.conversionRate || 0,
                     repPerformance: (backendMetrics?.repPerformance || []).slice(0, 5),
+                    lossesByReason: backendMetrics?.lossesByReason || [],
                     chartData: backendMetrics?.chartData || []
                 },
                 forecast: prediction,
