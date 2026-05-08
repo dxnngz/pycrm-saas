@@ -7,6 +7,10 @@ export const createOpportunitySchema = z.object({
         amount: z.number().positive('El monto debe ser positivo'),
         status: z.enum(['pendiente', 'ganado', 'perdido']).default('pendiente'),
         notes: z.string().optional(),
+        source: z.string().trim().min(1).max(50).optional(),
+        probability: z.number().int().min(0).max(100).optional(),
+        estimated_close_date: z.string().optional(),
+        next_action_at: z.string().optional(),
     })
 });
 
@@ -39,5 +43,23 @@ export const getOpportunitySummarySchema = z.object({
 export const opportunityIdSchema = z.object({
     params: z.object({
         id: z.string().regex(/^\d+$/, 'ID debe ser un número').transform(Number)
+    })
+});
+
+export const updateOpportunitySchema = z.object({
+    params: z.object({
+        id: z.string().regex(/^\d+$/, 'ID debe ser un número').transform(Number)
+    }),
+    body: z.object({
+        client_id: z.number().int().positive().optional(),
+        product: z.string().min(1).optional(),
+        amount: z.number().positive().optional(),
+        notes: z.string().optional(),
+        source: z.string().trim().min(1).max(50).optional(),
+        probability: z.number().int().min(0).max(100).optional(),
+        estimated_close_date: z.string().optional(),
+        next_action_at: z.string().optional(),
+        assigned_to: z.number().int().positive().optional(),
+        version: z.number().optional()
     })
 });

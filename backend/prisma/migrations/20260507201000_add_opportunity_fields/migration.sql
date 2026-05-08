@@ -1,0 +1,4 @@
+ALTER TABLE "opportunities" ADD COLUMN IF NOT EXISTS "source" VARCHAR(50);
+ALTER TABLE "opportunities" ADD COLUMN IF NOT EXISTS "probability" INTEGER DEFAULT 0;
+ALTER TABLE "opportunities" ADD COLUMN IF NOT EXISTS "next_action_at" TIMESTAMP(6);
+

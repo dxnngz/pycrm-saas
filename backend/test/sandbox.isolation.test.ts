@@ -30,6 +30,20 @@ describe('Multi-Tenant Sandbox Isolation Tests', () => {
     let clientB: any;
 
     beforeAll(async () => {
+        const ddls = [
+            `ALTER TABLE "opportunities" ADD COLUMN IF NOT EXISTS "closed_at" TIMESTAMP(6)`,
+            `ALTER TABLE "opportunities" ADD COLUMN IF NOT EXISTS "notes" TEXT`,
+            `ALTER TABLE "opportunities" ADD COLUMN IF NOT EXISTS "lost_reason" VARCHAR(50)`,
+            `ALTER TABLE "opportunities" ADD COLUMN IF NOT EXISTS "lost_reason_detail" TEXT`,
+            `ALTER TABLE "opportunities" ADD COLUMN IF NOT EXISTS "source" VARCHAR(50)`,
+            `ALTER TABLE "opportunities" ADD COLUMN IF NOT EXISTS "probability" INTEGER DEFAULT 0`,
+            `ALTER TABLE "opportunities" ADD COLUMN IF NOT EXISTS "next_action_at" TIMESTAMP(6)`,
+        ];
+
+        for (const ddl of ddls) {
+            await basePrisma.$executeRawUnsafe(ddl);
+        }
+
         // Setup raw base data using the raw PrismaClient to bypass isolation during setup
         tenantA = await basePrisma.tenant.create({ data: { name: 'Empresa A' } });
         tenantB = await basePrisma.tenant.create({ data: { name: 'Empresa B' } });
@@ -50,9 +64,12 @@ describe('Multi-Tenant Sandbox Isolation Tests', () => {
     });
 
     afterAll(async () => {
-        await basePrisma.tenant.deleteMany({
-            where: { id: { in: [tenantA.id, tenantB.id] } }
-        });
+        const ids = [tenantA?.id, tenantB?.id].filter(Boolean);
+        if (ids.length > 0) {
+            await basePrisma.tenant.deleteMany({
+                where: { id: { in: ids } }
+            });
+        }
         await basePrisma.$disconnect();
     });
 

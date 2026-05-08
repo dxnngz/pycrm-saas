@@ -41,6 +41,24 @@ export const createOpportunity = asyncHandler(async (req: Request, res: Response
     res.status(201).json(opportunity);
 });
 
+export const updateOpportunity = asyncHandler(async (req: Request, res: Response) => {
+    try {
+        const tenantId = req.user!.tenantId;
+        const id = parseInt(req.params.id as string);
+
+        const updated = await opportunityService.updateOpportunityById(tenantId, id, req.body);
+
+        events.emit('workflow:opportunity_updated', { tenantId, userId: req.user?.userId, data: updated });
+
+        res.json(updated);
+    } catch (error: any) {
+        if (error.code === 'P2025') {
+            throw new AppError('Oportunidad no encontrada o fue modificada por otro usuario (Conflicto de Version). Por favor, recarga y vuelve a intentarlo.', 409);
+        }
+        throw error;
+    }
+});
+
 export const updateOpportunityStatus = asyncHandler(async (req: Request, res: Response) => {
     try {
         const tenantId = req.user!.tenantId;

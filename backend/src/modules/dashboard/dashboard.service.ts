@@ -66,6 +66,7 @@ export class DashboardService {
                 totalSales: 0,
                 conversionRate: 0,
                 averageTicket: 0,
+                lossesByReason: [],
                 repPerformance: [],
                 chartData: [],
                 degraded: true,
@@ -240,6 +241,27 @@ export class DashboardService {
         const { won = 0, closed = 0, avg_ticket = 0 } = metricsResult[0] || {};
         const conversionRate = Number(closed) > 0 ? (Number(won) / Number(closed)) * 100 : 0;
 
+        const lossesByReasonResult: any = await prisma.$queryRaw`
+            SELECT
+                COALESCE(NULLIF(TRIM(lost_reason), ''), 'Sin motivo') as reason,
+                COUNT(*)::int as count,
+                COALESCE(SUM(amount), 0) as amount
+            FROM opportunities
+            WHERE tenant_id = ${tenantId}
+              AND status IN ('perdido', 'perdida')
+              AND COALESCE(closed_at, estimated_close_date, created_at::date) >= ${rangeStart}
+              AND COALESCE(closed_at, estimated_close_date, created_at::date) < ${rangeEnd}
+            GROUP BY reason
+            ORDER BY count DESC, amount DESC
+            LIMIT 6
+        `;
+
+        const lossesByReason = (lossesByReasonResult || []).map((r: any) => ({
+            reason: String(r.reason || '').trim() || 'Sin motivo',
+            count: Number(r.count) || 0,
+            amount: Number(r.amount) || 0,
+        }));
+
         // 3. Rep Performance
         const repPerformanceResult: any = await prisma.$queryRaw`
             SELECT u.id, u.name, COALESCE(SUM(o.amount), 0) as total_sales
@@ -301,6 +323,7 @@ export class DashboardService {
             totalSales,
             conversionRate,
             averageTicket: Number(avg_ticket),
+            lossesByReason,
             repPerformance,
             chartData
         };

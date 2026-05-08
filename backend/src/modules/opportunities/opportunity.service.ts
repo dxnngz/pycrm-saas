@@ -4,6 +4,20 @@ import { opportunityRepository } from '../../repositories/opportunity.repository
 import { AppError } from '../../utils/AppError.js';
 
 export class OpportunityService {
+    private parseOptionalDate(value: unknown, fieldLabel: string): Date | null | undefined {
+        if (value === undefined) return undefined;
+        if (value === null) return null;
+        if (typeof value !== 'string') {
+            throw new AppError(`${fieldLabel} inválida.`, 400);
+        }
+        const v = value.trim();
+        if (!v) return null;
+        const d = new Date(v);
+        if (Number.isNaN(d.getTime())) {
+            throw new AppError(`${fieldLabel} inválida.`, 400);
+        }
+        return d;
+    }
 
     async getAllOpportunities(tenantId: number, options: { limit?: number; search?: string; cursor?: number } = {}) {
         const { limit = 10, search = '', cursor } = options;
@@ -94,7 +108,7 @@ export class OpportunityService {
         };
     }
 
-    async createOpportunity(data: { client_id: number; product: string; amount: number; status?: string; estimated_close_date?: string; notes?: string }, tenantId: number) {
+    async createOpportunity(data: { client_id: number; product: string; amount: number; status?: string; estimated_close_date?: string; notes?: string; source?: string; probability?: number; next_action_at?: string }, tenantId: number) {
         const status = data.status || 'pendiente';
         const closedStatuses = new Set(['ganado', 'ganada', 'perdido', 'perdida']);
         const isClosed = closedStatuses.has(status);
@@ -108,8 +122,64 @@ export class OpportunityService {
                 ? new Date(data.estimated_close_date)
                 : new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
             closed_at: isClosed ? new Date() : null,
-            notes: data.notes?.trim() ? data.notes.trim() : null
+            notes: data.notes?.trim() ? data.notes.trim() : null,
+            source: data.source?.trim() ? data.source.trim() : null,
+            probability: typeof data.probability === 'number' ? Math.max(0, Math.min(100, Math.floor(data.probability))) : 0,
+            next_action_at: data.next_action_at ? this.parseOptionalDate(data.next_action_at, 'Fecha de próxima acción') : null
         });
+        await redisCache.invalidateTenantCache(tenantId, 'opportunities');
+        await redisCache.invalidate(`dashboard:metrics:${tenantId}:*`);
+        return result;
+    }
+
+    async updateOpportunityById(
+        tenantId: number,
+        id: number,
+        data: {
+            client_id?: number;
+            assigned_to?: number;
+            product?: string;
+            amount?: number;
+            notes?: string;
+            source?: string;
+            probability?: number;
+            estimated_close_date?: string;
+            next_action_at?: string;
+            version?: number;
+        }
+    ) {
+        const updateData: any = {};
+
+        if (data.client_id !== undefined) updateData.client_id = data.client_id;
+        if (data.assigned_to !== undefined) updateData.assigned_to = data.assigned_to;
+        if (data.product !== undefined) updateData.product = data.product;
+        if (data.amount !== undefined) updateData.amount = data.amount;
+
+        if (data.notes !== undefined) {
+            const v = data.notes?.trim();
+            updateData.notes = v ? v : null;
+        }
+
+        if (data.source !== undefined) {
+            const v = data.source?.trim();
+            updateData.source = v ? v : null;
+        }
+
+        if (data.probability !== undefined) {
+            updateData.probability = Math.max(0, Math.min(100, Math.floor(Number(data.probability))));
+        }
+
+        const estimatedClose = this.parseOptionalDate(data.estimated_close_date, 'Fecha estimada de cierre');
+        if (estimatedClose !== undefined) updateData.estimated_close_date = estimatedClose;
+
+        const nextActionAt = this.parseOptionalDate(data.next_action_at, 'Fecha de próxima acción');
+        if (nextActionAt !== undefined) updateData.next_action_at = nextActionAt;
+
+        const result = await opportunityRepository.update(tenantId, id, {
+            ...updateData,
+            ...(data.version !== undefined && { version: data.version })
+        });
+
         await redisCache.invalidateTenantCache(tenantId, 'opportunities');
         await redisCache.invalidate(`dashboard:metrics:${tenantId}:*`);
         return result;

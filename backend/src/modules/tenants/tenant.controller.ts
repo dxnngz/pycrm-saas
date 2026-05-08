@@ -2,9 +2,7 @@ import { Request, Response } from 'express';
 import { tenantService } from './tenant.service.js';
 import { asyncHandler } from '../../utils/asyncHandler.js';
 import { AppError } from '../../utils/AppError.js';
-import { PrismaClient } from '@prisma/client';
-
-const prisma = new PrismaClient();
+import { prisma } from '../../core/prisma.js';
 
 export const getMyPlan = asyncHandler(async (req: Request, res: Response) => {
     const tenantId = req.user?.tenantId;
