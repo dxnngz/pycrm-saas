@@ -23,7 +23,7 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
     onSecondaryAction
 }) => {
     return (
-        <div className="flex flex-col items-center justify-center p-12 text-center bg-surface-card rounded-xl border border-dashed border-surface-border">
+        <div className="w-full max-w-lg mx-auto flex flex-col items-center justify-center px-6 py-12 text-center">
             <div className="w-16 h-16 bg-surface-muted-bg rounded-2xl flex items-center justify-center text-surface-muted mb-6">
                 <Icon size={32} strokeWidth={1.5} />
             </div>

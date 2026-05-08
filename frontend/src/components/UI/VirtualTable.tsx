@@ -58,7 +58,7 @@ export function VirtualTable<T>({
     if (data.length === 0) {
         return (
             <div className="w-full border border-surface-border rounded-lg bg-surface-card shadow-sm">
-                <div className="h-64 flex items-center justify-center">
+                <div className="min-h-64 flex items-center justify-center">
                     {emptyContent ? (
                         emptyContent
                     ) : (
