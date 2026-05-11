@@ -54,6 +54,8 @@ Para arrancar todo el ecosistema (DB, API, WEB):
 docker-compose up -d --build
 ```
 
+Nota: para producción, define `JWT_SECRET`, `JWT_REFRESH_SECRET` y `DATABASE_URL` como variables de entorno (no hardcodearlas en el repo). Puedes usar `backend/.env.example` como referencia.
+
 ### Desarrollo local (sin Docker)
 Backend:
 ```bash
