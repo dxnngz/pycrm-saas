@@ -4,9 +4,9 @@ services:
     container_name: pycrm-db
     restart: always
     environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: password
-      POSTGRES_DB: pycrm
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-password}
+      POSTGRES_DB: ${POSTGRES_DB:-pycrm}
     ports:
       - "5432:5432"
     volumes:
@@ -28,14 +28,14 @@ services:
       - "3001:3001"
     environment:
       - DB_HOST=db
-      - DB_PORT=5432
-      - DB_USER=postgres
-      - DB_PASSWORD=password
-      - DB_NAME=pycrm
-      - JWT_SECRET=supersecretkey123
-      - JWT_REFRESH_SECRET=default_refresh
-      - DATABASE_URL=postgres://postgres:password@db:5432/pycrm
-      - REDIS_URL=redis://redis:6379
+      - DB_PORT=${DB_PORT:-5432}
+      - DB_USER=${POSTGRES_USER:-postgres}
+      - DB_PASSWORD=${POSTGRES_PASSWORD:-password}
+      - DB_NAME=${POSTGRES_DB:-pycrm}
+      - JWT_SECRET=${JWT_SECRET:-change_me}
+      - JWT_REFRESH_SECRET=${JWT_REFRESH_SECRET:-change_me_too}
+      - DATABASE_URL=${DATABASE_URL:-postgres://postgres:password@db:5432/pycrm}
+      - REDIS_URL=${REDIS_URL:-redis://redis:6379}
     depends_on:
       - db
       - redis
