@@ -1,3 +1,28 @@
+# PyCRM Frontend (React + Vite)
+
+Frontend del CRM PyCRM.
+
+## Desarrollo local
+
+Requiere el backend corriendo.
+
+```bash
+npm i
+VITE_PROXY_TARGET=http://127.0.0.1:3001 npm run dev
+```
+
+## Build
+
+```bash
+npm run build
+```
+
+## Variables
+
+- `VITE_PROXY_TARGET`: URL del backend para proxy en dev (por defecto: `http://127.0.0.1:3001`).
+
+---
+
 # React + TypeScript + Vite
 
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.

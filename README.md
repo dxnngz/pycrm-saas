@@ -2,6 +2,16 @@
 
 PyCRM es un moderno CRM (Customer Relationship Management) diseñado bajo el concepto "Enterprise", con una arquitectura en capas, máxima tipificación, rendimiento dinámico mediado por React y Framer Motion, y robustez en el backend mediante Express, PostgreSQL y Zod.
 
+## ✅ Funcionalidades principales
+
+- Multi-tenant con aislamiento por empresa.
+- Pipeline de oportunidades estilo kanban con drag&drop.
+- Etapas del pipeline configurables por empresa (Ajustes → Ventas).
+- Motivos de pérdida configurables por empresa + widget “Pérdidas por motivo”.
+- Oportunidades con campos útiles (notas, fuente, probabilidad, próxima acción, fecha cierre real).
+- Dashboard con métricas por fecha de cierre real y feed de actividad basado en auditoría.
+- RBAC (roles/permisos) para control de acceso.
+
 ## 🌟 Arquitectura del Proyecto
 
 El sistema está dividido en dos grandes bloques utilizando una arquitectura orientada a servicios (SOA) y modularización Clean Architecture:
@@ -31,16 +41,34 @@ El sistema está dividido en dos grandes bloques utilizando una arquitectura ori
 PyCRM está configurado para un despliegue seguro y escalable mediante contenedores.
 
 ### Configuración de Entorno
-Crea un archivo `.env` en el directorio `backend` con las siguientes variables:
-- `PORT`: Puerto de escucha (default: 3001).
-- `DB_HOST`: Host de la base de datos (usar `db` si es Docker).
-- `JWT_SECRET`: CLAVE SECRETA CRITICAL (Obligatoria en producción).
-- `FRONTEND_URL`: URL de tu frontend para configuración de CORS.
+Crea un archivo `.env` en el directorio `backend` con las siguientes variables (pueden variar según despliegue):
+- `PORT` (default: 3001)
+- `DATABASE_URL` (PostgreSQL)
+- `JWT_SECRET` y `JWT_REFRESH_SECRET`
+- `FRONTEND_URL` (CORS)
+- `REDIS_URL` (opcional; si no está, el sistema funciona sin cache Redis)
 
 ### Ejecución Integral
 Para arrancar todo el ecosistema (DB, API, WEB):
 ```bash
 docker-compose up -d --build
+```
+
+### Desarrollo local (sin Docker)
+Backend:
+```bash
+cd backend
+npm i
+npx prisma generate
+npx prisma migrate deploy
+npm run dev
+```
+
+Frontend:
+```bash
+cd frontend
+npm i
+VITE_PROXY_TARGET=http://127.0.0.1:3001 npm run dev
 ```
 
 ### Optimización y Rendimiento
@@ -50,4 +78,3 @@ docker-compose up -d --build
 
 ---
 © 2024 PyCRM Enterprise | Desarrollado con excelencia técnica.
-
