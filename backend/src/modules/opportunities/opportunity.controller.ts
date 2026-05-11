@@ -7,23 +7,33 @@ import { events } from '../../core/events.js';
 import { tenantService } from '../tenants/tenant.service.js';
 
 export const getOpportunities = asyncHandler(async (req: Request, res: Response) => {
-    const { limit, search, cursor } = req.query as any;
+    const { limit, search, cursor, status, assigned_to, amount_min, amount_max, overdue } = req.query as any;
     const user = req.user!;
 
     const opportunities = await opportunityService.getAllOpportunities(user.tenantId, {
         limit: limit ? parseInt(limit as string) : 10,
         search: search as string,
-        cursor: cursor ? parseInt(cursor as string) : undefined
+        cursor: cursor ? parseInt(cursor as string) : undefined,
+        status: status as string | undefined,
+        assigned_to: assigned_to ? parseInt(assigned_to as string) : undefined,
+        amount_min: amount_min !== undefined ? Number(amount_min) : undefined,
+        amount_max: amount_max !== undefined ? Number(amount_max) : undefined,
+        overdue: overdue === '1' || overdue === 'true',
     });
     res.json(opportunities);
 });
 
 export const getOpportunitySummary = asyncHandler(async (req: Request, res: Response) => {
-    const { search } = req.query as any;
+    const { search, status, assigned_to, amount_min, amount_max, overdue } = req.query as any;
     const user = req.user!;
 
     const summary = await opportunityService.getOpportunitySummary(user.tenantId, {
-        search: (search as string) || ''
+        search: (search as string) || '',
+        status: status as string | undefined,
+        assigned_to: assigned_to ? parseInt(assigned_to as string) : undefined,
+        amount_min: amount_min !== undefined ? Number(amount_min) : undefined,
+        amount_max: amount_max !== undefined ? Number(amount_max) : undefined,
+        overdue: overdue === '1' || overdue === 'true',
     });
 
     res.json(summary);

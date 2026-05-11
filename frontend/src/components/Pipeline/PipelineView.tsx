@@ -19,7 +19,8 @@ import { useOpportunitySummary } from '../../hooks/useOpportunitySummary';
 import { useClients } from '../../hooks/useClients';
 import { usePermissions } from '../../hooks/usePermissions';
 import { useTenantPlan } from '../../hooks/useTenantPlan';
-import type { Opportunity } from '../../types';
+import { useAuth } from '../../context/AuthContext';
+import type { Opportunity, PipelineStageCategory } from '../../types';
 import { sanitizePayload } from '../../utils/sanitize';
 import Modal from '../Common/Modal';
 import { Input } from '../UI/Input';
@@ -34,14 +35,24 @@ const OpportunityCard = memo(({
     scores,
     canEditOpportunity,
     onUpdateStatus,
-    onEdit
+    onEdit,
+    stageCategoryById,
+    defaultOpenStageId,
+    defaultWonStageId,
+    defaultLostStageId
 }: {
     opp: Opportunity,
     scores: Record<number, { score: number; classification: string }>,
     canEditOpportunity: boolean,
-    onUpdateStatus: (id: number, status: 'pendiente' | 'ganado' | 'perdido') => void,
-    onEdit: (opp: Opportunity) => void
+    onUpdateStatus: (id: number, status: string) => void,
+    onEdit: (opp: Opportunity) => void,
+    stageCategoryById: Record<string, PipelineStageCategory | undefined>,
+    defaultOpenStageId: string,
+    defaultWonStageId?: string,
+    defaultLostStageId?: string
 }) => {
+    const category = stageCategoryById[opp.status];
+    const isOpen = category === 'open';
     return (
         <div
             className="bg-surface-card p-4 rounded-lg border border-surface-border shadow-sm hover:border-primary-500/50 transition-all cursor-grab active:cursor-grabbing group"
@@ -49,7 +60,7 @@ const OpportunityCard = memo(({
             <div className="flex flex-col gap-2 mb-3">
                 <div className="flex items-center justify-between">
                     <span className="text-[10px] font-bold text-surface-muted uppercase tracking-wider">{opp.client_company}</span>
-                    {opp.status === 'pendiente' && scores[opp.id] && (
+                    {isOpen && scores[opp.id] && (
                         <div className="flex items-center gap-1 text-[10px] font-semibold text-success-text bg-success-bg px-1.5 py-0.5 rounded border border-success-border">
                             <TrendingUp size={10} />
                             {scores[opp.id].score}%
@@ -84,17 +95,17 @@ const OpportunityCard = memo(({
                             <Pencil size={14} />
                         </button>
                     )}
-                    {canEditOpportunity && opp.status === 'pendiente' && (
+                    {canEditOpportunity && isOpen && defaultWonStageId && defaultLostStageId && (
                         <>
                             <button
-                                onClick={() => onUpdateStatus(opp.id, 'ganado')}
+                                onClick={() => onUpdateStatus(opp.id, defaultWonStageId)}
                                 className="p-1.5 text-surface-muted hover:text-success-icon hover:bg-success-bg rounded transition-colors"
                                 title="Marcar como ganado"
                             >
                                 <Check size={14} />
                             </button>
                             <button
-                                onClick={() => onUpdateStatus(opp.id, 'perdido')}
+                                onClick={() => onUpdateStatus(opp.id, defaultLostStageId)}
                                 className="p-1.5 text-surface-muted hover:text-danger-icon hover:bg-danger-bg rounded transition-colors"
                                 title="Marcar como perdido"
                             >
@@ -102,9 +113,9 @@ const OpportunityCard = memo(({
                             </button>
                         </>
                     )}
-                    {canEditOpportunity && opp.status !== 'pendiente' && (
+                    {canEditOpportunity && !isOpen && (
                         <button
-                            onClick={() => onUpdateStatus(opp.id, 'pendiente')}
+                            onClick={() => onUpdateStatus(opp.id, defaultOpenStageId)}
                             className="text-[10px] font-bold text-surface-muted hover:text-primary-600 transition-colors uppercase"
                         >
                             Reabrir
@@ -121,6 +132,12 @@ OpportunityCard.displayName = 'OpportunityCard';
 const PipelineView = () => {
     const [search, setSearch] = useState('');
     const [debouncedSearch, setDebouncedSearch] = useState('');
+    const { user } = useAuth();
+    const [mineOnly, setMineOnly] = useState(false);
+    const [overdueOnly, setOverdueOnly] = useState(false);
+    const [amountMin, setAmountMin] = useState('');
+    const [amountMax, setAmountMax] = useState('');
+    const [focusStageId, setFocusStageId] = useState('');
 
     useEffect(() => {
         const timer = setTimeout(() => {
@@ -129,8 +146,15 @@ const PipelineView = () => {
         return () => clearTimeout(timer);
     }, [search]);
 
-    const { opportunities, loading: oppsLoading, pagination, loadMore, isLoadingMore, createOpportunity, updateOpportunityStatus, updateOpportunity } = useOpportunities(50, debouncedSearch);
-    const { data: summaryData } = useOpportunitySummary(debouncedSearch);
+    const filters = {
+        assigned_to: mineOnly && user?.id ? user.id : undefined,
+        amount_min: amountMin.trim() ? Number(amountMin) : undefined,
+        amount_max: amountMax.trim() ? Number(amountMax) : undefined,
+        overdue: overdueOnly ? true : undefined
+    };
+
+    const { opportunities, loading: oppsLoading, pagination, loadMore, isLoadingMore, createOpportunity, updateOpportunityStatus, updateOpportunity } = useOpportunities(50, debouncedSearch, filters);
+    const { data: summaryData } = useOpportunitySummary(debouncedSearch, filters);
     const { clients, loading: clientsLoading } = useClients(100);
     const { canCreateOpportunity } = usePermissions();
     const { data: tenantPlan } = useTenantPlan();
@@ -139,6 +163,7 @@ const PipelineView = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isLossModalOpen, setIsLossModalOpen] = useState(false);
     const [lossOppId, setLossOppId] = useState<number | null>(null);
+    const [lossTargetStatus, setLossTargetStatus] = useState<string | null>(null);
     const [lossReason, setLossReason] = useState('');
     const [lossReasonDetail, setLossReasonDetail] = useState('');
     const [isLossSubmitting, setIsLossSubmitting] = useState(false);
@@ -158,12 +183,43 @@ const PipelineView = () => {
     const [clientId, setClientId] = useState('');
     const [product, setProduct] = useState('');
     const [amount, setAmount] = useState('');
-    const [status, setStatus] = useState<'pendiente' | 'ganado' | 'perdido'>('pendiente');
+    const [status, setStatus] = useState<string>('');
     const [isSubmitting, setIsSubmitting] = useState(false);
 
     const [scores, setScores] = useState<Record<number, { score: number; classification: string }>>({});
 
     const allOpportunities = Array.isArray(opportunities) ? opportunities : [];
+
+    const stages = summaryData?.stages?.length
+        ? summaryData.stages
+        : ([
+            { id: 'pendiente', label: 'Pendiente', category: 'open', order: 10 },
+            { id: 'negociacion', label: 'Negociación', category: 'open', order: 20 },
+            { id: 'ganado', label: 'Ganado', category: 'won', order: 90 },
+            { id: 'perdido', label: 'Perdido', category: 'lost', order: 100 }
+        ] as Array<{ id: string; label: string; category: PipelineStageCategory; order: number }>);
+
+    const stageCategoryById = stages.reduce<Record<string, PipelineStageCategory>>((acc, s) => {
+        acc[s.id] = s.category;
+        return acc;
+    }, {});
+
+    const stageIdsKey = stages.map(s => s.id).join('|');
+    const stageIdSet = new Set(stages.map(s => s.id));
+
+    const defaultOpenStageId = stages.find(s => s.category === 'open')?.id || stages[0]?.id || 'pendiente';
+    const defaultWonStageId = stages.find(s => s.category === 'won')?.id;
+    const defaultLostStageId = stages.find(s => s.category === 'lost')?.id;
+
+    useEffect(() => {
+        if (!status || !stageIdSet.has(status)) {
+            setStatus(defaultOpenStageId);
+        }
+        if (focusStageId && !stageIdSet.has(focusStageId)) {
+            setFocusStageId('');
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [defaultOpenStageId, stageIdsKey]);
 
     const filteredOpportunities = allOpportunities.filter(opp => {
         if (activeFilter === 'all') return true;
@@ -175,22 +231,24 @@ const PipelineView = () => {
         if (activeFilter === 'stagnant') {
             const createdDate = new Date(opp.created_at || new Date());
             const daysDiff = (new Date().getTime() - createdDate.getTime()) / (1000 * 3600 * 24);
-            return daysDiff > 30 && opp.status === 'pendiente';
+            return daysDiff > 30 && stageCategoryById[opp.status] === 'open';
         }
         return true;
     });
 
-    const safeOpportunities = filteredOpportunities;
+    const safeOpportunities = focusStageId ? filteredOpportunities.filter(o => o.status === focusStageId) : filteredOpportunities;
     const totalMatches = summaryData?.total ?? pagination.total ?? safeOpportunities.length;
-    const summaryByStatus = summaryData?.byStatus ?? { pendiente: 0, ganado: 0, perdido: 0 };
-    const amountByStatus = summaryData?.amountByStatus ?? { pendiente: 0, ganado: 0, perdido: 0 };
+    const summaryByStatus = summaryData?.byStatus ?? {};
+    const amountByStatus = summaryData?.amountByStatus ?? {};
 
     useEffect(() => {
         const fetchScores = async () => {
             const newScores: Record<number, { score: number; classification: string }> = { ...scores };
             let hasChanges = false;
 
-            const pendingOpps = safeOpportunities.filter(opp => opp.status === 'pendiente' && !newScores[opp.id]).slice(0, 3);
+            const pendingOpps = safeOpportunities
+                .filter(opp => stageCategoryById[opp.status] === 'open' && !newScores[opp.id])
+                .slice(0, 3);
 
             for (const opp of pendingOpps) {
                 try {
@@ -212,10 +270,11 @@ const PipelineView = () => {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [opportunities]);
 
-    const handleUpdateStatus = useCallback(async (id: number, newStatus: 'pendiente' | 'ganado' | 'perdido') => {
+    const handleUpdateStatus = useCallback(async (id: number, newStatus: string) => {
         try {
-            if (newStatus === 'perdido') {
+            if (stageCategoryById[newStatus] === 'lost') {
                 setLossOppId(id);
+                setLossTargetStatus(newStatus);
                 setLossReason('');
                 setLossReasonDetail('');
                 setIsLossModalOpen(true);
@@ -227,7 +286,7 @@ const PipelineView = () => {
             console.error(error);
             toast.error('No se pudo actualizar el estado de la oportunidad.');
         }
-    }, [updateOpportunityStatus]);
+    }, [stageCategoryById, updateOpportunityStatus]);
 
     const handleDragEnd = useCallback((result: DropResult) => {
         const { destination, source, draggableId } = result;
@@ -242,14 +301,14 @@ const PipelineView = () => {
         const opportunityId = match ? Number(match[1]) : NaN;
         if (!Number.isFinite(opportunityId)) return;
 
-        if (destination.droppableId !== 'pendiente' && destination.droppableId !== 'ganado' && destination.droppableId !== 'perdido') {
+        if (!stageIdSet.has(destination.droppableId)) {
             return;
         }
 
         const newStatus = destination.droppableId;
 
         handleUpdateStatus(opportunityId, newStatus);
-    }, [handleUpdateStatus]);
+    }, [handleUpdateStatus, stageIdSet]);
 
     const settings = (tenantPlan?.settings || {}) as Record<string, unknown>;
     const lossReasons = Array.isArray(settings.lossReasons) && settings.lossReasons.length > 0
@@ -320,17 +379,19 @@ const PipelineView = () => {
     const handleConfirmLoss = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!lossOppId) return;
+        if (!lossTargetStatus) return;
         if (!lossReason.trim()) return;
 
         setIsLossSubmitting(true);
         try {
             await updateOpportunityStatus(lossOppId, {
-                status: 'perdido',
+                status: lossTargetStatus,
                 lost_reason: lossReason.trim(),
                 lost_reason_detail: lossReasonDetail.trim() ? lossReasonDetail.trim() : undefined
             });
             setIsLossModalOpen(false);
             setLossOppId(null);
+            setLossTargetStatus(null);
             setLossReason('');
             setLossReasonDetail('');
         } catch (error: unknown) {
@@ -356,7 +417,7 @@ const PipelineView = () => {
             setClientId('');
             setProduct('');
             setAmount('');
-            setStatus('pendiente');
+            setStatus(defaultOpenStageId);
         } catch (error: unknown) {
             console.error(error);
             toast.error('No se pudo crear la oportunidad. Inténtalo de nuevo.');
@@ -365,11 +426,12 @@ const PipelineView = () => {
         }
     };
 
-    const columnConfig = [
-        { id: 'pendiente' as const, title: 'Pendiente', color: 'bg-primary-500' },
-        { id: 'ganado' as const, title: 'Ganado', color: 'bg-success-icon' },
-        { id: 'perdido' as const, title: 'Perdido', color: 'bg-surface-muted' }
-    ];
+    const visibleStages = focusStageId ? stages.filter(s => s.id === focusStageId) : stages;
+    const columnConfig = visibleStages.map((s) => ({
+        id: s.id,
+        title: s.label,
+        color: s.category === 'open' ? 'bg-primary-500' : s.category === 'won' ? 'bg-success-icon' : 'bg-danger-icon'
+    }));
 
     return (
         <div className="flex flex-col gap-6 h-[calc(100vh-140px)]">
@@ -399,6 +461,53 @@ const PipelineView = () => {
                                 {f.label}
                             </button>
                         ))}
+                    </div>
+
+                    <div className="flex flex-wrap items-center gap-2">
+                        <select
+                            value={focusStageId}
+                            onChange={(e) => setFocusStageId(e.target.value)}
+                            className="h-10 px-3 bg-surface-input border border-surface-border rounded-lg text-sm text-surface-text focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 shadow-sm"
+                        >
+                            <option value="">Todas las etapas</option>
+                            {stages.map((s) => (
+                                <option key={s.id} value={s.id}>{s.label}</option>
+                            ))}
+                        </select>
+
+                        <div className="flex items-center bg-surface-muted-bg p-1 rounded-lg border border-surface-border">
+                            <button
+                                onClick={() => setMineOnly((v) => !v)}
+                                className={`px-3 py-1.5 rounded-md text-[11px] font-bold transition-all ${mineOnly
+                                    ? 'bg-surface-card text-surface-text shadow-sm border border-surface-border'
+                                    : 'text-surface-muted hover:text-surface-text'}`}
+                            >
+                                Mías
+                            </button>
+                            <button
+                                onClick={() => setOverdueOnly((v) => !v)}
+                                className={`px-3 py-1.5 rounded-md text-[11px] font-bold transition-all ${overdueOnly
+                                    ? 'bg-surface-card text-surface-text shadow-sm border border-surface-border'
+                                    : 'text-surface-muted hover:text-surface-text'}`}
+                            >
+                                Vencidas
+                            </button>
+                        </div>
+
+                        <input
+                            type="number"
+                            value={amountMin}
+                            onChange={(e) => setAmountMin(e.target.value)}
+                            placeholder="Min €"
+                            className="w-24 h-10 px-3 bg-surface-input border border-surface-border rounded-lg text-sm text-surface-text placeholder:text-surface-muted focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 shadow-sm"
+                        />
+                        <input
+                            type="number"
+                            value={amountMax}
+                            onChange={(e) => setAmountMax(e.target.value)}
+                            placeholder="Max €"
+                            className="w-24 h-10 px-3 bg-surface-input border border-surface-border rounded-lg text-sm text-surface-text placeholder:text-surface-muted focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 shadow-sm"
+                        />
                     </div>
 
                     <div className="relative group w-full md:w-64">
@@ -433,7 +542,7 @@ const PipelineView = () => {
                                     <div className={`w-2 h-2 rounded-full ${column.color}`}></div>
                                     <h3 className="font-bold text-surface-muted uppercase text-[10px] tracking-wider">{column.title}</h3>
                                     <Badge variant="secondary">
-                                        {summaryByStatus[column.id]}
+                                        {summaryByStatus[column.id] ?? 0}
                                     </Badge>
                                     <span className="text-[10px] font-bold text-surface-muted tabular-nums">
                                         {formatMoney(Number(amountByStatus[column.id] || 0), { maximumFractionDigits: 0 })}
@@ -502,6 +611,10 @@ const PipelineView = () => {
                                                                 canEditOpportunity={canCreateOpportunity}
                                                                 onUpdateStatus={handleUpdateStatus}
                                                                 onEdit={openEdit}
+                                                                stageCategoryById={stageCategoryById}
+                                                                defaultOpenStageId={defaultOpenStageId}
+                                                                defaultWonStageId={defaultWonStageId}
+                                                                defaultLostStageId={defaultLostStageId}
                                                             />
                                                         </div>
                                                     )}
@@ -570,11 +683,11 @@ const PipelineView = () => {
                         <Select
                             label="Estado"
                             value={status}
-                            onChange={(e) => setStatus(e.target.value as 'pendiente' | 'ganado' | 'perdido')}
+                            onChange={(e) => setStatus(e.target.value)}
                         >
-                            <option value="pendiente">Pendiente</option>
-                            <option value="ganado">Ganado</option>
-                            <option value="perdido">Perdido</option>
+                            {stages.map((s) => (
+                                <option key={s.id} value={s.id}>{s.label}</option>
+                            ))}
                         </Select>
                     </div>
 
@@ -602,6 +715,7 @@ const PipelineView = () => {
                     if (isLossSubmitting) return;
                     setIsLossModalOpen(false);
                     setLossOppId(null);
+                    setLossTargetStatus(null);
                 }}
                 title="Motivo de pérdida"
                 maxWidth="max-w-xl"
@@ -639,6 +753,7 @@ const PipelineView = () => {
                                 if (isLossSubmitting) return;
                                 setIsLossModalOpen(false);
                                 setLossOppId(null);
+                                setLossTargetStatus(null);
                             }}
                         >
                             Cancelar

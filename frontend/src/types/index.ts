@@ -75,6 +75,15 @@ export interface Task {
     client_name?: string; // UI specific
 }
 
+export type PipelineStageCategory = 'open' | 'won' | 'lost';
+
+export interface PipelineStage {
+    id: string;
+    label: string;
+    category: PipelineStageCategory;
+    order: number;
+}
+
 export interface Opportunity {
     id: number;
     tenant_id: number;
@@ -82,7 +91,7 @@ export interface Opportunity {
     assigned_to?: number;
     product: string;
     amount: number | string;
-    status: 'pendiente' | 'ganada' | 'perdida' | 'negociacion' | 'ganado' | 'perdido';
+    status: string;
     estimated_close_date?: string;
     closed_at?: string;
     notes?: string;

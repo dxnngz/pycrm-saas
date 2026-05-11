@@ -2,20 +2,38 @@ import { useInfiniteQuery, useMutation, useQueryClient } from '@tanstack/react-q
 import { opportunityService } from '../services/opportunity.service';
 import type { Opportunity } from '../types';
 
-export const useOpportunities = (limit: number = 10, search: string = '') => {
+export interface OpportunityFilters {
+    status?: string;
+    assigned_to?: number;
+    amount_min?: number;
+    amount_max?: number;
+    overdue?: boolean;
+}
+
+export const useOpportunities = (limit: number = 10, search: string = '', filters: OpportunityFilters = {}) => {
     const queryClient = useQueryClient();
     const normalizeStatus = (status: Opportunity['status']): Opportunity['status'] => {
         if (status === 'ganada') return 'ganado';
         if (status === 'perdida') return 'perdido';
-        if (status === 'negociacion') return 'pendiente';
         return status;
     };
 
+    const listQueryKey = [
+        'opportunities',
+        limit,
+        search,
+        filters.status ?? '',
+        filters.assigned_to ?? 0,
+        filters.amount_min ?? '',
+        filters.amount_max ?? '',
+        filters.overdue ? 1 : 0
+    ] as const;
+
     const { data, isLoading: loading, fetchNextPage, hasNextPage, isFetchingNextPage } = useInfiniteQuery({
-        queryKey: ['opportunities', limit, search],
+        queryKey: listQueryKey,
         initialPageParam: undefined as number | undefined,
         queryFn: async ({ pageParam }) => {
-            const response = await opportunityService.getAll({ limit, search, cursor: pageParam });
+            const response = await opportunityService.getAll({ limit, search, cursor: pageParam, ...filters });
             const items = Array.isArray(response?.data) ? response.data : [];
             return {
                 ...response,
@@ -53,18 +71,18 @@ export const useOpportunities = (limit: number = 10, search: string = '') => {
     });
 
     const updateStatusMutation = useMutation({
-        mutationFn: ({ id, payload }: { id: number; payload: { status: 'pendiente' | 'ganado' | 'perdido'; lost_reason?: string; lost_reason_detail?: string } }) =>
+        mutationFn: ({ id, payload }: { id: number; payload: { status: string; lost_reason?: string; lost_reason_detail?: string } }) =>
             opportunityService.updateStatus(id, payload),
         onMutate: async ({ id, payload }) => {
             const status = payload.status;
             // Cancel any outgoing refetches
-            await queryClient.cancelQueries({ queryKey: ['opportunities', limit, search] });
+            await queryClient.cancelQueries({ queryKey: listQueryKey });
 
             // Snapshot the previous value
-            const previousData = queryClient.getQueryData(['opportunities', limit, search]);
+            const previousData = queryClient.getQueryData(listQueryKey);
 
             // Optimistically update to the new value
-            queryClient.setQueryData(['opportunities', limit, search], (old: unknown) => {
+            queryClient.setQueryData(listQueryKey, (old: unknown) => {
                 if (!old) return old;
                 const current = old as { pages: Array<{ data: Opportunity[] }> };
                 if (!Array.isArray(current.pages)) return old;
@@ -83,7 +101,7 @@ export const useOpportunities = (limit: number = 10, search: string = '') => {
         },
         onError: (_err, _variables, context) => {
             if (context?.previousData) {
-                queryClient.setQueryData(['opportunities', limit, search], context.previousData);
+                queryClient.setQueryData(listQueryKey, context.previousData);
             }
         },
         onSettled: () => {
@@ -101,7 +119,7 @@ export const useOpportunities = (limit: number = 10, search: string = '') => {
         isLoadingMore: isFetchingNextPage,
         createOpportunity: createMutation.mutateAsync,
         updateOpportunity: (id: number, data: Partial<Opportunity> & { version?: number }) => updateMutation.mutateAsync({ id, data }),
-        updateOpportunityStatus: (id: number, payload: { status: 'pendiente' | 'ganado' | 'perdido'; lost_reason?: string; lost_reason_detail?: string }) =>
+        updateOpportunityStatus: (id: number, payload: { status: string; lost_reason?: string; lost_reason_detail?: string }) =>
             updateStatusMutation.mutateAsync({ id, payload }),
     };
 };

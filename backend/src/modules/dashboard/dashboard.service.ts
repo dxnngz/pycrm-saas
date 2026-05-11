@@ -1,6 +1,8 @@
 import { prisma } from '../../core/prisma.js';
 import { redisCache } from '../../core/redis.js';
 import { logger } from '../../utils/logger.js';
+import { Prisma } from '@prisma/client';
+import { tenantService } from '../tenants/tenant.service.js';
 
 export class DashboardService {
     async getDashboardMetrics(
@@ -77,6 +79,7 @@ export class DashboardService {
 
     async getRecentActivity(tenantId: number, limit: number = 10) {
         const take = Number.isFinite(limit) ? Math.max(1, Math.min(50, Math.floor(limit))) : 10;
+        const sets = await tenantService.getPipelineStatusSets(tenantId);
 
         const logs = await prisma.auditLog.findMany({
             where: {
@@ -97,7 +100,7 @@ export class DashboardService {
         const [opps, tasks, clients] = await Promise.all([
             oppIds.length
                 ? prisma.opportunity.findMany({
-                    where: { tenant_id: tenantId, id: { in: oppIds } },
+                    where: { tenant_id: tenantId, id: { in: oppIds }, deleted_at: null },
                     include: { client: { select: { name: true, company: true } } }
                 })
                 : Promise.resolve([]),
@@ -109,7 +112,7 @@ export class DashboardService {
                 : Promise.resolve([]),
             clientIds.length
                 ? prisma.client.findMany({
-                    where: { tenant_id: tenantId, id: { in: clientIds } },
+                    where: { tenant_id: tenantId, id: { in: clientIds }, deleted_at: null },
                     select: { id: true, name: true, company: true }
                 })
                 : Promise.resolve([]),
@@ -130,7 +133,8 @@ export class DashboardService {
                 const amount = opp?.amount ? Number(opp.amount) : undefined;
 
                 const updatedData = (log.changes as any)?.updatedData;
-                const status = String(updatedData?.status || opp?.status || '').trim();
+                const rawStatus = String(updatedData?.status || opp?.status || '').trim();
+                const status = rawStatus === 'ganada' ? 'ganado' : rawStatus === 'perdida' ? 'perdido' : rawStatus;
 
                 if (log.action === 'CREATE') {
                     return {
@@ -143,7 +147,7 @@ export class DashboardService {
                     };
                 }
 
-                if (status === 'ganado' || status === 'ganada') {
+                if (sets.won.includes(status)) {
                     return {
                         id: `audit-${log.id}`,
                         type: 'sale',
@@ -154,7 +158,7 @@ export class DashboardService {
                     };
                 }
 
-                if (status === 'perdido' || status === 'perdida') {
+                if (sets.lost.includes(status)) {
                     return {
                         id: `audit-${log.id}`,
                         type: 'task-new',
@@ -226,35 +230,59 @@ export class DashboardService {
         const rangeStart = isYearly ? startOfYear : chartStart;
         const rangeEnd = isYearly ? nextYear : nextMonth;
 
+        const sets = await tenantService.getPipelineStatusSets(tenantId);
+        const wonStatuses = sets.won;
+        const lostStatuses = sets.lost;
+        const closedStatuses = sets.closed;
+
+        const wonList = Prisma.join(wonStatuses.map(s => Prisma.sql`${s}`));
+        const lostList = Prisma.join(lostStatuses.map(s => Prisma.sql`${s}`));
+        const closedList = Prisma.join(closedStatuses.map(s => Prisma.sql`${s}`));
+
         // Implementation of the original logic...
         // 1. Sales Metrics
-        const salesResult: any = isYearly
-            ? await prisma.$queryRaw`SELECT COALESCE(SUM(amount), 0) as total FROM opportunities WHERE status IN ('ganado', 'ganada') AND tenant_id = ${tenantId} AND COALESCE(closed_at, estimated_close_date, created_at::date) >= ${rangeStart} AND COALESCE(closed_at, estimated_close_date, created_at::date) < ${rangeEnd}`
-            : await prisma.$queryRaw`SELECT COALESCE(SUM(amount), 0) as total FROM opportunities WHERE status IN ('ganado', 'ganada') AND tenant_id = ${tenantId} AND COALESCE(closed_at, estimated_close_date, created_at::date) >= ${rangeStart} AND COALESCE(closed_at, estimated_close_date, created_at::date) < ${rangeEnd}`;
+        const salesResult: any = await prisma.$queryRaw(Prisma.sql`
+            SELECT COALESCE(SUM(amount), 0) as total
+            FROM opportunities
+            WHERE status IN (${wonList})
+              AND tenant_id = ${tenantId}
+              AND deleted_at IS NULL
+              AND COALESCE(closed_at, estimated_close_date, created_at::date) >= ${rangeStart}
+              AND COALESCE(closed_at, estimated_close_date, created_at::date) < ${rangeEnd}
+        `);
         const totalSales = parseFloat(salesResult[0]?.total || 0);
 
         // 2. Conversion
-        const metricsResult: any = isYearly
-            ? await prisma.$queryRaw`SELECT COUNT(*) FILTER (WHERE status IN ('ganado', 'ganada')) as won, COUNT(*) FILTER (WHERE status IN ('ganado', 'ganada', 'perdido', 'perdida')) as closed, COALESCE(AVG(amount) FILTER (WHERE status IN ('ganado', 'ganada')), 0) as avg_ticket FROM opportunities WHERE tenant_id = ${tenantId} AND COALESCE(closed_at, estimated_close_date, created_at::date) >= ${rangeStart} AND COALESCE(closed_at, estimated_close_date, created_at::date) < ${rangeEnd}`
-            : await prisma.$queryRaw`SELECT COUNT(*) FILTER (WHERE status IN ('ganado', 'ganada')) as won, COUNT(*) FILTER (WHERE status IN ('ganado', 'ganada', 'perdido', 'perdida')) as closed, COALESCE(AVG(amount) FILTER (WHERE status IN ('ganado', 'ganada')), 0) as avg_ticket FROM opportunities WHERE tenant_id = ${tenantId} AND COALESCE(closed_at, estimated_close_date, created_at::date) >= ${rangeStart} AND COALESCE(closed_at, estimated_close_date, created_at::date) < ${rangeEnd}`;
+        const metricsResult: any = await prisma.$queryRaw(Prisma.sql`
+            SELECT
+                COUNT(*) FILTER (WHERE status IN (${wonList})) as won,
+                COUNT(*) FILTER (WHERE status IN (${closedList})) as closed,
+                COALESCE(AVG(amount) FILTER (WHERE status IN (${wonList})), 0) as avg_ticket
+            FROM opportunities
+            WHERE tenant_id = ${tenantId}
+              AND deleted_at IS NULL
+              AND COALESCE(closed_at, estimated_close_date, created_at::date) >= ${rangeStart}
+              AND COALESCE(closed_at, estimated_close_date, created_at::date) < ${rangeEnd}
+        `);
 
         const { won = 0, closed = 0, avg_ticket = 0 } = metricsResult[0] || {};
         const conversionRate = Number(closed) > 0 ? (Number(won) / Number(closed)) * 100 : 0;
 
-        const lossesByReasonResult: any = await prisma.$queryRaw`
+        const lossesByReasonResult: any = await prisma.$queryRaw(Prisma.sql`
             SELECT
                 COALESCE(NULLIF(TRIM(lost_reason), ''), 'Sin motivo') as reason,
                 COUNT(*)::int as count,
                 COALESCE(SUM(amount), 0) as amount
             FROM opportunities
             WHERE tenant_id = ${tenantId}
-              AND status IN ('perdido', 'perdida')
+              AND status IN (${lostList})
+              AND deleted_at IS NULL
               AND COALESCE(closed_at, estimated_close_date, created_at::date) >= ${rangeStart}
               AND COALESCE(closed_at, estimated_close_date, created_at::date) < ${rangeEnd}
             GROUP BY reason
             ORDER BY count DESC, amount DESC
             LIMIT 6
-        `;
+        `);
 
         const lossesByReason = (lossesByReasonResult || []).map((r: any) => ({
             reason: String(r.reason || '').trim() || 'Sin motivo',
@@ -263,15 +291,21 @@ export class DashboardService {
         }));
 
         // 3. Rep Performance
-        const repPerformanceResult: any = await prisma.$queryRaw`
+        const repPerformanceResult: any = await prisma.$queryRaw(Prisma.sql`
             SELECT u.id, u.name, COALESCE(SUM(o.amount), 0) as total_sales
             FROM users u
-            LEFT JOIN opportunities o ON u.id = o.assigned_to AND o.status IN ('ganado', 'ganada') AND o.tenant_id = ${tenantId} AND COALESCE(o.closed_at, o.estimated_close_date, o.created_at::date) >= ${rangeStart} AND COALESCE(o.closed_at, o.estimated_close_date, o.created_at::date) < ${rangeEnd}
+            LEFT JOIN opportunities o
+              ON u.id = o.assigned_to
+             AND o.status IN (${wonList})
+             AND o.tenant_id = ${tenantId}
+             AND o.deleted_at IS NULL
+             AND COALESCE(o.closed_at, o.estimated_close_date, o.created_at::date) >= ${rangeStart}
+             AND COALESCE(o.closed_at, o.estimated_close_date, o.created_at::date) < ${rangeEnd}
             WHERE u.tenant_id = ${tenantId}
             GROUP BY u.id, u.name
             ORDER BY total_sales DESC
             LIMIT 5
-        `;
+        `);
         const repPerformance = repPerformanceResult.map((r: any) => ({
             id: r.id,
             name: r.name,
@@ -280,26 +314,28 @@ export class DashboardService {
 
         // 4. Chart Data (Aligns with selected period)
         const chartDataResult: any = isYearly
-            ? await prisma.$queryRaw`
+            ? await prisma.$queryRaw(Prisma.sql`
                 SELECT 
                     SUM(amount) as sales,
                     TO_CHAR(COALESCE(closed_at, estimated_close_date, created_at::date), 'YYYY-MM') as sort_key
                 FROM opportunities
-                WHERE tenant_id = ${tenantId} AND status IN ('ganado', 'ganada')
+                WHERE tenant_id = ${tenantId} AND status IN (${wonList})
+                AND deleted_at IS NULL
                 AND COALESCE(closed_at, estimated_close_date, created_at::date) >= ${startOfYear} AND COALESCE(closed_at, estimated_close_date, created_at::date) < ${nextYear}
                 GROUP BY TO_CHAR(COALESCE(closed_at, estimated_close_date, created_at::date), 'YYYY-MM')
                 ORDER BY sort_key ASC
-            `
-            : await prisma.$queryRaw`
+            `)
+            : await prisma.$queryRaw(Prisma.sql`
                 SELECT 
                     SUM(amount) as sales,
                     TO_CHAR(COALESCE(closed_at, estimated_close_date, created_at::date), 'YYYY-MM') as sort_key
                 FROM opportunities
-                WHERE tenant_id = ${tenantId} AND status IN ('ganado', 'ganada')
+                WHERE tenant_id = ${tenantId} AND status IN (${wonList})
+                AND deleted_at IS NULL
                 AND COALESCE(closed_at, estimated_close_date, created_at::date) >= ${chartStart} AND COALESCE(closed_at, estimated_close_date, created_at::date) < ${nextMonth}
                 GROUP BY TO_CHAR(COALESCE(closed_at, estimated_close_date, created_at::date), 'YYYY-MM')
                 ORDER BY sort_key ASC
-            `;
+            `);
 
         const salesByKey = new Map<string, number>();
         for (const row of chartDataResult || []) {

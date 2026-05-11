@@ -7,11 +7,37 @@ export class OpportunityRepository extends BaseRepository<Opportunity> {
         super(prisma.opportunity, 'Opportunity');
     }
 
-    async findManyPaged(tenantId: number, options: { cursor?: number; limit?: number; search?: string }) {
-        const { cursor, limit = 10, search = '' } = options;
+    async findManyPaged(
+        tenantId: number,
+        options: {
+            cursor?: number;
+            limit?: number;
+            search?: string;
+            status?: string;
+            assigned_to?: number;
+            amount_min?: number;
+            amount_max?: number;
+            overdue?: boolean;
+        }
+    ) {
+        const { cursor, limit = 10, search = '', status, assigned_to, amount_min, amount_max, overdue } = options;
 
         const where: Prisma.OpportunityWhereInput = {
             tenant_id: tenantId,
+            ...(status && { status }),
+            ...(typeof assigned_to === 'number' && Number.isFinite(assigned_to) && { assigned_to }),
+            ...((typeof amount_min === 'number' || typeof amount_max === 'number') && {
+                amount: {
+                    ...(typeof amount_min === 'number' && Number.isFinite(amount_min) && { gte: amount_min }),
+                    ...(typeof amount_max === 'number' && Number.isFinite(amount_max) && { lte: amount_max }),
+                }
+            }),
+            ...(overdue && {
+                next_action_at: {
+                    not: null,
+                    lt: new Date()
+                }
+            }),
             ...(search && {
                 OR: [
                     { product: { contains: search, mode: 'insensitive' } },
@@ -34,9 +60,34 @@ export class OpportunityRepository extends BaseRepository<Opportunity> {
         });
     }
 
-    async countSearch(tenantId: number, search = '') {
+    async countFiltered(
+        tenantId: number,
+        options: {
+            search?: string;
+            status?: string;
+            assigned_to?: number;
+            amount_min?: number;
+            amount_max?: number;
+            overdue?: boolean;
+        } = {}
+    ) {
+        const { search = '', status, assigned_to, amount_min, amount_max, overdue } = options;
         const where: Prisma.OpportunityWhereInput = {
             tenant_id: tenantId,
+            ...(status && { status }),
+            ...(typeof assigned_to === 'number' && Number.isFinite(assigned_to) && { assigned_to }),
+            ...((typeof amount_min === 'number' || typeof amount_max === 'number') && {
+                amount: {
+                    ...(typeof amount_min === 'number' && Number.isFinite(amount_min) && { gte: amount_min }),
+                    ...(typeof amount_max === 'number' && Number.isFinite(amount_max) && { lte: amount_max }),
+                }
+            }),
+            ...(overdue && {
+                next_action_at: {
+                    not: null,
+                    lt: new Date()
+                }
+            }),
             ...(search && {
                 OR: [
                     { product: { contains: search, mode: 'insensitive' } },

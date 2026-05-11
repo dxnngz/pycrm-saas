@@ -23,6 +23,7 @@ import { authService } from '../../services/auth.service';
 
 const AuditLogs = lazy(() => import('./AuditLogs'));
 const LossReasonsSettings = lazy(() => import('./LossReasonsSettings'));
+const PipelineStagesSettings = lazy(() => import('./PipelineStagesSettings'));
 
 const SettingsView = () => {
     const location = useLocation();
@@ -226,7 +227,11 @@ const SettingsView = () => {
 
                     {activeTab === 'sales' && (user?.role === 'admin' || user?.role === 'manager') && (
                         <Suspense fallback={<div className="space-y-4 pt-4"><Skeleton className="h-40 w-full rounded-2xl" /><Skeleton className="h-28 w-full rounded-2xl" /></div>}>
-                            <LossReasonsSettings />
+                            <div className="space-y-10">
+                                <PipelineStagesSettings />
+                                <div className="h-px bg-surface-border" />
+                                <LossReasonsSettings />
+                            </div>
                         </Suspense>
                     )}
 
