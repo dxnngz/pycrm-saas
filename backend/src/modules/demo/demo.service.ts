@@ -31,13 +31,13 @@ export const demoService = {
     seedTenantDemoData: async (tenantId: number, userId?: number): Promise<DemoSeedResult> => {
         const existing = await demoService.getTenantSnapshot(tenantId);
         const targets = {
-            clients: 12,
-            products: 6,
-            opportunities: 18,
-            tasks: 12,
-            events: 6,
-            documents: 6,
-            contacts: 10,
+            clients: 30,
+            products: 10,
+            opportunities: 45,
+            tasks: 30,
+            events: 12,
+            documents: 15,
+            contacts: 24,
         };
 
         const missing = {
@@ -49,21 +49,6 @@ export const demoService = {
             documents: Math.max(0, targets.documents - existing.documents),
             contacts: Math.max(0, targets.contacts - existing.contacts),
         };
-
-        const shouldCreateAnything =
-            missing.clients > 0 ||
-            missing.products > 0 ||
-            missing.opportunities > 0 ||
-            missing.tasks > 0 ||
-            missing.events > 0 ||
-            missing.documents > 0 ||
-            missing.contacts > 0;
-
-        if (!shouldCreateAnything) {
-            return {
-                created: { clients: 0, products: 0, opportunities: 0, tasks: 0, events: 0, documents: 0, contacts: 0 },
-            };
-        }
 
         const now = new Date();
         const addDays = (d: number) => new Date(now.getTime() + d * 24 * 60 * 60 * 1000);
@@ -107,6 +92,10 @@ export const demoService = {
                 { tenant_id: tenantId, name: 'Onboarding', description: 'Configuración y formación inicial', price: '499.00', category: 'Servicios' },
                 { tenant_id: tenantId, name: 'Soporte Premium', description: 'Soporte prioritario y SLA', price: '79.00', category: 'Servicios' },
                 { tenant_id: tenantId, name: 'Formación equipo', description: 'Sesión de formación para el equipo', price: '249.00', category: 'Servicios' },
+                { tenant_id: tenantId, name: 'Integración Email', description: 'Sincronización con Gmail/Outlook', price: '29.00', category: 'Add-ons' },
+                { tenant_id: tenantId, name: 'Firma digital', description: 'Firma de contratos desde PyCRM', price: '39.00', category: 'Add-ons' },
+                { tenant_id: tenantId, name: 'Automatizaciones', description: 'Workflows y recordatorios inteligentes', price: '59.00', category: 'Add-ons' },
+                { tenant_id: tenantId, name: 'Export avanzado', description: 'Exportación a CSV/PDF y reportes', price: '19.00', category: 'Add-ons' },
             ];
 
             const existingProducts = await tx.product.findMany({
@@ -114,10 +103,21 @@ export const demoService = {
                 select: { name: true },
             });
             const existingProductNames = new Set(existingProducts.map((p) => String(p.name || '').trim()));
-            const productsToCreate = baseProducts.filter((p) => !existingProductNames.has(p.name)).slice(0, missing.products);
-            const products = productsToCreate.length > 0
-                ? await tx.product.createMany({ data: productsToCreate })
-                : { count: 0 };
+            const productsToCreate: typeof baseProducts = [];
+            for (const p of baseProducts) {
+                if (productsToCreate.length >= missing.products) break;
+                if (!existingProductNames.has(p.name)) productsToCreate.push(p);
+            }
+            for (let i = productsToCreate.length; i < missing.products; i++) {
+                productsToCreate.push({
+                    tenant_id: tenantId,
+                    name: `Pack extra ${i + 1}`,
+                    description: 'Módulo adicional para demo',
+                    price: String(15 + (i % 6) * 10) + '.00',
+                    category: 'Add-ons',
+                });
+            }
+            const products = productsToCreate.length > 0 ? await tx.product.createMany({ data: productsToCreate }) : { count: 0 };
 
             const baseClients = [
                 { tenant_id: tenantId, name: 'Atlas Retail', company: 'Atlas Retail Group', email: 'contact@atlas-retail.com', phone: '+34 600 111 222', status: 'activo' },
@@ -132,6 +132,24 @@ export const demoService = {
                 { tenant_id: tenantId, name: 'Aurora Health', company: 'Aurora Health', email: 'hello@aurora.health', phone: '+34 622 333 444', status: 'activo' },
                 { tenant_id: tenantId, name: 'Keystone Construction', company: 'Keystone Construction', email: 'sales@keystone.build', phone: '+34 622 555 666', status: 'activo' },
                 { tenant_id: tenantId, name: 'Saffron Foods', company: 'Saffron Foods', email: 'info@saffronfoods.es', phone: '+34 622 777 888', status: 'activo' },
+                { tenant_id: tenantId, name: 'Marina Insurance', company: 'Marina Insurance', email: 'hello@marina-insurance.com', phone: '+34 633 101 202', status: 'activo' },
+                { tenant_id: tenantId, name: 'Iberia Travel', company: 'Iberia Travel', email: 'sales@iberiatravel.es', phone: '+34 633 303 404', status: 'activo' },
+                { tenant_id: tenantId, name: 'Horizon Education', company: 'Horizon Education', email: 'info@horizon-edu.com', phone: '+34 633 505 606', status: 'activo' },
+                { tenant_id: tenantId, name: 'Vertex Manufacturing', company: 'Vertex Manufacturing', email: 'contact@vertex-mfg.com', phone: '+34 633 707 808', status: 'activo' },
+                { tenant_id: tenantId, name: 'Solstice Pharma', company: 'Solstice Pharma', email: 'ops@solsticepharma.com', phone: '+34 644 101 202', status: 'activo' },
+                { tenant_id: tenantId, name: 'Nimbus Telecom', company: 'Nimbus Telecom', email: 'hello@nimbus-telecom.com', phone: '+34 644 303 404', status: 'activo' },
+                { tenant_id: tenantId, name: 'RiverStone Real Estate', company: 'RiverStone Real Estate', email: 'sales@riverstone-re.es', phone: '+34 644 505 606', status: 'activo' },
+                { tenant_id: tenantId, name: 'Sunrise Automotive', company: 'Sunrise Automotive', email: 'info@sunrise-auto.com', phone: '+34 644 707 808', status: 'activo' },
+                { tenant_id: tenantId, name: 'Polar IT Services', company: 'Polar IT Services', email: 'contact@polar-it.com', phone: '+34 655 101 202', status: 'activo' },
+                { tenant_id: tenantId, name: 'Beacon Security', company: 'Beacon Security', email: 'hello@beacon-sec.com', phone: '+34 655 303 404', status: 'activo' },
+                { tenant_id: tenantId, name: 'Evergreen Consulting', company: 'Evergreen Consulting', email: 'info@evergreen-consulting.es', phone: '+34 655 505 606', status: 'activo' },
+                { tenant_id: tenantId, name: 'Zenith Sports', company: 'Zenith Sports', email: 'sales@zenithsports.es', phone: '+34 655 707 808', status: 'activo' },
+                { tenant_id: tenantId, name: 'Coral Restaurants', company: 'Coral Restaurants', email: 'contact@coral-restaurants.com', phone: '+34 666 101 202', status: 'activo' },
+                { tenant_id: tenantId, name: 'Skyline Architecture', company: 'Skyline Architecture', email: 'hello@skyline-arch.com', phone: '+34 666 303 404', status: 'activo' },
+                { tenant_id: tenantId, name: 'Minted Payments', company: 'Minted Payments', email: 'info@minted-payments.com', phone: '+34 666 505 606', status: 'activo' },
+                { tenant_id: tenantId, name: 'Opal HR', company: 'Opal HR', email: 'sales@opal-hr.com', phone: '+34 666 707 808', status: 'activo' },
+                { tenant_id: tenantId, name: 'Forge Tools', company: 'Forge Tools', email: 'contact@forgetools.es', phone: '+34 677 101 202', status: 'activo' },
+                { tenant_id: tenantId, name: 'Citrus eCommerce', company: 'Citrus eCommerce', email: 'hello@citrus-commerce.com', phone: '+34 677 303 404', status: 'activo' },
             ];
 
             const existingClients = await tx.client.findMany({
@@ -139,11 +157,24 @@ export const demoService = {
                 select: { name: true },
             });
             const existingClientNames = new Set(existingClients.map((c) => String(c.name || '').trim()));
-            const clientsToCreate = baseClients.filter((c) => !existingClientNames.has(c.name)).slice(0, missing.clients);
+            const clientsToCreate: typeof baseClients = [];
+            for (const c of baseClients) {
+                if (clientsToCreate.length >= missing.clients) break;
+                if (!existingClientNames.has(c.name)) clientsToCreate.push(c);
+            }
+            for (let i = clientsToCreate.length; i < missing.clients; i++) {
+                const n = String(i + 1).padStart(2, '0');
+                clientsToCreate.push({
+                    tenant_id: tenantId,
+                    name: `Demo Company ${n}`,
+                    company: `Demo Company ${n}`,
+                    email: `demo${tenantId}.${n}@example.com`,
+                    phone: `+34 690 ${100 + i} ${200 + (i % 80)}`,
+                    status: 'activo',
+                });
+            }
 
-            const clients = clientsToCreate.length > 0
-                ? await tx.client.createMany({ data: clientsToCreate })
-                : { count: 0 };
+            const clients = clientsToCreate.length > 0 ? await tx.client.createMany({ data: clientsToCreate }) : { count: 0 };
 
             const createdClients = await tx.client.findMany({
                 where: { tenant_id: tenantId, deleted_at: null },
@@ -152,137 +183,143 @@ export const demoService = {
 
             const pickClient = (index: number) => createdClients[Math.min(index, createdClients.length - 1)];
 
-            const opportunities: Array<{ id: number }> = [];
-            const opportunitySeed = [
-                { client_id: pickClient(0)?.id, product: 'PyCRM Pro', amount: '5400.00', status: openStatus, interactions: 2, next_action_at: addDays(1) },
-                { client_id: pickClient(1)?.id, product: 'PyCRM Starter', amount: '1800.00', status: openStatusAlt, interactions: 1, next_action_at: addDays(2) },
-                { client_id: pickClient(2)?.id, product: 'PyCRM Enterprise', amount: '12000.00', status: openStatus, interactions: 3, next_action_at: addDays(3) },
-                { client_id: pickClient(3)?.id, product: 'Onboarding', amount: '900.00', status: wonStatus, interactions: 5 },
-                { client_id: pickClient(4)?.id, product: 'PyCRM Pro', amount: '7200.00', status: wonStatus, interactions: 4 },
-                { client_id: pickClient(5)?.id, product: 'PyCRM Starter', amount: '600.00', status: lostStatus, interactions: 2 },
-                { client_id: pickClient(6)?.id, product: 'Soporte Premium', amount: '948.00', status: openStatusAlt, interactions: 0, next_action_at: addDays(-1) },
-                { client_id: pickClient(7)?.id, product: 'PyCRM Enterprise', amount: '24000.00', status: openStatus, interactions: 1, next_action_at: addDays(5) },
-                { client_id: pickClient(8)?.id, product: 'Formación equipo', amount: '1494.00', status: openStatus, interactions: 0, next_action_at: addDays(4) },
-                { client_id: pickClient(9)?.id, product: 'PyCRM Pro', amount: '3600.00', status: openStatusAlt, interactions: 2, next_action_at: addDays(6) },
-                { client_id: pickClient(10)?.id, product: 'PyCRM Starter', amount: '900.00', status: lostStatus, interactions: 1 },
-                { client_id: pickClient(11)?.id, product: 'PyCRM Pro', amount: '9600.00', status: wonStatus, interactions: 6 },
-            ].filter((o) => Boolean(o.client_id));
+            const productsNow = await tx.product.findMany({
+                where: { tenant_id: tenantId, deleted_at: null },
+                select: { name: true },
+                orderBy: { id: 'asc' },
+            });
+            const productNames = productsNow.map((p) => String(p.name || '').trim()).filter(Boolean);
+            const pickProduct = (index: number) => productNames[index % (productNames.length || 1)] || 'PyCRM Pro';
 
-            const oppToCreate = opportunitySeed.slice(0, missing.opportunities);
-            for (let idx = 0; idx < oppToCreate.length; idx++) {
-                const o = oppToCreate[idx]!;
-                const isWon = o.status === wonStatus;
-                const isLost = o.status === lostStatus;
+            const opportunities: Array<{ id: number }> = [];
+            for (let idx = 0; idx < missing.opportunities; idx++) {
+                const status =
+                    idx % 7 === 0 ? wonStatus :
+                        idx % 7 === 1 ? lostStatus :
+                            idx % 2 === 0 ? openStatus : openStatusAlt;
+                const isWon = status === wonStatus;
+                const isLost = status === lostStatus;
+                const amount = 900 + (idx % 18) * 350 + (idx % 3) * 125;
+                const clientId = pickClient(idx)?.id ?? null;
                 const opp = await tx.opportunity.create({
-                    data: {
+                    data: ({
                         tenant_id: tenantId,
-                        client_id: o.client_id!,
-                        assigned_to: userId,
-                        product: o.product,
-                        amount: o.amount,
-                        status: o.status,
-                        estimated_close_date: addDays(10 + idx * 7),
-                        closed_at: (isWon || isLost) ? addDays(-(20 + idx)) : null,
+                        client_id: clientId,
+                        assigned_to: userId ?? null,
+                        product: pickProduct(idx),
+                        amount: String(amount.toFixed(2)),
+                        status,
+                        estimated_close_date: addDays(7 + (idx % 18) * 3),
+                        closed_at: (isWon || isLost) ? addDays(-(3 + (idx % 21))) : null,
                         lost_reason: isLost ? defaultLossReason : null,
                         lost_reason_detail: isLost ? 'Cliente prioriza otra alternativa por presupuesto.' : null,
-                        source: idx % 2 === 0 ? 'Inbound' : 'Outbound',
-                        probability: isWon ? 100 : isLost ? 0 : 35 + (idx % 4) * 10,
-                        next_action_at: (o as any).next_action_at ? new Date((o as any).next_action_at) : null,
-                        interactions: (o as any).interactions ?? (idx % 4),
-                        notes: idx % 3 === 0 ? 'Pendiente de validación con decisor.' : null,
-                    }
+                        source: idx % 3 === 0 ? 'Inbound' : idx % 3 === 1 ? 'Outbound' : 'Referral',
+                        probability: isWon ? 100 : isLost ? 0 : 30 + (idx % 6) * 10,
+                        next_action_at: isWon || isLost ? null : addDays((idx % 9) - 3),
+                        interactions: idx % 7,
+                        notes: idx % 4 === 0 ? 'Pendiente de validación con decisor.' : idx % 4 === 1 ? 'Se ha enviado propuesta, esperando respuesta.' : null,
+                    } as any)
                 });
                 opportunities.push({ id: opp.id });
             }
 
-            const tasksData = [
-                { title: 'Llamar al cliente para validar requisitos', priority: 'Alta', completed: false, deadline: addDays(2), client_id: pickClient(0)?.id },
-                { title: 'Preparar propuesta económica', priority: 'Alta', completed: false, deadline: addDays(4), client_id: pickClient(2)?.id },
-                { title: 'Enviar contrato para revisión', priority: 'Media', completed: false, deadline: addDays(7), client_id: pickClient(4)?.id },
-                { title: 'Seguimiento post-demo', priority: 'Media', completed: false, deadline: addDays(3), client_id: pickClient(1)?.id },
-                { title: 'Actualizar pipeline y probabilidad', priority: 'Baja', completed: true, deadline: addDays(-2), client_id: pickClient(3)?.id },
-            ].filter((t) => Boolean(t.client_id));
-
-            const tasksToCreate = tasksData.slice(0, missing.tasks);
-            const tasks = tasksToCreate.length > 0
-                ? await tx.task.createMany({
-                    data: tasksToCreate.map((t) => ({
-                        tenant_id: tenantId,
-                        user_id: userId,
-                        client_id: t.client_id!,
-                        title: t.title,
-                        priority: t.priority,
-                        completed: t.completed,
-                        deadline: t.deadline,
-                    })),
-                })
-                : { count: 0 };
-
-            const eventsData = [
-                { title: 'Demo PyCRM', description: 'Presentación del producto y Q&A', start: addDays(1), end: addDays(1), color: '#4f46e5', client_id: pickClient(0)?.id },
-                { title: 'Reunión de seguimiento', description: 'Revisión de propuesta', start: addDays(5), end: addDays(5), color: '#10b981', client_id: pickClient(2)?.id },
-                { title: 'Cierre comercial', description: 'Últimos detalles y firma', start: addDays(12), end: addDays(12), color: '#f59e0b', client_id: pickClient(4)?.id },
-            ].filter((e) => Boolean(e.client_id));
+            const taskTitles = [
+                'Llamar al cliente para validar requisitos',
+                'Enviar propuesta económica',
+                'Revisar objeciones del cliente',
+                'Preparar demo personalizada',
+                'Confirmar asistentes a la reunión',
+                'Actualizar pipeline y probabilidad',
+                'Solicitar datos fiscales',
+                'Coordinar firma de contrato',
+                'Planificar onboarding',
+                'Enviar resumen de la reunión',
+            ];
+            const tasksToCreate = Array.from({ length: missing.tasks }, (_, idx) => {
+                const title = taskTitles[idx % taskTitles.length] + (idx >= taskTitles.length ? ` #${idx + 1}` : '');
+                const priority = idx % 6 === 0 ? 'Alta' : idx % 3 === 0 ? 'Media' : 'Baja';
+                const completed = idx % 7 === 0;
+                const deadline = addDays((idx % 16) - 4);
+                const clientId = pickClient(idx)?.id ?? null;
+                return {
+                    tenant_id: tenantId,
+                    user_id: userId ?? null,
+                    client_id: clientId,
+                    title,
+                    priority,
+                    completed,
+                    deadline,
+                };
+            });
+            const tasks = tasksToCreate.length > 0 ? await tx.task.createMany({ data: tasksToCreate }) : { count: 0 };
 
             const events: Array<{ id: number }> = [];
-            const eventsToCreate = eventsData.slice(0, missing.events);
-            for (const e of eventsToCreate) {
+            for (let idx = 0; idx < missing.events; idx++) {
+                const clientId = pickClient(idx)?.id ?? null;
+                const start = addDays(1 + (idx % 14));
                 const ev = await tx.event.create({
                     data: {
                         tenant_id: tenantId,
-                        user_id: userId,
-                        client_id: e.client_id!,
-                        title: e.title,
-                        description: e.description,
-                        start_date: new Date(e.start.getTime() + 10 * 60 * 60 * 1000),
-                        end_date: new Date(e.end.getTime() + 11 * 60 * 60 * 1000),
-                        color: e.color,
+                        user_id: userId ?? null,
+                        client_id: clientId,
+                        title: idx % 3 === 0 ? 'Demo PyCRM' : idx % 3 === 1 ? 'Reunión de seguimiento' : 'Cierre comercial',
+                        description: idx % 3 === 0 ? 'Presentación del producto y Q&A' : idx % 3 === 1 ? 'Revisión de propuesta y próximos pasos' : 'Últimos detalles y firma',
+                        start_date: new Date(start.getTime() + 10 * 60 * 60 * 1000),
+                        end_date: new Date(start.getTime() + 11 * 60 * 60 * 1000),
+                        color: idx % 3 === 0 ? '#4f46e5' : idx % 3 === 1 ? '#10b981' : '#f59e0b',
                     }
                 });
                 events.push({ id: ev.id });
             }
 
-            const documentsData = [
-                { name: 'Propuesta Q3 - Atlas Retail', type: 'Quote', status: 'Pending', amount: '5400.00', client_id: pickClient(0)?.id, opp: opportunities[0]?.id },
-                { name: 'Contrato - Orchid Hotels', type: 'Contract', status: 'Paid', amount: '7200.00', client_id: pickClient(4)?.id, opp: opportunities[1]?.id },
-                { name: 'Factura Onboarding - BlueStone', type: 'Invoice', status: 'Paid', amount: '900.00', client_id: pickClient(3)?.id, opp: opportunities[2]?.id },
-            ].filter((d) => Boolean(d.client_id));
+            const existingOpps = await tx.opportunity.findMany({
+                where: { tenant_id: tenantId, deleted_at: null },
+                select: { id: true },
+                orderBy: { id: 'desc' },
+                take: 80,
+            });
+            const oppIds = [...opportunities.map((o) => o.id), ...existingOpps.map((o) => o.id)];
 
             const documents: Array<{ id: number }> = [];
-            const documentsToCreate = documentsData.slice(0, missing.documents);
-            for (const d of documentsToCreate) {
+            for (let idx = 0; idx < missing.documents; idx++) {
+                const clientId = pickClient(idx)?.id ?? null;
+                const kind = idx % 3 === 0 ? 'Quote' : idx % 3 === 1 ? 'Contract' : 'Invoice';
+                const status = idx % 4 === 0 ? 'Paid' : 'Pending';
+                const amount = 600 + (idx % 20) * 250;
+                const oppId = oppIds.length > 0 ? oppIds[idx % oppIds.length] : null;
                 const doc = await tx.document.create({
                     data: {
                         tenant_id: tenantId,
-                        client_id: d.client_id!,
-                        opportunity_id: d.opp,
-                        name: d.name,
-                        type: d.type,
-                        status: d.status,
-                        amount: d.amount,
+                        client_id: clientId,
+                        opportunity_id: oppId,
+                        name: `${kind} - ${pickClient(idx)?.name || 'Cliente'} #${idx + 1}`,
+                        type: kind,
+                        status,
+                        amount: String(amount.toFixed(2)),
                     }
                 });
                 documents.push({ id: doc.id });
             }
 
-            const contactsData = [
-                { client_id: pickClient(0)?.id, type: 'email', description: 'Interés inicial en PyCRM Pro' },
-                { client_id: pickClient(2)?.id, type: 'call', description: 'Validación de requisitos con el equipo de ventas' },
-                { client_id: pickClient(4)?.id, type: 'meeting', description: 'Revisión de contrato y condiciones' },
-            ].filter((c) => Boolean(c.client_id));
-
-            const contactsToCreate = contactsData.slice(0, missing.contacts);
-            const contacts = contactsToCreate.length > 0
-                ? await tx.contact.createMany({
-                    data: contactsToCreate.map((c, idx) => ({
-                        tenant_id: tenantId,
-                        client_id: c.client_id!,
-                        type: c.type,
-                        description: c.description,
-                        contact_date: addDays(-idx),
-                    })),
-                })
-                : { count: 0 };
+            const contactsToCreate = Array.from({ length: missing.contacts }, (_, idx) => {
+                const clientId = pickClient(idx)?.id ?? null;
+                const type = idx % 4 === 0 ? 'email' : idx % 4 === 1 ? 'call' : idx % 4 === 2 ? 'meeting' : 'note';
+                const description = idx % 4 === 0
+                    ? 'Email: interés inicial y preguntas sobre pricing'
+                    : idx % 4 === 1
+                        ? 'Llamada: validación de requisitos y próximos pasos'
+                        : idx % 4 === 2
+                            ? 'Reunión: revisión de propuesta y condiciones'
+                            : 'Nota interna: seguimiento pendiente';
+                return {
+                    tenant_id: tenantId,
+                    client_id: clientId,
+                    type,
+                    description,
+                    contact_date: addDays(-(1 + (idx % 20))),
+                };
+            });
+            const contacts = contactsToCreate.length > 0 ? await tx.contact.createMany({ data: contactsToCreate }) : { count: 0 };
 
             return {
                 created: {
