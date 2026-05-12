@@ -58,30 +58,10 @@ export class ResilienceService {
 
         logger.info('🛡️ [MigrationGuard] Verifying database synchronization...');
         try {
-            const shouldRetry = (err: any): boolean => {
-                const msg = String(err?.message || '');
-                return msg.includes('Timed out trying to acquire a postgres advisory lock') ||
-                    msg.includes('pg_advisory_lock') ||
-                    msg.includes('P1002');
-            };
-            const runWithRetry = async <T>(fn: () => Promise<T>): Promise<T> => {
-                let lastErr: any;
-                for (let attempt = 0; attempt < 3; attempt++) {
-                    try {
-                        return await fn();
-                    } catch (e: any) {
-                        lastErr = e;
-                        if (!shouldRetry(e) || attempt === 2) break;
-                        const delay = (attempt + 1) * 2000;
-                        logger.warn({ attempt: attempt + 1, delay, err: String(e?.message || e) }, '⚠️ [MigrationGuard] Advisory lock busy. Retrying...');
-                        await new Promise((r) => setTimeout(r, delay));
-                    }
-                }
-                throw lastErr;
-            };
-
             // Check for pending migrations using Prisma CLI with a timeout (ASYNC, non-blocking)
-            const { stdout: status } = await runWithRetry(() => execAsync('npx prisma migrate status', { timeout: 20000 }));
+            const { stdout: status } = await execAsync('npx prisma migrate status', { 
+                timeout: 20000,
+            });
 
             if (status.includes('Database is up to date') || status.includes('Already in sync')) {
                 logger.info('✅ [MigrationGuard] Database is fully synchronized.');
@@ -90,7 +70,7 @@ export class ResilienceService {
 
             if (status.includes('Following migration(s) have not yet been applied')) {
                 logger.warn('⚠️ [MigrationGuard] Pending migrations detected. Attempting safe deployment...');
-                await runWithRetry(() => execAsync('npx prisma migrate deploy', { timeout: 45000 }));
+                await execAsync('npx prisma migrate deploy', { timeout: 45000 });
                 logger.info('✅ [MigrationGuard] Migrations applied successfully.');
                 return true;
             }
