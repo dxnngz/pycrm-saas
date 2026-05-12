@@ -9,6 +9,7 @@ import {
 import { Skeleton } from '../UI/Skeleton';
 import { Badge } from '../UI/Badge';
 import { formatDate, formatTime } from '../../utils/format';
+import { customFetch, getHeaders, handleResponse } from '../../services/apiClient';
 
 interface LogEntry {
     id: string | number;
@@ -24,11 +25,8 @@ export const AuditLogs = () => {
     const { data: logs, isLoading } = useQuery<LogEntry[]>({
         queryKey: ['audit-logs'],
         queryFn: async () => {
-            const res = await fetch(`${import.meta.env.VITE_API_URL}/api/audit`, {
-                headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
-            });
-            if (!res.ok) throw new Error('No se pudieron cargar los registros');
-            return res.json();
+            const res = await customFetch('/audit', { headers: getHeaders() });
+            return handleResponse(res);
         }
     });
 

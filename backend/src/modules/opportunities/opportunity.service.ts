@@ -3,6 +3,7 @@ import { redisCache } from '../../core/redis.js';
 import { opportunityRepository } from '../../repositories/opportunity.repository.js';
 import { AppError } from '../../utils/AppError.js';
 import { tenantService } from '../tenants/tenant.service.js';
+import { Prisma } from '@prisma/client';
 
 export class OpportunityService {
     private parseOptionalDate(value: unknown, fieldLabel: string): Date | null | undefined {
@@ -76,41 +77,104 @@ export class OpportunityService {
         const overdue = !!options.overdue;
         const q = `%${search}%`;
 
-        const rows: Array<{ status_norm: string; count: number; amount: any }> = await prisma.$queryRaw`
-            SELECT 
-                CASE
-                    WHEN o.status = 'ganada' THEN 'ganado'
-                    WHEN o.status = 'perdida' THEN 'perdido'
-                    ELSE COALESCE(o.status, 'pendiente')
-                END as status_norm,
-                COUNT(*)::int as count,
-                COALESCE(SUM(o.amount), 0) as amount
-            FROM opportunities o
-            LEFT JOIN clients c ON c.id = o.client_id AND c.tenant_id = ${tenantId} AND c.deleted_at IS NULL
-            WHERE o.tenant_id = ${tenantId}
-              AND o.deleted_at IS NULL
-              AND (
-                ${status || null} IS NULL
-                OR (
+        const normalizeStatus = (value: unknown): string => {
+            const s = String(value || '').trim();
+            if (s === 'ganada') return 'ganado';
+            if (s === 'perdida') return 'perdido';
+            return s || 'pendiente';
+        };
+
+        const expandStatusFilter = (s?: string): string[] | undefined => {
+            const v = (s || '').trim();
+            if (!v) return undefined;
+            if (v === 'ganado') return ['ganado', 'ganada'];
+            if (v === 'ganada') return ['ganada', 'ganado'];
+            if (v === 'perdido') return ['perdido', 'perdida'];
+            if (v === 'perdida') return ['perdida', 'perdido'];
+            return [v];
+        };
+
+        let rows: Array<{ status_norm: string; count: number; amount: any }> = [];
+        try {
+            rows = await prisma.$queryRaw`
+                SELECT 
                     CASE
                         WHEN o.status = 'ganada' THEN 'ganado'
                         WHEN o.status = 'perdida' THEN 'perdido'
                         ELSE COALESCE(o.status, 'pendiente')
-                    END
-                ) = ${status || null}
-              )
-              AND (${assignedTo ?? null} IS NULL OR o.assigned_to = ${assignedTo ?? null})
-              AND (${amountMin ?? null} IS NULL OR o.amount >= ${amountMin ?? null})
-              AND (${amountMax ?? null} IS NULL OR o.amount <= ${amountMax ?? null})
-              AND (${overdue} = false OR (o.next_action_at IS NOT NULL AND o.next_action_at < NOW()))
-              AND (
-                ${search} = ''
-                OR o.product ILIKE ${q}
-                OR c.name ILIKE ${q}
-                OR c.company ILIKE ${q}
-              )
-            GROUP BY 1
-        `;
+                    END as status_norm,
+                    COUNT(*)::int as count,
+                    COALESCE(SUM(o.amount), 0) as amount
+                FROM opportunities o
+                LEFT JOIN clients c ON c.id = o.client_id AND c.tenant_id = ${tenantId} AND c.deleted_at IS NULL
+                WHERE o.tenant_id = ${tenantId}
+                  AND o.deleted_at IS NULL
+                  AND (
+                    ${status || null} IS NULL
+                    OR (
+                        CASE
+                            WHEN o.status = 'ganada' THEN 'ganado'
+                            WHEN o.status = 'perdida' THEN 'perdido'
+                            ELSE COALESCE(o.status, 'pendiente')
+                        END
+                    ) = ${status || null}
+                  )
+                  AND (${assignedTo ?? null} IS NULL OR o.assigned_to = ${assignedTo ?? null})
+                  AND (${amountMin ?? null} IS NULL OR o.amount >= ${amountMin ?? null})
+                  AND (${amountMax ?? null} IS NULL OR o.amount <= ${amountMax ?? null})
+                  AND (${overdue} = false OR (o.next_action_at IS NOT NULL AND o.next_action_at < NOW()))
+                  AND (
+                    ${search} = ''
+                    OR o.product ILIKE ${q}
+                    OR c.name ILIKE ${q}
+                    OR c.company ILIKE ${q}
+                  )
+                GROUP BY 1
+            `;
+        } catch {
+            const statusIn = expandStatusFilter(status);
+            const where: any = {
+                tenant_id: tenantId,
+                deleted_at: null,
+                ...(assignedTo ? { assigned_to: assignedTo } : {}),
+                ...(amountMin !== undefined ? { amount: { gte: new Prisma.Decimal(amountMin) } } : {}),
+                ...(amountMax !== undefined ? { amount: { ...(amountMin !== undefined ? { gte: new Prisma.Decimal(amountMin) } : {}), lte: new Prisma.Decimal(amountMax) } } : {}),
+                ...(overdue ? { next_action_at: { lt: new Date() } } : {}),
+                ...(statusIn ? { status: { in: statusIn } } : {}),
+                ...(search
+                    ? {
+                        OR: [
+                            { product: { contains: search, mode: 'insensitive' } },
+                            {
+                                client: {
+                                    is: {
+                                        deleted_at: null,
+                                        tenant_id: tenantId,
+                                        OR: [
+                                            { name: { contains: search, mode: 'insensitive' } },
+                                            { company: { contains: search, mode: 'insensitive' } },
+                                        ]
+                                    }
+                                }
+                            }
+                        ]
+                    }
+                    : {}),
+            };
+
+            const grouped = await prisma.opportunity.groupBy({
+                by: ['status'],
+                where,
+                _count: { _all: true },
+                _sum: { amount: true },
+            });
+
+            rows = grouped.map((g) => ({
+                status_norm: normalizeStatus(g.status),
+                count: Number(g._count._all) || 0,
+                amount: g._sum.amount ?? 0,
+            }));
+        }
 
         const stages = await tenantService.getPipelineStages(tenantId);
         const byStatus: Record<string, number> = {};
