@@ -1,5 +1,4 @@
 import { prisma } from '../../core/prisma.js';
-import { ResilienceService } from '../../core/resilience.service.js';
 import { tenantService } from '../tenants/tenant.service.js';
 
 type DemoSeedResult = {
@@ -73,26 +72,6 @@ export const demoService = {
             ? ((settings as any).lossReasons as unknown[]).map((v) => String(v || '').trim()).filter(Boolean)
             : [];
         const defaultLossReason = lossReasons[0] || 'Precio';
-
-        const [
-            hasClosedAt,
-            hasLostReason,
-            hasLostReasonDetail,
-            hasNotes,
-            hasSource,
-            hasProbability,
-            hasNextActionAt,
-            hasInteractions,
-        ] = await Promise.all([
-            ResilienceService.checkColumnExists('opportunities', 'closed_at'),
-            ResilienceService.checkColumnExists('opportunities', 'lost_reason'),
-            ResilienceService.checkColumnExists('opportunities', 'lost_reason_detail'),
-            ResilienceService.checkColumnExists('opportunities', 'notes'),
-            ResilienceService.checkColumnExists('opportunities', 'source'),
-            ResilienceService.checkColumnExists('opportunities', 'probability'),
-            ResilienceService.checkColumnExists('opportunities', 'next_action_at'),
-            ResilienceService.checkColumnExists('opportunities', 'interactions'),
-        ]);
 
         const result = await prisma.$transaction(async (tx) => {
             await tx.tenant.update({
@@ -222,25 +201,24 @@ export const demoService = {
                 const isLost = status === lostStatus;
                 const amount = 900 + (idx % 18) * 350 + (idx % 3) * 125;
                 const clientId = pickClient(idx)?.id ?? null;
-                const oppData: any = {
-                    tenant_id: tenantId,
-                    client_id: clientId,
-                    assigned_to: userId ?? null,
-                    product: pickProduct(idx),
-                    amount: String(amount.toFixed(2)),
-                    status,
-                    estimated_close_date: addDays(7 + (idx % 18) * 3),
-                };
-                if (hasClosedAt) oppData.closed_at = (isWon || isLost) ? addDays(-(3 + (idx % 21))) : null;
-                if (hasLostReason) oppData.lost_reason = isLost ? defaultLossReason : null;
-                if (hasLostReasonDetail) oppData.lost_reason_detail = isLost ? 'Cliente prioriza otra alternativa por presupuesto.' : null;
-                if (hasSource) oppData.source = idx % 3 === 0 ? 'Inbound' : idx % 3 === 1 ? 'Outbound' : 'Referral';
-                if (hasProbability) oppData.probability = isWon ? 100 : isLost ? 0 : 30 + (idx % 6) * 10;
-                if (hasNextActionAt) oppData.next_action_at = (isWon || isLost) ? null : addDays((idx % 9) - 3);
-                if (hasInteractions) oppData.interactions = idx % 7;
-                if (hasNotes) oppData.notes = idx % 4 === 0 ? 'Pendiente de validación con decisor.' : idx % 4 === 1 ? 'Se ha enviado propuesta, esperando respuesta.' : null;
                 const opp = await tx.opportunity.create({
-                    data: oppData
+                    data: ({
+                        tenant_id: tenantId,
+                        client_id: clientId,
+                        assigned_to: userId ?? null,
+                        product: pickProduct(idx),
+                        amount: String(amount.toFixed(2)),
+                        status,
+                        estimated_close_date: addDays(7 + (idx % 18) * 3),
+                        closed_at: (isWon || isLost) ? addDays(-(3 + (idx % 21))) : null,
+                        lost_reason: isLost ? defaultLossReason : null,
+                        lost_reason_detail: isLost ? 'Cliente prioriza otra alternativa por presupuesto.' : null,
+                        source: idx % 3 === 0 ? 'Inbound' : idx % 3 === 1 ? 'Outbound' : 'Referral',
+                        probability: isWon ? 100 : isLost ? 0 : 30 + (idx % 6) * 10,
+                        next_action_at: isWon || isLost ? null : addDays((idx % 9) - 3),
+                        interactions: idx % 7,
+                        notes: idx % 4 === 0 ? 'Pendiente de validación con decisor.' : idx % 4 === 1 ? 'Se ha enviado propuesta, esperando respuesta.' : null,
+                    } as any)
                 });
                 opportunities.push({ id: opp.id });
             }
