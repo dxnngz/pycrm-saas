@@ -13,25 +13,11 @@ export const seedDemoData = asyncHandler(async (req: Request, res: Response) => 
     const result = await demoService.seedTenantDemoData(tenantId, userId);
     const after = await demoService.getTenantSnapshot(tenantId);
 
-    const labelMap: Record<string, string> = {
-        clients: 'clientes',
-        products: 'productos',
-        opportunities: 'oportunidades',
-        tasks: 'tareas',
-        events: 'eventos',
-        documents: 'documentos',
-        contacts: 'contactos',
-    };
-    const createdTotal = Object.values(result.created).reduce((acc, v) => acc + (Number(v) || 0), 0);
-    const createdParts = Object.entries(result.created)
-        .filter(([, v]) => (Number(v) || 0) > 0)
-        .map(([k, v]) => `+${Number(v) || 0} ${(labelMap[k] || k)}`);
-
     res.status(200).json({
         success: true,
-        message: createdTotal > 0
-            ? `Datos demo listos (${createdParts.join(', ')})`
-            : 'Datos demo listos (sin cambios)',
+        message: (result.created.clients + result.created.products + result.created.opportunities + result.created.tasks + result.created.events + result.created.documents + result.created.contacts) > 0
+            ? 'Datos de demostración creados'
+            : 'Ya existen datos. No se han creado duplicados.',
         before,
         created: result.created,
         after,
@@ -51,3 +37,4 @@ export const sendTestEmail = asyncHandler(async (req: Request, res: Response) =>
 
     res.status(200).json({ success: true, message: 'Email de prueba enviado' });
 });
+

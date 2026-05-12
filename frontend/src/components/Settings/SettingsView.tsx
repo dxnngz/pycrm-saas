@@ -1,6 +1,5 @@
 import { useEffect, useState, lazy, Suspense } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { useQueryClient } from '@tanstack/react-query';
 import {
     User,
     Bell,
@@ -29,7 +28,6 @@ const PipelineStagesSettings = lazy(() => import('./PipelineStagesSettings'));
 const SettingsView = () => {
     const location = useLocation();
     const navigate = useNavigate();
-    const queryClient = useQueryClient();
     const { user, logout } = useAuth();
     const { isDense, toggleDense } = useUI();
     const [activeTab, setActiveTab] = useState(() => {
@@ -122,13 +120,6 @@ const SettingsView = () => {
         try {
             const res = await demoService.seed();
             toast.success(res.message);
-            await Promise.all([
-                queryClient.invalidateQueries({ queryKey: ['dashboard_data'] }),
-                queryClient.invalidateQueries({ queryKey: ['clients'] }),
-                queryClient.invalidateQueries({ queryKey: ['opportunities'] }),
-                queryClient.invalidateQueries({ queryKey: ['opportunity_summary'] }),
-                queryClient.invalidateQueries({ queryKey: ['tasks'] }),
-            ]);
         } catch (e: unknown) {
             const msg = e instanceof Error ? e.message : 'No se pudo crear datos de demostración';
             toast.error(msg);
