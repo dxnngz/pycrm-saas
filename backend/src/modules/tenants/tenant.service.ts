@@ -1,4 +1,5 @@
 import { prisma } from '../../core/prisma.js';
+import { AppError } from '../../utils/AppError.js';
 
 export interface PlanLimits {
     maxUsers: number;
@@ -71,14 +72,23 @@ const normalizePipelineStages = (value: unknown): PipelineStage[] => {
     return Array.from(dedup.values()).sort((a, b) => a.order - b.order);
 };
 
+const coerceTenantId = (tenantId: unknown): number => {
+    const tid = Number(tenantId);
+    if (!tid || Number.isNaN(tid)) {
+        throw new AppError('Tenant inválido.', 400);
+    }
+    return tid;
+};
+
 export class TenantService {
     async getTenantPlan(tenantId: number) {
+        const tid = coerceTenantId(tenantId);
         const tenant = await prisma.tenant.findUnique({
-            where: { id: tenantId },
+            where: { id: tid },
             select: { plan: true, settings: true }
         });
 
-        if (!tenant) throw new Error('Tenant not found');
+        if (!tenant) throw new AppError('Tenant no encontrado.', 404);
 
         const plan = (tenant.plan as keyof typeof PLAN_CONFIGURATIONS) || 'free';
         return {
@@ -89,8 +99,9 @@ export class TenantService {
     }
 
     async getPipelineStages(tenantId: number): Promise<PipelineStage[]> {
+        const tid = coerceTenantId(tenantId);
         const tenant = await prisma.tenant.findUnique({
-            where: { id: tenantId },
+            where: { id: tid },
             select: { settings: true }
         });
         const settings = (tenant?.settings || {}) as Record<string, unknown>;
@@ -99,7 +110,7 @@ export class TenantService {
     }
 
     async getPipelineStatusSets(tenantId: number): Promise<{ open: string[]; won: string[]; lost: string[]; closed: string[]; all: string[] }> {
-        const stages = await this.getPipelineStages(tenantId);
+        const stages = await this.getPipelineStages(coerceTenantId(tenantId));
         const open = stages.filter(s => s.category === 'open').map(s => s.id);
         const won = Array.from(new Set([...stages.filter(s => s.category === 'won').map(s => s.id), 'ganada']));
         const lost = Array.from(new Set([...stages.filter(s => s.category === 'lost').map(s => s.id), 'perdida']));
@@ -111,20 +122,21 @@ export class TenantService {
     }
 
     async checkLimit(tenantId: number, resource: 'users' | 'clients' | 'opportunities') {
-        const { limits } = await this.getTenantPlan(tenantId);
+        const tid = coerceTenantId(tenantId);
+        const { limits } = await this.getTenantPlan(tid);
 
         let currentCount = 0;
         switch (resource) {
             case 'users':
-                currentCount = await prisma.user.count({ where: { tenant_id: tenantId } });
+                currentCount = await prisma.user.count({ where: { tenant_id: tid } });
                 if (currentCount >= limits.maxUsers) return false;
                 break;
             case 'clients':
-                currentCount = await prisma.client.count({ where: { tenant_id: tenantId, deleted_at: null } });
+                currentCount = await prisma.client.count({ where: { tenant_id: tid, deleted_at: null } });
                 if (currentCount >= limits.maxClients) return false;
                 break;
             case 'opportunities':
-                currentCount = await prisma.opportunity.count({ where: { tenant_id: tenantId, deleted_at: null } });
+                currentCount = await prisma.opportunity.count({ where: { tenant_id: tid, deleted_at: null } });
                 if (currentCount >= limits.maxOpportunities) return false;
                 break;
         }
@@ -133,7 +145,7 @@ export class TenantService {
     }
 
     async isFeatureEnabled(tenantId: number, feature: 'aiBriefs' | 'workflows') {
-        const { limits } = await this.getTenantPlan(tenantId);
+        const { limits } = await this.getTenantPlan(coerceTenantId(tenantId));
         if (feature === 'aiBriefs') return limits.aiBriefsEnabled;
         if (feature === 'workflows') return limits.workflowAutomationsEnabled;
         return false;

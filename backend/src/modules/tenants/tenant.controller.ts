@@ -5,13 +5,21 @@ import { AppError } from '../../utils/AppError.js';
 import { prisma } from '../../core/prisma.js';
 
 export const getMyPlan = asyncHandler(async (req: Request, res: Response) => {
-    const tenantId = req.user?.tenantId;
-    const planInfo = await tenantService.getTenantPlan(tenantId!);
+    const tenantIdRaw = req.user?.tenantId;
+    const tenantId = Number(tenantIdRaw);
+    if (!tenantId || Number.isNaN(tenantId)) {
+        throw new AppError('No autenticado.', 401);
+    }
+    const planInfo = await tenantService.getTenantPlan(tenantId);
     res.json(planInfo);
 });
 
 export const updateSettings = asyncHandler(async (req: Request, res: Response) => {
-    const tenantId = req.user?.tenantId;
+    const tenantIdRaw = req.user?.tenantId;
+    const tenantId = Number(tenantIdRaw);
+    if (!tenantId || Number.isNaN(tenantId)) {
+        throw new AppError('No autenticado.', 401);
+    }
     const { settings } = req.body;
 
     const updated = await prisma.tenant.update({

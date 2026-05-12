@@ -109,7 +109,7 @@ export class OpportunityService {
                 OR c.name ILIKE ${q}
                 OR c.company ILIKE ${q}
               )
-            GROUP BY status_norm
+            GROUP BY 1
         `;
 
         const stages = await tenantService.getPipelineStages(tenantId);

@@ -52,9 +52,9 @@ const SalesChart = ({ data }: SalesChartProps) => {
     }, []);
 
     return (
-        <div className="w-full h-full flex flex-col min-h-[350px]">
-            <div className="flex-1 w-full relative rounded-lg overflow-hidden">
-                <ResponsiveContainer width="100%" height="100%" debounce={100}>
+        <div className="w-full">
+            <div className="w-full h-[340px] relative rounded-lg overflow-hidden">
+                <ResponsiveContainer width="100%" height={340} debounce={100}>
                     <AreaChart data={safeData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
                         <defs>
                             <linearGradient id="colorSales" x1="0" y1="0" x2="0" y2="1">

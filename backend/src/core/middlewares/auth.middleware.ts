@@ -10,7 +10,7 @@ const JWT_KEY = env.JWT_SECRET;
 
 interface JWTPayload extends jwt.JwtPayload {
     userId: number;
-    tenantId: number;
+    tenantId: number | string;
     role: string;
     email: string;
     name: string;
@@ -60,9 +60,9 @@ export const protect = (req: Request, res: Response, next: NextFunction) => {
         }
 
         req.user = {
-            id: payload.userId,
-            userId: payload.userId,
-            tenantId: payload.tenantId,
+            id: Number(payload.userId),
+            userId: Number(payload.userId),
+            tenantId: Number(payload.tenantId),
             role: payload.role,
             email: payload.email,
             name: payload.name,
@@ -74,15 +74,15 @@ export const protect = (req: Request, res: Response, next: NextFunction) => {
 
         contextStore.run({
             ...currentContext,
-            userId: payload.userId,
-            tenantId: payload.tenantId,
+            userId: Number(payload.userId),
+            tenantId: Number(payload.tenantId),
             requestId
         }, () => {
             logger.info({
                 msg: 'Authenticated Request',
                 requestId,
-                userId: payload.userId,
-                tenantId: payload.tenantId,
+                userId: Number(payload.userId),
+                tenantId: Number(payload.tenantId),
                 path: req.path
             });
             next();
