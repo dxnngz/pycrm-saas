@@ -1,4 +1,5 @@
 import { prisma } from '../../core/prisma.js';
+import { ResilienceService } from '../../core/resilience.service.js';
 import { tenantService } from '../tenants/tenant.service.js';
 
 type DemoSeedResult = {
@@ -88,6 +89,26 @@ export const demoService = {
             : [];
         const defaultLossReason = lossReasons[0] || 'Precio';
 
+        const [
+            hasClosedAt,
+            hasNotes,
+            hasLostReason,
+            hasLostReasonDetail,
+            hasSource,
+            hasProbability,
+            hasNextActionAt,
+            hasInteractions,
+        ] = await Promise.all([
+            ResilienceService.checkColumnExists('opportunities', 'closed_at'),
+            ResilienceService.checkColumnExists('opportunities', 'notes'),
+            ResilienceService.checkColumnExists('opportunities', 'lost_reason'),
+            ResilienceService.checkColumnExists('opportunities', 'lost_reason_detail'),
+            ResilienceService.checkColumnExists('opportunities', 'source'),
+            ResilienceService.checkColumnExists('opportunities', 'probability'),
+            ResilienceService.checkColumnExists('opportunities', 'next_action_at'),
+            ResilienceService.checkColumnExists('opportunities', 'interactions'),
+        ]);
+
         const result = await prisma.$transaction(async (tx) => {
             await tx.tenant.update({
                 where: { id: tenantId },
@@ -173,24 +194,25 @@ export const demoService = {
                 const o = oppToCreate[idx]!;
                 const isWon = o.status === wonStatus;
                 const isLost = o.status === lostStatus;
+                const data: any = {
+                    tenant_id: tenantId,
+                    client_id: o.client_id!,
+                    assigned_to: userId ?? null,
+                    product: o.product,
+                    amount: o.amount,
+                    status: o.status,
+                    estimated_close_date: addDays(10 + idx * 7),
+                };
+                if (hasClosedAt) data.closed_at = (isWon || isLost) ? addDays(-(20 + idx)) : null;
+                if (hasLostReason) data.lost_reason = isLost ? defaultLossReason : null;
+                if (hasLostReasonDetail) data.lost_reason_detail = isLost ? 'Cliente prioriza otra alternativa por presupuesto.' : null;
+                if (hasSource) data.source = idx % 2 === 0 ? 'Inbound' : 'Outbound';
+                if (hasProbability) data.probability = isWon ? 100 : isLost ? 0 : 35 + (idx % 4) * 10;
+                if (hasNextActionAt) data.next_action_at = (o as any).next_action_at ? new Date((o as any).next_action_at) : null;
+                if (hasInteractions) data.interactions = (o as any).interactions ?? (idx % 4);
+                if (hasNotes) data.notes = idx % 3 === 0 ? 'Pendiente de validación con decisor.' : null;
                 const opp = await tx.opportunity.create({
-                    data: {
-                        tenant_id: tenantId,
-                        client_id: o.client_id!,
-                        assigned_to: userId,
-                        product: o.product,
-                        amount: o.amount,
-                        status: o.status,
-                        estimated_close_date: addDays(10 + idx * 7),
-                        closed_at: (isWon || isLost) ? addDays(-(20 + idx)) : null,
-                        lost_reason: isLost ? defaultLossReason : null,
-                        lost_reason_detail: isLost ? 'Cliente prioriza otra alternativa por presupuesto.' : null,
-                        source: idx % 2 === 0 ? 'Inbound' : 'Outbound',
-                        probability: isWon ? 100 : isLost ? 0 : 35 + (idx % 4) * 10,
-                        next_action_at: (o as any).next_action_at ? new Date((o as any).next_action_at) : null,
-                        interactions: (o as any).interactions ?? (idx % 4),
-                        notes: idx % 3 === 0 ? 'Pendiente de validación con decisor.' : null,
-                    }
+                    data
                 });
                 opportunities.push({ id: opp.id });
             }
