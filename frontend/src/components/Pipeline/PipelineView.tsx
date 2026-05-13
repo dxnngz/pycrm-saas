@@ -226,14 +226,34 @@ const PipelineView = () => {
 
     const allOpportunities = Array.isArray(opportunities) ? opportunities : [];
 
-    const stages = summaryData?.stages?.length
-        ? summaryData.stages
-        : ([
-            { id: 'pendiente', label: 'Pendiente', category: 'open', order: 10 },
-            { id: 'negociacion', label: 'Negociación', category: 'open', order: 20 },
-            { id: 'ganado', label: 'Ganado', category: 'won', order: 90 },
-            { id: 'perdido', label: 'Perdido', category: 'lost', order: 100 }
-        ] as Array<{ id: string; label: string; category: PipelineStageCategory; order: number }>);
+    const fallbackStages = ([
+        { id: 'pendiente', label: 'Pendiente', category: 'open', order: 10 },
+        { id: 'negociacion', label: 'Negociación', category: 'open', order: 20 },
+        { id: 'ganado', label: 'Ganado', category: 'won', order: 90 },
+        { id: 'perdido', label: 'Perdido', category: 'lost', order: 100 }
+    ] as Array<{ id: string; label: string; category: PipelineStageCategory; order: number }>);
+
+    const ensureRequiredStages = (items: typeof fallbackStages) => {
+        if (!Array.isArray(items) || items.length === 0) return fallbackStages;
+
+        const hasOpen = items.some((s) => s.category === 'open');
+        const hasWon = items.some((s) => s.category === 'won');
+        const hasLost = items.some((s) => s.category === 'lost');
+        if (hasOpen && hasWon && hasLost) return items;
+
+        const byId = new Map<string, (typeof fallbackStages)[number]>();
+        for (const s of items) byId.set(s.id, s);
+
+        for (const def of fallbackStages) {
+            if (def.category === 'open' && !hasOpen) byId.set(def.id, def);
+            if (def.category === 'won' && !hasWon) byId.set(def.id, def);
+            if (def.category === 'lost' && !hasLost) byId.set(def.id, def);
+        }
+
+        return Array.from(byId.values()).sort((a, b) => a.order - b.order);
+    };
+
+    const stages = ensureRequiredStages(summaryData?.stages?.length ? summaryData.stages : fallbackStages);
 
     const stageCategoryById = stages.reduce<Record<string, PipelineStageCategory>>((acc, s) => {
         acc[s.id] = s.category;
