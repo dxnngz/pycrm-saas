@@ -331,6 +331,13 @@ export class OpportunityService {
         await redisCache.invalidate(`dashboard:metrics:${tenantId}:*`);
         return result;
     }
+
+    async deleteOpportunityById(tenantId: number, id: number) {
+        await opportunityRepository.delete(tenantId, id);
+        await redisCache.invalidateTenantCache(tenantId, 'opportunities');
+        await redisCache.invalidate(`dashboard:metrics:${tenantId}:*`);
+        return true;
+    }
 }
 
 export const opportunityService = new OpportunityService();

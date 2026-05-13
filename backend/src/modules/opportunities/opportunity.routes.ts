@@ -12,6 +12,7 @@ router.use(protect);
 router.get('/', validate(getOpportunitiesSchema), requirePermission(Permission.READ_OPPORTUNITY), opportunityController.getOpportunities);
 router.get('/summary', validate(getOpportunitySummarySchema), requirePermission(Permission.READ_OPPORTUNITY), opportunityController.getOpportunitySummary);
 router.post('/', validate(createOpportunitySchema), requirePermission(Permission.WRITE_OPPORTUNITY), opportunityController.createOpportunity);
+router.delete('/:id', validate(opportunityIdSchema), requirePermission(Permission.DELETE_OPPORTUNITY), opportunityController.deleteOpportunity);
 router.patch('/:id', validate(updateOpportunitySchema), requirePermission(Permission.WRITE_OPPORTUNITY), opportunityController.updateOpportunity);
 router.patch('/:id/status', validate(updateOpportunityStatusSchema), requirePermission(Permission.WRITE_OPPORTUNITY), opportunityController.updateOpportunityStatus);
 router.get('/:id/score', validate(opportunityIdSchema), requirePermission(Permission.READ_OPPORTUNITY), opportunityController.getLeadScore);

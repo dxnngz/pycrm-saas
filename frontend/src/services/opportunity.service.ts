@@ -82,6 +82,12 @@ export const opportunityService = {
             body: JSON.stringify(payload),
         }).then(handleResponse),
 
+    delete: (id: number): Promise<{ message: string }> =>
+        customFetch(`/opportunities/${id}`, {
+            method: 'DELETE',
+            headers: getHeaders(),
+        }).then(handleResponse),
+
     getLeadScore: (opportunityId: number): Promise<{ score: number; classification: 'HIGH' | 'MEDIUM' | 'LOW'; recommendation: string; factors: Record<string, unknown> }> =>
         customFetch(`/opportunities/${opportunityId}/score`, { headers: getHeaders() }).then(handleResponse),
 };

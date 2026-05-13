@@ -12,7 +12,8 @@ import {
     TrendingUp,
     ShieldCheck,
     Zap,
-    Pencil
+    Pencil,
+    Trash2
 } from 'lucide-react';
 import { getOpportunityScore } from '../../services/ai';
 import { useOpportunities } from '../../hooks/useOpportunities';
@@ -24,6 +25,7 @@ import { useAuth } from '../../context/AuthContext';
 import type { Opportunity, PipelineStageCategory } from '../../types';
 import { sanitizePayload } from '../../utils/sanitize';
 import Modal from '../Common/Modal';
+import { ConfirmModal } from '../Common/ConfirmModal';
 import { Input } from '../UI/Input';
 import { Button } from '../UI/Button';
 import { Badge } from '../UI/Badge';
@@ -36,8 +38,10 @@ const OpportunityCard = memo(({
     opp,
     scores,
     canEditOpportunity,
+    canDeleteOpportunity,
     onUpdateStatus,
     onEdit,
+    onDelete,
     stageCategoryById,
     defaultOpenStageId,
     defaultWonStageId,
@@ -46,8 +50,10 @@ const OpportunityCard = memo(({
     opp: Opportunity,
     scores: Record<number, { score: number; classification: string }>,
     canEditOpportunity: boolean,
+    canDeleteOpportunity: boolean,
     onUpdateStatus: (id: number, status: string) => void,
     onEdit: (opp: Opportunity) => void,
+    onDelete: (id: number) => void,
     stageCategoryById: Record<string, PipelineStageCategory | undefined>,
     defaultOpenStageId: string,
     defaultWonStageId?: string,
@@ -96,6 +102,30 @@ const OpportunityCard = memo(({
                         >
                             <Pencil size={14} />
                         </button>
+                    )}
+                    {canDeleteOpportunity && (
+                        <Dropdown
+                            trigger={(
+                                <button
+                                    type="button"
+                                    className="p-1.5 text-surface-muted hover:text-danger-icon hover:bg-danger-bg rounded transition-colors"
+                                    title="Eliminar"
+                                    aria-label="Eliminar oportunidad"
+                                >
+                                    <Trash2 size={14} />
+                                </button>
+                            )}
+                            options={[
+                                {
+                                    id: 'delete',
+                                    label: 'Eliminar oportunidad',
+                                    icon: <Trash2 size={14} />,
+                                    variant: 'danger'
+                                }
+                            ]}
+                            onSelect={() => onDelete(opp.id)}
+                            align="right"
+                        />
                     )}
                     {canEditOpportunity && isOpen && defaultWonStageId && defaultLostStageId && (
                         <>
@@ -156,10 +186,10 @@ const PipelineView = () => {
         overdue: overdueOnly ? true : undefined
     };
 
-    const { opportunities, loading: oppsLoading, pagination, loadMore, isLoadingMore, createOpportunity, updateOpportunityStatus, updateOpportunity } = useOpportunities(50, debouncedSearch, filters);
+    const { opportunities, loading: oppsLoading, pagination, loadMore, isLoadingMore, createOpportunity, updateOpportunityStatus, updateOpportunity, deleteOpportunity } = useOpportunities(50, debouncedSearch, filters);
     const { data: summaryData } = useOpportunitySummary(debouncedSearch, filters);
     const { clients, loading: clientsLoading } = useClients(100);
-    const { canCreateOpportunity } = usePermissions();
+    const { canCreateOpportunity, canDeleteOpportunity } = usePermissions();
     const { data: tenantPlan } = useTenantPlan();
     const loading = oppsLoading || clientsLoading;
 
@@ -181,6 +211,9 @@ const PipelineView = () => {
     const [editNotes, setEditNotes] = useState('');
     const [isEditSubmitting, setIsEditSubmitting] = useState(false);
     const [activeFilter, setActiveFilter] = useState<'all' | 'high-value' | 'high-score' | 'stagnant'>('all');
+    const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+    const [deleteOppId, setDeleteOppId] = useState<number | null>(null);
+    const [isDeleteSubmitting, setIsDeleteSubmitting] = useState(false);
 
     // Form state
     const [clientId, setClientId] = useState('');
@@ -436,8 +469,42 @@ const PipelineView = () => {
         color: s.category === 'open' ? 'bg-primary-500' : s.category === 'won' ? 'bg-success-icon' : 'bg-danger-icon'
     }));
 
+    const requestDelete = useCallback((id: number) => {
+        setDeleteOppId(id);
+        setIsDeleteModalOpen(true);
+    }, []);
+
+    const confirmDelete = useCallback(async () => {
+        if (!deleteOppId) return;
+        try {
+            setIsDeleteSubmitting(true);
+            const res = await deleteOpportunity(deleteOppId);
+            toast.success(res?.message || 'Oportunidad eliminada');
+            setIsDeleteModalOpen(false);
+            setDeleteOppId(null);
+        } catch (error: any) {
+            toast.error(error?.message || 'No se pudo eliminar la oportunidad');
+        } finally {
+            setIsDeleteSubmitting(false);
+        }
+    }, [deleteOppId, deleteOpportunity]);
+
     return (
         <div className="flex flex-col gap-6 h-[calc(100vh-140px)]">
+            <ConfirmModal
+                isOpen={isDeleteModalOpen}
+                onClose={() => {
+                    if (isDeleteSubmitting) return;
+                    setIsDeleteModalOpen(false);
+                    setDeleteOppId(null);
+                }}
+                onConfirm={confirmDelete}
+                title="Eliminar oportunidad"
+                message="Se eliminará la oportunidad y dejará de aparecer en el pipeline. Esta acción no se puede deshacer."
+                confirmLabel="Eliminar"
+                variant="danger"
+                isLoading={isDeleteSubmitting}
+            />
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
                     <h1 className="text-xl font-bold text-surface-text">Pipeline de ventas</h1>
@@ -638,8 +705,10 @@ const PipelineView = () => {
                                                                 opp={opp}
                                                                 scores={scores}
                                                                 canEditOpportunity={canCreateOpportunity}
+                                                                canDeleteOpportunity={canDeleteOpportunity}
                                                                 onUpdateStatus={handleUpdateStatus}
                                                                 onEdit={openEdit}
+                                                                onDelete={requestDelete}
                                                                 stageCategoryById={stageCategoryById}
                                                                 defaultOpenStageId={defaultOpenStageId}
                                                                 defaultWonStageId={defaultWonStageId}

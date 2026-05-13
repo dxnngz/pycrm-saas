@@ -51,6 +51,21 @@ export const createOpportunity = asyncHandler(async (req: Request, res: Response
     res.status(201).json(opportunity);
 });
 
+export const deleteOpportunity = asyncHandler(async (req: Request, res: Response) => {
+    try {
+        const tenantId = req.user!.tenantId;
+        const id = parseInt(req.params.id as string);
+        await opportunityService.deleteOpportunityById(tenantId, id);
+        events.emit('workflow:opportunity_deleted', { tenantId, userId: req.user?.userId, data: { id } });
+        res.json({ message: 'Oportunidad eliminada correctamente' });
+    } catch (error: any) {
+        if (error.code === 'P2025') {
+            throw new AppError('Oportunidad no encontrada', 404);
+        }
+        throw error;
+    }
+});
+
 export const updateOpportunity = asyncHandler(async (req: Request, res: Response) => {
     try {
         const tenantId = req.user!.tenantId;

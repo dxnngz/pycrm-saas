@@ -111,6 +111,15 @@ export const useOpportunities = (limit: number = 10, search: string = '', filter
         }
     });
 
+    const deleteMutation = useMutation({
+        mutationFn: (id: number) => opportunityService.delete(id),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['opportunities'] });
+            queryClient.invalidateQueries({ queryKey: ['opportunity_summary'] });
+            queryClient.invalidateQueries({ queryKey: ['dashboard_data'] });
+        }
+    });
+
     return {
         opportunities,
         loading,
@@ -121,5 +130,6 @@ export const useOpportunities = (limit: number = 10, search: string = '', filter
         updateOpportunity: (id: number, data: Partial<Opportunity> & { version?: number }) => updateMutation.mutateAsync({ id, data }),
         updateOpportunityStatus: (id: number, payload: { status: string; lost_reason?: string; lost_reason_detail?: string }) =>
             updateStatusMutation.mutateAsync({ id, payload }),
+        deleteOpportunity: (id: number) => deleteMutation.mutateAsync(id),
     };
 };
