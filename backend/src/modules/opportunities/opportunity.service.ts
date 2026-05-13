@@ -96,6 +96,10 @@ export class OpportunityService {
 
         let rows: Array<{ status_norm: string; count: number; amount: any }> = [];
         try {
+            const statusParam = status || null;
+            const assignedToParam = assignedTo ?? null;
+            const amountMinParam = amountMin ?? null;
+            const amountMaxParam = amountMax ?? null;
             rows = await prisma.$queryRaw`
                 SELECT 
                     CASE
@@ -110,18 +114,18 @@ export class OpportunityService {
                 WHERE o.tenant_id = ${tenantId}
                   AND o.deleted_at IS NULL
                   AND (
-                    ${status || null} IS NULL
+                    CAST(${statusParam} AS TEXT) IS NULL
                     OR (
                         CASE
                             WHEN o.status = 'ganada' THEN 'ganado'
                             WHEN o.status = 'perdida' THEN 'perdido'
                             ELSE COALESCE(o.status, 'pendiente')
                         END
-                    ) = ${status || null}
+                    ) = CAST(${statusParam} AS TEXT)
                   )
-                  AND (${assignedTo ?? null} IS NULL OR o.assigned_to = ${assignedTo ?? null})
-                  AND (${amountMin ?? null} IS NULL OR o.amount >= ${amountMin ?? null})
-                  AND (${amountMax ?? null} IS NULL OR o.amount <= ${amountMax ?? null})
+                  AND (CAST(${assignedToParam} AS INT) IS NULL OR o.assigned_to = CAST(${assignedToParam} AS INT))
+                  AND (CAST(${amountMinParam} AS NUMERIC) IS NULL OR o.amount >= CAST(${amountMinParam} AS NUMERIC))
+                  AND (CAST(${amountMaxParam} AS NUMERIC) IS NULL OR o.amount <= CAST(${amountMaxParam} AS NUMERIC))
                   AND (${overdue} = false OR (o.next_action_at IS NOT NULL AND o.next_action_at < NOW()))
                   AND (
                     ${search} = ''

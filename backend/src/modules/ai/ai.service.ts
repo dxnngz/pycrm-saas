@@ -5,6 +5,7 @@ import { logger } from '../../utils/logger.js';
 
 export class AIService {
     private openai: OpenAI;
+    private leadScoreCache = new Map<string, { expiresAt: number; value: any }>();
 
     constructor() {
         const isGroq = !!process.env.GROQ_API_KEY;
@@ -15,6 +16,12 @@ export class AIService {
     }
 
     async calculateLeadScore(opportunityId: number, tenantId: number) {
+        const cacheKey = `${tenantId}:${opportunityId}`;
+        const cached = this.leadScoreCache.get(cacheKey);
+        if (cached && cached.expiresAt > Date.now()) {
+            return cached.value;
+        }
+
         const opportunity = await prisma.opportunity.findFirst({
             where: { id: opportunityId, tenant_id: tenantId },
             include: { client: true, documents: true }
@@ -25,25 +32,25 @@ export class AIService {
         // Fallback or actual OpenAI call (using a mock if no key to prevent instant crashes)
         if (!process.env.OPENAI_API_KEY && !process.env.GROQ_API_KEY) {
             console.warn("API de IA no configurada, usando scoring por defecto.");
-            return this.mockLeadScore(opportunity);
+            const value = this.mockLeadScore(opportunity);
+            this.leadScoreCache.set(cacheKey, { value, expiresAt: Date.now() + 10 * 60 * 1000 });
+            return value;
         }
 
-        const prompt = `
-        Analiza esta oportunidad comercial B2B y darnos una puntuación del 0 al 100 y una recomendación.
-        Cliente: ${opportunity.client?.name} (${opportunity.client?.company})
-        Producto: ${opportunity.product}
-        Monto: $${opportunity.amount}
-        Estado: ${opportunity.status}
-        Interacciones: ${opportunity.interactions}
-        Documentos adjuntos: ${opportunity.documents.length}
-        
-        Devuelve estrictamente un JSON con este formato:
-        {
-            "score": number, 
-            "classification": "HIGH" | "MEDIUM" | "LOW", 
-            "recommendation": "string", 
-            "factors": {"amount": "string", "engagement": "string", "historicalData": "string"}
-        }`;
+        const prompt = `Devuelve SOLO JSON.
+Datos: ${JSON.stringify({
+            client: {
+                name: opportunity.client?.name || null,
+                company: opportunity.client?.company || null,
+            },
+            product: opportunity.product,
+            amount: opportunity.amount,
+            status: opportunity.status,
+            interactions: opportunity.interactions,
+            documentsCount: opportunity.documents.length,
+        })}
+Formato JSON:
+{"score":0,"classification":"HIGH|MEDIUM|LOW","recommendation":"","factors":{"amount":"","engagement":"","historicalData":""}}`;
 
         try {
             const modelName = process.env.GROQ_API_KEY ? "llama-3.1-8b-instant" : "gpt-4o-mini";
@@ -55,14 +62,18 @@ export class AIService {
             });
 
             const parsed = JSON.parse(response.choices[0].message.content || '{}');
-            return {
+            const value = {
                 opportunityId,
                 ...parsed,
                 calculatedAt: new Date()
             };
+            this.leadScoreCache.set(cacheKey, { value, expiresAt: Date.now() + 10 * 60 * 1000 });
+            return value;
         } catch (error: any) {
             logger.error({ opportunityId, err: error.message }, 'AI Lead Scoring Error');
-            return this.mockLeadScore(opportunity);
+            const value = this.mockLeadScore(opportunity);
+            this.leadScoreCache.set(cacheKey, { value, expiresAt: Date.now() + 2 * 60 * 1000 });
+            return value;
         }
     }
 
