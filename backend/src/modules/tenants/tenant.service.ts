@@ -132,8 +132,8 @@ export class TenantService {
     async getPipelineStatusSets(tenantId: number): Promise<{ open: string[]; won: string[]; lost: string[]; closed: string[]; all: string[] }> {
         const stages = await this.getPipelineStages(coerceTenantId(tenantId));
         const open = stages.filter(s => s.category === 'open').map(s => s.id);
-        const won = Array.from(new Set([...stages.filter(s => s.category === 'won').map(s => s.id), 'ganada']));
-        const lost = Array.from(new Set([...stages.filter(s => s.category === 'lost').map(s => s.id), 'perdida']));
+        const won = Array.from(new Set([...stages.filter(s => s.category === 'won').map(s => s.id), 'ganado', 'ganada']));
+        const lost = Array.from(new Set([...stages.filter(s => s.category === 'lost').map(s => s.id), 'perdido', 'perdida']));
 
         const closed = Array.from(new Set([...won, ...lost]));
         const all = Array.from(new Set([...open, ...won, ...lost]));
