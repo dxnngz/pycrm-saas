@@ -93,6 +93,8 @@ export const api = {
     },
     users: {
         getAll: () => customFetch('/users', { headers: getHeaders() }).then(handleResponse),
+        create: (payload: { name: string; email: string; password: string; role: string }) =>
+            customFetch('/users', { method: 'POST', headers: getHeaders(), body: JSON.stringify(payload) }).then(handleResponse),
         updateRole: (id: number, role: string) => customFetch(`/users/${id}/role`, { method: 'PUT', headers: getHeaders(), body: JSON.stringify({ role }) }).then(handleResponse),
         delete: (id: number) => customFetch(`/users/${id}`, { method: 'DELETE', headers: getHeaders() }).then(handleResponse),
     }
