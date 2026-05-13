@@ -1,6 +1,6 @@
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
-import type { Client, Opportunity } from '../types';
+import type { Client, Document, Opportunity } from '../types';
 
 /**
  * Service to generate professional PDF reports for the TFG PyCRM project.
@@ -90,4 +90,55 @@ export const generateClientReport = (clients: Client[]) => {
     });
 
     doc.save(`PyCRM_Clientes_Report_${date.replace(/\//g, '-')}.pdf`);
+};
+
+export const generateDocumentPdf = (document: Document) => {
+    const pdf = new jsPDF();
+    const date = new Date().toLocaleDateString('es-ES');
+
+    const safeName = (document.name || 'Documento')
+        .trim()
+        .replace(/[\\/:"*?<>|]+/g, '-')
+        .replace(/\s+/g, '_')
+        .slice(0, 80);
+
+    const amount = Number(document.amount);
+    const amountLabel = Number.isFinite(amount)
+        ? new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR' }).format(amount)
+        : '—';
+
+    const clientLabel = document.client_name || (document.client_id ? `ID: #${document.client_id}` : 'Sin cliente');
+    const statusLabel = document.status ? String(document.status) : '—';
+    const typeLabel = document.type ? String(document.type) : '—';
+
+    pdf.setFontSize(22);
+    pdf.setTextColor(99, 102, 241);
+    pdf.text('PyCRM: Documento', 14, 22);
+
+    pdf.setFontSize(10);
+    pdf.setTextColor(100);
+    pdf.text(`Fecha de generación: ${date}`, 14, 30);
+
+    pdf.setFontSize(14);
+    pdf.setTextColor(15, 23, 42);
+    pdf.text(document.name || 'Documento', 14, 42);
+
+    autoTable(pdf, {
+        startY: 52,
+        head: [['Campo', 'Valor']],
+        body: [
+            ['ID', String(document.id)],
+            ['Cliente', clientLabel],
+            ['Tipo', typeLabel],
+            ['Estado', statusLabel],
+            ['Importe', amountLabel],
+            ['Creado', document.created_at ? new Date(document.created_at).toLocaleString('es-ES') : '—'],
+        ],
+        headStyles: { fillColor: [99, 102, 241], textColor: [255, 255, 255], fontStyle: 'bold' },
+        alternateRowStyles: { fillColor: [249, 250, 251] },
+        styles: { fontSize: 10, cellPadding: 4 },
+        margin: { top: 52 },
+    });
+
+    pdf.save(`PyCRM_Documento_${safeName}_${date.replace(/\//g, '-')}.pdf`);
 };

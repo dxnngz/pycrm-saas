@@ -25,7 +25,8 @@ import { sanitizePayload } from '../../utils/sanitize';
 import { EmptyState } from '../Common/EmptyState';
 import { demoService } from '../../services/demo.service';
 import { useAuth } from '../../context/AuthContext';
-import { formatMoney } from '../../utils/format';
+import { formatDateTime, formatMoney } from '../../utils/format';
+import { generateDocumentPdf } from '../../services/reportService';
 
 const DocumentsView = () => {
   const { role } = usePermissions();
@@ -42,6 +43,8 @@ const DocumentsView = () => {
   const [newType, setNewType] = useState('Quote');
   const [newAmount, setNewAmount] = useState('');
   const [newStatus, setNewStatus] = useState('Pending');
+  const [isPreviewOpen, setIsPreviewOpen] = useState(false);
+  const [previewDoc, setPreviewDoc] = useState<Document | null>(null);
 
   const getTypeLabel = (type: string | undefined) => {
     const t = (type ?? '').toLowerCase();
@@ -125,6 +128,20 @@ const DocumentsView = () => {
     }
   };
 
+  const handlePreview = (doc: Document) => {
+    setPreviewDoc(doc);
+    setIsPreviewOpen(true);
+  };
+
+  const handleDownload = (doc: Document) => {
+    try {
+      generateDocumentPdf(doc);
+      toast.success('Descarga iniciada');
+    } catch {
+      toast.error('No se pudo descargar el documento');
+    }
+  };
+
   const safeDocs = Array.isArray(documents) ? documents : [];
   const pendingDocs = safeDocs.filter(d => (d?.status ?? '').toLowerCase() === 'pending' || (d?.status ?? '').toLowerCase() === 'pendiente').length;
   const paidMothAmount = safeDocs.filter(d => (d?.status ?? '').toLowerCase() === 'paid' || (d?.status ?? '').toLowerCase() === 'pagado').reduce((acc, d) => acc + (Number(d?.amount) || 0), 0);
@@ -180,10 +197,18 @@ const DocumentsView = () => {
       align: 'right',
       accessor: (doc: Document) => (
         <div className="flex items-center justify-end gap-1">
-          <button className="p-1.5 text-surface-muted hover:text-primary-600 rounded-md transition-colors" title="Vista previa">
+          <button
+            onClick={() => handlePreview(doc)}
+            className="p-1.5 text-surface-muted hover:text-primary-600 rounded-md transition-colors"
+            title="Vista previa"
+          >
             <Eye size={16} />
           </button>
-          <button className="p-1.5 text-surface-muted hover:text-primary-600 rounded-md transition-colors" title="Descargar">
+          <button
+            onClick={() => handleDownload(doc)}
+            className="p-1.5 text-surface-muted hover:text-primary-600 rounded-md transition-colors"
+            title="Descargar"
+          >
             <Download size={16} />
           </button>
           {canDeleteDocument && (
@@ -318,6 +343,69 @@ const DocumentsView = () => {
             <Button variant="primary" type="submit" isLoading={isSubmitting}>Crear documento</Button>
           </div>
         </form>
+      </Modal>
+
+      <Modal
+        isOpen={isPreviewOpen}
+        onClose={() => { setIsPreviewOpen(false); setPreviewDoc(null); }}
+        title={previewDoc?.name ? `Vista previa: ${previewDoc.name}` : 'Vista previa'}
+        maxWidth="max-w-2xl"
+      >
+        {previewDoc && (
+          <div className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-1">
+                <div className="text-[10px] font-bold uppercase tracking-wider text-surface-muted">Cliente</div>
+                <div className="text-sm text-surface-text">
+                  {previewDoc.client_name || (previewDoc.client_id ? `ID: #${previewDoc.client_id}` : 'Sin cliente')}
+                </div>
+              </div>
+              <div className="space-y-1">
+                <div className="text-[10px] font-bold uppercase tracking-wider text-surface-muted">Importe</div>
+                <div className="text-sm font-semibold text-surface-text tabular-nums">
+                  {formatMoney(Number(previewDoc.amount) || 0)}
+                </div>
+              </div>
+              <div className="space-y-1">
+                <div className="text-[10px] font-bold uppercase tracking-wider text-surface-muted">Tipo</div>
+                <div className="text-sm text-surface-text">{getTypeLabel(previewDoc.type)}</div>
+              </div>
+              <div className="space-y-1">
+                <div className="text-[10px] font-bold uppercase tracking-wider text-surface-muted">Estado</div>
+                <div>
+                  <Badge variant={(() => {
+                    const s = (previewDoc.status ?? '').toLowerCase();
+                    return (s === 'paid' || s === 'pagado' || s === 'signed' || s === 'firmado') ? 'success'
+                      : (s === 'pending' || s === 'pendiente') ? 'warning'
+                        : 'secondary';
+                  })()}>
+                    {getStatusLabel(previewDoc.status)}
+                  </Badge>
+                </div>
+              </div>
+              <div className="space-y-1">
+                <div className="text-[10px] font-bold uppercase tracking-wider text-surface-muted">Creado</div>
+                <div className="text-sm text-surface-text">
+                  {previewDoc.created_at ? formatDateTime(previewDoc.created_at) : '—'}
+                </div>
+              </div>
+              <div className="space-y-1">
+                <div className="text-[10px] font-bold uppercase tracking-wider text-surface-muted">ID</div>
+                <div className="text-sm text-surface-text tabular-nums">#{previewDoc.id}</div>
+              </div>
+            </div>
+
+            <div className="pt-4 flex justify-end gap-3">
+              <Button variant="outline" onClick={() => { setIsPreviewOpen(false); setPreviewDoc(null); }}>
+                Cerrar
+              </Button>
+              <Button variant="primary" onClick={() => handleDownload(previewDoc)}>
+                <Download size={16} className="mr-2" />
+                Descargar PDF
+              </Button>
+            </div>
+          </div>
+        )}
       </Modal>
     </div>
   );
