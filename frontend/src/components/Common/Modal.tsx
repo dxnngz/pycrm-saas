@@ -15,6 +15,11 @@ const Modal = ({ isOpen, onClose, title, children, type = 'default', maxWidth = 
     const titleId = useId();
     const containerRef = useRef<HTMLDivElement | null>(null);
     const previouslyFocusedRef = useRef<HTMLElement | null>(null);
+    const onCloseRef = useRef(onClose);
+
+    useEffect(() => {
+        onCloseRef.current = onClose;
+    }, [onClose]);
 
     useEffect(() => {
         if (!isOpen) return;
@@ -35,7 +40,7 @@ const Modal = ({ isOpen, onClose, title, children, type = 'default', maxWidth = 
         const onKeyDown = (e: KeyboardEvent) => {
             if (e.key === 'Escape') {
                 e.preventDefault();
-                onClose();
+                onCloseRef.current();
                 return;
             }
             if (e.key !== 'Tab') return;
@@ -78,7 +83,7 @@ const Modal = ({ isOpen, onClose, title, children, type = 'default', maxWidth = 
             document.body.style.overflow = prevOverflow;
             previouslyFocusedRef.current?.focus?.();
         };
-    }, [isOpen, onClose]);
+    }, [isOpen]);
 
     return (
         <AnimatePresence>
