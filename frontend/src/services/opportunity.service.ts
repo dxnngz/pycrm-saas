@@ -58,29 +58,53 @@ export const opportunityService = {
         ).then(handleResponse);
     },
 
-    create: (opportunity: Partial<Opportunity>): Promise<Opportunity> =>
-        customFetch('/opportunities', {
+    create: (opportunity: Partial<Opportunity>): Promise<Opportunity> => {
+        const transportStatus =
+            opportunity.status === 'ganado'
+                ? 'ganada'
+                : opportunity.status === 'perdido'
+                    ? 'perdida'
+                    : opportunity.status;
+
+        return customFetch('/opportunities', {
             method: 'POST',
             headers: getHeaders(),
-            body: JSON.stringify(opportunity),
-        }).then(handleResponse),
+            body: JSON.stringify({ ...opportunity, status: transportStatus }),
+        }).then(handleResponse);
+    },
 
-    update: (id: number, opportunity: Partial<Opportunity> & { version?: number }): Promise<Opportunity> =>
-        customFetch(`/opportunities/${id}`, {
+    update: (id: number, opportunity: Partial<Opportunity> & { version?: number }): Promise<Opportunity> => {
+        const transportStatus =
+            opportunity.status === 'ganado'
+                ? 'ganada'
+                : opportunity.status === 'perdido'
+                    ? 'perdida'
+                    : opportunity.status;
+
+        return customFetch(`/opportunities/${id}`, {
             method: 'PATCH',
             headers: getHeaders(),
-            body: JSON.stringify(opportunity),
-        }).then(handleResponse),
+            body: JSON.stringify({ ...opportunity, status: transportStatus }),
+        }).then(handleResponse);
+    },
 
     updateStatus: (
         id: number,
         payload: { status: string; lost_reason?: string; lost_reason_detail?: string }
-    ): Promise<Opportunity> =>
-        customFetch(`/opportunities/${id}/status`, {
+    ): Promise<Opportunity> => {
+        const transportStatus =
+            payload.status === 'ganado'
+                ? 'ganada'
+                : payload.status === 'perdido'
+                    ? 'perdida'
+                    : payload.status;
+
+        return customFetch(`/opportunities/${id}/status`, {
             method: 'PATCH',
             headers: getHeaders(),
-            body: JSON.stringify(payload),
-        }).then(handleResponse),
+            body: JSON.stringify({ ...payload, status: transportStatus }),
+        }).then(handleResponse);
+    },
 
     delete: (id: number): Promise<{ message: string }> =>
         customFetch(`/opportunities/${id}`, {
