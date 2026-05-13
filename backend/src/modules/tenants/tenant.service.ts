@@ -72,6 +72,26 @@ const normalizePipelineStages = (value: unknown): PipelineStage[] => {
     return Array.from(dedup.values()).sort((a, b) => a.order - b.order);
 };
 
+const ensureRequiredPipelineStages = (stages: PipelineStage[]): PipelineStage[] => {
+    if (!Array.isArray(stages) || stages.length === 0) return DEFAULT_PIPELINE_STAGES;
+
+    const hasOpen = stages.some((s) => s.category === 'open');
+    const hasWon = stages.some((s) => s.category === 'won');
+    const hasLost = stages.some((s) => s.category === 'lost');
+    if (hasOpen && hasWon && hasLost) return stages;
+
+    const byId = new Map<string, PipelineStage>();
+    for (const s of stages) byId.set(s.id, s);
+
+    for (const def of DEFAULT_PIPELINE_STAGES) {
+        if (def.category === 'open' && !hasOpen) byId.set(def.id, def);
+        if (def.category === 'won' && !hasWon) byId.set(def.id, def);
+        if (def.category === 'lost' && !hasLost) byId.set(def.id, def);
+    }
+
+    return Array.from(byId.values()).sort((a, b) => a.order - b.order);
+};
+
 const coerceTenantId = (tenantId: unknown): number => {
     const tid = Number(tenantId);
     if (!tid || Number.isNaN(tid)) {
@@ -106,7 +126,7 @@ export class TenantService {
         });
         const settings = (tenant?.settings || {}) as Record<string, unknown>;
         const stages = normalizePipelineStages((settings as any).pipelineStages);
-        return stages.length > 0 ? stages : DEFAULT_PIPELINE_STAGES;
+        return ensureRequiredPipelineStages(stages);
     }
 
     async getPipelineStatusSets(tenantId: number): Promise<{ open: string[]; won: string[]; lost: string[]; closed: string[]; all: string[] }> {

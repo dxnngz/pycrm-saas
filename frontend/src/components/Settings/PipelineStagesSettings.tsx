@@ -37,6 +37,26 @@ const normalizeStages = (value: unknown): PipelineStage[] => {
     return Array.from(dedup.values()).sort((a, b) => a.order - b.order);
 };
 
+const ensureRequiredStages = (stages: PipelineStage[]): PipelineStage[] => {
+    if (!Array.isArray(stages) || stages.length === 0) return DEFAULT_PIPELINE_STAGES;
+
+    const hasOpen = stages.some((s) => s.category === 'open');
+    const hasWon = stages.some((s) => s.category === 'won');
+    const hasLost = stages.some((s) => s.category === 'lost');
+    if (hasOpen && hasWon && hasLost) return stages;
+
+    const byId = new Map<string, PipelineStage>();
+    for (const s of stages) byId.set(s.id, s);
+
+    for (const def of DEFAULT_PIPELINE_STAGES) {
+        if (def.category === 'open' && !hasOpen) byId.set(def.id, def);
+        if (def.category === 'won' && !hasWon) byId.set(def.id, def);
+        if (def.category === 'lost' && !hasLost) byId.set(def.id, def);
+    }
+
+    return Array.from(byId.values()).sort((a, b) => a.order - b.order);
+};
+
 const reindex = (stages: PipelineStage[]) =>
     stages.map((s, idx) => ({ ...s, order: (idx + 1) * 10 }));
 
@@ -47,7 +67,7 @@ const PipelineStagesSettings = () => {
     const settings = (data?.settings || {}) as Record<string, unknown>;
     const initialStages = useMemo(() => {
         const items = normalizeStages((settings as any).pipelineStages);
-        return items.length > 0 ? items : DEFAULT_PIPELINE_STAGES;
+        return ensureRequiredStages(items);
     }, [settings]);
 
     const [stages, setStages] = useState<PipelineStage[]>(initialStages);
@@ -116,9 +136,17 @@ const PipelineStagesSettings = () => {
 
     const save = async () => {
         const normalized = normalizeStages(stages);
+        const finalStages = ensureRequiredStages(normalized);
+        const hasOpen = finalStages.some((s) => s.category === 'open');
+        const hasWon = finalStages.some((s) => s.category === 'won');
+        const hasLost = finalStages.some((s) => s.category === 'lost');
+        if (!hasOpen || !hasWon || !hasLost) {
+            toast.error('Debe existir al menos 1 etapa abierta, 1 ganada y 1 perdida.');
+            return;
+        }
         const nextSettings: Record<string, unknown> = {
             ...settings,
-            pipelineStages: normalized.length > 0 ? normalized : DEFAULT_PIPELINE_STAGES
+            pipelineStages: finalStages
         };
         await updateMutation.mutateAsync(nextSettings);
     };
@@ -204,7 +232,12 @@ const PipelineStagesSettings = () => {
                             <Button variant="outline" size="sm" onClick={() => moveStage(s.id, 1)} disabled={idx === stages.length - 1}>
                                 Bajar
                             </Button>
-                            <Button variant="outline" size="sm" onClick={() => removeStage(s.id)} disabled={stages.length <= 1}>
+                            <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => removeStage(s.id)}
+                                disabled={stages.length <= 3 || stages.filter((x) => x.category === s.category).length <= 1}
+                            >
                                 Quitar
                             </Button>
                         </div>
@@ -222,4 +255,3 @@ const PipelineStagesSettings = () => {
 };
 
 export default PipelineStagesSettings;
-

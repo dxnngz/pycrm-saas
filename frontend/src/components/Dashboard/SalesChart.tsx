@@ -23,6 +23,8 @@ const getCssVar = (name: string, fallbacks: { light: string; dark: string }) => 
 
 const SalesChart = ({ data }: SalesChartProps) => {
     const safeData = Array.isArray(data) ? data : [];
+    const isEmpty = safeData.length === 0;
+    const allZero = !isEmpty && safeData.every((d) => Number(d.sales) === 0);
     
     const [theme, setTheme] = useState(() => ({
         primary: getCssVar('--color-primary-500', { light: '#0ea5e9', dark: '#0ea5e9' }),
@@ -54,6 +56,13 @@ const SalesChart = ({ data }: SalesChartProps) => {
     return (
         <div className="w-full">
             <div className="w-full h-[340px] relative rounded-lg overflow-hidden">
+                {(isEmpty || allZero) && (
+                    <div className="absolute inset-0 z-10 flex items-center justify-center pointer-events-none">
+                        <div className="px-4 py-2 rounded-xl bg-surface-card/80 border border-surface-border text-xs font-bold text-surface-muted uppercase tracking-wider">
+                            Sin ventas en este periodo
+                        </div>
+                    </div>
+                )}
                 <ResponsiveContainer width="100%" height={340} debounce={100}>
                     <AreaChart data={safeData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
                         <defs>
