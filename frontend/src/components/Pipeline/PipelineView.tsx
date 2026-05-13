@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback, memo } from 'react';
 import { DragDropContext, Droppable, Draggable, type DropResult } from '@hello-pangea/dnd';
+import { useNavigate } from 'react-router-dom';
 import {
     MoreVertical,
     Plus,
@@ -27,6 +28,7 @@ import { Input } from '../UI/Input';
 import { Button } from '../UI/Button';
 import { Badge } from '../UI/Badge';
 import { Select } from '../UI/Select';
+import { Dropdown } from '../UI/Dropdown';
 import { toast } from 'sonner';
 import { formatMoney } from '../../utils/format';
 
@@ -130,6 +132,7 @@ const OpportunityCard = memo(({
 OpportunityCard.displayName = 'OpportunityCard';
 
 const PipelineView = () => {
+    const navigate = useNavigate();
     const [search, setSearch] = useState('');
     const [debouncedSearch, setDebouncedSearch] = useState('');
     const { user } = useAuth();
@@ -548,9 +551,35 @@ const PipelineView = () => {
                                         {formatMoney(Number(amountByStatus[column.id] || 0), { maximumFractionDigits: 0 })}
                                     </span>
                                 </div>
-                                <button className="text-surface-muted hover:text-surface-text transition-colors">
-                                    <MoreVertical size={16} />
-                                </button>
+                                <Dropdown
+                                    trigger={(
+                                        <button
+                                            type="button"
+                                            className="text-surface-muted hover:text-surface-text transition-colors"
+                                            aria-label="Opciones de etapa"
+                                        >
+                                            <MoreVertical size={16} />
+                                        </button>
+                                    )}
+                                    options={[
+                                        {
+                                            id: focusStageId === column.id ? 'show-all' : 'focus-stage',
+                                            label: focusStageId === column.id ? 'Ver todas las etapas' : 'Ver solo esta etapa',
+                                            icon: <Target size={14} />
+                                        },
+                                        {
+                                            id: 'edit-stages',
+                                            label: 'Editar etapas',
+                                            icon: <Briefcase size={14} />
+                                        }
+                                    ]}
+                                    onSelect={(opt) => {
+                                        if (opt.id === 'focus-stage') setFocusStageId(column.id);
+                                        if (opt.id === 'show-all') setFocusStageId('');
+                                        if (opt.id === 'edit-stages') navigate('/settings?tab=sales');
+                                    }}
+                                    align="right"
+                                />
                             </div>
 
                             <Droppable droppableId={column.id}>
